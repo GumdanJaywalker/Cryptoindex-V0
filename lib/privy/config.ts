@@ -81,7 +81,7 @@ export function useSupabaseWithPrivy() {
         },
         credentials: 'include', // Include cookies for authentication
         body: JSON.stringify({
-          privyUser: user // Send the full Privy user object
+          privyUser: user // Send the full Privy user object with linkedAccounts
         })
       });
 
@@ -92,6 +92,12 @@ export function useSupabaseWithPrivy() {
       }
 
       const result = await response.json();
+      console.log('✅ User sync successful:', result);
+      console.log('📊 Database entries:', {
+        user: result.user,
+        wallets: result.syncedWallets,
+        totalWallets: result.syncedWallets?.length || 0
+      });
       return result.user;
     } catch (error) {
       console.error('Error in createOrUpdateUser:', error);
