@@ -437,16 +437,24 @@ export default function TestWalletsPage() {
                 onClick={() => {
                   console.log('=== DATABASE VERIFICATION ===');
                   console.log('Current User ID:', user?.id);
-                  console.log('Expected in users table:', {
+                  console.log('Expected in users table (cleaned up):', {
                     privy_user_id: user?.id,
                     auth_type: user?.email?.address ? 'email' : 'wallet',
                     email: user?.email?.address || null,
-                    wallet_address: user?.wallet?.address || null,
-                    wallet_type: user?.wallet?.walletClientType || 'privy'
+                    // Removed fields: email_verified, wallet_address, wallet_type
+                    last_login: 'timestamp',
+                    is_active: true
                   });
                   
                   const walletCount = user?.linkedAccounts?.filter(acc => acc.type === 'wallet').length || 0;
-                  console.log('Expected in user_wallets table:', walletCount, 'wallet entries');
+                  console.log('Expected in user_wallets table:', walletCount, 'wallet entries with improved structure:');
+                  user?.linkedAccounts?.filter(acc => acc.type === 'wallet').forEach((wallet, index) => {
+                    console.log(`  ${index + 1}. Address: ${wallet.address?.slice(0,6)}...${wallet.address?.slice(-4)}`);
+                    console.log(`     - Network: ${wallet.chainType}`);
+                    console.log(`     - Type: ${wallet.connectorType === 'embedded' ? 'embedded' : 'external'}`);
+                    console.log(`     - Provider: ${wallet.walletClientType}`);
+                    console.log(`     - Privy ID: ${wallet.id || 'N/A'}`);
+                  });
                   
                   alert(`Database Verification:\n\nUser ID: ${user?.id}\nAuth Type: ${user?.email?.address ? 'Email' : 'Wallet'}\nExpected Wallets: ${walletCount}\n\nCheck browser console for detailed info.`);
                 }}
