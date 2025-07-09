@@ -1,4 +1,5 @@
 import { PrivyProvider, PrivyClientConfig } from '@privy-io/react-auth';
+import { mainnet, arbitrum, polygon, base, optimism } from 'viem/chains';
 
 // Privy configuration
 export const privyConfig: PrivyClientConfig = {
@@ -15,9 +16,13 @@ export const privyConfig: PrivyClientConfig = {
     allowedDomains: undefined,
   },
   
-  // Configure supported wallets
+  // Configure supported chains
   supportedChains: [
-    // Add your supported chains here
+    mainnet,     // Ethereum Mainnet
+    arbitrum,    // Arbitrum One
+    polygon,     // Polygon
+    base,        // Base
+    optimism,    // Optimism
   ],
   
   // Configure appearance

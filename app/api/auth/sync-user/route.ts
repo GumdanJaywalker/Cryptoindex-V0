@@ -2,6 +2,37 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth'
 import { supabaseAdmin } from '@/lib/supabase/client'
 
+// Chain ID to network name mapping
+const CHAIN_ID_TO_NETWORK: { [key: number]: string } = {
+  1: 'ethereum',
+  42161: 'arbitrum',
+  137: 'polygon', 
+  8453: 'base',
+  10: 'optimism',
+  // Solana는 chain ID가 없으므로 별도 처리
+}
+
+// Helper function to get network name from chain info
+function getNetworkName(chainType: string, chainId?: number): string {
+  // Solana의 경우
+  if (chainType === 'solana') {
+    return 'solana';
+  }
+  
+  // EVM 체인의 경우 chain ID로 매핑
+  if (chainId && CHAIN_ID_TO_NETWORK[chainId]) {
+    return CHAIN_ID_TO_NETWORK[chainId];
+  }
+  
+  // chainType이 있으면 그대로 사용
+  if (chainType) {
+    return chainType.toLowerCase();
+  }
+  
+  // 기본값
+  return 'ethereum';
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 sync-user API called');
@@ -28,14 +59,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Privy 사용자 데이터를 Supabase 형식으로 변환
+    // auth_type 결정 로직 개선
+    // 이메일이 있으면 email 사용자, 없으면 wallet 사용자
+    const isEmailUser = !!(privyUser.email?.address);
+    const authType = isEmailUser ? 'email' : 'wallet';
+    
+    console.log('🔍 Auth type detection:', {
+      hasEmail: !!privyUser.email?.address,
+      hasPrimaryWallet: !!privyUser.wallet?.address,
+      linkedAccountsCount: privyUser.linkedAccounts?.length || 0,
+      detectedAuthType: authType
+    });
+
+    // Privy 사용자 데이터를 Supabase 형식으로 변환 (정리된 필드)
     const userData = {
       privy_user_id: privyUser.id,
-      auth_type: privyUser.wallet?.address ? 'wallet' as const : 'email' as const,
+      auth_type: authType,
       email: privyUser.email?.address || null,
-      email_verified: privyUser.email?.verified || false,
-      wallet_address: privyUser.wallet?.address || null,
-      wallet_type: privyUser.wallet?.walletClientType || 'privy',
+      // email_verified, wallet_address, wallet_type 필드 제거
       last_login: new Date().toISOString(),
       is_active: true,
     }
@@ -78,6 +119,7 @@ export async function POST(request: NextRequest) {
           type: account.type,
           address: account.address,
           chainType: account.chainType,
+          chainId: account.chainId,
           walletClientType: account.walletClientType,
           connectorType: account.connectorType,
           id: account.id,
@@ -99,9 +141,14 @@ export async function POST(request: NextRequest) {
             return;
           }
           
+          // 정확한 네트워크 감지 사용
+          const networkName = getNetworkName(account.chainType, account.chainId);
+          
           allUserWallets.push({
             address: account.address,
             chainType: account.chainType,
+            chainId: account.chainId,
+            networkName: networkName,
             walletClientType: account.walletClientType,
             walletType: account.connectorType === 'embedded' ? 'embedded' : 'external',
             source: 'linkedAccounts',
@@ -111,8 +158,14 @@ export async function POST(request: NextRequest) {
       })
       
       console.log(`✅ Found ${allUserWallets.length} valid wallets for user ${privyUser.id}:`);
-      allUserWallets.forEach(wallet => {
-        console.log(`  - ${wallet.walletType} ${wallet.chainType} ${wallet.walletClientType}: ${wallet.address}`);
+      allUserWallets.forEach((wallet, index) => {
+        console.log(`  ${index + 1}. ${wallet.walletType} ${wallet.networkName} ${wallet.walletClientType}: ${wallet.address.slice(0,6)}...${wallet.address.slice(-4)}`);
+        console.log(`     - Chain Type: ${wallet.chainType}`);
+        console.log(`     - Chain ID: ${wallet.chainId || 'N/A'}`);
+        console.log(`     - Network: ${wallet.networkName}`);
+        console.log(`     - Type: ${wallet.walletType}`);
+        console.log(`     - Provider: ${wallet.walletClientType}`);
+        console.log(`     - Privy ID: ${wallet.privyWalletId || 'N/A'}`);
       });
     } else {
       console.log(`⚠️ No linkedAccounts found for user ${privyUser.id}`);
@@ -133,6 +186,9 @@ export async function POST(request: NextRequest) {
           user_id: createdUser.id,
           wallet_address: wallet.address,
           wallet_provider: wallet.walletClientType || 'unknown',
+          network: wallet.networkName || 'ethereum', // 개선된 네트워크 감지 사용
+          wallet_type: wallet.walletType || 'external', // external 또는 embedded
+          privy_wallet_id: wallet.privyWalletId || null, // embedded 지갑의 Privy ID
           is_primary: i === 0, // 첫 번째 지갑을 primary로 설정
           created_at: new Date().toISOString()
         }
