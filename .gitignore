@@ -100,3 +100,40 @@ Thumbs.db
 # Supabase
 .branches
 .temp/
+
+# Environment files (IMPORTANT: Keep .env out of git)
+.env
+.env.example.local
+
+# Test files and directories
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.test.jsx
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.jsx
+*.spec.tsx
+
+# Development files
+docs/
+debug/
+.debug/
+dist/
+build/
+
+# TypeScript build
+*.tsbuildinfo
+
+# Additional build outputs
+out/
+
+# Vercel
+.vercel
+
+# Backup files
+*.backup
+*.bak

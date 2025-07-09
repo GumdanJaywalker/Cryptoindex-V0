@@ -3,32 +3,44 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { usePrivy, useLogout } from '@privy-io/react-auth'
+import { useSupabaseWithPrivy } from '@/lib/privy/config'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { LogOut, Mail, Shield, User } from 'lucide-react'
+import { LogOut, Mail, Shield, User, Wallet } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { user, authenticated, loading, logout } = useAuth()
+  const { user, authenticated, ready } = usePrivy()
+  const { logout } = useLogout()
+  const { createOrUpdateUser } = useSupabaseWithPrivy()
   const router = useRouter()
 
   // 인증되지 않은 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
-    if (!loading && !authenticated) {
-      router.push('/login')
+    if (ready && !authenticated) {
+      router.push('/privy-login')
     }
-  }, [authenticated, loading, router])
+  }, [authenticated, ready, router])
+
+  // 사용자 데이터를 Supabase에 동기화
+  useEffect(() => {
+    if (authenticated && user) {
+      createOrUpdateUser();
+    }
+  }, [authenticated, user, createOrUpdateUser])
 
   const handleLogout = async () => {
-    const result = await logout()
-    if (result.success) {
-      router.push('/login')
+    try {
+      await logout()
+      router.push('/privy-login')
+    } catch (error) {
+      // Handle logout error silently
     }
   }
 
-  if (loading) {
+  if (!ready) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -53,11 +65,13 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-2">
                 <Avatar>
                   <AvatarFallback>
-                    {user.email ? user.email[0].toUpperCase() : 'U'}
+                    {user.email?.address ? user.email.address[0].toUpperCase() : 
+                     user.wallet?.address ? user.wallet.address.slice(0, 2) : 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium text-gray-700">
-                  {user.email || '사용자'}
+                  {user.email?.address || 
+                   (user.wallet?.address ? `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}` : '사용자')}
                 </span>
               </div>
               <Button variant="outline" onClick={handleLogout}>
@@ -89,8 +103,8 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">인증 방식</span>
-                <Badge variant={user.authType === 'email' ? 'default' : 'secondary'}>
-                  {user.authType === 'email' ? '이메일' : '지갑'}
+                <Badge variant={user.email ? 'default' : 'secondary'}>
+                  {user.email ? '이메일' : '지갑'}
                 </Badge>
               </div>
               
@@ -99,22 +113,32 @@ export default function DashboardPage() {
                   <span className="text-sm font-medium">이메일</span>
                   <div className="flex items-center space-x-2">
                     <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm">{user.email}</span>
+                    <span className="text-sm">{user.email.address}</span>
+                  </div>
+                </div>
+              )}
+              
+              {user.wallet && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">지갑</span>
+                  <div className="flex items-center space-x-2">
+                    <Wallet className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm">{user.wallet.address.slice(0, 6)}...{user.wallet.address.slice(-4)}</span>
                   </div>
                 </div>
               )}
               
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">이메일 인증</span>
-                <Badge variant={user.emailVerified ? 'success' : 'destructive'}>
-                  {user.emailVerified ? '인증됨' : '미인증'}
+                <Badge variant={user.email?.verified ? 'success' : 'destructive'}>
+                  {user.email?.verified ? '인증됨' : '미인증'}
                 </Badge>
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">계정 상태</span>
-                <Badge variant={user.isActive ? 'success' : 'destructive'}>
-                  {user.isActive ? '활성' : '비활성'}
+                <Badge variant="success">
+                  활성
                 </Badge>
               </div>
             </CardContent>
