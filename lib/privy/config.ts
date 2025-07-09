@@ -3,10 +3,17 @@ import { PrivyProvider, PrivyClientConfig } from '@privy-io/react-auth';
 // Privy configuration
 export const privyConfig: PrivyClientConfig = {
   // Your actual Privy App ID
-  appId: 'cmcvc4ho5009rky0nfr3cgnms',
+  appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmcvc4ho5009rky0nfr3cgnms',
   
   // Configure supported login methods
   loginMethods: ['email', 'wallet'],
+  
+  // Email configuration
+  emailConfig: {
+    enableEmailLogin: true,
+    // Allow any email domain (remove if you want specific domains)
+    allowedDomains: undefined,
+  },
   
   // Configure supported wallets
   supportedChains: [
@@ -63,31 +70,29 @@ export function useSupabaseWithPrivy() {
   }, [ready, authenticated, user]);
 
   const createOrUpdateUser = async () => {
-    if (!supabase || !user) return null;
+    if (!user) return null;
 
     try {
-      const userData = {
-        privy_user_id: user.id,
-        auth_type: user.wallet?.address ? 'wallet' : 'email',
-        email: user.email?.address || null,
-        email_verified: user.email?.verified || false,
-        wallet_address: user.wallet?.address || null,
-        wallet_type: user.wallet?.walletClientType || null,
-        last_login: new Date().toISOString(),
-        is_active: true,
-      };
+      // Call the server-side API to sync user data
+      const response = await fetch('/api/auth/sync-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify({
+          privyUser: user // Send the full Privy user object
+        })
+      });
 
-      const { data, error } = await supabase
-        .from('users')
-        .upsert(userData, { onConflict: 'privy_user_id' })
-        .select();
-
-      if (error) {
-        console.error('Error creating/updating user:', error);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error syncing user:', errorData);
         return null;
       }
 
-      return data[0];
+      const result = await response.json();
+      return result.user;
     } catch (error) {
       console.error('Error in createOrUpdateUser:', error);
       return null;

@@ -1,6 +1,5 @@
 // app/api/auth/logout/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteSession, deleteAllUserSessions } from '@/lib/auth/session'
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth'
 
 export async function POST(request: NextRequest) {
