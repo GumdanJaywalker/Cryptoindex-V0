@@ -62,6 +62,15 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			cryptoindex: {
+  				'primary': '#555879',
+  				'medium': '#98A1BC',
+  				'accent': '#898AC4',
+  				'highlight': '#C0C9EE',
+  				'soft': '#A2AADB',
+  				'warm': '#DED3C4',
+  				'cream': '#F4EBD3'
   			}
   		},
   		borderRadius: {
@@ -85,11 +94,67 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'gradient': {
+  				'0%, 100%': {
+  					'background-size': '200% 200%',
+  					'background-position': 'left center'
+  				},
+  				'50%': {
+  					'background-size': '200% 200%',
+  					'background-position': 'right center'
+  				}
+  			},
+  			'float': {
+  				'0%, 100%': { transform: 'translateY(0px)' },
+  				'50%': { transform: 'translateY(-10px)' }
+  			},
+  			'blur-in': {
+  				'0%': { 
+  					opacity: '0', 
+  					filter: 'blur(10px)',
+  					transform: 'scale(0.9)'
+  				},
+  				'100%': { 
+  					opacity: '1', 
+  					filter: 'blur(0px)',
+  					transform: 'scale(1)'
+  				}
+  			},
+  			'slide-in': {
+  				'0%': { 
+  					opacity: '0', 
+  					transform: 'translateY(20px)'
+  				},
+  				'100%': { 
+  					opacity: '1', 
+  					transform: 'translateY(0px)'
+  				}
+  			},
+  			'fade-in': {
+  				'0%': { opacity: '0' },
+  				'100%': { opacity: '1' }
+  			},
+  			'ripple': {
+  				'0%': { 
+  					transform: 'scale(0)', 
+  					opacity: '1' 
+  				},
+  				'100%': { 
+  					transform: 'scale(4)', 
+  					opacity: '0' 
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'gradient': 'gradient 8s linear infinite',
+  			'float': 'float 3s ease-in-out infinite',
+  			'blur-in': 'blur-in 0.5s ease-out',
+  			'slide-in': 'slide-in 0.4s ease-out',
+  			'fade-in': 'fade-in 0.3s ease-out',
+  			'ripple': 'ripple 0.6s linear'
   		}
   	}
   },
