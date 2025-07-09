@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   email_verified BOOLEAN DEFAULT FALSE,
   
   -- 지갑 사용자용 필드  
-  wallet_address VARCHAR(42) UNIQUE,
+  wallet_address VARCHAR(64) UNIQUE, -- 44자 Solana + 여유분
   wallet_type VARCHAR(20), -- metamask, phantom, keplr, coinbase, okx
   
   -- 공통 필드
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS user_wallets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  wallet_address VARCHAR(42) NOT NULL,
+  wallet_address VARCHAR(64) NOT NULL, -- 44자 Solana + 여유분
   encrypted_private_key TEXT, -- Privy에서 암호화된 개인키
   wallet_provider VARCHAR(20) DEFAULT 'privy',
   is_primary BOOLEAN DEFAULT TRUE,

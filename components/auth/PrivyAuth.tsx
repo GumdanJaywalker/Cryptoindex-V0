@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useLogin, useLogout, usePrivy } from '@privy-io/react-auth';
+import { useLogin, useLogout, usePrivy, useWallets } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, Mail, LogOut } from 'lucide-react';
@@ -11,12 +11,69 @@ export function PrivyAuth() {
   const { login } = useLogin();
   const { logout } = useLogout();
   const { ready, authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
   const { createOrUpdateUser } = useSupabaseWithPrivy();
+
+  // Debug logging for wallet analysis
+  useEffect(() => {
+    if (authenticated && user) {
+      console.log('=== PRIVY USER ANALYSIS ===');
+      console.log('Full user object:', user);
+      console.log('User ID:', user.id);
+      console.log('User wallet (primary):', user.wallet);
+      console.log('User linked accounts:', user.linkedAccounts || 'No linkedAccounts property');
+      
+      // 특별히 embedded wallet 상태 확인
+      if (user.linkedAccounts) {
+        const embeddedWallets = user.linkedAccounts.filter(acc => acc.connectorType === 'embedded');
+        console.log(`🔍 Embedded wallets in linkedAccounts: ${embeddedWallets.length}`);
+        embeddedWallets.forEach((wallet, index) => {
+          console.log(`  Embedded ${index + 1}:`, {
+            address: wallet.address,
+            chainType: wallet.chainType,
+            walletClientType: wallet.walletClientType,
+            connectorType: wallet.connectorType,
+            id: wallet.id,
+            hasAddress: !!wallet.address,
+            hasChainType: !!wallet.chainType,
+            hasWalletClientType: !!wallet.walletClientType
+          });
+        });
+      }
+      
+      console.log('=== WALLETS HOOK ANALYSIS ===');
+      console.log('All wallets:', wallets);
+      console.log('Number of wallets:', wallets.length);
+      wallets.forEach((wallet, index) => {
+        console.log(`Wallet ${index + 1}:`, {
+          address: wallet.address,
+          chainType: wallet.chainType,
+          walletClientType: wallet.walletClientType,
+          connectorType: wallet.connectorType,
+          imported: wallet.imported,
+          delegated: wallet.delegated
+        });
+      });
+      console.log('=== END ANALYSIS ===');
+    }
+  }, [authenticated, user, wallets]);
 
   // Automatically create/update user in Supabase when authenticated
   useEffect(() => {
     if (authenticated && user) {
+      console.log('🔄 Initial sync triggered by authentication');
       createOrUpdateUser();
+      
+      // 일단 여러 번 호출하는 것을 제거하고 하나씩 테스트
+      // setTimeout(() => {
+      //   console.log('🔄 Delayed sync triggered (2 seconds after authentication)');
+      //   createOrUpdateUser();
+      // }, 2000);
+      
+      // setTimeout(() => {
+      //   console.log('🔄 Final delayed sync triggered (5 seconds after authentication)');
+      //   createOrUpdateUser();
+      // }, 5000);
     }
   }, [authenticated, user, createOrUpdateUser]);
 
