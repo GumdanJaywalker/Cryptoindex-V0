@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { PrivyProvider } from '@/components/providers/PrivyProvider'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'CryptoIndex - P2P Cryptocurrency Trading',
+  description: 'Safe and trusted P2P cryptocurrency trading platform with Privy authentication',
 }
 
 export default function RootLayout({
@@ -14,7 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <PrivyProvider>
+          {children}
+        </PrivyProvider>
+      </body>
     </html>
   )
 }
