@@ -1,15 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLogin, useLogout, usePrivy } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, Mail, LogOut } from 'lucide-react';
+import { useSupabaseWithPrivy } from '@/lib/privy/config';
 
 export function PrivyAuth() {
   const { login } = useLogin();
   const { logout } = useLogout();
   const { ready, authenticated, user } = usePrivy();
+  const { createOrUpdateUser } = useSupabaseWithPrivy();
+
+  // Automatically create/update user in Supabase when authenticated
+  useEffect(() => {
+    if (authenticated && user) {
+      createOrUpdateUser();
+    }
+  }, [authenticated, user, createOrUpdateUser]);
 
   if (!ready) {
     return (

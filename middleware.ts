@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
       }
 
       // 웹 페이지는 로그인 페이지로 리다이렉트
-      const loginUrl = new URL('/login', request.url)
+      const loginUrl = new URL('/privy-login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
