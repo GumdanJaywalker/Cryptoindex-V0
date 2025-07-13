@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth'
 import { supabaseAdmin } from '@/lib/supabase/client'
-import { updateUser, userToAuthUser } from '@/lib/auth/user'
 
 // 프로필 업데이트 스키마
 const updateProfileSchema = z.object({
@@ -92,7 +91,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // 인증 확인
-    const authResult = await requireAuth(request)
+    const authResult = await requirePrivyAuth(request)
     if (authResult instanceof NextResponse) {
       return authResult // 인증 실패 시 에러 응답 반환
     }
@@ -129,31 +128,38 @@ export async function PUT(request: NextRequest) {
     }
 
     // 사용자 정보 업데이트
-    const updateResult = await updateUser(user.id, validatedData as any)
-    if (!updateResult.user) {
+    const { data: updatedUser, error: updateError } = await supabaseAdmin
+      .from('users')
+      .update({
+        ...validatedData,
+        email_verified: validatedData.email ? false : undefined
+      })
+      .eq('id', user.id)
+      .select()
+      .single()
+
+    if (updateError || !updatedUser) {
       return NextResponse.json(
         {
           success: false,
-          error: updateResult.error || '프로필 업데이트에 실패했습니다.'
+          error: '프로필 업데이트에 실패했습니다.'
         },
         { status: 500 }
       )
     }
-
-    const updatedAuthUser = userToAuthUser(updateResult.user)
 
     return NextResponse.json(
       {
         success: true,
         message: '프로필이 성공적으로 업데이트되었습니다.',
         user: {
-          id: updatedAuthUser.id,
-          authType: updatedAuthUser.authType,
-          email: updatedAuthUser.email,
-          emailVerified: updatedAuthUser.emailVerified,
-          walletAddress: updatedAuthUser.walletAddress,
-          privyUserId: updatedAuthUser.privyUserId,
-          isActive: updatedAuthUser.isActive
+          id: updatedUser.id,
+          authType: updatedUser.auth_type,
+          email: updatedUser.email,
+          emailVerified: updatedUser.email_verified,
+          walletAddress: updatedUser.wallet_address,
+          privyUserId: updatedUser.privy_user_id,
+          isActive: updatedUser.is_active
         }
       },
       { status: 200 }

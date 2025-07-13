@@ -11,16 +11,10 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               <a
-                href="/login"
-                className="text-gray-700 hover:text-blue-600 transition-colors"
-              >
-                기존 로그인
-              </a>
-              <a
                 href="/privy-login"
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Privy 로그인
+                로그인
               </a>
             </div>
           </div>
