@@ -1,4 +1,5 @@
 import { PrivyProvider, PrivyClientConfig } from '@privy-io/react-auth';
+import { mainnet, arbitrum, polygon, base, optimism } from 'viem/chains';
 
 // Privy configuration
 export const privyConfig: PrivyClientConfig = {
@@ -15,9 +16,13 @@ export const privyConfig: PrivyClientConfig = {
     allowedDomains: undefined,
   },
   
-  // Configure supported wallets
+  // Configure supported chains
   supportedChains: [
-    // Add your supported chains here
+    mainnet,     // Ethereum Mainnet
+    arbitrum,    // Arbitrum One
+    polygon,     // Polygon
+    base,        // Base
+    optimism,    // Optimism
   ],
   
   // Configure appearance
@@ -81,7 +86,7 @@ export function useSupabaseWithPrivy() {
         },
         credentials: 'include', // Include cookies for authentication
         body: JSON.stringify({
-          privyUser: user // Send the full Privy user object
+          privyUser: user // Send the full Privy user object with linkedAccounts
         })
       });
 
@@ -92,6 +97,12 @@ export function useSupabaseWithPrivy() {
       }
 
       const result = await response.json();
+      console.log('✅ User sync successful:', result);
+      console.log('📊 Database entries:', {
+        user: result.user,
+        wallets: result.syncedWallets,
+        totalWallets: result.syncedWallets?.length || 0
+      });
       return result.user;
     } catch (error) {
       console.error('Error in createOrUpdateUser:', error);
