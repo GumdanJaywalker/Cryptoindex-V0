@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:docs.privy.io)",
+      "Bash(rg:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": []
   }

@@ -21,6 +21,7 @@ const PROTECTED_ROUTES = [
 const PUBLIC_ROUTES = [
   '/',
   '/privy-login',
+  '/test-wallets',
   '/api/health'
 ]
 
