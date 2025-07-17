@@ -40,6 +40,8 @@
     "@react-three/drei": "^10.5.0",
     "@react-three/fiber": "9.0.0-alpha.8",
     "@tabler/icons-react": "^3.34.0",
+    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
@@ -74,7 +76,13 @@
     "three": "^0.178.0",
     "three-globe": "^2.43.0",
     "vaul": "^0.9.6",
+<<<<<<< Updated upstream
     "zod": "^3.24.1"
+=======
+    "viem": "^2.31.7",
+    "zod": "^3.24.1",
+    "zustand": "^5.0.6"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/node": "^22",
