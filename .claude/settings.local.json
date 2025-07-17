@@ -5,8 +5,25 @@
       "Bash(find:*)",
       "WebFetch(domain:docs.privy.io)",
       "Bash(rg:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(pnpm run:*)",
+      "mcp__sequential-thinking__sequentialthinking"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "notionApi",
+    "memory",
+    "sequential-thinking",
+    "puppeteer",
+    "supabase-mcp-server",
+    "taskmaster-ai",
+    "mcp-playwright",
+    "fetch",
+    "context7",
+    "filesystem",
+    "@magicuidesign/mcp"
+  ]
 }

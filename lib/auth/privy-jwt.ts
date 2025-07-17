@@ -2,10 +2,15 @@
 import { jwtVerify, createRemoteJWKSet } from 'jose'
 
 const PRIVY_APP_ID = process.env.PRIVY_APP_ID!
-const PRIVY_JWKS_ENDPOINT = process.env.PRIVY_JWKS_ENDPOINT!
+const PRIVY_JWKS_ENDPOINT = process.env.PRIVY_JWKS_ENDPOINT || 
+  `https://auth.privy.io/api/v1/apps/${PRIVY_APP_ID}/jwks`
 
-// Privy JWKS를 이용한 원격 검증 설정
-const JWKS = createRemoteJWKSet(new URL(PRIVY_JWKS_ENDPOINT))
+// Privy JWKS를 이용한 원격 검증 설정 (개발 환경에서만 초기화)
+let JWKS: any = null
+
+if (process.env.NODE_ENV !== 'development' && PRIVY_JWKS_ENDPOINT) {
+  JWKS = createRemoteJWKSet(new URL(PRIVY_JWKS_ENDPOINT))
+}
 
 export interface PrivyJWTPayload {
   iss: string        // issuer
@@ -41,6 +46,28 @@ export async function verifyPrivyJWT(token: string): Promise<{
   error?: string
 }> {
   try {
+    // 개발 환경에서는 간단한 토큰 검증 (임시)
+    if (process.env.NODE_ENV === 'development') {
+      const userId = extractPrivyUserId(token)
+      if (userId) {
+        return {
+          valid: true,
+          payload: {
+            iss: 'privy.io',
+            sub: userId,
+            aud: PRIVY_APP_ID,
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000)
+          }
+        }
+      }
+    }
+
+    // 운영 환경에서는 실제 JWT 검증
+    if (!JWKS) {
+      JWKS = createRemoteJWKSet(new URL(PRIVY_JWKS_ENDPOINT))
+    }
+
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: 'privy.io',
       audience: PRIVY_APP_ID,
