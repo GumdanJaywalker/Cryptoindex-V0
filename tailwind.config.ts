@@ -144,6 +144,14 @@ const config: Config = {
   					transform: 'scale(4)', 
   					opacity: '0' 
   				}
+  			},
+  			'shimmer': {
+  				'0%': {
+  					'background-position': '-200% center'
+  				},
+  				'100%': {
+  					'background-position': '200% center'
+  				}
   			}
   		},
   		animation: {
@@ -154,7 +162,8 @@ const config: Config = {
   			'blur-in': 'blur-in 0.5s ease-out',
   			'slide-in': 'slide-in 0.4s ease-out',
   			'fade-in': 'fade-in 0.3s ease-out',
-  			'ripple': 'ripple 0.6s linear'
+  			'ripple': 'ripple 0.6s linear',
+  			'shimmer': 'shimmer 2s linear infinite'
   		}
   	}
   },
