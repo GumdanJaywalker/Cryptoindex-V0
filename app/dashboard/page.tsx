@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import RiskMonitor from '@/components/security/RiskMonitor'
 import { LogOut, Mail, Shield, User, Wallet } from 'lucide-react'
 
 export default function DashboardPage() {
@@ -183,6 +184,26 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Risk Monitoring Section */}
+        {user?.wallet?.address && (
+          <div className="mt-8">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">포트폴리오 리스크 모니터링</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Hyperliquid 네트워크에서의 다중 플랫폼 사용량을 모니터링합니다.
+              </p>
+            </div>
+            <RiskMonitor 
+              walletAddress={user.wallet.address}
+              currentPlatformUsage={{
+                marginUsed: 0, // Will be populated when trading is implemented
+                totalBalance: 0,
+                openPositions: 0
+              }}
+            />
+          </div>
+        )}
 
         {/* 최근 활동 */}
         <div className="mt-8">
