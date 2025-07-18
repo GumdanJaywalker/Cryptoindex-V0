@@ -252,6 +252,12 @@ export default function WithdrawalDashboard({ walletAddress, userEmail }: Withdr
         </div>
       </div>
 
+      {/* Behavior Tracker */}
+      <BehaviorTracker 
+        enabled={true}
+        onAnomalyDetected={handleBehaviorAnomalyDetected}
+      />
+
       {/* System Status */}
       <Alert>
         <Activity className="h-4 w-4" />
@@ -271,6 +277,34 @@ export default function WithdrawalDashboard({ walletAddress, userEmail }: Withdr
           )}
         </AlertDescription>
       </Alert>
+
+      {/* Behavior Alerts */}
+      {behaviorAlerts.length > 0 && (
+        <Alert className="border-orange-200 bg-orange-50">
+          <AlertCircle className="h-4 w-4 text-orange-600" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <div className="font-medium text-orange-800">Recent Security Alerts</div>
+              {behaviorAlerts.slice(0, 2).map((alert, index) => (
+                <div key={index} className="text-sm text-orange-700">
+                  <Badge 
+                    variant="outline" 
+                    className={`mr-2 ${alert.severity === 'high' || alert.severity === 'critical' ? 'border-red-300 text-red-800' : 'border-yellow-300 text-yellow-800'}`}
+                  >
+                    {alert.severity.toUpperCase()}
+                  </Badge>
+                  {alert.title}
+                </div>
+              ))}
+              {behaviorAlerts.length > 2 && (
+                <div className="text-xs text-orange-600">
+                  +{behaviorAlerts.length - 2} more alerts
+                </div>
+              )}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
