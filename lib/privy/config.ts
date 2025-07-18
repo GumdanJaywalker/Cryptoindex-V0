@@ -16,13 +16,11 @@ export const privyConfig: PrivyClientConfig = {
     allowedDomains: undefined,
   },
   
-  // Configure supported chains
+  // Configure supported chains (EVM networks only for memecoin index platform)
   supportedChains: [
+    arbitrum,    // Arbitrum One - Primary deposit network
     mainnet,     // Ethereum Mainnet
-    arbitrum,    // Arbitrum One
-    polygon,     // Polygon
-    base,        // Base
-    optimism,    // Optimism
+    // Removed non-EVM networks to ensure compatibility with Hyperliquid
   ],
   
   // Configure appearance
@@ -32,15 +30,18 @@ export const privyConfig: PrivyClientConfig = {
     logo: 'https://your-logo-url.com/logo.png',
   },
   
-  // Configure embedded wallet
+  // Configure embedded wallet (EVM format enforced for Hyperliquid compatibility)
   embeddedWallets: {
     createOnLogin: 'users-without-wallets',
     noPromptOnSignature: false,
+    requireUserPasswordOnCreate: true, // Enhanced security
   },
   
-  // Configure MFA
+  // Configure MFA (Enhanced security for trading platform)
   mfa: {
     noPromptOnMfaRequired: false,
+    enableMfaForEmails: true,     // Enable MFA for email users
+    enableMfaForWallets: true,    // Enable MFA for wallet users
   },
 };
 

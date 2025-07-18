@@ -5,8 +5,26 @@
       "Bash(find:*)",
       "WebFetch(domain:docs.privy.io)",
       "Bash(rg:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:hyperliquid.gitbook.io)",
+      "WebFetch(domain:cryptoindex.com)",
+      "WebFetch(domain:memeindex.com)",
+      "WebFetch(domain:mint-ventures.medium.com)",
+      "WebFetch(domain:app.hyperliquid.xyz)"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "notionApi",
+    "memory",
+    "sequential-thinking",
+    "puppeteer",
+    "supabase-mcp-server",
+    "taskmaster-ai",
+    "mcp-playwright",
+    "fetch",
+    "context7",
+    "filesystem",
+    "@magicuidesign/mcp"
+  ]
 }
