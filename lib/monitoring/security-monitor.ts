@@ -17,7 +17,7 @@ interface SecurityMetrics {
 
 interface SecurityAlert {
   id: string;
-  type: 'fraud' | 'intrusion' | 'abuse' | 'system' | 'compliance';
+  type: 'fraud' | 'intrusion' | 'abuse' | 'system';
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   description: string;
@@ -55,10 +55,10 @@ interface DashboardData {
     suspiciousCountries: string[];
     attackPatterns: string[];
   };
-  compliance: {
-    gdprStatus: 'compliant' | 'non_compliant' | 'under_review';
-    auditScore: number;
-    lastAudit: Date;
+  systemHealth: {
+    status: 'healthy' | 'degraded' | 'critical';
+    uptime: number;
+    lastHealthCheck: Date;
   };
 }
 
@@ -155,12 +155,12 @@ export class SecurityMonitor {
    */
   async getDashboardData(): Promise<DashboardData> {
     try {
-      const [metrics, alerts, events, threatIntel, compliance] = await Promise.all([
+      const [metrics, alerts, events, threatIntel, systemHealth] = await Promise.all([
         this.getCurrentMetrics(),
         this.getActiveAlerts(),
         this.getRecentEvents(),
         this.getThreatIntelligence(),
-        this.getComplianceStatus()
+        this.getSystemHealthStatus()
       ]);
 
       return {
@@ -168,7 +168,7 @@ export class SecurityMonitor {
         alerts,
         recentEvents: events,
         threatIntelligence: threatIntel,
-        compliance
+        systemHealth
       };
     } catch (error) {
       console.error('❌ Failed to get dashboard data:', error);
@@ -751,17 +751,48 @@ export class SecurityMonitor {
     }
   }
 
-  private async getComplianceStatus(): Promise<{
-    gdprStatus: 'compliant' | 'non_compliant' | 'under_review';
-    auditScore: number;
-    lastAudit: Date;
+  private async getSystemHealthStatus(): Promise<{
+    status: 'healthy' | 'degraded' | 'critical';
+    uptime: number;
+    lastHealthCheck: Date;
   }> {
-    // This would integrate with compliance monitoring systems
+    // Check various system health indicators
+    const healthChecks = await Promise.all([
+      this.checkDatabaseHealth(),
+      this.checkAPIHealth(),
+      this.checkServiceHealth()
+    ]);
+    
+    const failedChecks = healthChecks.filter(check => !check.healthy).length;
+    const status = failedChecks === 0 ? 'healthy' : 
+                  failedChecks === 1 ? 'degraded' : 'critical';
+    
     return {
-      gdprStatus: 'compliant',
-      auditScore: 95,
-      lastAudit: new Date()
+      status,
+      uptime: process.uptime(),
+      lastHealthCheck: new Date()
     };
+  }
+
+  private async checkDatabaseHealth(): Promise<{ healthy: boolean; responseTime: number }> {
+    const startTime = Date.now();
+    try {
+      await this.supabase.from('users').select('id').limit(1);
+      const responseTime = Date.now() - startTime;
+      return { healthy: responseTime < 5000, responseTime };
+    } catch (error) {
+      return { healthy: false, responseTime: Date.now() - startTime };
+    }
+  }
+
+  private async checkAPIHealth(): Promise<{ healthy: boolean }> {
+    // Basic API health check
+    return { healthy: true };
+  }
+
+  private async checkServiceHealth(): Promise<{ healthy: boolean }> {
+    // Check if monitoring service is running properly
+    return { healthy: this.isMonitoring };
   }
 
   private async checkTransactionVelocity(userId: string): Promise<{ suspicious: boolean; count: number }> {

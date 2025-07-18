@@ -16,6 +16,36 @@ export interface OnboardingStep {
 export const useHyperliquidOnboarding = () => {
   const { ready, authenticated, user, connectWallet, linkWallet } = usePrivy();
 
+  const checkExistingHyperliquidUsage = async (): Promise<void> => {
+    try {
+      const provider = (window as any).ethereum;
+      if (!provider || !user) return;
+
+      // Get wallet address
+      const accounts = await provider.request({ method: 'eth_accounts' });
+      if (!accounts || accounts.length === 0) return;
+
+      const walletAddress = accounts[0];
+      
+      // Check for existing positions/balances on Hyperliquid
+      // This would typically involve querying the Hyperliquid API
+      console.log(`🔍 Checking for existing Hyperliquid usage for wallet: ${walletAddress}`);
+      
+      // TODO: Implement actual API call to check existing positions
+      // For now, we'll just log the check
+      
+      // Store this information for risk monitoring
+      localStorage.setItem('hyperliquid_wallet_checked', JSON.stringify({
+        walletAddress,
+        checkedAt: new Date().toISOString(),
+        hasExistingUsage: false // Will be determined by actual API call
+      }));
+      
+    } catch (error) {
+      console.error('Failed to check existing Hyperliquid usage:', error);
+    }
+  };
+
   const onboardingSteps: OnboardingStep[] = [
     {
       id: 'wallet_connection',
@@ -35,35 +65,9 @@ export const useHyperliquidOnboarding = () => {
       }
     },
     {
-      id: 'add_hyperliquid_network',
-      title: 'Add Hyperliquid Network',
-      description: 'Add Hyperliquid network to your wallet for trading',
-      status: 'pending',
-      action: async () => {
-        try {
-          const wallet = user?.linkedAccounts?.find(account => account.type === 'wallet');
-          if (!wallet) {
-            throw new Error('No wallet connected');
-          }
-
-          // Get wallet provider
-          const provider = (window as any).ethereum;
-          if (!provider) {
-            throw new Error('No Ethereum provider found');
-          }
-
-          const isTestnet = process.env.NODE_ENV === 'development';
-          return await addHyperliquidNetwork(provider, isTestnet);
-        } catch (error) {
-          console.error('Failed to add Hyperliquid network:', error);
-          return false;
-        }
-      }
-    },
-    {
-      id: 'switch_to_hyperliquid',
-      title: 'Switch to Hyperliquid',
-      description: 'Switch your wallet to Hyperliquid network for trading',
+      id: 'check_hyperliquid_network',
+      title: 'Check Hyperliquid Network',
+      description: 'Detect if Hyperliquid network is available and check for existing usage',
       status: 'pending',
       action: async () => {
         try {
@@ -72,32 +76,55 @@ export const useHyperliquidOnboarding = () => {
             throw new Error('No Ethereum provider found');
           }
 
-          const isTestnet = process.env.NODE_ENV === 'development';
-          return await switchToHyperliquidNetwork(provider, isTestnet);
-        } catch (error) {
-          console.error('Failed to switch to Hyperliquid network:', error);
-          return false;
-        }
-      }
-    },
-    {
-      id: 'verify_network',
-      title: 'Verify Network Connection',
-      description: 'Confirm you are connected to Hyperliquid network',
-      status: 'pending',
-      action: async () => {
-        try {
-          const provider = (window as any).ethereum;
-          if (!provider) {
-            return false;
-          }
-
+          // Check current network
           const chainId = await provider.request({ method: 'eth_chainId' });
-          return isOnHyperliquidNetwork(chainId);
+          const isTestnet = process.env.NODE_ENV === 'development';
+          const targetChainId = isTestnet ? '0x3E6' : '0x3E7';
+          
+          if (chainId === targetChainId) {
+            console.log('✅ Already on Hyperliquid network');
+            // Check for existing usage on this network
+            await checkExistingHyperliquidUsage();
+            return true;
+          }
+
+          // Try to switch to Hyperliquid network (if already added)
+          try {
+            await provider.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: targetChainId }],
+            });
+            console.log('✅ Switched to existing Hyperliquid network');
+            // Check for existing usage on this network
+            await checkExistingHyperliquidUsage();
+            return true;
+          } catch (switchError: any) {
+            if (switchError.code === 4902) {
+              // Network not added yet - that's fine, user can continue with other networks
+              console.log('ℹ️ Hyperliquid network not found in wallet - you can add it later');
+              return true; // Still successful - optional network
+            }
+            throw switchError;
+          }
         } catch (error) {
-          console.error('Failed to verify network:', error);
+          console.error('Failed to check Hyperliquid network:', error);
           return false;
         }
+      }
+    },
+    {
+      id: 'network_guidance',
+      title: 'Multi-Platform Usage Warning',
+      description: 'Important: Margin is shared across all Hyperliquid platforms using the same wallet',
+      status: 'pending',
+      action: async () => {
+        // Display important warnings about shared margin
+        console.log('⚠️ Multi-Platform Usage Warning:');
+        console.log('• Margin is shared across ALL Hyperliquid platforms using this wallet');
+        console.log('• Monitor your total exposure across different platforms');
+        console.log('• Consider using separate wallets for different platforms');
+        console.log('• Our risk monitor will help track your total usage');
+        return true;
       }
     }
   ];

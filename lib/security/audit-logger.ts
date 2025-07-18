@@ -65,7 +65,7 @@ interface AuditQueryOptions {
   includeSystemEvents?: boolean;
 }
 
-interface ComplianceReport {
+interface SecurityReport {
   reportId: string;
   period: {
     start: Date;
@@ -79,11 +79,10 @@ interface ComplianceReport {
     dataAccessEvents: number;
     adminActions: number;
   };
-  compliance: {
-    gdprCompliant: boolean;
-    pciCompliant: boolean;
+  security: {
     auditTrailComplete: boolean;
     retentionPolicyFollowed: boolean;
+    systemHealth: 'healthy' | 'degraded' | 'critical';
   };
   recommendations: string[];
   generatedAt: Date;
@@ -201,7 +200,7 @@ export class AuditLogger {
         network: entry.network
       },
       retentionCategory: 'permanent', // Financial transactions kept permanently
-      complianceTags: ['transaction', 'financial', 'aml'],
+      complianceTags: ['transaction', 'financial'],
       piiFields: entry.fromAddress || entry.toAddress ? ['eventData.fromAddress', 'eventData.toAddress'] : undefined
     });
   }
@@ -506,13 +505,13 @@ export class AuditLogger {
   }
 
   /**
-   * Generate compliance report
+   * Generate security report
    */
-  async generateComplianceReport(
+  async generateSecurityReport(
     startDate: Date,
     endDate: Date,
     userId?: string
-  ): Promise<ComplianceReport> {
+  ): Promise<SecurityReport> {
     try {
       // Query logs for the period
       const { logs, total } = await this.queryLogs({
@@ -539,28 +538,27 @@ export class AuditLogger {
         adminActions: logs.filter(log => log.event_category === 'admin').length
       };
 
-      // Check compliance
-      const compliance = {
-        gdprCompliant: this.checkGdprCompliance(logs),
-        pciCompliant: this.checkPciCompliance(logs),
+      // Check security status
+      const security = {
         auditTrailComplete: this.checkAuditTrailCompleteness(logs, startDate, endDate),
-        retentionPolicyFollowed: await this.checkRetentionPolicy()
+        retentionPolicyFollowed: await this.checkRetentionPolicy(),
+        systemHealth: this.determineSystemHealth(metrics) as 'healthy' | 'degraded' | 'critical'
       };
 
       // Generate recommendations
-      const recommendations = this.generateRecommendations(metrics, compliance, logs);
+      const recommendations = this.generateRecommendations(metrics, security, logs);
 
       return {
         reportId: crypto.randomUUID(),
         period: { start: startDate, end: endDate },
         metrics,
-        compliance,
+        security,
         recommendations,
         generatedAt: new Date()
       };
 
     } catch (error) {
-      console.error('❌ Failed to generate compliance report:', error);
+      console.error('❌ Failed to generate security report:', error);
       throw error;
     }
   }
@@ -646,29 +644,18 @@ export class AuditLogger {
     }
   }
 
-  private checkGdprCompliance(logs: any[]): boolean {
-    // Check for proper PII handling
-    const piiLogs = logs.filter(log => log.pii_fields && log.pii_fields.length > 0);
+  private determineSystemHealth(metrics: any): string {
+    // Determine system health based on metrics
+    let healthScore = 100;
     
-    // Verify PII fields are properly marked
-    for (const log of piiLogs) {
-      if (!log.compliance_tags?.includes('gdpr')) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private checkPciCompliance(logs: any[]): boolean {
-    // Check for proper financial data handling
-    const financialLogs = logs.filter(log => 
-      log.event_category === 'transaction' || 
-      log.compliance_tags?.includes('financial')
-    );
-
-    // Verify all financial transactions are logged
-    return financialLogs.length > 0; // Simplified check
+    // Reduce score based on issues
+    if (metrics.criticalEvents > 10) healthScore -= 30;
+    if (metrics.failedAuthentications > 100) healthScore -= 20;
+    if (metrics.suspiciousTransactions > 50) healthScore -= 25;
+    
+    if (healthScore >= 80) return 'healthy';
+    if (healthScore >= 60) return 'degraded';
+    return 'critical';
   }
 
   private checkAuditTrailCompleteness(logs: any[], startDate: Date, endDate: Date): boolean {
@@ -714,7 +701,7 @@ export class AuditLogger {
 
   private generateRecommendations(
     metrics: any,
-    compliance: any,
+    security: any,
     logs: any[]
   ): string[] {
     const recommendations: string[] = [];
@@ -727,16 +714,18 @@ export class AuditLogger {
       recommendations.push('High number of failed authentications. Consider implementing additional security measures.');
     }
 
-    if (!compliance.gdprCompliant) {
-      recommendations.push('GDPR compliance issues detected. Review PII handling procedures.');
-    }
-
-    if (!compliance.auditTrailComplete) {
+    if (!security.auditTrailComplete) {
       recommendations.push('Gaps in audit trail detected. Investigate logging system reliability.');
     }
 
-    if (!compliance.retentionPolicyFollowed) {
+    if (!security.retentionPolicyFollowed) {
       recommendations.push('Expired logs found. Execute cleanup procedures more frequently.');
+    }
+
+    if (security.systemHealth === 'critical') {
+      recommendations.push('System health is critical. Immediate attention required.');
+    } else if (security.systemHealth === 'degraded') {
+      recommendations.push('System health is degraded. Monitor closely and address issues.');
     }
 
     if (metrics.suspiciousTransactions > 50) {

@@ -1,4 +1,7 @@
 // app/api/auth/2fa/route.ts
+// ⚠️ DEPRECATED: This custom 2FA system has been replaced with Privy's native MFA
+// Use /api/auth/privy-mfa for new implementations
+// This endpoint is kept for backward compatibility only
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
 import { TwoFactorService } from '@/lib/security/2fa-service';

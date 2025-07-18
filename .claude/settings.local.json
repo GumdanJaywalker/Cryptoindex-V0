@@ -10,7 +10,8 @@
       "WebFetch(domain:cryptoindex.com)",
       "WebFetch(domain:memeindex.com)",
       "WebFetch(domain:mint-ventures.medium.com)",
-      "WebFetch(domain:app.hyperliquid.xyz)"
+      "WebFetch(domain:app.hyperliquid.xyz)",
+      "Bash(git add:*)"
     ],
     "deny": []
   },

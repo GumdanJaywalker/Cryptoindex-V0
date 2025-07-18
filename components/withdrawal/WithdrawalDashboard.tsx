@@ -78,7 +78,7 @@ export default function WithdrawalDashboard({ walletAddress, userEmail }: Withdr
           body: JSON.stringify({ action: 'statistics' })
         }),
         fetch('/api/withdrawal/limits?action=summary'),
-        fetch('/api/auth/2fa?action=status'),
+        fetch('/api/auth/privy-mfa?action=status'),
         fetch('/api/withdrawal/monitor?action=stats')
       ]);
 
@@ -100,9 +100,9 @@ export default function WithdrawalDashboard({ walletAddress, userEmail }: Withdr
         const userStatusData = await userStatusRes.json();
         if (userStatusData.success) {
           setUserStatus({
-            has2FA: userStatusData.twoFactor.enabled,
+            has2FA: userStatusData.mfa?.enabled || false,
             emailVerified: true, // Assume verified if they can access
-            phoneVerified: false, // Would need to check
+            phoneVerified: userStatusData.mfa?.methods?.includes('sms') || false,
             tier: limitsData?.summary?.tier || 'basic',
             canUpgrade: limitsData?.summary?.upgradeOptions?.nextTier !== null
           });

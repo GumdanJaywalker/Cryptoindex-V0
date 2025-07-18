@@ -1,6 +1,7 @@
 // app/api/withdrawal/initiate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requireFreshMfa, MFA_CONFIGS } from '@/lib/middleware/privy-mfa';
 import { HyperliquidWithdrawalService } from '@/lib/blockchain/hyperliquid-withdrawal';
 import { WithdrawalVerificationService } from '@/lib/security/withdrawal-verification';
 import { WithdrawalLimitsService } from '@/lib/validation/withdrawal-limits';
@@ -13,13 +14,13 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
-    if (!authResult.isAuthenticated) {
-      return authResult.response;
+    // For withdrawal operations, require fresh MFA verification (within 5 minutes)
+    const mfaResult = await requireFreshMfa(request, 5);
+    if (!mfaResult.isAuthenticated || !mfaResult.isMfaCompleted) {
+      return mfaResult.response;
     }
 
-    const { user } = authResult;
+    const { user } = mfaResult;
     const body = await request.json();
     const { 
       action, 
