@@ -86,12 +86,8 @@
     "use-local-storage-state": "^19.5.0",
     "vaul": "^0.9.6",
     "viem": "^2.31.7",
-    "zod": "^3.24.1"
-=======
-    "viem": "^2.31.7",
     "zod": "^3.24.1",
     "zustand": "^5.0.6"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",

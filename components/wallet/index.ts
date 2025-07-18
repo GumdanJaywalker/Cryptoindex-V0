@@ -10,8 +10,8 @@
 
 // Main wallet components
 export { WalletConnectButton } from './WalletConnectButton'
+export { WalletDropdown } from './WalletDropdown'
 export { NetworkDisplay } from './NetworkDisplay'
-// export { WalletDropdown } from './WalletDropdown'
 // export { NetworkSelector } from './NetworkSelector'
 // export { WalletBalanceDisplay } from './WalletBalanceDisplay'
 
