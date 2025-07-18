@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ['@privy-io/server-auth', 'twilio'],
+    appDir: true,
+  },
   // CORS 및 보안 헤더 설정
   async headers() {
     return [

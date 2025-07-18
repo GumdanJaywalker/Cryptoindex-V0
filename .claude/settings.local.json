@@ -19,10 +19,16 @@
       "WebFetch(domain:memeindex.com)",
       "WebFetch(domain:mint-ventures.medium.com)",
       "WebFetch(domain:app.hyperliquid.xyz)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "mcp__supabase-mcp-server__list_projects",
+      "mcp__supabase-mcp-server__list_tables",
+      "mcp__supabase-mcp-server__execute_sql",
+      "Bash(node:*)"
     ],
     "deny": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "notionApi",
     "memory",

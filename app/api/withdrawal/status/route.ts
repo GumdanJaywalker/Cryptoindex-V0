@@ -1,6 +1,6 @@
 // app/api/withdrawal/status/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { HyperliquidWithdrawalService } from '@/lib/blockchain/hyperliquid-withdrawal';
 import { WithdrawalVerificationService } from '@/lib/security/withdrawal-verification';
 import { WithdrawalFeeManager } from '@/lib/fees/withdrawal-fee-manager';
@@ -14,7 +14,7 @@ const supabase = createClient(
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }

@@ -3,13 +3,13 @@
 // Use /api/auth/privy-mfa for new implementations
 // This endpoint is kept for backward compatibility only
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { TwoFactorService } from '@/lib/security/2fa-service';
 
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }

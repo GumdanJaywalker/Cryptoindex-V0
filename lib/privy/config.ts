@@ -1,12 +1,50 @@
 import { PrivyProvider, PrivyClientConfig } from '@privy-io/react-auth';
-import { mainnet, arbitrum, polygon, base, optimism } from 'viem/chains';
+import { mainnet, arbitrum, polygon, base, optimism, arbitrumSepolia } from 'viem/chains';
+
+// Define Hyperliquid chain configuration for Privy (Mainnet)
+const hyperliquid = {
+  id: 999,
+  name: 'Hyperliquid',
+  network: 'hyperliquid',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'HYPE',
+    symbol: 'HYPE',
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc.hyperliquid.xyz/evm'] },
+    default: { http: ['https://rpc.hyperliquid.xyz/evm'] },
+  },
+  blockExplorers: {
+    default: { name: 'Hypurrscan', url: 'https://api.hypurrscan.io/ui/' },
+  },
+} as const;
+
+// Define Hyperliquid Testnet chain configuration for Privy
+const hyperliquidTestnet = {
+  id: 998,
+  name: 'Hyperliquid Testnet',
+  network: 'hyperliquid-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'HYPE',
+    symbol: 'HYPE',
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc.hyperliquid-testnet.xyz/evm'] },
+    default: { http: ['https://rpc.hyperliquid-testnet.xyz/evm'] },
+  },
+  blockExplorers: {
+    default: { name: 'Hypurrscan Testnet', url: 'https://api.hypurrscan.io/ui/' },
+  },
+} as const;
 
 // Privy configuration
 export const privyConfig: PrivyClientConfig = {
   // Your actual Privy App ID
   appId: process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmcvc4ho5009rky0nfr3cgnms',
   
-  // Configure supported login methods
+  // Configure supported login methods - ONLY EMAIL AND EVM WALLETS
   loginMethods: ['email', 'wallet'],
   
   // Email configuration
@@ -20,8 +58,31 @@ export const privyConfig: PrivyClientConfig = {
   supportedChains: [
     arbitrum,    // Arbitrum One - Primary deposit network
     mainnet,     // Ethereum Mainnet
-    // Removed non-EVM networks to ensure compatibility with Hyperliquid
+    hyperliquid, // Hyperliquid - Primary trading network
+    // Testnet support for development
+    ...(process.env.NODE_ENV === 'development' ? [
+      arbitrumSepolia,     // Arbitrum Sepolia Testnet
+      hyperliquidTestnet,  // Hyperliquid Testnet
+    ] : []),
+    // EXPLICITLY NO SOLANA OR OTHER NON-EVM CHAINS
   ],
+  
+  // STRICT EVM-ONLY WALLET CONFIGURATION
+  externalWallets: {
+    coinbaseWallet: {
+      // Only allow EVM networks
+      connectionOptions: 'eoaOnly'
+    },
+    metamask: {
+      // MetaMask is EVM-only by default
+    },
+    walletConnect: {
+      // Restrict to EVM chains only
+    },
+    // EXPLICITLY DISABLE NON-EVM WALLETS
+    phantom: false,
+    solflare: false,
+  },
   
   // Configure appearance
   appearance: {
@@ -35,6 +96,13 @@ export const privyConfig: PrivyClientConfig = {
     createOnLogin: 'users-without-wallets',
     noPromptOnSignature: false,
     requireUserPasswordOnCreate: true, // Enhanced security
+    // NO SOLANA SUPPORT - EVM ONLY
+    showWalletUIs: false, // Disable wallet UI that might show non-EVM options
+    // Force EVM format for embedded wallets
+    priceDisplay: {
+      primary: 'fiat', // Show USD values
+      secondary: 'native', // Show ETH values
+    },
   },
   
   // Configure MFA (Enhanced security for trading platform)

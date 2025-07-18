@@ -10,7 +10,7 @@ export const HYPERLIQUID_NETWORK_CONFIG = {
     decimals: 18,
   },
   rpcUrls: ['https://rpc.hyperliquid.xyz/evm'],
-  blockExplorerUrls: ['https://explorer.hyperliquid.xyz'],
+  blockExplorerUrls: ['https://api.hypurrscan.io/ui/'],
 };
 
 export const HYPERLIQUID_TESTNET_CONFIG = {

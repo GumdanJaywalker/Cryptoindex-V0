@@ -343,8 +343,14 @@ export class WithdrawalVerificationService {
       
       // Example implementation with Twilio (if configured)
       if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-        const twilio = require('twilio');
-        const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+        let client;
+        try {
+          const twilio = require('twilio');
+          client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+        } catch (error) {
+          console.warn('Twilio not available - SMS verification disabled');
+          throw new Error('SMS verification not available - please install twilio package');
+        }
         
         await client.messages.create({
           body: `Your P2PFiat withdrawal verification code is: ${code}. This code expires in 5 minutes.`,

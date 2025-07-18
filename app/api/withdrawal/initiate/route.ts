@@ -1,6 +1,6 @@
 // app/api/withdrawal/initiate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { requireFreshMfa, MFA_CONFIGS } from '@/lib/middleware/privy-mfa';
 import { HyperliquidWithdrawalService } from '@/lib/blockchain/hyperliquid-withdrawal';
 import { WithdrawalVerificationService } from '@/lib/security/withdrawal-verification';
@@ -371,7 +371,7 @@ async function handleWithdrawalExecution(
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }

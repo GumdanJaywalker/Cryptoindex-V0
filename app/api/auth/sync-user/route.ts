@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
       privy_user_id: privyUser.id,
       auth_type: authType,
       email: privyUser.email?.address || null,
-      // email_verified, wallet_address, wallet_type 필드 제거
       last_login: new Date().toISOString(),
       is_active: true,
     }
@@ -141,7 +140,13 @@ export async function POST(request: NextRequest) {
             return;
           }
           
-          // 정확한 네트워크 감지 사용
+          // 🚫 FILTER OUT NON-EVM WALLETS (SOLANA, etc.)
+          if (account.chainType === 'solana' || !account.address.startsWith('0x')) {
+            console.log(`🚫 Skipping non-EVM wallet ${index}: ${account.chainType} - ${account.address.slice(0, 8)}...`);
+            return;
+          }
+          
+          // 정확한 네트워크 감지 사용 (EVM only)
           const networkName = getNetworkName(account.chainType, account.chainId);
           
           allUserWallets.push({

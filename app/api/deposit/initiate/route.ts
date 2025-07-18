@@ -1,6 +1,6 @@
 // app/api/deposit/initiate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { ArbitrumDepositService } from '@/lib/blockchain/arbitrum-service';
 import { HyperliquidBridgeService } from '@/lib/blockchain/hyperliquid-bridge';
 import { createClient } from '@supabase/supabase-js';
@@ -13,9 +13,9 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
-    if (!authResult.isAuthenticated) {
-      return authResult.response;
+    const authResult = await requirePrivyAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult; // Authentication failed
     }
 
     const { user } = authResult;
@@ -30,14 +30,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify wallet belongs to user
+    // Verify wallet belongs to user using JOIN query with privy_user_id
     const { data: userWallets, error: walletsError } = await supabase
       .from('user_wallets')
-      .select('wallet_address')
-      .eq('user_id', user.id)
+      .select(`
+        wallet_address,
+        users!inner(privy_user_id)
+      `)
+      .eq('users.privy_user_id', user.privyUserId)
       .eq('wallet_address', walletAddress);
 
     if (walletsError || !userWallets || userWallets.length === 0) {
+      console.error('Wallet authorization failed:', {
+        privyUserId: user.privyUserId,
+        walletAddress,
+        error: walletsError?.message,
+        walletsFound: userWallets?.length || 0
+      });
+      
       return NextResponse.json(
         { error: 'Unauthorized wallet address' },
         { status: 403 }
@@ -222,9 +232,9 @@ async function handleTransactionConfirmation(
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
-    if (!authResult.isAuthenticated) {
-      return authResult.response;
+    const authResult = await requirePrivyAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult; // Authentication failed
     }
 
     const { user } = authResult;
@@ -238,14 +248,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify wallet belongs to user
+    // Verify wallet belongs to user using JOIN query with privy_user_id
     const { data: userWallets, error: walletsError } = await supabase
       .from('user_wallets')
-      .select('wallet_address')
-      .eq('user_id', user.id)
+      .select(`
+        wallet_address,
+        users!inner(privy_user_id)
+      `)
+      .eq('users.privy_user_id', user.privyUserId)
       .eq('wallet_address', walletAddress);
 
     if (walletsError || !userWallets || userWallets.length === 0) {
+      console.error('Wallet authorization failed:', {
+        privyUserId: user.privyUserId,
+        walletAddress,
+        error: walletsError?.message,
+        walletsFound: userWallets?.length || 0
+      });
+      
       return NextResponse.json(
         { error: 'Unauthorized wallet address' },
         { status: 403 }

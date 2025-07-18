@@ -1,6 +1,6 @@
 // app/api/security/behavior/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPrivyAuth } from '@/lib/middleware/privy-auth';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { behaviorAnalyzer, analyzeBehaviorPatterns, detectBehaviorAnomalies } from '@/lib/security/behavior-analyzer';
 import { auditLogger } from '@/lib/security/audit-logger';
 import { rateLimit } from '@/lib/utils/rate-limit';
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify authentication
-    const authResult = await verifyPrivyAuth(request);
+    const authResult = await requirePrivyAuth(request);
     if (!authResult.isAuthenticated) {
       return authResult.response;
     }
