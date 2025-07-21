@@ -11,7 +11,9 @@
       "Bash(pnpm run:*)",
       "mcp__sequential-thinking__sequentialthinking",
       "Bash(npm i:*)",
-      "Bash(sudo npm i -g @anthropic-ai/claude-code)"
+      "Bash(sudo npm i -g @anthropic-ai/claude-code)",
+      "Bash(lsof:*)",
+      "WebFetch(domain:app.hyperliquid.xyz)"
     ],
     "deny": []
   },
