@@ -20,17 +20,12 @@
       "WebFetch(domain:mint-ventures.medium.com)",
       "WebFetch(domain:app.hyperliquid.xyz)",
       "Bash(git add:*)",
-<<<<<<< Updated upstream
       "Bash(ls:*)",
       "mcp__supabase-mcp-server__list_projects",
       "mcp__supabase-mcp-server__list_tables",
       "mcp__supabase-mcp-server__execute_sql",
-      "Bash(node:*)"
-=======
-      "Bash(git push:*)",
-      "Bash(npm install)",
-      "Bash(npm install:*)"
->>>>>>> Stashed changes
+      "Bash(node:*)",
+      "Bash(pnpm install:*)"
     ],
     "deny": []
   },
