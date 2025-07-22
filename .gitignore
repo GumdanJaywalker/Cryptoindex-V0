@@ -159,3 +159,5 @@ out/
 # Backup files
 *.backup
 *.bak
+.claude/import plotly.py
+deposit_costs_chart_white.png
