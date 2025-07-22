@@ -1,0 +1,103 @@
+// app/api/trading/v1/markets/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
+import { createClient } from '@supabase/supabase-js';
+import { getHyperCoreInterface } from '@/lib/blockchain/hypercore-interface';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+/**
+ * GET /api/trading/v1/markets - Get all available trading markets
+ */
+export async function GET(request: NextRequest) {
+  try {
+    // Verify authentication
+    const authResult = await requirePrivyAuth(request);
+    if (!authResult.isAuthenticated) {
+      return authResult.response;
+    }
+
+    // Get all tradeable index tokens
+    const { data: tokens, error } = await supabase
+      .from('index_tokens')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_tradeable', true)
+      .order('symbol');
+
+    if (error) {
+      throw error;
+    }
+
+    if (!tokens || tokens.length === 0) {
+      return NextResponse.json({
+        success: true,
+        markets: []
+      });
+    }
+
+    // Get market data for each token
+    const hyperCore = getHyperCoreInterface();
+    const marketsData = await Promise.all(
+      tokens.map(async (token) => {
+        try {
+          const marketData = await hyperCore.getMarketData(token.token_address);
+          
+          return {
+            tokenAddress: token.token_address,
+            symbol: token.symbol,
+            name: token.name,
+            description: token.description,
+            price: marketData.price,
+            change24h: marketData.change24h,
+            volume24h: marketData.volume24h,
+            high24h: marketData.high24h,
+            low24h: marketData.low24h,
+            navPerToken: token.nav_per_token || '0',
+            totalSupply: token.total_supply || '0',
+            components: token.components,
+            lastUpdated: marketData.lastUpdated,
+            createdAt: token.created_at
+          };
+        } catch (error) {
+          console.error(`❌ Failed to get market data for ${token.symbol}:`, error);
+          return {
+            tokenAddress: token.token_address,
+            symbol: token.symbol,
+            name: token.name,
+            description: token.description,
+            price: '0',
+            change24h: '0',
+            volume24h: '0',
+            high24h: '0',
+            low24h: '0',
+            navPerToken: token.nav_per_token || '0',
+            totalSupply: token.total_supply || '0',
+            components: token.components,
+            lastUpdated: Date.now(),
+            createdAt: token.created_at,
+            error: 'Failed to load market data'
+          };
+        }
+      })
+    );
+
+    return NextResponse.json({
+      success: true,
+      markets: marketsData
+    });
+
+  } catch (error) {
+    console.error('❌ Get markets error:', error);
+    return NextResponse.json(
+      { 
+        success: false,
+        error: 'Internal server error'
+      },
+      { status: 500 }
+    );
+  }
+}

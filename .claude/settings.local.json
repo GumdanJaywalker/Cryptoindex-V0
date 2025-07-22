@@ -25,7 +25,8 @@
       "mcp__supabase-mcp-server__list_tables",
       "mcp__supabase-mcp-server__execute_sql",
       "Bash(node:*)",
-      "Bash(pnpm install:*)"
+      "Bash(pnpm install:*)",
+      "Bash(pnpm:*)"
     ],
     "deny": []
   },
