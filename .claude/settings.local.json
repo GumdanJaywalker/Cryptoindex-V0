@@ -13,7 +13,17 @@
       "Bash(npm i:*)",
       "Bash(sudo npm i -g @anthropic-ai/claude-code)",
       "Bash(lsof:*)",
-      "WebFetch(domain:app.hyperliquid.xyz)"
+      "WebFetch(domain:app.hyperliquid.xyz)",
+      "Bash(git remote set-head:*)",
+      "Bash(git gc:*)",
+      "Bash(ls:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install:*)",
+      "mcp__mcp-playwright__playwright_navigate",
+      "Bash(npx:*)",
+      "Bash(pnpm list:*)"
     ],
     "deny": []
   },
