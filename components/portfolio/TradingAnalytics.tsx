@@ -1,0 +1,327 @@
+'use client'
+
+import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Target, 
+  Calendar,
+  Trophy,
+  AlertTriangle,
+  BarChart3,
+  PieChart,
+  Activity
+} from 'lucide-react'
+
+interface TradingAnalyticsProps {
+  compact?: boolean
+}
+
+const analyticsData = {
+  totalTrades: 234,
+  winningTrades: 158,
+  losingTrades: 76,
+  winRate: 67.5,
+  avgWin: 847.50,
+  avgLoss: -423.80,
+  profitFactor: 2.1,
+  sharpeRatio: 1.8,
+  maxDrawdown: -8450.00,
+  currentDrawdown: -2340.00,
+  bestTrade: 4567.80,
+  worstTrade: -2134.50,
+  averageHoldTime: '4.2 hours',
+  totalPnL: 15847.20,
+  monthlyPnL: [
+    { month: 'Jan', pnl: 2340 },
+    { month: 'Feb', pnl: -840 },
+    { month: 'Mar', pnl: 4567 },
+    { month: 'Apr', pnl: 3456 },
+    { month: 'May', pnl: 1890 },
+    { month: 'Jun', pnl: 4434 }
+  ],
+  tradesByIndex: [
+    { symbol: 'DOG_INDEX', trades: 67, pnl: 8934.50, winRate: 72.3 },
+    { symbol: 'CAT_INDEX', trades: 45, pnl: 3456.80, winRate: 64.4 },
+    { symbol: 'AI_INDEX', trades: 38, pnl: 2890.40, winRate: 60.5 },
+    { symbol: 'MEME_INDEX', trades: 84, pnl: 565.50, winRate: 54.8 }
+  ]
+}
+
+export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
+  const [timeframe, setTimeframe] = useState('all')
+
+  if (compact) {
+    return (
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Target className="w-5 h-5 text-purple-400" />
+            Performance Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="text-center">
+              <div className="text-xl font-bold text-green-400">
+                {analyticsData.winRate}%
+              </div>
+              <div className="text-xs text-slate-400">Win Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-blue-400">
+                {analyticsData.profitFactor}
+              </div>
+              <div className="text-xs text-slate-400">Profit Factor</div>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-slate-400">Monthly P&L</span>
+                <span className="text-green-400">+${analyticsData.totalPnL.toLocaleString()}</span>
+              </div>
+              <Progress value={75} className="h-2" />
+            </div>
+            
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-slate-400">Max Drawdown</span>
+                <span className="text-red-400">${analyticsData.maxDrawdown.toLocaleString()}</span>
+              </div>
+              <Progress value={28} className="h-2" />
+            </div>
+          </div>
+          
+          <Button variant="outline" size="sm" className="w-full mt-3 border-slate-700 text-slate-300 hover:bg-slate-800">
+            View Full Analytics
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 헤더 */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Target className="w-6 h-6 text-purple-400" />
+            Trading Analytics
+          </h2>
+          <p className="text-slate-400 mt-1">Comprehensive analysis of your trading performance</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {['7d', '30d', '90d', 'all'].map((period) => (
+            <Button
+              key={period}
+              variant={timeframe === period ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setTimeframe(period)}
+              className={`h-8 px-3 text-xs ${
+                timeframe === period
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              {period.toUpperCase()}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* 핵심 메트릭 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Trophy className="w-5 h-5 text-green-400" />
+              <Badge variant="outline" className="text-green-400 border-green-400/30 text-xs">
+                Excellent
+              </Badge>
+            </div>
+            <div className="text-2xl font-bold text-green-400 mb-1">
+              {analyticsData.winRate}%
+            </div>
+            <div className="text-sm text-slate-400">Win Rate</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <BarChart3 className="w-5 h-5 text-blue-400" />
+              <Badge variant="outline" className="text-blue-400 border-blue-400/30 text-xs">
+                Strong
+              </Badge>
+            </div>
+            <div className="text-2xl font-bold text-blue-400 mb-1">
+              {analyticsData.profitFactor}
+            </div>
+            <div className="text-sm text-slate-400">Profit Factor</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-purple-400" />
+              <Badge variant="outline" className="text-purple-400 border-purple-400/30 text-xs">
+                Good
+              </Badge>
+            </div>
+            <div className="text-2xl font-bold text-purple-400 mb-1">
+              {analyticsData.sharpeRatio}
+            </div>
+            <div className="text-sm text-slate-400">Sharpe Ratio</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+              <Badge variant="outline" className="text-red-400 border-red-400/30 text-xs">
+                Risk
+              </Badge>
+            </div>
+            <div className="text-2xl font-bold text-red-400 mb-1">
+              ${Math.abs(analyticsData.maxDrawdown).toLocaleString()}
+            </div>
+            <div className="text-sm text-slate-400">Max Drawdown</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 거래 상세 분석 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 거래 통계 */}
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-400" />
+              Trade Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+                <div className="text-xl font-bold text-white">{analyticsData.totalTrades}</div>
+                <div className="text-xs text-slate-400">Total Trades</div>
+              </div>
+              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+                <div className="text-xl font-bold text-green-400">{analyticsData.winningTrades}</div>
+                <div className="text-xs text-slate-400">Winning</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-400">Win Rate</span>
+                  <span className="text-green-400">{analyticsData.winRate}%</span>
+                </div>
+                <Progress value={analyticsData.winRate} className="h-2" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-slate-400 mb-1">Avg Win</div>
+                  <div className="text-green-400 font-semibold">+${analyticsData.avgWin}</div>
+                </div>
+                <div>
+                  <div className="text-slate-400 mb-1">Avg Loss</div>
+                  <div className="text-red-400 font-semibold">${analyticsData.avgLoss}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-slate-400 mb-1">Best Trade</div>
+                  <div className="text-green-400 font-semibold">+${analyticsData.bestTrade}</div>
+                </div>
+                <div>
+                  <div className="text-slate-400 mb-1">Worst Trade</div>
+                  <div className="text-red-400 font-semibold">${analyticsData.worstTrade}</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 인덱스별 성과 */}
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-purple-400" />
+              Performance by Index
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {analyticsData.tradesByIndex.map((index, i) => (
+                <div key={i} className="p-3 bg-slate-800/50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-medium text-white">{index.symbol}</div>
+                    <div className={`text-sm font-semibold ${
+                      index.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {index.pnl >= 0 ? '+' : ''}${index.pnl.toLocaleString()}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span>{index.trades} trades</span>
+                    <span>{index.winRate}% win rate</span>
+                  </div>
+                  
+                  <Progress value={index.winRate} className="h-1.5 mt-2" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 월별 성과 차트 */}
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-yellow-400" />
+            Monthly Performance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end justify-between h-40 gap-2">
+            {analyticsData.monthlyPnL.map((month, index) => {
+              const maxPnL = Math.max(...analyticsData.monthlyPnL.map(m => Math.abs(m.pnl)))
+              const height = (Math.abs(month.pnl) / maxPnL) * 100
+              
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div className="text-xs text-slate-400 mb-2">
+                    {month.pnl >= 0 ? '+' : ''}${month.pnl.toLocaleString()}
+                  </div>
+                  <div 
+                    className={`w-full rounded-t ${
+                      month.pnl >= 0 ? 'bg-green-400' : 'bg-red-400'
+                    }`}
+                    style={{ height: `${height}%` }}
+                  />
+                  <div className="text-xs text-slate-400 mt-2">{month.month}</div>
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
