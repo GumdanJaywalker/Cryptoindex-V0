@@ -79,7 +79,13 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     "zod": "^3.24.1"
+=======
+    "viem": "^2.31.7",
+    "zod": "^3.24.1",
+    "zustand": "^5.0.6"
+>>>>>>> Stashed changes
 =======
     "viem": "^2.31.7",
     "zod": "^3.24.1",
