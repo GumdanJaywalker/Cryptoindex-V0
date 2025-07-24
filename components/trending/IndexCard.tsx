@@ -136,7 +136,7 @@ export function IndexCard({ index }: IndexCardProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800 text-xs h-8"
+            className="flex-1 border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs h-8"
           >
             Details
           </Button>

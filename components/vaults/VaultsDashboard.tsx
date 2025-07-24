@@ -122,7 +122,7 @@ export function VaultsDashboard() {
       {/* 메인 통계 카드들 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 총 투자금 */}
-        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+        <Card className="bg-gradient-to-br from-blue-950/50 to-slate-900 border-blue-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Wallet className="w-5 h-5 text-blue-400" />
@@ -140,7 +140,7 @@ export function VaultsDashboard() {
         </Card>
 
         {/* 총 P&L */}
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+        <Card className="bg-gradient-to-br from-green-950/50 to-slate-900 border-green-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-green-400" />
@@ -158,7 +158,7 @@ export function VaultsDashboard() {
         </Card>
 
         {/* 활성 Vault */}
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
+        <Card className="bg-gradient-to-br from-purple-950/50 to-slate-900 border-purple-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-purple-400" />
@@ -176,7 +176,7 @@ export function VaultsDashboard() {
         </Card>
 
         {/* 평균 APY */}
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+        <Card className="bg-gradient-to-br from-yellow-950/50 to-slate-900 border-yellow-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Trophy className="w-5 h-5 text-yellow-400" />
