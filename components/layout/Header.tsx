@@ -3,6 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { WalletConnectButton } from '@/components/wallet'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { ChevronDown, FileText, BarChart3, Settings, ExternalLink } from 'lucide-react'
 
 const navigation = [
   { name: 'Trading', href: '/trading' },
@@ -26,7 +34,7 @@ export function Header() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex space-x-8">
+        <nav className="flex items-center space-x-8">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -40,6 +48,35 @@ export function Header() {
               {item.name}
             </Link>
           ))}
+          
+          {/* More 드롭다운 메뉴 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-slate-300 hover:text-blue-400 hover:bg-slate-800">
+                More
+                <ChevronDown className="w-4 h-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48 min-w-[12rem] overflow-hidden rounded-md border border-slate-700 bg-slate-900 p-1 text-white shadow-md z-50"
+              sideOffset={4}
+            >
+              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <FileText className="w-4 h-4 mr-3 text-blue-400" />
+                <span>API Docs</span>
+                <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />
+              </DropdownMenuItem>
+              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <BarChart3 className="w-4 h-4 mr-3 text-green-400" />
+                <span>Analytics</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <Settings className="w-4 h-4 mr-3 text-slate-400" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         {/* Wallet Connect */}

@@ -204,13 +204,13 @@ export function BattleVotesSection() {
       </div>
 
       {/* 배틀 투표 설명 */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+      <Card className="bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="text-3xl">💡</div>
             <div>
               <h3 className="text-lg font-bold text-white mb-2">How Battle Votes Work</h3>
-              <div className="space-y-2 text-sm text-slate-300">
+              <div className="space-y-2 text-sm text-slate-200">
                 <p>• <strong>Winner-takes-all:</strong> Winning option gets 100% allocation in the target index</p>
                 <p>• <strong>Voting Power:</strong> Use your VP to influence the outcome</p>
                 <p>• <strong>Rewards:</strong> Winners share the reward pool, participation earns base rewards</p>

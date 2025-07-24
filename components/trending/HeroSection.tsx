@@ -56,7 +56,7 @@ export function HeroSection() {
           <h2 className="text-2xl font-bold text-white">Today's Hottest Index</h2>
         </div>
         
-        <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20 overflow-hidden">
+        <Card className="bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 overflow-hidden">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
               {/* 인덱스 정보 */}

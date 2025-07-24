@@ -64,7 +64,7 @@ export function AccountSummary() {
       {/* 메인 통계 카드들 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 총 자산 */}
-        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+        <Card className="bg-gradient-to-br from-blue-950/50 to-slate-900 border-blue-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Wallet className="w-5 h-5 text-blue-400" />
@@ -75,7 +75,7 @@ export function AccountSummary() {
             <div className="text-xl sm:text-2xl font-bold text-white mb-1">
               ${accountData.totalEquity.toLocaleString()}
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-200">
               Total Equity
             </div>
           </CardContent>
@@ -84,8 +84,8 @@ export function AccountSummary() {
         {/* 일일 PnL */}
         <Card className={`bg-gradient-to-br ${
           accountData.dailyPnL >= 0 
-            ? 'from-green-500/10 to-emerald-500/10 border-green-500/20' 
-            : 'from-red-500/10 to-pink-500/10 border-red-500/20'
+            ? 'from-green-950/50 to-slate-900 border-green-800/30' 
+            : 'from-red-950/50 to-slate-900 border-red-800/30'
         }`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
@@ -110,14 +110,14 @@ export function AccountSummary() {
             }`}>
               {accountData.dailyPnL >= 0 ? '+' : ''}${accountData.dailyPnL.toLocaleString()}
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-200">
               Daily P&L
             </div>
           </CardContent>
         </Card>
 
         {/* 미실현 PnL */}
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
+        <Card className="bg-gradient-to-br from-purple-950/50 to-slate-900 border-purple-800/30">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-purple-400" />
@@ -128,7 +128,7 @@ export function AccountSummary() {
             <div className="text-xl sm:text-2xl font-bold text-white mb-1">
               +${accountData.unrealizedPnL.toLocaleString()}
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-200">
               Unrealized P&L
             </div>
           </CardContent>
@@ -137,10 +137,10 @@ export function AccountSummary() {
         {/* 마진 사용률 */}
         <Card className={`bg-gradient-to-br ${
           marginUtilization > 80 
-            ? 'from-red-500/10 to-orange-500/10 border-red-500/20'
+            ? 'from-red-950/50 to-slate-900 border-red-800/30'
             : marginUtilization > 60
-            ? 'from-yellow-500/10 to-orange-500/10 border-yellow-500/20'
-            : 'from-green-500/10 to-emerald-500/10 border-green-500/20'
+            ? 'from-yellow-950/50 to-slate-900 border-yellow-800/30'
+            : 'from-green-950/50 to-slate-900 border-green-800/30'
         }`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
@@ -165,7 +165,7 @@ export function AccountSummary() {
             <div className="text-xl sm:text-2xl font-bold text-white mb-1">
               ${accountData.marginUsed.toLocaleString()}
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-200">
               Margin Used
             </div>
           </CardContent>
