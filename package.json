@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@privy-io/react-auth": "^2.17.3",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -54,6 +55,7 @@
     "dotted-map": "^2.2.3",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.454.0",
     "mini-svg-data-uri": "^1.4.4",
     "motion": "^12.23.0",
@@ -67,8 +69,9 @@
     "react-hook-form": "^7.54.1",
     "react-icons": "^5.5.0",
     "react-resizable-panels": "^2.1.7",
-    "react-syntax-highlighter": "^15.6.1",
+    "react-syntax-highlighter": "^5.8.0",
     "recharts": "2.15.0",
+    "resend": "^4.6.0",
     "simplex-noise": "^4.0.3",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
@@ -76,39 +79,12 @@
     "three": "^0.178.0",
     "three-globe": "^2.43.0",
     "vaul": "^0.9.6",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    "zod": "^3.24.1"
-=======
     "viem": "^2.31.7",
     "zod": "^3.24.1",
     "zustand": "^5.0.6"
->>>>>>> Stashed changes
-=======
-    "viem": "^2.31.7",
-    "zod": "^3.24.1",
-    "zustand": "^5.0.6"
->>>>>>> Stashed changes
-=======
-    "viem": "^2.31.7",
-    "zod": "^3.24.1",
-    "zustand": "^5.0.6"
->>>>>>> Stashed changes
-=======
-    "viem": "^2.31.7",
-    "zod": "^3.24.1",
-    "zustand": "^5.0.6"
->>>>>>> Stashed changes
-=======
-    "viem": "^2.31.7",
-    "zod": "^3.24.1",
-    "zustand": "^5.0.6"
->>>>>>> Stashed changes
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
