@@ -32,24 +32,24 @@ export function TradingLayout() {
         </div>
 
         {/* 우측 영역 (40% 너비) */}
-        <div className="w-[40%] flex flex-col">
-          {/* Order Book (25% 높이) */}
-          <div className="h-[25%] border-b border-slate-800">
+        <div className="w-[40%] flex flex-col min-h-0">
+          {/* Order Book */}
+          <div className="flex-1 border-b border-slate-800 min-h-0" style={{ flexBasis: '35%' }}>
             <OrderBook />
           </div>
 
-          {/* Trading Panel (35% 높이) */}
-          <div className="h-[35%] border-b border-slate-800">
+          {/* Trading Panel */}
+          <div className="flex-1 border-b border-slate-800 min-h-0" style={{ flexBasis: '35%' }}>
             <TradingPanel />
           </div>
 
-          {/* Recent Trades (20% 높이) */}
-          <div className="h-[20%] border-b border-slate-800">
+          {/* Recent Trades */}
+          <div className="flex-1 border-b border-slate-800 min-h-0" style={{ flexBasis: '15%' }}>
             <RecentTrades />
           </div>
 
-          {/* Community Feed (20% 높이) */}
-          <div className="h-[20%]">
+          {/* Community Feed */}
+          <div className="flex-1 min-h-0" style={{ flexBasis: '15%' }}>
             <CommunityFeed />
           </div>
         </div>
