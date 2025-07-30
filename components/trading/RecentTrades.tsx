@@ -31,7 +31,7 @@ export function RecentTrades() {
         {mockTrades.map((trade, index) => (
           <div
             key={index}
-            className="flex items-center px-3 py-1 hover:bg-slate-800/50 text-xs"
+            className="flex items-center px-2 py-0.5 hover:bg-slate-800/50 text-xs"
           >
             <div className={`flex-1 font-mono ${
               trade.side === 'buy' ? 'text-green-400' : 'text-red-400'
@@ -49,7 +49,7 @@ export function RecentTrades() {
       </div>
 
       {/* Volume Stats */}
-      <div className="h-12 bg-slate-900 border-t border-slate-800 flex items-center px-3 text-xs">
+      <div className="h-8 bg-slate-900 border-t border-slate-800 flex items-center px-2 text-xs">
         <div className="flex space-x-4">
           <div>
             <span className="text-slate-400">Vol:</span>
