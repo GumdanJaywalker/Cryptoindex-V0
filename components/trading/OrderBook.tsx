@@ -116,13 +116,13 @@ export function OrderBook() {
 
       <div className="flex-1 flex flex-col min-h-0">
         {/* Asks (Sell Orders) */}
-        <div className="flex-1 flex flex-col-reverse px-3 py-1 space-y-reverse space-y-0.5 overflow-y-auto min-h-0">
+        <div className="flex-1 flex flex-col-reverse px-2 py-0.5 space-y-reverse space-y-0 overflow-y-auto min-h-0">
           {mockAsks.map((ask, index) => {
             const depth = (ask.total / 20000) * 100 // Calculate depth percentage
             return (
               <div 
                 key={index} 
-                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0.5 rounded cursor-pointer group"
+                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0 rounded cursor-pointer group"
                 onClick={() => handlePriceClick(ask.price)}
               >
                 {/* Depth bar */}
@@ -144,9 +144,11 @@ export function OrderBook() {
                 </div>
                 
                 {/* Hover tooltip */}
-                <div className="absolute left-full ml-2 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
                   <div>Click to set price</div>
                   <div className="text-slate-400">Est. slippage: ~0.02%</div>
+                  {/* Arrow */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-slate-800"></div>
                 </div>
               </div>
             )
@@ -154,31 +156,31 @@ export function OrderBook() {
         </div>
 
         {/* Spread */}
-        <div className="h-10 flex items-center justify-center border-y border-slate-800 bg-slate-900">
-          <div className="text-xs text-slate-400 flex items-center gap-4">
+        <div className="h-8 flex items-center justify-center border-y border-slate-800 bg-slate-900">
+          <div className="text-xs text-slate-400 flex items-center gap-3">
             <div>
               Spread: <span className="text-white font-mono">{spread.toFixed(4)}</span>
               <span className="text-slate-500 ml-1">({spreadPercentage}%)</span>
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-400" />
-              <span className="text-slate-300">Best Bid: ${mockBids[0].price.toFixed(4)}</span>
+              <span className="text-slate-300">${mockBids[0].price.toFixed(4)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TrendingDown className="w-3 h-3 text-red-400" />
-              <span className="text-slate-300">Best Ask: ${mockAsks[mockAsks.length - 1].price.toFixed(4)}</span>
+              <span className="text-slate-300">${mockAsks[mockAsks.length - 1].price.toFixed(4)}</span>
             </div>
           </div>
         </div>
 
         {/* Bids (Buy Orders) */}
-        <div className="flex-1 flex flex-col px-3 py-1 space-y-0.5 overflow-y-auto min-h-0">
+        <div className="flex-1 flex flex-col px-2 py-0.5 space-y-0 overflow-y-auto min-h-0">
           {mockBids.map((bid, index) => {
             const depth = (bid.total / 20000) * 100 // Calculate depth percentage
             return (
               <div 
                 key={index} 
-                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0.5 rounded cursor-pointer group"
+                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0 rounded cursor-pointer group"
                 onClick={() => handlePriceClick(bid.price)}
               >
                 {/* Depth bar */}
@@ -200,9 +202,11 @@ export function OrderBook() {
                 </div>
                 
                 {/* Hover tooltip */}
-                <div className="absolute left-full ml-2 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
                   <div>Click to set price</div>
                   <div className="text-slate-400">Est. slippage: ~0.02%</div>
+                  {/* Arrow */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-slate-800"></div>
                 </div>
               </div>
             )
@@ -212,19 +216,19 @@ export function OrderBook() {
 
       {/* Whale Alerts Section */}
       {showWhaleAlerts && (
-        <div className="h-16 border-t border-slate-800 bg-slate-900/50 p-2 flex-shrink-0">
+        <div className="h-12 border-t border-slate-800 bg-slate-900/50 p-1.5 flex-shrink-0">
           <div className="flex items-center gap-1 mb-1">
             <AlertTriangle className="w-3 h-3 text-orange-400" />
             <span className="text-xs font-medium text-white">Whale Alert</span>
           </div>
-          <div className="space-y-1 overflow-y-auto h-10">
+          <div className="space-y-0.5 overflow-y-auto h-7">
             {mockWhaleAlerts.map((alert, index) => (
               <div key={index} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400">{alert.time}</span>
                   <Badge 
                     variant="outline" 
-                    className={`text-xs px-1 py-0 h-4 ${
+                    className={`text-xs px-1 py-0 h-3 ${
                       alert.type === 'BUY' 
                         ? 'text-green-400 border-green-400/30' 
                         : 'text-red-400 border-red-400/30'
@@ -234,7 +238,7 @@ export function OrderBook() {
                   </Badge>
                   <span className="text-white font-mono">{alert.amount}</span>
                 </div>
-                <Badge variant="outline" className="text-orange-400 border-orange-400/30 text-xs px-1 py-0 h-4">
+                <Badge variant="outline" className="text-orange-400 border-orange-400/30 text-xs px-1 py-0 h-3">
                   {alert.impact}
                 </Badge>
               </div>
