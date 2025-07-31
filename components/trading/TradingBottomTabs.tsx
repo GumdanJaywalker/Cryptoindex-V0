@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -65,7 +65,9 @@ const mockPositions = [
     pnlPercent: 8.98,
     margin: 245.25,
     leverage: '10x',
-    liquidationPrice: 2.21
+    liquidationPrice: 2.21,
+    adlRank: 2,
+    fundingRate: 0.0123
   },
   {
     id: '2', 
@@ -78,7 +80,9 @@ const mockPositions = [
     pnlPercent: 4.95,
     margin: 145.60,
     leverage: '5x',
-    liquidationPrice: 2.01
+    liquidationPrice: 2.01,
+    adlRank: 3,
+    fundingRate: -0.0087
   }
 ]
 
@@ -670,6 +674,11 @@ export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
   const [showHistory, setShowHistory] = useState(false)
   const [showDiversification, setShowDiversification] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // 서버와 클라이언트에서 동일한 값 사용
   const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
@@ -873,26 +882,19 @@ export function TradingBottomTabs() {
                     <div className="bg-slate-900/50 rounded p-2">
                       <div className="text-xs text-slate-400">Avg Leverage</div>
                       <div className="text-sm font-semibold text-orange-400">
-                        {mockPositions.length > 0 ? (mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage), 0) / mockPositions.length).toFixed(1) : '0.0'}x
+                        {mounted ? (mockPositions.length > 0 ? (mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage.replace('x', '')), 0) / mockPositions.length).toFixed(1) : '0.0') : '0.0'}x
                       </div>
                     </div>
                     <div className="bg-slate-900/50 rounded p-2">
                       <div className="text-xs text-slate-400">Highest ADL</div>
-                      <div className={`text-sm font-semibold ${
-                        (() => {
-                          const maxAdl = mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0;
-                          return maxAdl >= 4 ? 'text-red-400' : maxAdl >= 3 ? 'text-yellow-400' : 'text-green-400';
-                        })()
-                      }`}>
-                        {mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0}
+                      <div className="text-sm font-semibold text-yellow-400">
+                        {mounted ? (mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0) : 0}
                       </div>
                     </div>
                     <div className="bg-slate-900/50 rounded p-2">
                       <div className="text-xs text-slate-400">Funding Impact</div>
-                      <div className={`text-sm font-semibold ${
-                        mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) >= 0 ? 'text-red-400' : 'text-green-400'
-                      }`}>
-                        {mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) >= 0 ? '+' : ''}{(mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) * 100).toFixed(3)}%
+                      <div className="text-sm font-semibold text-red-400">
+                        +{mounted ? (mockPositions.reduce((sum, pos) => sum + (pos.fundingRate || 0), 0) * 100).toFixed(3) : '0.000'}%
                       </div>
                     </div>
                   </div>
