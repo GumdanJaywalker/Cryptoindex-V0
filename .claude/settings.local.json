@@ -23,7 +23,8 @@
       "Bash(pnpm install:*)",
       "mcp__mcp-playwright__playwright_navigate",
       "Bash(npx:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   },
