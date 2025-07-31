@@ -668,17 +668,12 @@ const mockTradingStats = {
 
 export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
-<<<<<<< Updated upstream
-  const [showHistory, setShowHistory] = useState(false)
-  const [showDiversification, setShowDiversification] = useState(false)
-=======
 
   // 서버와 클라이언트에서 동일한 값 사용
   const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
   const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0)
   const winningPositions = mockPositions.filter(p => p.pnl > 0).length
   const avgReturn = mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length
->>>>>>> Stashed changes
 
   return (
     <div className="min-h-[50vh] bg-slate-950">
