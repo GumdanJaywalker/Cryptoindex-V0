@@ -49,37 +49,38 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    /* CryptoIndex Dark Theme - 파스텔톤 남색 계열 */
+    --background: 222 47% 4%;
+    --foreground: 222 84% 93%;
+    --card: 222 47% 6%;
+    --card-foreground: 222 84% 93%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 222 84% 93%;
+    --primary: 222 47% 15%;
+    --primary-foreground: 222 84% 93%;
+    --secondary: 222 47% 8%;
+    --secondary-foreground: 222 84% 93%;
+    --muted: 222 47% 10%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 222 47% 12%;
+    --accent-foreground: 222 84% 93%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 222 47% 12%;
+    --input: 222 47% 10%;
+    --ring: 222 84% 80%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 222 84% 93%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 222 47% 10%;
+    --sidebar-accent-foreground: 222 84% 93%;
+    --sidebar-border: 222 47% 12%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -92,3 +93,244 @@ body {
     @apply bg-background text-foreground;
   }
 }
+<<<<<<< Updated upstream
+=======
+
+/* React Grid Layout Styles */
+.react-grid-layout {
+  position: relative;
+  transition: height 0.2s ease;
+}
+
+.react-grid-item {
+  transition: all 0.2s ease;
+  transition-property: left, top;
+}
+
+.react-grid-item img {
+  pointer-events: none;
+  user-select: none;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item.resizing {
+  will-change: width, height;
+  z-index: 1;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  will-change: transform;
+  z-index: 3;
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(59, 130, 246, 0.3);
+  opacity: 0.2;
+  transition-duration: 0.1s;
+  user-select: none;
+  z-index: 2;
+  border-radius: 5px;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle:after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  border-right: 3px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.8);
+  z-index: 20;
+}
+
+.react-resizable-hide > .react-resizable-handle {
+  display: none;
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  transform: rotate(90deg);
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.react-resizable-handle {
+  background-position: 100% 100%;
+  box-sizing: border-box;
+  filter: invert(100%);
+  opacity: 0.3 !important;
+  position: absolute;
+  z-index: 10;
+}
+
+.react-resizable-handle:hover {
+  filter: invert(100%);
+  opacity: 1 !important;
+}
+
+/* Hyperliquid-style colors and background (EXACT COPY) */
+:root {
+  --hl-bg-primary: #0f1a1f;
+  --hl-bg-secondary: #0f1a1e;
+  --hl-bg-tertiary: rgb(46, 49, 60);
+  --hl-border: rgb(46, 49, 60);
+  --hl-text-primary: #ffffff;
+  --hl-text-secondary: #9db2bd;
+  --hl-accent-primary: #50d2c1;
+  --hl-accent-hover: #97fce4;
+  --hl-accent-green: #50d2c1;
+  --hl-accent-red: #f87171;
+  --hl-accent-blue: #50d2c1;
+}
+
+/* Hyperliquid-style draggable background */
+.draggable {
+  background-color: var(--hl-bg-primary);
+}
+
+/* Trading layout specific styles */
+.layout {
+  background: var(--hl-bg-secondary);
+}
+
+/* Grid item styling to match Hyperliquid */
+.react-grid-item {
+  background: var(--hl-bg-primary) !important;
+  border: 1px solid var(--hl-border) !important;
+  border-radius: 6px;
+}
+
+/* Account Overview 테두리 제거 */
+.react-grid-item[data-grid*="accountTable"] {
+  border: none !important;
+  background: transparent !important;
+}
+
+.react-grid-item .drag-handle {
+  background: var(--hl-border) !important;
+}
+
+.react-grid-item:hover .drag-handle {
+  background: var(--hl-accent-blue) !important;
+}
+
+/* Trading component backgrounds */
+.trading-component {
+  background: var(--hl-bg-primary);
+  border: 1px solid var(--hl-border);
+}
+
+/* Text colors matching Hyperliquid */
+.hl-text-primary {
+  color: var(--hl-text-primary);
+}
+
+.hl-text-secondary {
+  color: var(--hl-text-secondary);
+}
+
+.hl-accent-green {
+  color: var(--hl-accent-green);
+}
+
+.hl-accent-red {
+  color: var(--hl-accent-red);
+}
+
+.hl-accent-blue {
+  color: var(--hl-accent-blue);
+}
+
+/* Dark mode improvements for better UI consistency */
+.dark {
+  /* Scrollbar styling for dark mode */
+  scrollbar-color: hsl(222 47% 12%) hsl(222 47% 6%);
+}
+
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(222 47% 6%);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(222 47% 12%);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(222 47% 15%);
+}
+
+/* Form elements in dark mode */
+.dark input[type="number"]::-webkit-outer-spin-button,
+.dark input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dark input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Disable transitions during drag for better performance */
+.react-grid-item.cssTransforms {
+  transition-property: none !important;
+}
+
+/* Enhanced focus styles for accessibility in dark mode */
+.dark *:focus-visible {
+  outline: 2px solid hsl(222 84% 80%) !important;
+  outline-offset: 2px;
+}
+
+/* Trading panel specific styling */
+.trading-panel-container {
+  background: hsl(222 47% 4%);
+  border: 1px solid hsl(222 47% 12%);
+}
+
+/* Better button hover states */
+.dark .trading-leverage-btn:hover {
+  background: hsl(222 47% 10%) !important;
+  border-color: hsl(222 47% 15%) !important;
+}
+
+/* Select dropdown styling improvements */
+.dark [data-radix-select-content] {
+  background: hsl(222 47% 6%) !important;
+  border: 1px solid hsl(222 47% 12%) !important;
+}
+
+.dark [data-radix-select-item] {
+  color: hsl(222 84% 93%) !important;
+}
+
+.dark [data-radix-select-item]:focus {
+  background: hsl(222 47% 10%) !important;
+}
+>>>>>>> Stashed changes

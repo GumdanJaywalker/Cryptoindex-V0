@@ -668,13 +668,22 @@ const mockTradingStats = {
 
 export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
+<<<<<<< Updated upstream
   const [showHistory, setShowHistory] = useState(false)
   const [showDiversification, setShowDiversification] = useState(false)
+=======
+
+  // 서버와 클라이언트에서 동일한 값 사용
+  const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
+  const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0)
+  const winningPositions = mockPositions.filter(p => p.pnl > 0).length
+  const avgReturn = mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length
+>>>>>>> Stashed changes
 
   return (
-    <div className="h-full bg-slate-900 border border-slate-800 rounded-lg">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-        <TabsList className="grid grid-cols-8 bg-slate-800 border-b border-slate-700 rounded-none rounded-t-lg">
+    <div className="min-h-[50vh] bg-slate-950">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-8 bg-slate-900 border-b border-slate-700 rounded-none w-full">
           <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-blue-600">
             Positions
           </TabsTrigger>
@@ -701,10 +710,17 @@ export function TradingBottomTabs() {
           </TabsTrigger>
         </TabsList>
         
+<<<<<<< Updated upstream
         <div className="flex-1 overflow-hidden">
           {/* Positions Tab */}
           <TabsContent value="positions" className="h-full m-0 p-4">
             <div className="space-y-3">
+=======
+        <div className="bg-slate-950">
+          {/* Positions Tab - Enhanced with detailed information */}
+          <TabsContent value="positions" className="h-auto m-0 p-4">
+            <div className="space-y-4">
+>>>>>>> Stashed changes
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Active Positions</h3>
                 <Badge variant="outline" className="text-green-400 border-green-400/30">
@@ -713,8 +729,273 @@ export function TradingBottomTabs() {
               </div>
               
               <div className="space-y-2">
+<<<<<<< Updated upstream
                 {mockPositions.map((position) => (
                   <Card key={position.id} className="bg-slate-800/50 border-slate-700">
+=======
+                {/* Table Header */}
+                <div className="grid grid-cols-9 gap-2 text-xs text-slate-400 px-2 py-1 border-b border-slate-700">
+                  <div>Symbol</div>
+                  <div className="text-center">Side/Size</div>
+                  <div className="text-center">Entry</div>
+                  <div className="text-center">Mark</div>
+                  <div className="text-center">P&L</div>
+                  <div className="text-center">Margin</div>
+                  <div className="text-center">Liq. Price</div>
+                  <div className="text-center">ADL</div>
+                  <div className="text-center">Funding</div>
+                </div>
+
+                {/* Position Rows */}
+                {mockPositions.map((position) => {
+                  const getADLColor = (rank: number) => {
+                    switch (rank) {
+                      case 1: return 'text-green-400 bg-green-400/10 border-green-400/30'
+                      case 2: return 'text-green-400 bg-green-400/10 border-green-400/30'
+                      case 3: return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30'
+                      case 4: return 'text-orange-400 bg-orange-400/10 border-orange-400/30'
+                      case 5: return 'text-red-400 bg-red-400/10 border-red-400/30'
+                      default: return 'text-slate-400 bg-slate-400/10 border-slate-400/30'
+                    }
+                  }
+
+                  return (
+                    <Card key={position.id} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="grid grid-cols-9 gap-2 items-center text-xs">
+                          {/* Symbol */}
+                          <div>
+                            <div className="font-semibold text-white">{position.symbol}</div>
+                            <div className="text-slate-400">{position.leverage}</div>
+                          </div>
+
+                          {/* Side/Size */}
+                          <div className="text-center">
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs mb-1 ${
+                                position.side === 'Long' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'
+                              }`}
+                            >
+                              {position.side}
+                            </Badge>
+                            <div className="text-white font-medium">{Math.abs(position.size).toFixed(1)}</div>
+                          </div>
+
+                          {/* Entry Price */}
+                          <div className="text-center">
+                            <div className="text-white font-medium">${position.entryPrice.toFixed(3)}</div>
+                          </div>
+
+                          {/* Mark Price */}
+                          <div className="text-center">
+                            <div className="text-white font-medium">${position.currentPrice.toFixed(3)}</div>
+                            <div className={`text-xs ${
+                              position.currentPrice > position.entryPrice 
+                                ? (position.side === 'Long' ? 'text-green-400' : 'text-red-400')
+                                : (position.side === 'Long' ? 'text-red-400' : 'text-green-400')
+                            }`}>
+                              {((position.currentPrice - position.entryPrice) / position.entryPrice * 100).toFixed(2)}%
+                            </div>
+                          </div>
+
+                          {/* P&L */}
+                          <div className="text-center">
+                            <div className={`font-semibold ${
+                              position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                            }`}>
+                              {position.pnl >= 0 ? '+' : ''}${position.pnl.toFixed(2)}
+                            </div>
+                            <div className={`text-xs ${
+                              position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                            }`}>
+                              {position.pnl >= 0 ? '+' : ''}{position.pnlPercent.toFixed(1)}%
+                            </div>
+                          </div>
+
+                          {/* Margin */}
+                          <div className="text-center">
+                            <div className="text-white font-medium">${position.margin.toFixed(0)}</div>
+                          </div>
+
+                          {/* Liquidation Price */}
+                          <div className="text-center">
+                            <div className="text-white font-medium">${position.liquidationPrice.toFixed(3)}</div>
+                            <div className="text-xs text-slate-400">
+                              {(Math.abs((position.liquidationPrice - position.currentPrice) / position.currentPrice) * 100).toFixed(1)}%
+                            </div>
+                          </div>
+
+                          {/* ADL Rank */}
+                          <div className="text-center">
+                            <Badge variant="outline" className={`text-xs ${getADLColor(position.adlRank)}`}>
+                              {position.adlRank}
+                            </Badge>
+                          </div>
+
+                          {/* Funding */}
+                          <div className="text-center">
+                            <div className={`text-xs font-medium ${
+                              position.fundingRate >= 0 ? 'text-red-400' : 'text-green-400'
+                            }`}>
+                              {position.fundingRate >= 0 ? '+' : ''}{(position.fundingRate * 100).toFixed(4)}%
+                            </div>
+                            <div className="text-xs text-slate-400">{position.nextFunding}</div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-slate-700">
+                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-green-400 hover:bg-green-400/10">
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-red-400 hover:bg-red-400/10">
+                            <Minus className="w-3 h-3 mr-1" />
+                            Reduce
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-slate-400 hover:bg-slate-400/10">
+                            <X className="w-3 h-3 mr-1" />
+                            Close
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-blue-400 hover:bg-blue-400/10">
+                            <Target className="w-3 h-3 mr-1" />
+                            TP/SL
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+
+              {/* Risk Management Summary */}
+              <Card className="bg-slate-800/30 border-slate-700">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-4 h-4 text-orange-400" />
+                    <h4 className="text-sm font-semibold text-white">Risk Management</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="bg-slate-900/50 rounded p-2">
+                      <div className="text-xs text-slate-400">Portfolio Margin</div>
+                      <div className="text-sm font-semibold text-white">
+                        ${totalMargin.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2">
+                      <div className="text-xs text-slate-400">Avg Leverage</div>
+                      <div className="text-sm font-semibold text-orange-400">
+                        {(mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage), 0) / mockPositions.length).toFixed(1)}x
+                      </div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2">
+                      <div className="text-xs text-slate-400">Highest ADL</div>
+                      <div className={`text-sm font-semibold ${
+                        Math.max(...mockPositions.map(p => p.adlRank)) >= 4 ? 'text-red-400' : 
+                        Math.max(...mockPositions.map(p => p.adlRank)) >= 3 ? 'text-yellow-400' : 'text-green-400'
+                      }`}>
+                        {Math.max(...mockPositions.map(p => p.adlRank))}
+                      </div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2">
+                      <div className="text-xs text-slate-400">Funding Impact</div>
+                      <div className={`text-sm font-semibold ${
+                        mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) >= 0 ? 'text-red-400' : 'text-green-400'
+                      }`}>
+                        {mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) >= 0 ? '+' : ''}{(mockPositions.reduce((sum, pos) => sum + pos.fundingRate, 0) * 100).toFixed(3)}%
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Transaction History Tab */}
+          <TabsContent value="transactionHistory" className="h-auto m-0 p-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">Transaction History</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-blue-400 border-blue-400/30">
+                    <Clock className="w-3 h-3 mr-1" />
+                    All Transactions
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Empty State */}
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                  <Activity className="w-8 h-8 text-slate-500" />
+                </div>
+                <div className="text-center">
+                  <div className="text-lg text-slate-400 mb-2">No transaction history</div>
+                  <div className="text-sm text-slate-500">
+                    Your transaction history will appear here when you start trading.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Position History Tab */}
+          <TabsContent value="positionHistory" className="h-auto m-0 p-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">Position History</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-purple-400 border-purple-400/30">
+                    <BarChart3 className="w-3 h-3 mr-1" />
+                    Closed Positions
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Mock Position History */}
+              <div className="space-y-2">
+                {[
+                  {
+                    symbol: 'MEME_INDEX',
+                    side: 'Long',
+                    openTime: '2024-01-19 14:30:22',
+                    closeTime: '2024-01-20 09:15:33',
+                    size: 2.5,
+                    entryPrice: 2.34,
+                    exitPrice: 2.67,
+                    pnl: 825.00,
+                    pnlPercent: 14.1,
+                    duration: '18h 45m'
+                  },
+                  {
+                    symbol: 'DOG_INDEX',
+                    side: 'Short',
+                    openTime: '2024-01-18 10:20:15',
+                    closeTime: '2024-01-19 16:45:12',
+                    size: 1.8,
+                    entryPrice: 1.89,
+                    exitPrice: 1.73,
+                    pnl: 288.00,
+                    pnlPercent: 8.4,
+                    duration: '1d 6h 25m'
+                  },
+                  {
+                    symbol: 'CAT_INDEX',
+                    side: 'Long',
+                    openTime: '2024-01-17 08:15:44',
+                    closeTime: '2024-01-18 12:30:18',
+                    size: 3.2,
+                    entryPrice: 1.15,
+                    exitPrice: 1.08,
+                    pnl: -224.00,
+                    pnlPercent: -6.1,
+                    duration: '1d 4h 15m'
+                  }
+                ].map((position, index) => (
+                  <Card key={index} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
+>>>>>>> Stashed changes
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -743,8 +1024,91 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
+<<<<<<< Updated upstream
+=======
+          {/* Assets Tab */}
+          <TabsContent value="assets" className="h-auto m-0 p-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">Assets Overview</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-cyan-400 border-cyan-400/30">
+                    <DollarSign className="w-3 h-3 mr-1" />
+                    Portfolio
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Account Summary */}
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Target className="w-4 h-4 text-green-400" />
+                    <h4 className="text-sm font-semibold text-white">Account Summary</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-slate-900/50 rounded p-2 text-center">
+                      <div className="text-xs text-slate-400">Total Balance</div>
+                      <div className="text-sm font-semibold text-white">$12,543.67</div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2 text-center">
+                      <div className="text-xs text-slate-400">Available</div>
+                      <div className="text-sm font-semibold text-green-400">$8,234.12</div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2 text-center">
+                      <div className="text-xs text-slate-400">In Orders</div>
+                      <div className="text-sm font-semibold text-yellow-400">$1,234.56</div>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-2 text-center">
+                      <div className="text-xs text-slate-400">In Positions</div>
+                      <div className="text-sm font-semibold text-blue-400">$3,074.99</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Asset List */}
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Activity className="w-4 h-4 text-purple-400" />
+                    <h4 className="text-sm font-semibold text-white">Assets</h4>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {[
+                      { asset: 'USDC', balance: 8234.12, locked: 1234.56, total: 9468.68 },
+                      { asset: 'MEME_INDEX', balance: 1.5, locked: 0, total: 1.5 },
+                      { asset: 'DOG_INDEX', balance: 0, locked: 0.8, total: 0.8 },
+                      { asset: 'CAT_INDEX', balance: 2.0, locked: 0, total: 2.0 }
+                    ].map((asset, index) => (
+                      <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                            {asset.asset[0]}
+                          </div>
+                          <span className="font-medium text-white text-sm">{asset.asset}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-white font-medium">
+                            {asset.asset === 'USDC' ? `${asset.total.toLocaleString()}` : asset.total.toFixed(1)}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            Available: {asset.asset === 'USDC' ? `${asset.balance.toLocaleString()}` : asset.balance.toFixed(1)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+>>>>>>> Stashed changes
           {/* Open Orders Tab */}
-          <TabsContent value="orders" className="h-full m-0 p-4">
+          <TabsContent value="orders" className="h-auto m-0 p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Open Orders</h3>
@@ -786,7 +1150,7 @@ export function TradingBottomTabs() {
           </TabsContent>
 
           {/* Order History Tab */}
-          <TabsContent value="orderHistory" className="h-full m-0 p-4 overflow-y-auto">
+          <TabsContent value="orderHistory" className="h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Order History</h3>
@@ -942,7 +1306,7 @@ export function TradingBottomTabs() {
           </TabsContent>
 
           {/* Trade History Tab */}
-          <TabsContent value="tradeHistory" className="h-full m-0 p-4 overflow-y-auto">
+          <TabsContent value="tradeHistory" className="h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Trade History</h3>
@@ -1161,8 +1525,13 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
+<<<<<<< Updated upstream
           {/* Index Composition Tab - 핵심 차별화 기능 */}
           <TabsContent value="composition" className="h-full m-0 p-4">
+=======
+          {/* Market Data Tab - Holders, Whale, P&L Information */}
+          <TabsContent value="marketData" className="h-auto m-0 p-4">
+>>>>>>> Stashed changes
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Index Composition</h3>
