@@ -1,0 +1,103 @@
+'use client'
+
+import { useState } from 'react'
+
+const tabs = [
+  { id: 'positions', label: 'Positions(0)' },
+  { id: 'openOrders', label: 'Open Orders(0)' },
+  { id: 'orderHistory', label: 'Order History' },
+  { id: 'tradeHistory', label: 'Trade History' },
+  { id: 'transactionHistory', label: 'Transaction History' },
+  { id: 'positionHistory', label: 'Position History' },
+  { id: 'assets', label: 'Assets' }
+]
+
+export function BottomTabs() {
+  const [activeTab, setActiveTab] = useState('positions')
+
+  return (
+    <div className="h-full bg-slate-950 border-t border-slate-800 flex flex-col">
+      {/* 탭 네비게이션 */}
+      <div className="flex border-b border-slate-800">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.id
+                ? 'border-yellow-500 text-yellow-500'
+                : 'border-transparent text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 탭 컨텐츠 */}
+      <div className="flex-1 p-4 overflow-auto">
+        {activeTab === 'positions' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">🔍</div>
+            <div>You have no position.</div>
+          </div>
+        )}
+        
+        {activeTab === 'openOrders' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">📋</div>
+            <div>No open orders.</div>
+          </div>
+        )}
+        
+        {activeTab === 'orderHistory' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">📈</div>
+            <div>No order history.</div>
+          </div>
+        )}
+        
+        {activeTab === 'tradeHistory' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">💱</div>
+            <div>No trade history.</div>
+          </div>
+        )}
+        
+        {activeTab === 'transactionHistory' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">🧾</div>
+            <div>No transaction history.</div>
+          </div>
+        )}
+        
+        {activeTab === 'positionHistory' && (
+          <div className="text-center text-slate-400 py-8">
+            <div className="text-4xl mb-2">📊</div>
+            <div>No position history.</div>
+          </div>
+        )}
+        
+        {activeTab === 'assets' && (
+          <div>
+            <div className="text-sm text-slate-400 mb-4">Account Margin Ratio: 0.00%</div>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="text-slate-400">Account Maintenance Margin</div>
+                <div>0.00 USD</div>
+              </div>
+              <div>
+                <div className="text-slate-400">Account Equity</div>
+                <div>0.00 USD</div>
+              </div>
+              <div>
+                <div className="text-slate-400">Position Value</div>
+                <div>0.00 USD</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
