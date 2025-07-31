@@ -13,17 +13,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-<<<<<<< Updated upstream
-    <html lang="en">
-      <body>{children}</body>
-=======
     <html lang="en" className="dark">
-      <body className={inter.className}>
-        <PrivyProvider>
-          {children}
-        </PrivyProvider>
+      <body>
+        {children}
       </body>
->>>>>>> Stashed changes
     </html>
   )
 }

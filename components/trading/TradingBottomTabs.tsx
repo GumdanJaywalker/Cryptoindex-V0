@@ -668,12 +668,14 @@ const mockTradingStats = {
 
 export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
+  const [showHistory, setShowHistory] = useState(false)
+  const [showDiversification, setShowDiversification] = useState(false)
 
   // 서버와 클라이언트에서 동일한 값 사용
   const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
   const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0)
   const winningPositions = mockPositions.filter(p => p.pnl > 0).length
-  const avgReturn = mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length
+  const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0
 
   return (
     <div className="min-h-[50vh] bg-slate-950">
@@ -705,17 +707,10 @@ export function TradingBottomTabs() {
           </TabsTrigger>
         </TabsList>
         
-<<<<<<< Updated upstream
-        <div className="flex-1 overflow-hidden">
-          {/* Positions Tab */}
-          <TabsContent value="positions" className="h-full m-0 p-4">
-            <div className="space-y-3">
-=======
         <div className="bg-slate-950">
           {/* Positions Tab - Enhanced with detailed information */}
           <TabsContent value="positions" className="h-auto m-0 p-4">
             <div className="space-y-4">
->>>>>>> Stashed changes
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Active Positions</h3>
                 <Badge variant="outline" className="text-green-400 border-green-400/30">
@@ -724,10 +719,6 @@ export function TradingBottomTabs() {
               </div>
               
               <div className="space-y-2">
-<<<<<<< Updated upstream
-                {mockPositions.map((position) => (
-                  <Card key={position.id} className="bg-slate-800/50 border-slate-700">
-=======
                 {/* Table Header */}
                 <div className="grid grid-cols-9 gap-2 text-xs text-slate-400 px-2 py-1 border-b border-slate-700">
                   <div>Symbol</div>
@@ -817,7 +808,7 @@ export function TradingBottomTabs() {
                           <div className="text-center">
                             <div className="text-white font-medium">${position.liquidationPrice.toFixed(3)}</div>
                             <div className="text-xs text-slate-400">
-                              {(Math.abs((position.liquidationPrice - position.currentPrice) / position.currentPrice) * 100).toFixed(1)}%
+                              {position.currentPrice !== 0 ? (Math.abs((position.liquidationPrice - position.currentPrice) / position.currentPrice) * 100).toFixed(1) : '0.0'}%
                             </div>
                           </div>
 
@@ -882,16 +873,18 @@ export function TradingBottomTabs() {
                     <div className="bg-slate-900/50 rounded p-2">
                       <div className="text-xs text-slate-400">Avg Leverage</div>
                       <div className="text-sm font-semibold text-orange-400">
-                        {(mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage), 0) / mockPositions.length).toFixed(1)}x
+                        {mockPositions.length > 0 ? (mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage), 0) / mockPositions.length).toFixed(1) : '0.0'}x
                       </div>
                     </div>
                     <div className="bg-slate-900/50 rounded p-2">
                       <div className="text-xs text-slate-400">Highest ADL</div>
                       <div className={`text-sm font-semibold ${
-                        Math.max(...mockPositions.map(p => p.adlRank)) >= 4 ? 'text-red-400' : 
-                        Math.max(...mockPositions.map(p => p.adlRank)) >= 3 ? 'text-yellow-400' : 'text-green-400'
+                        (() => {
+                          const maxAdl = mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0;
+                          return maxAdl >= 4 ? 'text-red-400' : maxAdl >= 3 ? 'text-yellow-400' : 'text-green-400';
+                        })()
                       }`}>
-                        {Math.max(...mockPositions.map(p => p.adlRank))}
+                        {mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0}
                       </div>
                     </div>
                     <div className="bg-slate-900/50 rounded p-2">
@@ -990,7 +983,6 @@ export function TradingBottomTabs() {
                   }
                 ].map((position, index) => (
                   <Card key={index} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
->>>>>>> Stashed changes
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -1019,8 +1011,6 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-<<<<<<< Updated upstream
-=======
           {/* Assets Tab */}
           <TabsContent value="assets" className="h-auto m-0 p-4">
             <div className="space-y-4">
@@ -1100,8 +1090,6 @@ export function TradingBottomTabs() {
               </Card>
             </div>
           </TabsContent>
-
->>>>>>> Stashed changes
           {/* Open Orders Tab */}
           <TabsContent value="orders" className="h-auto m-0 p-4">
             <div className="space-y-3">
@@ -1184,7 +1172,7 @@ export function TradingBottomTabs() {
                 <div className="bg-slate-800/50 border border-slate-700 rounded p-2">
                   <div className="text-xs text-slate-400">Fill Rate</div>
                   <div className="text-sm font-semibold text-white">
-                    {((mockOrderHistory.filter(o => o.status === 'Filled').length / mockOrderHistory.length) * 100).toFixed(1)}%
+                    {mockOrderHistory.length > 0 ? ((mockOrderHistory.filter(o => o.status === 'Filled').length / mockOrderHistory.length) * 100).toFixed(1) : '0.0'}%
                   </div>
                 </div>
               </div>
@@ -1520,13 +1508,8 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-<<<<<<< Updated upstream
           {/* Index Composition Tab - 핵심 차별화 기능 */}
           <TabsContent value="composition" className="h-full m-0 p-4">
-=======
-          {/* Market Data Tab - Holders, Whale, P&L Information */}
-          <TabsContent value="marketData" className="h-auto m-0 p-4">
->>>>>>> Stashed changes
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Index Composition</h3>
