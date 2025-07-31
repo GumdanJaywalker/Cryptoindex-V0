@@ -49,8 +49,8 @@ export function TradingPanel() {
   const [trailingDistance, setTrailingDistance] = useState('2')
 
   const getRiskColor = (percentage: number) => {
-    if (percentage < 50) return 'text-green-400'
-    if (percentage < 80) return 'text-yellow-400'
+    if (percentage < 50) return 'text-emerald-400'
+    if (percentage < 80) return 'text-amber-400'
     return 'text-red-400'
   }
 
@@ -64,7 +64,7 @@ export function TradingPanel() {
               <Input
                 value={twapDuration}
                 onChange={(e) => setTwapDuration(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white text-sm"
+                className="bg-muted border-border text-foreground text-sm h-9"
                 placeholder="60"
               />
             </div>
@@ -78,7 +78,7 @@ export function TradingPanel() {
               <Input
                 value={scaleOrders}
                 onChange={(e) => setScaleOrders(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white text-sm"
+                className="bg-muted border-border text-foreground text-sm h-9"
                 placeholder="5"
               />
             </div>
@@ -87,7 +87,7 @@ export function TradingPanel() {
               <Input
                 value={scaleRange}
                 onChange={(e) => setScaleRange(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white text-sm"
+                className="bg-muted border-border text-foreground text-sm h-9"
                 placeholder="5"
               />
             </div>
@@ -100,7 +100,7 @@ export function TradingPanel() {
             <Input
               value={icebergVisible}
               onChange={(e) => setIcebergVisible(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white text-sm"
+              className="bg-muted border-border text-foreground text-sm h-9"
               placeholder="10"
             />
           </div>
@@ -112,7 +112,7 @@ export function TradingPanel() {
             <Input
               value={trailingDistance}
               onChange={(e) => setTrailingDistance(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white text-sm"
+              className="bg-muted border-border text-foreground text-sm h-9"
               placeholder="2"
             />
           </div>
@@ -123,30 +123,30 @@ export function TradingPanel() {
   }
 
   return (
-    <div className="h-full bg-slate-950 flex flex-col">
+    <div className="bg-background border-border">
       {/* Header */}
-      <div className="h-8 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3">
-        <h3 className="text-sm font-medium text-white">Trading Panel</h3>
+      <div className="h-7 bg-secondary border-b border-border flex items-center justify-between px-3">
+        <h3 className="text-sm font-medium text-foreground">Trading Panel</h3>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="h-6 px-2 text-xs text-slate-400 hover:text-white"
+          className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent"
         >
           <Settings className="w-3 h-3 mr-1" />
           Advanced
         </Button>
       </div>
 
-      <div className="flex-1 p-3 space-y-4 overflow-y-auto">
+      <div className="px-3 pt-2.5 space-y-3 bg-background">
         {/* Long/Short Tabs */}
         <Tabs value={side} onValueChange={(value) => setSide(value as 'Long' | 'Short')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-800 p-1">
-            <TabsTrigger value="Long" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-slate-400">
+          <TabsList className="grid w-full grid-cols-2 bg-secondary p-1">
+            <TabsTrigger value="Long" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
               Long
             </TabsTrigger>
-            <TabsTrigger value="Short" className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-slate-400">
+            <TabsTrigger value="Short" className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
               <TrendingDown className="w-4 h-4 mr-1" />
               Short
             </TabsTrigger>
@@ -155,17 +155,17 @@ export function TradingPanel() {
 
         {/* Order Type */}
         <div>
-          <label className="block text-xs text-slate-400 mb-2">Order Type</label>
+          <label className="block text-xs text-muted-foreground mb-2">Order Type</label>
           <Select value={orderType} onValueChange={setOrderType}>
-            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+            <SelectTrigger className="bg-muted border-border text-foreground h-9">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectContent className="bg-popover border-border">
               {orderTypes.map((type) => (
-                <SelectItem key={type} value={type} className="text-white focus:bg-slate-700">
+                <SelectItem key={type} value={type} className="text-popover-foreground focus:bg-accent focus:text-accent-foreground">
                   {type}
-                  {type === 'TWAP' && <Badge variant="secondary" className="ml-2 text-xs">Pro</Badge>}
-                  {type === 'Iceberg' && <Badge variant="secondary" className="ml-2 text-xs">Pro</Badge>}
+                  {type === 'TWAP' && <Badge variant="secondary" className="ml-2 text-xs bg-accent text-accent-foreground">Pro</Badge>}
+                  {type === 'Iceberg' && <Badge variant="secondary" className="ml-2 text-xs bg-accent text-accent-foreground">Pro</Badge>}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -176,7 +176,7 @@ export function TradingPanel() {
         <div className="space-y-3">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="text-xs text-slate-400">Leverage: {leverage}x</label>
+              <label className="text-xs text-muted-foreground">Leverage: {leverage}x</label>
               <div className={`text-xs ${getRiskColor((leverage / 50) * 100)}`}>
                 Risk: {leverage > 10 ? 'High' : leverage > 5 ? 'Medium' : 'Low'}
               </div>
@@ -190,8 +190,8 @@ export function TradingPanel() {
                   onClick={() => setLeverage(lev)}
                   className={`text-xs h-8 ${
                     leverage === lev
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white border-blue-600'
-                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary'
+                      : 'bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
                   {lev}x
@@ -201,13 +201,13 @@ export function TradingPanel() {
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-2">Margin Mode</label>
+            <label className="block text-xs text-muted-foreground mb-2">Margin Mode</label>
             <Tabs value={marginMode} onValueChange={setMarginMode} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-800 p-1">
-                <TabsTrigger value="Cross Margin" className="data-[state=active]:bg-blue-600 text-xs">
+              <TabsList className="grid w-full grid-cols-2 bg-secondary p-1">
+                <TabsTrigger value="Cross Margin" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs">
                   Cross
                 </TabsTrigger>
-                <TabsTrigger value="Isolated Margin" className="data-[state=active]:bg-blue-600 text-xs">
+                <TabsTrigger value="Isolated Margin" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-xs">
                   Isolated
                 </TabsTrigger>
               </TabsList>
@@ -218,11 +218,11 @@ export function TradingPanel() {
         {/* Price */}
         {orderType !== 'Market' && (
           <div>
-            <label className="block text-xs text-slate-400 mb-2">Price (USDC)</label>
+            <label className="block text-xs text-muted-foreground mb-2">Price (USDC)</label>
             <Input
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white"
+              className="bg-muted border-border text-foreground h-9"
               placeholder="0.0000"
             />
           </div>
@@ -231,19 +231,19 @@ export function TradingPanel() {
         {/* Size */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-xs text-slate-400">Size</label>
+            <label className="text-xs text-muted-foreground">Size</label>
             <Tabs value={sizeMode} onValueChange={(value) => setSizeMode(value as any)} className="h-6">
-              <TabsList className="grid grid-cols-3 bg-slate-800 h-6 p-0">
-                <TabsTrigger value="USDC" className="text-xs px-2 data-[state=active]:bg-blue-600">USDC</TabsTrigger>
-                <TabsTrigger value="Contracts" className="text-xs px-2 data-[state=active]:bg-blue-600">Contracts</TabsTrigger>
-                <TabsTrigger value="Percentage" className="text-xs px-2 data-[state=active]:bg-blue-600">%</TabsTrigger>
+              <TabsList className="grid grid-cols-3 bg-secondary h-6 p-0">
+                <TabsTrigger value="USDC" className="text-xs px-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">USDC</TabsTrigger>
+                <TabsTrigger value="Contracts" className="text-xs px-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">Contracts</TabsTrigger>
+                <TabsTrigger value="Percentage" className="text-xs px-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">%</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
           <Input
             value={size}
             onChange={(e) => setSize(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white"
+            className="bg-muted border-border text-foreground h-9"
             placeholder={sizeMode === 'USDC' ? '0.00' : sizeMode === 'Contracts' ? '0' : '0'}
           />
           <div className="grid grid-cols-4 gap-1 mt-2">
@@ -252,7 +252,7 @@ export function TradingPanel() {
                 key={percent}
                 variant="outline"
                 size="sm"
-                className="text-xs h-7 bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700"
+                className="text-xs h-7 bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent"
               >
                 {percent}%
               </Button>
@@ -269,16 +269,16 @@ export function TradingPanel() {
             <Checkbox 
               checked={takeProfitEnabled}
               onCheckedChange={setTakeProfitEnabled}
-              className="border-slate-600 data-[state=checked]:bg-green-600"
+              className="border-border data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
             />
-            <label className="text-xs text-slate-400">Take Profit</label>
-            <Target className="w-3 h-3 text-green-400" />
+            <label className="text-xs text-muted-foreground">Take Profit</label>
+            <Target className="w-3 h-3 text-emerald-400" />
           </div>
           {takeProfitEnabled && (
             <Input
               value={takeProfit}
               onChange={(e) => setTakeProfit(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white"
+              className="bg-muted border-border text-foreground h-9"
               placeholder="0.0000"
             />
           )}
@@ -287,16 +287,16 @@ export function TradingPanel() {
             <Checkbox 
               checked={stopLossEnabled}
               onCheckedChange={setStopLossEnabled}
-              className="border-slate-600 data-[state=checked]:bg-red-600"
+              className="border-border data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
             />
-            <label className="text-xs text-slate-400">Stop Loss</label>
+            <label className="text-xs text-muted-foreground">Stop Loss</label>
             <Shield className="w-3 h-3 text-red-400" />
           </div>
           {stopLossEnabled && (
             <Input
               value={stopLoss}
               onChange={(e) => setStopLoss(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white"
+              className="bg-muted border-border text-foreground h-9"
               placeholder="0.0000"
             />
           )}
@@ -305,9 +305,9 @@ export function TradingPanel() {
             <Checkbox 
               checked={trailingStopEnabled}
               onCheckedChange={setTrailingStopEnabled}
-              className="border-slate-600 data-[state=checked]:bg-orange-600"
+              className="border-border data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
             />
-            <label className="text-xs text-slate-400">Trailing Stop</label>
+            <label className="text-xs text-muted-foreground">Trailing Stop</label>
             <Timer className="w-3 h-3 text-orange-400" />
           </div>
         </div>
@@ -315,9 +315,9 @@ export function TradingPanel() {
         {/* Advanced Options */}
         {showAdvanced && (
           <>
-            <Separator className="bg-slate-700" />
+            <Separator className="bg-border" />
             <div className="space-y-3">
-              <h4 className="text-xs font-medium text-white flex items-center">
+              <h4 className="text-xs font-medium text-foreground flex items-center">
                 <Settings className="w-3 h-3 mr-1" />
                 Advanced Options
               </h4>
@@ -327,30 +327,30 @@ export function TradingPanel() {
                   <Checkbox 
                     checked={postOnly}
                     onCheckedChange={setPostOnly}
-                    className="border-slate-600"
+                    className="border-border"
                   />
-                  <label className="text-xs text-slate-400">Post Only</label>
+                  <label className="text-xs text-muted-foreground">Post Only</label>
                 </div>
                 
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     checked={reduceOnly}
                     onCheckedChange={setReduceOnly}
-                    className="border-slate-600"
+                    className="border-border"
                   />
-                  <label className="text-xs text-slate-400">Reduce Only</label>
+                  <label className="text-xs text-muted-foreground">Reduce Only</label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Time in Force</label>
+                <label className="block text-xs text-muted-foreground mb-1">Time in Force</label>
                 <Select value={timeInForce} onValueChange={setTimeInForce}>
-                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8">
+                  <SelectTrigger className="bg-muted border-border text-foreground h-8">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-popover border-border">
                     {timeInForceOptions.map((option) => (
-                      <SelectItem key={option} value={option} className="text-white focus:bg-slate-700">
+                      <SelectItem key={option} value={option} className="text-popover-foreground focus:bg-accent focus:text-accent-foreground">
                         {option}
                       </SelectItem>
                     ))}
@@ -362,17 +362,17 @@ export function TradingPanel() {
                 <Checkbox 
                   checked={hiddenOrder}
                   onCheckedChange={setHiddenOrder}
-                  className="border-slate-600"
+                  className="border-border"
                 />
-                <label className="text-xs text-slate-400">Hidden Order (Iceberg)</label>
+                <label className="text-xs text-muted-foreground">Hidden Order (Iceberg)</label>
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Order Expiry</label>
+                <label className="block text-xs text-muted-foreground mb-1">Order Expiry</label>
                 <Input
                   value={orderExpiry}
                   onChange={(e) => setOrderExpiry(e.target.value)}
-                  className="bg-slate-800 border-slate-700 text-white h-8"
+                  className="bg-muted border-border text-foreground h-8"
                   placeholder="e.g., 1h, 1d"
                 />
               </div>
@@ -384,8 +384,8 @@ export function TradingPanel() {
         <Button 
           className={`w-full py-3 h-12 rounded-lg font-semibold transition-all ${
             side === 'Long'
-              ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-600/20'
-              : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20'
+              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 border-emerald-600'
+              : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20 border-red-600'
           }`}
         >
           <Zap className="w-4 h-4 mr-2" />
@@ -393,38 +393,38 @@ export function TradingPanel() {
         </Button>
 
         {/* Order Preview */}
-        <div className="bg-slate-900 rounded-lg p-3 space-y-2 text-xs border border-slate-800">
+        <div className="bg-card rounded-lg p-3 space-y-2 text-xs border border-border">
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Est. Fill Price:</span>
-            <span className="text-white font-medium">${price}</span>
+            <span className="text-muted-foreground">Est. Fill Price:</span>
+            <span className="text-card-foreground font-medium">${price}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Est. Fee (Maker/Taker):</span>
-            <span className="text-white">$0.12 / $0.18</span>
+            <span className="text-muted-foreground">Est. Fee (Maker/Taker):</span>
+            <span className="text-card-foreground">$0.12 / $0.18</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Slippage:</span>
-            <span className="text-green-400">~0.02%</span>
+            <span className="text-muted-foreground">Slippage:</span>
+            <span className="text-emerald-400">~0.02%</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Liq. Price:</span>
-            <span className="text-yellow-400 font-medium">$1.1234</span>
+            <span className="text-muted-foreground">Liq. Price:</span>
+            <span className="text-amber-400 font-medium">$1.1234</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Required Margin:</span>
-            <span className="text-white font-medium">$123.45</span>
+            <span className="text-muted-foreground">Required Margin:</span>
+            <span className="text-card-foreground font-medium">$123.45</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Margin Usage:</span>
+            <span className="text-muted-foreground">Margin Usage:</span>
             <span className={`font-medium ${getRiskColor(35)}`}>35.2%</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400">Max Loss/Gain:</span>
-            <span className="text-white">-$500 / +$1,250</span>
+            <span className="text-muted-foreground">Max Loss/Gain:</span>
+            <span className="text-card-foreground">-$500 / +$1,250</span>
           </div>
           
           {takeProfitEnabled && (
-            <div className="flex justify-between items-center text-green-400">
+            <div className="flex justify-between items-center text-emerald-400">
               <span>Take Profit:</span>
               <span className="font-medium">${takeProfit}</span>
             </div>
@@ -439,15 +439,18 @@ export function TradingPanel() {
         </div>
 
         {/* Hot Keys */}
-        <div className="bg-slate-900 rounded-lg p-2 text-xs border border-slate-800">
-          <div className="text-slate-400 mb-1">Hotkeys:</div>
-          <div className="grid grid-cols-2 gap-1 text-slate-500">
+        <div className="bg-card rounded-lg p-2 text-xs border border-border mt-4">
+          <div className="text-muted-foreground mb-1">Hotkeys:</div>
+          <div className="grid grid-cols-2 gap-1 text-muted-foreground">
             <div>F1: Quick Long</div>
             <div>F2: Quick Short</div>
             <div>F3: Close All</div>
             <div>F4: Cancel All</div>
           </div>
         </div>
+        
+        {/* 하단 여백 */}
+        <div className="pb-4"></div>
       </div>
     </div>
   )

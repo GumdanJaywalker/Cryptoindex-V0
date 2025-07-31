@@ -69,9 +69,9 @@ export function ChartArea() {
   const [activeChartTab, setActiveChartTab] = useState('Chart')
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col bg-slate-950">
       {/* Chart Controls */}
-      <div className="h-12 bg-slate-900 border-b border-slate-800 flex items-center px-4 space-x-4">
+      <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-4 space-x-4">
         {/* Timeframe Buttons */}
         <div className="flex space-x-1">
           {timeframes.map((tf) => (
@@ -108,9 +108,9 @@ export function ChartArea() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-col bg-slate-950">
         {/* Tab Headers */}
-        <div className="h-10 bg-slate-900 border-b border-slate-800 flex items-center">
+        <div className="h-10 bg-slate-900 border-b border-slate-700 flex items-center">
           <div className="flex space-x-1 px-4">
             {chartTabs.map((tab) => (
               <button
@@ -129,9 +129,9 @@ export function ChartArea() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 bg-slate-950 overflow-y-auto">
+        <div className="min-h-[60vh] bg-slate-950">
           {activeChartTab === 'Chart' && (
-            <div className="h-full flex items-center justify-center">
+            <div className="min-h-[400px] flex items-center justify-center bg-slate-950">
               <div className="text-center">
                 <div className="text-6xl mb-4">📈</div>
                 <div className="text-xl text-slate-400 mb-2">TradingView Chart</div>
@@ -146,7 +146,7 @@ export function ChartArea() {
           )}
 
           {activeChartTab === 'Info' && (
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 bg-slate-950">
               {/* Index Description */}
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
@@ -262,7 +262,7 @@ export function ChartArea() {
           )}
 
           {activeChartTab === 'Trading Data' && (
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 bg-slate-950">
               {/* Market Statistics */}
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
