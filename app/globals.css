@@ -333,3 +333,58 @@ body {
 .dark [data-radix-select-item]:focus {
   background: hsl(222 47% 10%) !important;
 }
+
+/* Trading slider styles */
+.slider-buy::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #10b981;
+  cursor: pointer;
+  border: 2px solid #065f46;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-buy::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #10b981;
+  cursor: pointer;
+  border: 2px solid #065f46;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-sell::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #dc2626;
+  cursor: pointer;
+  border: 2px solid #7f1d1d;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-sell::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #dc2626;
+  cursor: pointer;
+  border: 2px solid #7f1d1d;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Hide default track styles */
+.slider-buy::-webkit-slider-track,
+.slider-sell::-webkit-slider-track {
+  background: transparent;
+}
+
+.slider-buy::-moz-range-track,
+.slider-sell::-moz-range-track {
+  background: transparent;
+  border: none;
+}

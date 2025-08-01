@@ -1,54 +1,70 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { IndexInfoBar } from './IndexInfoBar'
 import { ChartArea } from './ChartArea'
 import { TradingPanel } from './TradingPanelSimple'
-import { TradingBottomTabs } from './TradingBottomTabs'
 import { OrderBookTrades } from './OrderBookTrades'
 import { WhaleAlert } from './WhaleAlert'
 
+// Dynamic import to prevent hydration issues
+const TradingBottomTabs = dynamic(
+  () => import('./TradingBottomTabs').then(mod => ({ default: mod.TradingBottomTabs })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[50vh] bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    )
+  }
+)
+
 export function TradingLayout() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* 최상단 바 (Full Width) - 인덱스 정보 헤더 */}
-      <div className="w-full border-b border-slate-800 sticky top-0 z-10 bg-slate-950">
+      <div className="w-full border-b border-border sticky top-0 z-10 bg-background">
         <IndexInfoBar />
       </div>
 
       {/* 메인 거래 영역 */}
       <div className="flex min-h-[calc(100vh-64px)]">
         {/* 좌측+중간 영역 (80%) */}
-        <div className="w-[80%] flex flex-col bg-slate-950">
+        <div className="w-[80%] flex flex-col bg-background">
           {/* 상단: 차트 + 오더북 */}
           <div className="flex h-[75vh]">
             {/* 차트 영역 (68.75% of 80%) */}
-            <div className="w-[68.75%] border-r border-slate-800 bg-slate-950">
+            <div className="w-[68.75%] border-r border-border bg-background">
               <ChartArea />
             </div>
 
             {/* 오더북 영역 (31.25% of 80%) */}
-            <div className="w-[31.25%] bg-slate-950">
+            <div className="w-[31.25%] bg-background">
               <OrderBookTrades />
             </div>
           </div>
 
-          {/* 하단: Bottom Tabs - 페이지 스크롤로 아래까지 볼 수 있도록 */}
-          <div className="min-h-[50vh] border-t border-slate-800 bg-slate-950">
+          {/* 하단: Bottom Tabs - 명확한 경계선과 함께 */}
+          <div className="min-h-[50vh] border-t-2 border-slate-700 bg-background">
             <TradingBottomTabs />
           </div>
         </div>
 
         {/* 우측 거래창 영역 (20%) */}
-        <div className="w-[20%] h-[125vh] flex flex-col border-l border-slate-800 bg-slate-950">
+        <div className="w-[20%] min-h-[calc(100vh-64px)] flex flex-col border-l border-border bg-background">
           {/* Trading Panel - 자연스러운 크기 */}
-          <div>
+          <div className="flex-shrink-0">
             <TradingPanel />
           </div>
 
-          {/* Whale Alert - BottomTabs와 맞춰서 내부 스크롤 */}
-          <div className="flex-1 border-t border-slate-700">
+          {/* Whale Alert - 고정 높이로 독립적인 섹션 */}
+          <div className="mt-4 pt-4 px-3 border-t border-muted-foreground/20 flex-shrink-0">
             <WhaleAlert />
           </div>
+
+          {/* 여백 공간 */}
+          <div className="flex-1"></div>
         </div>
       </div>
     </div>
