@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -226,8 +226,6 @@ const mockDiversificationMetrics = {
   diversificationGrade: 'B+'
 }
 
-
-
 // Mock data for market data
 const mockMarketData = {
   orderBookDepth: {
@@ -450,7 +448,7 @@ const mockAnalytics = {
       ]
     }
   }
-}
+};
 
 // Mock data for order history
 const mockOrderHistory = [
@@ -539,9 +537,7 @@ const mockOrderHistory = [
     slippage: null,
     marketImpact: null
   }
-]
-
-
+];
 
 export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
@@ -549,15 +545,15 @@ export function TradingBottomTabs() {
   const [showDiversification, setShowDiversification] = useState(false)
 
   // 서버와 클라이언트에서 동일한 값 사용
-  const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
-  const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0)
-  const winningPositions = mockPositions.filter(p => p.pnl > 0).length
-  const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0
+  const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0);
+  const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0);
+  const winningPositions = mockPositions.filter(p => p.pnl > 0).length;
+  const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0;
 
   return (
     <div className="min-h-[50vh] bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-6 bg-secondary border-b border-slate-700 rounded-none w-full">
+        <TabsList className="grid grid-cols-7 bg-secondary border-b border-slate-700 rounded-none w-full">
           <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-blue-600">
             Positions
           </TabsTrigger>
@@ -572,6 +568,9 @@ export function TradingBottomTabs() {
           </TabsTrigger>
           <TabsTrigger value="market" className="text-xs data-[state=active]:bg-blue-600">
             Market Data
+          </TabsTrigger>
+          <TabsTrigger value="assets" className="text-xs data-[state=active]:bg-blue-600">
+            Assets
           </TabsTrigger>
           <TabsTrigger value="analytics" className="text-xs data-[state=active]:bg-blue-600">
             Analytics
@@ -725,8 +724,6 @@ export function TradingBottomTabs() {
                   )
                 })}
               </div>
-
-
             </div>
           </TabsContent>
 
@@ -919,6 +916,7 @@ export function TradingBottomTabs() {
               </Card>
             </div>
           </TabsContent>
+          
           {/* Open Orders Tab */}
           <TabsContent value="orders" className="h-auto m-0 p-4">
             <div className="space-y-3">
@@ -1116,8 +1114,6 @@ export function TradingBottomTabs() {
               </div>
             </div>
           </TabsContent>
-
-
 
           {/* Index Composition Tab - 핵심 차별화 기능 */}
           <TabsContent value="composition" className="h-full m-0 p-4">
@@ -1410,8 +1406,6 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-
-
           {/* Market Data Tab with Sub-tabs */}
           <TabsContent value="market" className="h-full m-0 p-4">
             <div className="space-y-4">
@@ -1586,71 +1580,308 @@ export function TradingBottomTabs() {
                             mockMarketData.volatilityMetrics.historicalVol.trend === 'increasing' ? 'text-red-400' :
                             mockMarketData.volatilityMetrics.historicalVol.trend === 'decreasing' ? 'text-green-400' :
                             'text-yellow-400'
-                      }`}>
-                        {(mockMarketData.volatilityMetrics.historicalVol.current * 100).toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-slate-400 capitalize">
-                        {mockMarketData.volatilityMetrics.historicalVol.trend}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Implied Vol</div>
-                      <div className="text-sm font-semibold text-orange-400">
-                        {(mockMarketData.volatilityMetrics.impliedVol * 100).toFixed(1)}%
-                      </div>
-                      <div className="text-xs text-slate-400">Options based</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Vol Rank</div>
-                      <div className={`text-sm font-semibold ${
-                        mockMarketData.volatilityMetrics.volatilityRank > 70 ? 'text-red-400' :
-                        mockMarketData.volatilityMetrics.volatilityRank > 30 ? 'text-yellow-400' :
-                        'text-green-400'
-                      }`}>
-                        {mockMarketData.volatilityMetrics.volatilityRank}th
-                      </div>
-                      <div className="text-xs text-slate-400">percentile</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Week Range</div>
-                      <div className="text-sm font-semibold text-white">
-                        {(mockMarketData.volatilityMetrics.historicalVol.weekLow * 100).toFixed(1)}% - {(mockMarketData.volatilityMetrics.historicalVol.weekHigh * 100).toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* GARCH Predictions */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Target className="w-3 h-3 text-cyan-400" />
-                      GARCH Model Predictions
-                      <Badge variant="outline" className="text-xs text-cyan-400 border-cyan-400/30 ml-auto">
-                        {(mockMarketData.volatilityMetrics.garchPrediction.confidence * 100).toFixed(0)}% confidence
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Next Hour</div>
-                        <div className="text-sm font-semibold text-cyan-400">
-                          {(mockMarketData.volatilityMetrics.garchPrediction.nextHour * 100).toFixed(1)}%
+                          }`}>
+                            {(mockMarketData.volatilityMetrics.historicalVol.current * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-slate-400 capitalize">
+                            {mockMarketData.volatilityMetrics.historicalVol.trend}
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Implied Vol</div>
+                          <div className="text-sm font-semibold text-orange-400">
+                            {(mockMarketData.volatilityMetrics.impliedVol * 100).toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-slate-400">Options based</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Vol Rank</div>
+                          <div className={`text-sm font-semibold ${
+                            mockMarketData.volatilityMetrics.volatilityRank > 70 ? 'text-red-400' :
+                            mockMarketData.volatilityMetrics.volatilityRank > 30 ? 'text-yellow-400' :
+                            'text-green-400'
+                          }`}>
+                            {mockMarketData.volatilityMetrics.volatilityRank}th
+                          </div>
+                          <div className="text-xs text-slate-400">percentile</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Week Range</div>
+                          <div className="text-sm font-semibold text-white">
+                            {(mockMarketData.volatilityMetrics.historicalVol.weekLow * 100).toFixed(1)}% - {(mockMarketData.volatilityMetrics.historicalVol.weekHigh * 100).toFixed(1)}%
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Next 4h</div>
-                        <div className="text-sm font-semibold text-cyan-400">
-                          {(mockMarketData.volatilityMetrics.garchPrediction.next4Hours * 100).toFixed(1)}%
+                      
+                      {/* GARCH Predictions */}
+                      <div>
+                        <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
+                          <Target className="w-3 h-3 text-cyan-400" />
+                          GARCH Model Predictions
+                          <Badge variant="outline" className="text-xs text-cyan-400 border-cyan-400/30 ml-auto">
+                            {(mockMarketData.volatilityMetrics.garchPrediction.confidence * 100).toFixed(0)}% confidence
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                            <div className="text-xs text-slate-400">Next Hour</div>
+                            <div className="text-sm font-semibold text-cyan-400">
+                              {(mockMarketData.volatilityMetrics.garchPrediction.nextHour * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                            <div className="text-xs text-slate-400">Next 4h</div>
+                            <div className="text-sm font-semibold text-cyan-400">
+                              {(mockMarketData.volatilityMetrics.garchPrediction.next4Hours * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                            <div className="text-xs text-slate-400">Next Day</div>
+                            <div className="text-sm font-semibold text-cyan-400">
+                              {(mockMarketData.volatilityMetrics.garchPrediction.nextDay * 100).toFixed(1)}%
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Next Day</div>
-                        <div className="text-sm font-semibold text-cyan-400">
-                          {(mockMarketData.volatilityMetrics.garchPrediction.nextDay * 100).toFixed(1)}%
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Holders Sub-tab */}
+                <TabsContent value="holders" className="mt-4 space-y-4">
+                  {/* Holder Analysis */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Users className="w-4 h-4 text-purple-400" />
+                        <h4 className="text-sm font-semibold text-white">Holder Analysis</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Total Holders</div>
+                          <div className="text-sm font-semibold text-white">
+                            {mockAnalytics.onChainMetrics.holderAnalysis.totalHolders.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-green-400">
+                            +{mockAnalytics.onChainMetrics.holderAnalysis.change24h} (24h)
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Whales</div>
+                          <div className="text-sm font-semibold text-orange-400">
+                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.whales}%
+                          </div>
+                          <div className="text-xs text-slate-400">&gt;$100K</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Medium</div>
+                          <div className="text-sm font-semibold text-blue-400">
+                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.mediumHolders}%
+                          </div>
+                          <div className="text-xs text-slate-400">$10K-100K</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Small</div>
+                          <div className="text-sm font-semibold text-green-400">
+                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.smallHolders}%
+                          </div>
+                          <div className="text-xs text-slate-400">&lt;$10K</div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                      
+                      {/* Top Holders */}
+                      <div>
+                        <div className="text-xs font-medium text-white mb-2">Top Holders</div>
+                        <div className="space-y-1">
+                          {mockAnalytics.onChainMetrics.holderAnalysis.topHolders.map((holder, index) => (
+                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                  {index + 1}
+                                </div>
+                                <span className="text-xs text-slate-400 font-mono">{holder.address}</span>
+                                <span className="text-xs text-slate-300">{holder.percentage}%</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs text-white font-medium">
+                                  ${(holder.balance / 1e6).toFixed(1)}M
+                                </div>
+                                <div className={`text-xs ${
+                                  holder.change > 0 ? 'text-green-400' : 
+                                  holder.change < 0 ? 'text-red-400' : 'text-slate-400'
+                                }`}>
+                                  {holder.change > 0 ? '+' : ''}{holder.change.toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Flow Analysis */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <ArrowUpDown className="w-4 h-4 text-cyan-400" />
+                        <h4 className="text-sm font-semibold text-white">Money Flow Analysis</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Net Flow 24h</div>
+                          <div className={`text-sm font-semibold ${
+                            mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h > 0 ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h > 0 ? '+' : ''}${(mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h / 1e6).toFixed(1)}M
+                          </div>
+                          <div className="text-xs text-slate-400 capitalize">
+                            {mockAnalytics.onChainMetrics.flowAnalysis.trend}
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Inflow</div>
+                          <div className="text-sm font-semibold text-green-400">
+                            ${(mockAnalytics.onChainMetrics.flowAnalysis.inflow / 1e6).toFixed(1)}M
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Outflow</div>
+                          <div className="text-sm font-semibold text-red-400">
+                            ${(mockAnalytics.onChainMetrics.flowAnalysis.outflow / 1e6).toFixed(1)}M
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Exchange Flow</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${((mockAnalytics.onChainMetrics.flowAnalysis.exchangeOutflow - mockAnalytics.onChainMetrics.flowAnalysis.exchangeInflow) / 1e6).toFixed(1)}M
+                          </div>
+                          <div className="text-xs text-slate-400">Net out</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Whale Alert Sub-tab */}
+                <TabsContent value="whales" className="mt-4 space-y-4">
+                  {/* Large Order Detection */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Scale className="w-4 h-4 text-orange-400" />
+                        <h4 className="text-sm font-semibold text-white">Large Order Detection</h4>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {mockMarketData.orderBookDepth.whaleOrders.map((order, index) => (
+                          <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-3">
+                            <div className="flex items-center gap-3">
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${order.side === 'buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                              >
+                                {order.side.toUpperCase()}
+                              </Badge>
+                              <div>
+                                <div className="text-sm text-white font-medium">${order.size.toLocaleString()}</div>
+                                <div className="text-xs text-slate-400">@ ${order.price}</div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-orange-400 font-medium">{order.impact}% impact</div>
+                              <div className="text-xs text-slate-400">{order.time}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Large Transactions */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Radar className="w-4 h-4 text-cyan-400" />
+                        <h4 className="text-sm font-semibold text-white">Large Transactions (&gt;$50K)</h4>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {mockAnalytics.onChainMetrics.largeTransactions.map((tx, index) => (
+                          <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-3">
+                            <div className="flex items-center gap-3">
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${tx.type === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                              >
+                                {tx.type}
+                              </Badge>
+                              <div>
+                                <div className="text-sm text-white font-medium">${tx.amount.toLocaleString()}</div>
+                                <div className="text-xs text-slate-400 font-mono">{tx.wallet}</div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-orange-400 font-medium">{tx.impact}% impact</div>
+                              <div className="text-xs text-slate-400">{tx.time}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-3 pt-2 border-t border-slate-700">
+                        <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs w-full">
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          View All Transactions
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Whale Activity Summary */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Activity className="w-4 h-4 text-purple-400" />
+                        <h4 className="text-sm font-semibold text-white">Whale Activity Summary</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Large Buys</div>
+                          <div className="text-sm font-semibold text-green-400">
+                            {mockAnalytics.onChainMetrics.largeTransactions.filter(tx => tx.type === 'Buy').length}
+                          </div>
+                          <div className="text-xs text-slate-400">Last 24h</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Large Sells</div>
+                          <div className="text-sm font-semibold text-red-400">
+                            {mockAnalytics.onChainMetrics.largeTransactions.filter(tx => tx.type === 'Sell').length}
+                          </div>
+                          <div className="text-xs text-slate-400">Last 24h</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Total Volume</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${(mockAnalytics.onChainMetrics.largeTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 1e6).toFixed(1)}M
+                          </div>
+                          <div className="text-xs text-slate-400">Whale trades</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Avg Impact</div>
+                          <div className="text-sm font-semibold text-orange-400">
+                            {(mockAnalytics.onChainMetrics.largeTransactions.reduce((sum, tx) => sum + tx.impact, 0) / mockAnalytics.onChainMetrics.largeTransactions.length).toFixed(2)}%
+                          </div>
+                          <div className="text-xs text-slate-400">Price impact</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           </TabsContent>
 
@@ -1667,276 +1898,40 @@ export function TradingBottomTabs() {
                 </div>
               </div>
 
-              {/* On-Chain Metrics Section */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Radar className="w-4 h-4 text-cyan-400" />
-                    <h4 className="text-sm font-semibold text-white">On-Chain Metrics</h4>
-                  </div>
-                  
-                  {/* Large Transactions Tracking */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Scale className="w-3 h-3 text-orange-400" />
-                      Large Transactions (>$50K)
-                    </div>
-                    <div className="space-y-1">
-                      {mockAnalytics.onChainMetrics.largeTransactions.map((tx, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${tx.type === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {tx.type}
-                            </Badge>
-                            <span className="text-xs text-white">${tx.amount.toLocaleString()}</span>
-                            <span className="text-xs text-slate-400">{tx.wallet}</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs text-orange-400">{tx.impact}% impact</div>
-                            <div className="text-xs text-slate-400">{tx.time}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Holder Analysis */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Users className="w-3 h-3 text-blue-400" />
-                      Holder Distribution
-                      <Badge variant="outline" className="text-xs text-blue-400 border-blue-400/30 ml-auto">
-                        +{mockAnalytics.onChainMetrics.holderAnalysis.change24h} holders (24h)
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-2 mb-3">
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Whales</div>
-                        <div className="text-sm font-semibold text-red-400">
-                          {mockAnalytics.onChainMetrics.holderAnalysis.distribution.whales}%
-                        </div>
-                        <div className="text-xs text-slate-400">&gt;100K</div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Medium</div>
-                        <div className="text-sm font-semibold text-yellow-400">
-                          {mockAnalytics.onChainMetrics.holderAnalysis.distribution.mediumHolders}%
-                        </div>
-                        <div className="text-xs text-slate-400">10K-100K</div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Small</div>
-                        <div className="text-sm font-semibold text-green-400">
-                          {mockAnalytics.onChainMetrics.holderAnalysis.distribution.smallHolders}%
-                        </div>
-                        <div className="text-xs text-slate-400">&lt;10K</div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      {mockAnalytics.onChainMetrics.holderAnalysis.topHolders.slice(0, 3).map((holder, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                              {index + 1}
-                            </div>
-                            <span className="text-xs text-slate-300">{holder.address}</span>
-                            <span className="text-xs text-white">{holder.percentage}%</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs text-white">${(holder.balance / 1e6).toFixed(1)}M</div>
-                            <div className={`text-xs ${holder.change > 0 ? 'text-green-400' : holder.change < 0 ? 'text-red-400' : 'text-slate-400'}`}>
-                              {holder.change > 0 ? '+' : ''}{holder.change.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Money Flow Analysis */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Activity className="w-3 h-3 text-green-400" />
-                      Money Flow (24h)
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-slate-900/50 rounded p-2">
-                        <div className="text-xs text-slate-400">Net Flow</div>
-                        <div className={`text-sm font-semibold ${mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          ${(mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h / 1e6).toFixed(1)}M
-                        </div>
-                        <div className="text-xs text-green-400 capitalize">
-                          {mockAnalytics.onChainMetrics.flowAnalysis.trend}
-                        </div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2">
-                        <div className="text-xs text-slate-400">Exchange Flow</div>
-                        <div className={`text-sm font-semibold ${mockAnalytics.onChainMetrics.flowAnalysis.exchangeOutflow > mockAnalytics.onChainMetrics.flowAnalysis.exchangeInflow ? 'text-green-400' : 'text-red-400'}`}>
-                          ${((mockAnalytics.onChainMetrics.flowAnalysis.exchangeOutflow - mockAnalytics.onChainMetrics.flowAnalysis.exchangeInflow) / 1e6).toFixed(1)}M
-                        </div>
-                        <div className="text-xs text-slate-400">Net Outflow</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Market Sentiment Section */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Heart className="w-4 h-4 text-pink-400" />
-                    <h4 className="text-sm font-semibold text-white">Market Sentiment</h4>
-                  </div>
-                  
-                  {/* Long/Short Ratio */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3 text-blue-400" />
-                      Long/Short Ratio
-                      <Badge variant="outline" className={`text-xs ml-auto ${
-                        mockAnalytics.marketSentiment.longShortRatio.trend === 'increasing' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'
-                      }`}>
-                        {mockAnalytics.marketSentiment.longShortRatio.trend}
-                      </Badge>
-                    </div>
-                    
-                    <div className="bg-slate-900/50 rounded p-2 mb-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-400">Current Ratio</span>
-                        <span className="text-lg font-bold text-white">
-                          {mockAnalytics.marketSentiment.longShortRatio.current}:1
-                        </span>
-                      </div>
-                      <div className="text-xs text-green-400">Bullish sentiment</div>
-                    </div>
-
-                    <div className="space-y-1">
-                      {mockAnalytics.marketSentiment.longShortRatio.history.slice(-3).map((entry, index) => (
-                        <div key={index} className="flex items-center justify-between text-xs">
-                          <span className="text-slate-400">{entry.time}</span>
-                          <span className="text-white">{entry.ratio}:1</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Fear & Greed Index */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Target className="w-3 h-3 text-yellow-400" />
-                      Fear & Greed Index
-                      <Badge variant="outline" className={`text-xs text-yellow-400 border-yellow-400/30 ml-auto`}>
-                        {mockAnalytics.marketSentiment.fearGreedIndex.label}
-                      </Badge>
-                    </div>
-                    
-                    <div className="bg-slate-900/50 rounded p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold text-yellow-400">
-                          {mockAnalytics.marketSentiment.fearGreedIndex.value}
-                        </span>
-                        <div className="text-right">
-                          <div className={`text-xs ${mockAnalytics.marketSentiment.fearGreedIndex.change24h > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {mockAnalytics.marketSentiment.fearGreedIndex.change24h > 0 ? '+' : ''}{mockAnalytics.marketSentiment.fearGreedIndex.change24h} (24h)
-                          </div>
-                        </div>
-                      </div>
-                      <Progress value={mockAnalytics.marketSentiment.fearGreedIndex.value} className="h-2 mb-2" />
-                      <div className="grid grid-cols-2 gap-1 text-xs">
-                        <div>Volatility: {mockAnalytics.marketSentiment.fearGreedIndex.components.volatility}</div>
-                        <div>Momentum: {mockAnalytics.marketSentiment.fearGreedIndex.components.marketMomentum}</div>
-                        <div>Social: {mockAnalytics.marketSentiment.fearGreedIndex.components.socialVolume}</div>
-                        <div>Surveys: {mockAnalytics.marketSentiment.fearGreedIndex.components.surveys}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Social Media Sentiment */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <MessageCircle className="w-3 h-3 text-blue-400" />
-                      Social Media Sentiment
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 mb-2">
-                      <div className="bg-slate-900/50 rounded p-2">
-                        <div className="text-xs text-slate-400">Mentions</div>
-                        <div className="text-sm font-semibold text-white">
-                          {mockAnalytics.marketSentiment.socialSentiment.twitterMentions.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-blue-400">Twitter 24h</div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2">
-                        <div className="text-xs text-slate-400">Sentiment</div>
-                        <div className={`text-sm font-semibold ${
-                          mockAnalytics.marketSentiment.socialSentiment.sentiment === 'positive' ? 'text-green-400' :
-                          mockAnalytics.marketSentiment.socialSentiment.sentiment === 'negative' ? 'text-red-400' :
-                          'text-yellow-400'
-                        }`}>
-                          {(mockAnalytics.marketSentiment.socialSentiment.sentimentScore * 100).toFixed(0)}%
-                        </div>
-                        <div className="text-xs text-green-400 capitalize">
-                          {mockAnalytics.marketSentiment.socialSentiment.sentiment}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      {mockAnalytics.marketSentiment.socialSentiment.influencerPosts.map((post, index) => (
-                        <div key={index} className="bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-medium text-blue-400">{post.author}</span>
-                            <span className="text-xs text-slate-400">{post.followers.toLocaleString()} followers</span>
-                          </div>
-                          <div className="text-xs text-white mb-1">{post.content}</div>
-                          <div className="text-xs text-slate-400">{post.engagement} engagements</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* Technical Analysis Section */}
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Bot className="w-4 h-4 text-green-400" />
+                    <Brain className="w-4 h-4 text-green-400" />
                     <h4 className="text-sm font-semibold text-white">Technical Analysis</h4>
                   </div>
                   
                   {/* Pattern Recognition */}
                   <div className="mb-4">
                     <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Search className="w-3 h-3 text-purple-400" />
+                      <Target className="w-3 h-3 text-purple-400" />
                       Pattern Recognition
                     </div>
-                    <div className="space-y-1">
+                    
+                    <div className="space-y-2">
                       {mockAnalytics.technicalAnalysis.patternRecognition.map((pattern, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${pattern.breakout === 'bullish' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {pattern.pattern}
-                            </Badge>
-                            <span className="text-xs text-slate-400">{pattern.timeframe}</span>
-                            <span className="text-xs text-slate-300">{pattern.status}</span>
+                        <div key={index} className="bg-slate-900/50 rounded p-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-medium text-white">{pattern.pattern}</span>
+                            <div className="flex items-center gap-1">
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${pattern.breakout === 'bullish' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                              >
+                                {pattern.breakout}
+                              </Badge>
+                              <span className="text-xs text-cyan-400">{(pattern.confidence * 100).toFixed(0)}%</span>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs text-white">
-                              Target: ${typeof pattern.target === 'number' ? pattern.target.toFixed(2) : pattern.level?.toFixed(2)}
-                            </div>
-                            <div className="text-xs text-cyan-400">
-                              {(pattern.confidence * 100).toFixed(0)}% confidence
-                            </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400">{pattern.timeframe} • {pattern.status}</span>
+                            <span className="text-white">Target: ${pattern.target}</span>
                           </div>
                         </div>
                       ))}
@@ -1946,14 +1941,14 @@ export function TradingBottomTabs() {
                   {/* Backtesting Results */}
                   <div className="mb-4">
                     <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <History className="w-3 h-3 text-orange-400" />
-                      Backtesting ({mockAnalytics.technicalAnalysis.backtesting.period})
-                      <Badge variant="outline" className="text-xs text-orange-400 border-orange-400/30 ml-auto">
+                      <BarChart3 className="w-3 h-3 text-blue-400" />
+                      Strategy Backtesting
+                      <Badge variant="outline" className="text-xs text-blue-400 border-blue-400/30 ml-auto">
                         {mockAnalytics.technicalAnalysis.backtesting.strategy}
                       </Badge>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
                       <div className="bg-slate-900/50 rounded p-2 text-center">
                         <div className="text-xs text-slate-400">Win Rate</div>
                         <div className="text-sm font-semibold text-green-400">

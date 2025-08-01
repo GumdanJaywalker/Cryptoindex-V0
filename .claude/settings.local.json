@@ -24,7 +24,8 @@
       "mcp__mcp-playwright__playwright_navigate",
       "Bash(npx:*)",
       "Bash(pnpm list:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   },
