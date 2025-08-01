@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,9 +31,6 @@ import {
   AlertTriangle,
   CheckCircle,
   Info,
-  Timer,
-  Bell,
-  Zap,
   Layers,
   Volume2,
   Waves,
@@ -229,45 +226,7 @@ const mockDiversificationMetrics = {
   diversificationGrade: 'B+'
 }
 
-// Mock data for funding history
-const mockFundingHistory = {
-  currentRate: 0.0125, // 1.25%
-  nextFunding: '2h 15m', // countdown
-  recentRates: [
-    { time: '00:00', rate: 0.0089, date: '2024-01-20' },
-    { time: '08:00', rate: 0.0156, date: '2024-01-20' },
-    { time: '16:00', rate: 0.0134, date: '2024-01-20' },
-    { time: '00:00', rate: 0.0098, date: '2024-01-19' },
-    { time: '08:00', rate: 0.0167, date: '2024-01-19' },
-    { time: '16:00', rate: 0.0145, date: '2024-01-19' },
-    { time: '00:00', rate: 0.0076, date: '2024-01-18' },
-    { time: '08:00', rate: 0.0123, date: '2024-01-18' }
-  ],
-  statistics: {
-    average: 0.0123,
-    highest: 0.0167,
-    lowest: 0.0076,
-    stdDeviation: 0.0031,
-    annualizedCost: 15.8 // percentage
-  },
-  exchangeComparison: [
-    { exchange: 'Hyperliquid', rate: 0.0125, color: 'blue' },
-    { exchange: 'Binance', rate: 0.0089, color: 'yellow' },
-    { exchange: 'Bybit', rate: 0.0134, color: 'orange' },
-    { exchange: 'OKX', rate: 0.0098, color: 'green' }
-  ],
-  myFundingPnL: {
-    total: -45.67, // negative = paid
-    thisWeek: -12.34,
-    thisMonth: -89.12,
-    breakdown: [
-      { date: '2024-01-20 16:00', amount: -5.67, position: 'Long 2.5 MEME_INDEX' },
-      { date: '2024-01-20 08:00', amount: -8.23, position: 'Long 2.5 MEME_INDEX' },
-      { date: '2024-01-20 00:00', amount: -3.45, position: 'Long 1.8 DOG_INDEX' },
-      { date: '2024-01-19 16:00', amount: -6.78, position: 'Long 1.8 DOG_INDEX' }
-    ]
-  }
-}
+
 
 // Mock data for market data
 const mockMarketData = {
@@ -582,103 +541,12 @@ const mockOrderHistory = [
   }
 ]
 
-// Mock data for trade history  
-const mockTradeHistory = [
-  {
-    id: 'TRD001',
-    time: '2024-01-20 14:23:15',
-    symbol: 'MEME_INDEX',
-    side: 'Buy',
-    price: 2.44,
-    quantity: 1.5,
-    value: 3.66,
-    fee: 3.66,
-    feeType: 'maker',
-    realizedPnL: null, // position still open
-    tradeId: 'HYP_12345678'
-  },
-  {
-    id: 'TRD002',
-    time: '2024-01-20 13:45:08', 
-    symbol: 'DOG_INDEX',
-    side: 'Sell',
-    price: 1.73,
-    quantity: 0.8,
-    value: 1.384,
-    fee: 1.38,
-    feeType: 'taker',
-    realizedPnL: 45.67, // closed position
-    tradeId: 'HYP_12345679'
-  },
-  {
-    id: 'TRD003',
-    time: '2024-01-19 16:15:45',
-    symbol: 'AI_INDEX', 
-    side: 'Sell',
-    price: 3.19,
-    quantity: 1.2,
-    value: 3.828,
-    fee: 3.83,
-    feeType: 'taker',
-    realizedPnL: -12.34, // loss
-    tradeId: 'HYP_12345680'
-  },
-  {
-    id: 'TRD004',
-    time: '2024-01-19 11:30:22',
-    symbol: 'CAT_INDEX',
-    side: 'Buy',
-    price: 1.42,
-    quantity: 1.5,
-    value: 2.13,
-    fee: 2.13,
-    feeType: 'maker',
-    realizedPnL: null,
-    tradeId: 'HYP_12345681'
-  },
-  {
-    id: 'TRD005',
-    time: '2024-01-18 15:45:10',
-    symbol: 'MEME_INDEX',
-    side: 'Sell',
-    price: 2.38,
-    quantity: 0.5,
-    value: 1.19,
-    fee: 1.19,
-    feeType: 'taker',
-    realizedPnL: 23.45,
-    tradeId: 'HYP_12345682'
-  }
-]
 
-// Mock trading statistics
-const mockTradingStats = {
-  totalTrades: 47,
-  totalVolume: 125670,
-  winRate: 68.1,
-  avgReturn: 4.2,
-  totalFees: 234.56,
-  totalPnL: 1456.78,
-  bestTrade: 89.23,
-  worstTrade: -34.56,
-  avgHoldTime: '2.3 days',
-  profitFactor: 1.85,
-  monthlyStats: [
-    { month: 'Jan 2024', trades: 12, volume: 28450, pnl: 234.56, winRate: 75.0 },
-    { month: 'Dec 2023', trades: 15, volume: 35670, pnl: 345.67, winRate: 66.7 },
-    { month: 'Nov 2023', trades: 20, volume: 61550, pnl: 876.55, winRate: 65.0 }
-  ]
-}
 
 export function TradingBottomTabs() {
   const [activeTab, setActiveTab] = useState('positions')
   const [showHistory, setShowHistory] = useState(false)
   const [showDiversification, setShowDiversification] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // 서버와 클라이언트에서 동일한 값 사용
   const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0)
@@ -687,36 +555,30 @@ export function TradingBottomTabs() {
   const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0
 
   return (
-    <div className="min-h-[50vh] bg-slate-950">
+    <div className="min-h-[50vh] bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-8 bg-slate-900 border-b border-slate-700 rounded-none w-full">
+        <TabsList className="grid grid-cols-6 bg-secondary border-b border-slate-700 rounded-none w-full">
           <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-blue-600">
             Positions
           </TabsTrigger>
           <TabsTrigger value="orders" className="text-xs data-[state=active]:bg-blue-600">
-            Orders
+            Open Orders
           </TabsTrigger>
           <TabsTrigger value="orderHistory" className="text-xs data-[state=active]:bg-blue-600">
             Order History
           </TabsTrigger>
-          <TabsTrigger value="tradeHistory" className="text-xs data-[state=active]:bg-blue-600">
-            Trades
-          </TabsTrigger>
           <TabsTrigger value="composition" className="text-xs data-[state=active]:bg-blue-600">
             Composition
           </TabsTrigger>
-          <TabsTrigger value="funding" className="text-xs data-[state=active]:bg-blue-600">
-            Funding
-          </TabsTrigger>
           <TabsTrigger value="market" className="text-xs data-[state=active]:bg-blue-600">
-            Market
+            Market Data
           </TabsTrigger>
           <TabsTrigger value="analytics" className="text-xs data-[state=active]:bg-blue-600">
             Analytics
           </TabsTrigger>
         </TabsList>
         
-        <div className="bg-slate-950">
+        <div className="bg-background">
           {/* Positions Tab - Enhanced with detailed information */}
           <TabsContent value="positions" className="h-auto m-0 p-4">
             <div className="space-y-4">
@@ -864,42 +726,7 @@ export function TradingBottomTabs() {
                 })}
               </div>
 
-              {/* Risk Management Summary */}
-              <Card className="bg-slate-800/30 border-slate-700">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="w-4 h-4 text-orange-400" />
-                    <h4 className="text-sm font-semibold text-white">Risk Management</h4>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Portfolio Margin</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${totalMargin.toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Avg Leverage</div>
-                      <div className="text-sm font-semibold text-orange-400">
-                        {mounted ? (mockPositions.length > 0 ? (mockPositions.reduce((sum, pos) => sum + parseInt(pos.leverage.replace('x', '')), 0) / mockPositions.length).toFixed(1) : '0.0') : '0.0'}x
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Highest ADL</div>
-                      <div className="text-sm font-semibold text-yellow-400">
-                        {mounted ? (mockPositions.length > 0 ? Math.max(...mockPositions.map(p => p.adlRank || 0)) : 0) : 0}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Funding Impact</div>
-                      <div className="text-sm font-semibold text-red-400">
-                        +{mounted ? (mockPositions.reduce((sum, pos) => sum + (pos.fundingRate || 0), 0) * 100).toFixed(3) : '0.000'}%
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+
             </div>
           </TabsContent>
 
@@ -1290,225 +1117,7 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-          {/* Trade History Tab */}
-          <TabsContent value="tradeHistory" className="h-auto m-0 p-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">Trade History</h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-green-400 border-green-400/30">
-                    <Activity className="w-3 h-3 mr-1" />
-                    {mockTradeHistory.length} Trades
-                  </Badge>
-                  <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
-                    <BarChart3 className="w-3 h-3 mr-1" />
-                    Analytics
-                  </Button>
-                </div>
-              </div>
 
-              {/* Trading Statistics Summary */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="w-4 h-4 text-purple-400" />
-                    <h4 className="text-sm font-semibold text-white">Trading Performance</h4>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total Trades</div>
-                      <div className="text-sm font-semibold text-white">
-                        {mockTradingStats.totalTrades}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Win Rate</div>
-                      <div className="text-sm font-semibold text-green-400">
-                        {mockTradingStats.winRate}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total P&L</div>
-                      <div className="text-sm font-semibold text-green-400">
-                        +${mockTradingStats.totalPnL}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total Volume</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${(mockTradingStats.totalVolume / 1000).toFixed(0)}K
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Avg Return</div>
-                      <div className="text-sm font-semibold text-blue-400">
-                        +{mockTradingStats.avgReturn}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total Fees</div>
-                      <div className="text-sm font-semibold text-orange-400">
-                        ${mockTradingStats.totalFees}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Best Trade</div>
-                      <div className="text-sm font-semibold text-green-400">
-                        +${mockTradingStats.bestTrade}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Profit Factor</div>
-                      <div className="text-sm font-semibold text-cyan-400">
-                        {mockTradingStats.profitFactor}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Monthly Performance */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="w-4 h-4 text-blue-400" />
-                    <h4 className="text-sm font-semibold text-white">Monthly Performance</h4>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {mockTradingStats.monthlyStats.map((month, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-slate-400 w-16">{month.month}</span>
-                          <div className="text-xs text-slate-300">
-                            {month.trades} trades • ${(month.volume / 1000).toFixed(0)}K vol
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-xs text-green-400 font-medium">
-                            +${month.pnl}
-                          </div>
-                          <div className="text-xs text-white">
-                            {month.winRate}% win
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Trade History Table */}
-              <div className="space-y-2">
-                {mockTradeHistory.map((trade) => (
-                  <Card key={trade.id} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${trade.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                          >
-                            {trade.side}
-                          </Badge>
-                          <span className="font-semibold text-white text-sm">{trade.symbol}</span>
-                          <div className="text-xs text-slate-400">
-                            {trade.quantity} @ ${trade.price}
-                          </div>
-                        </div>
-                        
-                        <div className="text-right">
-                          <div className="text-xs text-slate-400">{trade.time}</div>
-                          <div className="text-xs text-slate-300">ID: {trade.tradeId}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Trade Value</div>
-                          <div className="text-white font-medium">
-                            ${trade.value.toFixed(3)}
-                          </div>
-                        </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Fee</div>
-                          <div className="text-white font-medium">
-                            <div className="flex items-center gap-1">
-                              <span>${trade.fee}</span>
-                              <Badge variant="outline" className={`text-xs ${
-                                trade.feeType === 'maker' ? 'text-blue-400 border-blue-400/30' : 'text-purple-400 border-purple-400/30'
-                              }`}>
-                                {trade.feeType}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Realized P&L</div>
-                          <div className="font-medium">
-                            {trade.realizedPnL !== null ? (
-                              <span className={trade.realizedPnL >= 0 ? 'text-green-400' : 'text-red-400'}>
-                                {trade.realizedPnL >= 0 ? '+' : ''}${trade.realizedPnL}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">Open</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Trade ID</div>
-                          <div className="text-white font-medium font-mono text-xs">
-                            {trade.tradeId.split('_')[1]}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Trade Analysis */}
-                      <div className="mt-3 pt-2 border-t border-slate-700">
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-4">
-                            {trade.realizedPnL !== null && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-slate-400">Return:</span>
-                                <span className={`font-medium ${
-                                  trade.realizedPnL >= 0 ? 'text-green-400' : 'text-red-400'
-                                }`}>
-                                  {trade.realizedPnL >= 0 ? '+' : ''}{((trade.realizedPnL / trade.value) * 100).toFixed(2)}%
-                                </span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-1">
-                              <span className="text-slate-400">Side:</span>
-                              <span className={`font-medium ${
-                                trade.side === 'Buy' ? 'text-green-400' : 'text-red-400'
-                              }`}>
-                                {trade.side === 'Buy' ? 'Long' : 'Short'}
-                              </span>
-                            </div>
-                          </div>
-                          <Button size="sm" variant="ghost" className="text-xs text-blue-400 hover:text-blue-300 h-5 px-2">
-                            <ExternalLink className="w-2 h-2 mr-1" />
-                            Details
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Load More Button */}
-              <div className="flex justify-center pt-2">
-                <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
-                  Load More Trades
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
 
           {/* Index Composition Tab - 핵심 차별화 기능 */}
           <TabsContent value="composition" className="h-full m-0 p-4">
@@ -1801,169 +1410,9 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-          {/* Funding History Tab */}
-          <TabsContent value="funding" className="h-full m-0 p-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">Funding History</h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-green-400 border-green-400/30">
-                    <Timer className="w-3 h-3 mr-1" />
-                    Next: {mockFundingHistory.nextFunding}
-                  </Badge>
-                  <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
-                    <Bell className="w-3 h-3 mr-1" />
-                    Alerts
-                  </Button>
-                </div>
-              </div>
 
-              {/* Current Funding Rate */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-yellow-400" />
-                      <span className="font-semibold text-white">Current Funding Rate</span>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold ${mockFundingHistory.currentRate > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                        {mockFundingHistory.currentRate > 0 ? '+' : ''}{(mockFundingHistory.currentRate * 100).toFixed(4)}%
-                      </div>
-                      <div className="text-xs text-slate-400">8h funding cycle</div>
-                    </div>
-                  </div>
-                  
-                  {/* Exchange Comparison */}
-                  <div className="grid grid-cols-4 gap-2">
-                    {mockFundingHistory.exchangeComparison.map((exchange) => (
-                      <div key={exchange.exchange} className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400 mb-1">{exchange.exchange}</div>
-                        <div className={`text-xs font-medium ${
-                          exchange.exchange === 'Hyperliquid' ? 'text-blue-400' :
-                          exchange.color === 'yellow' ? 'text-yellow-400' :
-                          exchange.color === 'orange' ? 'text-orange-400' :
-                          'text-green-400'
-                        }`}>
-                          {(exchange.rate * 100).toFixed(4)}%
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Funding Statistics */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <h4 className="text-sm font-semibold text-white mb-3">Funding Statistics (7 days)</h4>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Average</div>
-                      <div className="text-sm font-semibold text-white">
-                        {(mockFundingHistory.statistics.average * 100).toFixed(4)}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Highest</div>
-                      <div className="text-sm font-semibold text-red-400">
-                        {(mockFundingHistory.statistics.highest * 100).toFixed(4)}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Lowest</div>
-                      <div className="text-sm font-semibold text-green-400">
-                        {(mockFundingHistory.statistics.lowest * 100).toFixed(4)}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Std Dev</div>
-                      <div className="text-sm font-semibold text-white">
-                        {(mockFundingHistory.statistics.stdDeviation * 100).toFixed(4)}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Annual Cost</div>
-                      <div className="text-sm font-semibold text-orange-400">
-                        {mockFundingHistory.statistics.annualizedCost.toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Funding Rates Chart */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-white">Recent Funding Rates</h4>
-                    <Badge variant="outline" className="text-blue-400 border-blue-400/30 text-xs">
-                      Last 3 days
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {mockFundingHistory.recentRates.map((rate, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-400">{rate.date}</span>
-                          <span className="text-xs text-slate-300">{rate.time}</span>
-                        </div>
-                        <div className={`text-xs font-medium ${rate.rate > 0.01 ? 'text-red-400' : rate.rate > 0.005 ? 'text-yellow-400' : 'text-green-400'}`}>
-                          {(rate.rate * 100).toFixed(4)}%
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* My Funding P&L */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <h4 className="text-sm font-semibold text-white mb-3">My Funding P&L</h4>
-                  
-                  <div className="grid grid-cols-3 gap-3 mb-3">
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total</div>
-                      <div className={`text-sm font-semibold ${mockFundingHistory.myFundingPnL.total < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                        ${mockFundingHistory.myFundingPnL.total.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">This Week</div>
-                      <div className={`text-sm font-semibold ${mockFundingHistory.myFundingPnL.thisWeek < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                        ${mockFundingHistory.myFundingPnL.thisWeek.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">This Month</div>
-                      <div className={`text-sm font-semibold ${mockFundingHistory.myFundingPnL.thisMonth < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                        ${mockFundingHistory.myFundingPnL.thisMonth.toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 max-h-24 overflow-y-auto">
-                    {mockFundingHistory.myFundingPnL.breakdown.map((payment, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                        <div>
-                          <div className="text-xs text-slate-300">{payment.position}</div>
-                          <div className="text-xs text-slate-400">{payment.date}</div>
-                        </div>
-                        <div className={`text-xs font-medium ${payment.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                          ${payment.amount.toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Market Data Tab */}
+          {/* Market Data Tab with Sub-tabs */}
           <TabsContent value="market" className="h-full m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -1976,179 +1425,167 @@ export function TradingBottomTabs() {
                 </div>
               </div>
 
-              {/* Depth Analysis */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Layers className="w-4 h-4 text-blue-400" />
-                    <h4 className="text-sm font-semibold text-white">Order Book Depth Analysis</h4>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Bid/Ask Spread</div>
-                      <div className={`text-sm font-semibold ${
-                        mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'tightening' ? 'text-green-400' :
-                        mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'widening' ? 'text-red-400' :
-                        'text-yellow-400'
-                      }`}>
-                        {(mockMarketData.orderBookDepth.spreadInfo.bidAskSpread * 100).toFixed(3)}%
+              {/* Market Data Sub-tabs */}
+              <Tabs defaultValue="orderbook" className="w-full">
+                <TabsList className="grid grid-cols-3 bg-muted/30 rounded-md w-full max-w-md">
+                  <TabsTrigger value="orderbook" className="text-xs">
+                    Order Book
+                  </TabsTrigger>
+                  <TabsTrigger value="holders" className="text-xs">
+                    Holders
+                  </TabsTrigger>
+                  <TabsTrigger value="whales" className="text-xs">
+                    Whale Alert
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Order Book & Volume Sub-tab */}
+                <TabsContent value="orderbook" className="mt-4 space-y-4">
+                  {/* Depth Analysis */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Layers className="w-4 h-4 text-blue-400" />
+                        <h4 className="text-sm font-semibold text-white">Order Book Depth Analysis</h4>
                       </div>
-                      <div className="text-xs text-slate-400 capitalize">
-                        {mockMarketData.orderBookDepth.spreadInfo.spreadTrend}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Mid Price</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${mockMarketData.orderBookDepth.spreadInfo.midPrice}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">5L Depth</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${(mockMarketData.orderBookDepth.depthAnalysis.bid5Depth / 1000).toFixed(0)}K
-                      </div>
-                      <div className="text-xs text-slate-400">Bid side</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Imbalance</div>
-                      <div className={`text-sm font-semibold ${
-                        mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio > 1.2 ? 'text-green-400' :
-                        mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio < 0.8 ? 'text-red-400' :
-                        'text-yellow-400'
-                      }`}>
-                        {mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio.toFixed(2)}
-                      </div>
-                      <div className="text-xs text-slate-400">Bid/Ask</div>
-                    </div>
-                  </div>
-                  
-                  {/* Whale Orders Detection */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Scale className="w-3 h-3 text-orange-400" />
-                      Large Orders Detected
-                    </div>
-                    <div className="space-y-1">
-                      {mockMarketData.orderBookDepth.whaleOrders.slice(0, 3).map((order, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${order.side === 'buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {order.side.toUpperCase()}
-                            </Badge>
-                            <span className="text-xs text-white">${order.size.toLocaleString()}</span>
-                            <span className="text-xs text-slate-400">@ ${order.price}</span>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Bid/Ask Spread</div>
+                          <div className={`text-sm font-semibold ${
+                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'tightening' ? 'text-green-400' :
+                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'widening' ? 'text-red-400' :
+                            'text-yellow-400'
+                          }`}>
+                            {(mockMarketData.orderBookDepth.spreadInfo.bidAskSpread * 100).toFixed(3)}%
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs text-orange-400">{order.impact}% impact</div>
-                            <div className="text-xs text-slate-400">{order.time}</div>
+                          <div className="text-xs text-slate-400 capitalize">
+                            {mockMarketData.orderBookDepth.spreadInfo.spreadTrend}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Volume Analysis */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Volume2 className="w-4 h-4 text-green-400" />
-                    <h4 className="text-sm font-semibold text-white">Volume Analysis</h4>
-                  </div>
-                  
-                  {/* Volume Statistics */}
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">24h Volume</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${(mockMarketData.volumeAnalysis.volumeStats.total24h / 1e6).toFixed(1)}M
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Buy Volume</div>
-                      <div className="text-sm font-semibold text-green-400">
-                        ${(mockMarketData.volumeAnalysis.volumeStats.buyVolume / 1e6).toFixed(1)}M
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Sell Volume</div>
-                      <div className="text-sm font-semibold text-red-400">
-                        ${(mockMarketData.volumeAnalysis.volumeStats.sellVolume / 1e6).toFixed(1)}M
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Buy Ratio</div>
-                      <div className={`text-sm font-semibold ${
-                        mockMarketData.volumeAnalysis.volumeStats.buyRatio > 55 ? 'text-green-400' :
-                        mockMarketData.volumeAnalysis.volumeStats.buyRatio < 45 ? 'text-red-400' :
-                        'text-yellow-400'
-                      }`}>
-                        {mockMarketData.volumeAnalysis.volumeStats.buyRatio.toFixed(1)}%
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Avg Size</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${mockMarketData.volumeAnalysis.volumeStats.avgTradeSize.toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Median</div>
-                      <div className="text-sm font-semibold text-white">
-                        ${mockMarketData.volumeAnalysis.volumeStats.medianTradeSize.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Hourly Volume Breakdown */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2">Hourly Volume (Last 6h)</div>
-                    <div className="space-y-1">
-                      {mockMarketData.volumeAnalysis.hourlyVolume.map((hour, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-400 w-12">{hour.hour}</span>
-                            <Progress value={(hour.volume / 2.5e6) * 100} className="h-2 w-20" />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-white">
-                              ${(hour.volume / 1e6).toFixed(1)}M
-                            </span>
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${hour.buyRatio > 0.5 ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {(hour.buyRatio * 100).toFixed(0)}% Buy
-                            </Badge>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Mid Price</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${mockMarketData.orderBookDepth.spreadInfo.midPrice}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">5L Depth</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${(mockMarketData.orderBookDepth.depthAnalysis.bid5Depth / 1000).toFixed(0)}K
+                          </div>
+                          <div className="text-xs text-slate-400">Bid side</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Imbalance</div>
+                          <div className={`text-sm font-semibold ${
+                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio > 1.2 ? 'text-green-400' :
+                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio < 0.8 ? 'text-red-400' :
+                            'text-yellow-400'
+                          }`}>
+                            {mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-slate-400">Bid/Ask</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              {/* Volatility Metrics */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Waves className="w-4 h-4 text-purple-400" />
-                    <h4 className="text-sm font-semibold text-white">Volatility Analysis</h4>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <div className="bg-slate-900/50 rounded p-2">
-                      <div className="text-xs text-slate-400">Historical Vol</div>
-                      <div className={`text-sm font-semibold ${
-                        mockMarketData.volatilityMetrics.historicalVol.trend === 'increasing' ? 'text-red-400' :
-                        mockMarketData.volatilityMetrics.historicalVol.trend === 'decreasing' ? 'text-green-400' :
-                        'text-yellow-400'
+                  {/* Volume Analysis */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Volume2 className="w-4 h-4 text-green-400" />
+                        <h4 className="text-sm font-semibold text-white">Volume Analysis</h4>
+                      </div>
+                      
+                      {/* Volume Statistics */}
+                      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">24h Volume</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${(mockMarketData.volumeAnalysis.volumeStats.total24h / 1e6).toFixed(1)}M
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Buy Volume</div>
+                          <div className="text-sm font-semibold text-green-400">
+                            ${(mockMarketData.volumeAnalysis.volumeStats.buyVolume / 1e6).toFixed(1)}M
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Sell Volume</div>
+                          <div className="text-sm font-semibold text-red-400">
+                            ${(mockMarketData.volumeAnalysis.volumeStats.sellVolume / 1e6).toFixed(1)}M
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Buy Ratio</div>
+                          <div className={`text-sm font-semibold ${
+                            mockMarketData.volumeAnalysis.volumeStats.buyRatio > 55 ? 'text-green-400' :
+                            mockMarketData.volumeAnalysis.volumeStats.buyRatio < 45 ? 'text-red-400' :
+                            'text-yellow-400'
+                          }`}>
+                            {mockMarketData.volumeAnalysis.volumeStats.buyRatio.toFixed(1)}%
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Avg Size</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${mockMarketData.volumeAnalysis.volumeStats.avgTradeSize.toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Median</div>
+                          <div className="text-sm font-semibold text-white">
+                            ${mockMarketData.volumeAnalysis.volumeStats.medianTradeSize.toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Hourly Volume Breakdown */}
+                      <div>
+                        <div className="text-xs font-medium text-white mb-2">Hourly Volume (Last 6h)</div>
+                        <div className="space-y-1">
+                          {mockMarketData.volumeAnalysis.hourlyVolume.map((hour, index) => (
+                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-slate-400 w-12">{hour.hour}</span>
+                                <Progress value={(hour.volume / 2.5e6) * 100} className="h-2 w-20" />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-white">
+                                  ${(hour.volume / 1e6).toFixed(1)}M
+                                </span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-xs ${hour.buyRatio > 0.5 ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                                >
+                                  {(hour.buyRatio * 100).toFixed(0)}% Buy
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Volatility Metrics */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Waves className="w-4 h-4 text-purple-400" />
+                        <h4 className="text-sm font-semibold text-white">Volatility Analysis</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-slate-900/50 rounded p-2">
+                          <div className="text-xs text-slate-400">Historical Vol</div>
+                          <div className={`text-sm font-semibold ${
+                            mockMarketData.volatilityMetrics.historicalVol.trend === 'increasing' ? 'text-red-400' :
+                            mockMarketData.volatilityMetrics.historicalVol.trend === 'decreasing' ? 'text-green-400' :
+                            'text-yellow-400'
                       }`}>
                         {(mockMarketData.volatilityMetrics.historicalVol.current * 100).toFixed(1)}%
                       </div>
