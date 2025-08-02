@@ -1421,9 +1421,12 @@ export function TradingBottomTabs() {
 
               {/* Market Data Sub-tabs */}
               <Tabs defaultValue="orderbook" className="w-full">
-                <TabsList className="grid grid-cols-3 bg-muted/30 rounded-md w-full max-w-md">
+                <TabsList className="grid grid-cols-4 bg-muted/30 rounded-md w-full max-w-lg">
                   <TabsTrigger value="orderbook" className="text-xs">
                     Order Book
+                  </TabsTrigger>
+                  <TabsTrigger value="toptraders" className="text-xs">
+                    Top Traders
                   </TabsTrigger>
                   <TabsTrigger value="holders" className="text-xs">
                     Holders
@@ -1640,6 +1643,164 @@ export function TradingBottomTabs() {
                             <div className="text-sm font-semibold text-cyan-400">
                               {(mockMarketData.volatilityMetrics.garchPrediction.nextDay * 100).toFixed(1)}%
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Holders Sub-tab */}
+                {/* Top Traders Sub-tab */}
+                <TabsContent value="toptraders" className="mt-4 space-y-4">
+                  {/* Top Index Derivatives Traders */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Users className="w-4 h-4 text-purple-400" />
+                        <h4 className="text-sm font-semibold text-white">Top Index Derivatives Traders</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Active Traders</div>
+                          <div className="text-sm font-semibold text-white">2,847</div>
+                          <div className="text-xs text-green-400">+127 (24h)</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Pro Traders</div>
+                          <div className="text-sm font-semibold text-orange-400">8.3%</div>
+                          <div className="text-xs text-slate-400">&gt;$50K volume</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Medium Traders</div>
+                          <div className="text-sm font-semibold text-blue-400">24.7%</div>
+                          <div className="text-xs text-slate-400">$5K-50K volume</div>
+                        </div>
+                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="text-xs text-slate-400">Retail Traders</div>
+                          <div className="text-sm font-semibold text-green-400">67.0%</div>
+                          <div className="text-xs text-slate-400">&lt;$5K volume</div>
+                        </div>
+                      </div>
+                      
+                      {/* Top Traders by Performance */}
+                      <div className="space-y-3">
+                        <div className="text-xs font-medium text-white mb-2">Top MEME_INDEX Traders (24h)</div>
+                        <div className="space-y-1">
+                          {[
+                            { rank: 1, address: '0xA1b2...F8d9', volume: '$324.5K', pnl: '+$32.4K', pnlPercent: '+11.1%', winRate: '78%' },
+                            { rank: 2, address: '0xC3e4...A2b6', volume: '$289.3K', pnl: '+$28.9K', pnlPercent: '+11.1%', winRate: '82%' },
+                            { rank: 3, address: '0xE5f6...C4d8', volume: '$276.8K', pnl: '-$8.1K', pnlPercent: '-2.9%', winRate: '45%' },
+                            { rank: 4, address: '0xG7h8...E6f0', volume: '$215.2K', pnl: '+$19.8K', pnlPercent: '+10.2%', winRate: '71%' },
+                            { rank: 5, address: '0xI9j0...G8h2', volume: '$198.9K', pnl: '+$14.2K', pnlPercent: '+7.7%', winRate: '69%' }
+                          ].map((trader, index) => (
+                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                  {trader.rank}
+                                </div>
+                                <span className="text-xs text-slate-400 font-mono">{trader.address}</span>
+                                <Badge variant="outline" className="text-xs text-purple-400 border-purple-400/30">
+                                  MEME
+                                </Badge>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs text-white font-medium">{trader.volume}</div>
+                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                                  {trader.pnl} ({trader.pnlPercent})
+                                </div>
+                                <div className="text-xs text-slate-400">Win: {trader.winRate}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="text-xs font-medium text-white mb-2 mt-4">Top AI_INDEX Traders (24h)</div>
+                        <div className="space-y-1">
+                          {[
+                            { rank: 1, address: '0xB2c3...H9e1', volume: '$298.7K', pnl: '+$35.6K', pnlPercent: '+13.5%', winRate: '85%' },
+                            { rank: 2, address: '0xD4e5...J1f3', volume: '$267.2K', pnl: '+$31.2K', pnlPercent: '+13.2%', winRate: '76%' },
+                            { rank: 3, address: '0xF6g7...L3h5', volume: '$231.5K', pnl: '+$16.8K', pnlPercent: '+7.8%', winRate: '72%' },
+                          ].map((trader, index) => (
+                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                                  {trader.rank}
+                                </div>
+                                <span className="text-xs text-slate-400 font-mono">{trader.address}</span>
+                                <Badge variant="outline" className="text-xs text-blue-400 border-blue-400/30">
+                                  AI
+                                </Badge>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs text-white font-medium">{trader.volume}</div>
+                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                                  {trader.pnl} ({trader.pnlPercent})
+                                </div>
+                                <div className="text-xs text-slate-400">Win: {trader.winRate}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Trading Activity & Strategies */}
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <BarChart3 className="w-4 h-4 text-cyan-400" />
+                        <h4 className="text-sm font-semibold text-white">Trading Activity & Strategies</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-xs font-medium text-white mb-2">Popular Strategies (24h)</div>
+                          <div className="space-y-2">
+                            {[
+                              { strategy: 'Long MEME + Short AI', traders: 142, avgPnl: '+8.2%', volume: '$3.2M' },
+                              { strategy: 'AI Index Momentum', traders: 89, avgPnl: '+5.7%', volume: '$2.1M' },
+                              { strategy: 'Dog vs Cat Pair', traders: 67, avgPnl: '+3.4%', volume: '$1.8M' },
+                              { strategy: 'Multi-Index Hedge', traders: 34, avgPnl: '+12.1%', volume: '$1.2M' }
+                            ].map((item, index) => (
+                              <div key={index} className="bg-slate-900/50 rounded p-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs text-white font-medium">{item.strategy}</span>
+                                  <span className="text-xs text-green-400">{item.avgPnl}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs text-slate-400">
+                                  <span>{item.traders} traders</span>
+                                  <span>{item.volume} volume</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="text-xs font-medium text-white mb-2">Recent Big Trades</div>
+                          <div className="space-y-1">
+                            {[
+                              { time: '14:23', trader: '0xA1b2...F8d9', action: 'Long MEME_INDEX', size: '$145.2K', leverage: '5x' },
+                              { time: '13:57', trader: '0xB2c3...H9e1', action: 'Short AI_INDEX', size: '$132.8K', leverage: '3x' },
+                              { time: '13:12', trader: '0xC3e4...A2b6', action: 'Long DOG_INDEX', size: '$98.5K', leverage: '10x' },
+                              { time: '12:45', trader: '0xD4e5...J1f3', action: 'Long MEME_INDEX', size: '$167.3K', leverage: '2x' }
+                            ].map((trade, index) => (
+                              <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-slate-400">{trade.time}</span>
+                                  <span className="text-xs text-slate-400 font-mono">{trade.trader}</span>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-xs text-white font-medium">{trade.size}</div>
+                                  <div className={`text-xs ${trade.action.startsWith('Long') ? 'text-green-400' : 'text-red-400'}`}>
+                                    {trade.action} {trade.leverage}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
