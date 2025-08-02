@@ -40,7 +40,248 @@ const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w']
 const chartTypes = ['Candlestick', 'Line', 'Area']
 const chartTabs = ['Chart', 'Info', 'Trading Data']
 
+// Mock chart data for DOG_INDEX
+const generateMockCandleData = () => {
+  const data = []
+  let basePrice = 1.2567
+  const now = new Date()
+  
+  for (let i = 50; i >= 0; i--) {
+    const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000) // hourly data
+    const open = basePrice + (Math.random() - 0.5) * 0.02
+    const volatility = 0.01 + Math.random() * 0.02
+    const high = open + Math.random() * volatility
+    const low = open - Math.random() * volatility
+    const close = low + Math.random() * (high - low)
+    
+    data.push({
+      timestamp,
+      open,
+      high,
+      low,
+      close,
+      volume: 50000 + Math.random() * 200000
+    })
+    
+    basePrice = close + (Math.random() - 0.5) * 0.01 // drift
+  }
+  
+  return data
+}
 
+const mockCandleData = generateMockCandleData()
+
+
+
+// Mock Candlestick Chart Component
+function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartType: string, timeframe: string }) {
+  const containerWidth = 800
+  const containerHeight = 400
+  const margin = { top: 20, right: 60, bottom: 40, left: 60 }
+  const chartWidth = containerWidth - margin.left - margin.right
+  const chartHeight = containerHeight - margin.top - margin.bottom
+  
+  const maxPrice = Math.max(...data.map(d => d.high))
+  const minPrice = Math.min(...data.map(d => d.low))
+  const priceRange = maxPrice - minPrice
+  const padding = priceRange * 0.1
+  
+  const yScale = (price: number) => {
+    return margin.top + ((maxPrice + padding - price) / (priceRange + 2 * padding)) * chartHeight
+  }
+  
+  const xScale = (index: number) => {
+    return margin.left + (index / (data.length - 1)) * chartWidth
+  }
+
+  const currentPrice = data[data.length - 1]?.close || 1.2567
+  const previousPrice = data[data.length - 2]?.close || 1.2500
+  const priceChange = currentPrice - previousPrice
+  const priceChangePercent = ((priceChange / previousPrice) * 100)
+
+  if (chartType === 'Line' || chartType === 'Area') {
+    const pathData = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(d.close)}`).join(' ')
+    
+    return (
+      <div className="w-full bg-slate-950 relative">
+        {/* Price Info Header */}
+        <div className="absolute top-4 left-4 z-10">
+          <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
+            <div>
+              <div className="text-xs text-slate-400">DOG_INDEX • {timeframe}</div>
+              <div className="text-2xl font-bold text-white">${currentPrice.toFixed(4)}</div>
+            </div>
+            <div className={`text-right ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className="text-sm font-semibold">
+                {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(4)}
+              </div>
+              <div className="text-xs">
+                {priceChange >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
+              </div>
+            </div>
+            <div className="text-right text-slate-400">
+              <div className="text-xs">24h Vol</div>
+              <div className="text-sm font-semibold text-white">$2.4M</div>
+            </div>
+          </div>
+        </div>
+
+        <svg width={containerWidth} height={containerHeight} className="w-full h-full">
+          {/* Grid lines */}
+          <defs>
+            <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 30" fill="none" stroke="rgb(51 65 85)" strokeWidth="0.5"/>
+            </pattern>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor={priceChange >= 0 ? "rgb(34 197 94)" : "rgb(239 68 68)"} stopOpacity={chartType === 'Area' ? "0.4" : "0.3"}/>
+              <stop offset="100%" stopColor={priceChange >= 0 ? "rgb(34 197 94)" : "rgb(239 68 68)"} stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          
+          {/* Y-axis price labels */}
+          {[0, 0.2, 0.4, 0.6, 0.8, 1].map(ratio => {
+            const price = minPrice + ratio * (maxPrice - minPrice)
+            const y = yScale(price)
+            return (
+              <g key={ratio}>
+                <line x1={margin.left} y1={y} x2={containerWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
+                <text x={containerWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
+                  ${price.toFixed(4)}
+                </text>
+              </g>
+            )
+          })}
+          
+          {/* Area chart gradient (only for Area type) */}
+          {chartType === 'Area' && (
+            <path 
+              d={`${pathData} L ${xScale(data.length - 1)} ${containerHeight - margin.bottom} L ${margin.left} ${containerHeight - margin.bottom} Z`} 
+              fill="url(#lineGradient)" 
+            />
+          )}
+          
+          {/* Line chart */}
+          <path 
+            d={pathData} 
+            fill="none" 
+            stroke={priceChange >= 0 ? "rgb(34 197 94)" : "rgb(239 68 68)"} 
+            strokeWidth="2" 
+          />
+          
+          {/* Price points */}
+          {data.map((d, i) => (
+            <circle 
+              key={i}
+              cx={xScale(i)} 
+              cy={yScale(d.close)} 
+              r="2" 
+              fill={priceChange >= 0 ? "rgb(34 197 94)" : "rgb(239 68 68)"} 
+              opacity={i === data.length - 1 ? 1 : 0}
+            />
+          ))}
+        </svg>
+      </div>
+    )
+  }
+
+  // Candlestick Chart (default)
+  return (
+    <div className="w-full bg-slate-950 relative">
+      {/* Price Info Header */}
+      <div className="absolute top-4 left-4 z-10">
+        <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
+          <div>
+            <div className="text-xs text-slate-400">DOG_INDEX • {timeframe}</div>
+            <div className="text-2xl font-bold text-white">${currentPrice.toFixed(4)}</div>
+          </div>
+          <div className={`text-right ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <div className="text-sm font-semibold">
+              {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(4)}
+            </div>
+            <div className="text-xs">
+              {priceChange >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
+            </div>
+          </div>
+          <div className="text-right text-slate-400">
+            <div className="text-xs">24h Vol</div>
+            <div className="text-sm font-semibold text-white">$2.4M</div>
+          </div>
+        </div>
+      </div>
+
+      <svg width={containerWidth} height={containerHeight} className="w-full h-full">
+        {/* Grid */}
+        <defs>
+          <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 30" fill="none" stroke="rgb(51 65 85)" strokeWidth="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        
+        {/* Y-axis price labels */}
+        {[0, 0.2, 0.4, 0.6, 0.8, 1].map(ratio => {
+          const price = minPrice + ratio * (maxPrice - minPrice)
+          const y = yScale(price)
+          return (
+            <g key={ratio}>
+              <line x1={margin.left} y1={y} x2={containerWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
+              <text x={containerWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
+                ${price.toFixed(4)}
+              </text>
+            </g>
+          )
+        })}
+        
+        {/* Candlesticks */}
+        {data.map((candle, index) => {
+          const x = xScale(index)
+          const isGreen = candle.close > candle.open
+          const bodyTop = yScale(Math.max(candle.open, candle.close))
+          const bodyBottom = yScale(Math.min(candle.open, candle.close))
+          const bodyHeight = bodyBottom - bodyTop
+          const wickTop = yScale(candle.high)
+          const wickBottom = yScale(candle.low)
+          
+          return (
+            <g key={index}>
+              {/* Wick */}
+              <line 
+                x1={x} y1={wickTop} x2={x} y2={wickBottom} 
+                stroke={isGreen ? "rgb(34 197 94)" : "rgb(239 68 68)"} 
+                strokeWidth="1" 
+              />
+              {/* Body */}
+              <rect 
+                x={x - 3} y={bodyTop} width="6" height={Math.max(bodyHeight, 1)}
+                fill={isGreen ? "rgb(34 197 94)" : "rgb(239 68 68)"}
+                opacity={bodyHeight < 2 ? 1 : 0.9}
+              />
+            </g>
+          )
+        })}
+        
+        {/* Volume bars at bottom */}
+        {data.map((candle, index) => {
+          const x = xScale(index)
+          const maxVolume = Math.max(...data.map(d => d.volume))
+          const volumeHeight = (candle.volume / maxVolume) * 60
+          const volumeY = containerHeight - margin.bottom - volumeHeight
+          const isGreen = candle.close > candle.open
+          
+          return (
+            <rect 
+              key={`vol-${index}`}
+              x={x - 2} y={volumeY} width="4" height={volumeHeight}
+              fill={isGreen ? "rgb(34 197 94)" : "rgb(239 68 68)"}
+              opacity="0.3"
+            />
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
 
 const mockIndexComposition = [
   { symbol: 'DOGE', weight: 25.4, change24h: 8.2, price: 0.085 },
@@ -504,6 +745,50 @@ export function ChartArea() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('1h')
   const [selectedChartType, setSelectedChartType] = useState('Candlestick')
   const [activeChartTab, setActiveChartTab] = useState('Chart')
+  
+  // Generate new data when timeframe changes
+  const getTimeframeData = (timeframe: string) => {
+    const intervals = {
+      '1m': 60,
+      '5m': 300, 
+      '15m': 900,
+      '1h': 3600,
+      '4h': 14400,
+      '1d': 86400,
+      '1w': 604800
+    }
+    
+    const interval = intervals[timeframe as keyof typeof intervals] || 3600
+    const dataPoints = timeframe === '1d' || timeframe === '1w' ? 30 : 50
+    
+    const data = []
+    let basePrice = 1.2567
+    const now = new Date()
+    
+    for (let i = dataPoints; i >= 0; i--) {
+      const timestamp = new Date(now.getTime() - i * interval * 1000)
+      const open = basePrice + (Math.random() - 0.5) * 0.02
+      const volatility = 0.005 + Math.random() * 0.015
+      const high = open + Math.random() * volatility
+      const low = open - Math.random() * volatility
+      const close = low + Math.random() * (high - low)
+      
+      data.push({
+        timestamp,
+        open,
+        high,
+        low,
+        close,
+        volume: 20000 + Math.random() * 180000
+      })
+      
+      basePrice = close + (Math.random() - 0.5) * 0.008
+    }
+    
+    return data
+  }
+  
+  const chartData = getTimeframeData(selectedTimeframe)
 
   return (
     <div className="flex flex-col bg-slate-950">
@@ -568,17 +853,12 @@ export function ChartArea() {
         {/* Tab Content */}
         <div className="min-h-[60vh] bg-slate-950">
           {activeChartTab === 'Chart' && (
-            <div className="min-h-[400px] flex items-center justify-center bg-slate-950">
-              <div className="text-center">
-                <div className="text-6xl mb-4">📈</div>
-                <div className="text-xl text-slate-400 mb-2">TradingView Chart</div>
-                <div className="text-sm text-slate-500">
-                  Advanced charting with indicators and drawing tools
-                </div>
-                <div className="mt-4 text-xs text-slate-600">
-                  Current: {selectedChartType} - {selectedTimeframe}
-                </div>
-              </div>
+            <div className="min-h-[400px] bg-slate-950 p-4">
+              <CandlestickChart 
+                data={chartData} 
+                chartType={selectedChartType} 
+                timeframe={selectedTimeframe}
+              />
             </div>
           )}
 
