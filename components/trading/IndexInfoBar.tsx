@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronDownIcon, SearchIcon, StarIcon, ClockIcon } from 'lucide-react'
-import { IndexInfoModal } from './IndexInfoModal'
+import { ChevronDownIcon, SearchIcon, StarIcon } from 'lucide-react'
 
 const mockIndexes = [
   { symbol: 'DOG_INDEX', name: 'Doggy Index', isFavorite: true },
@@ -15,45 +14,13 @@ const mockIndexes = [
 export function IndexInfoBar() {
   const [selectedIndex, setSelectedIndex] = useState('DOG_INDEX')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+
   const [searchQuery, setSearchQuery] = useState('')
   const [favorites, setFavorites] = useState(new Set(['DOG_INDEX', 'MEME_INDEX']))
   
-  // Funding countdown timer
-  const [fundingCountdown, setFundingCountdown] = useState({
-    hours: 2,
-    minutes: 34,
-    seconds: 12
-  })
 
-  // Update countdown every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setFundingCountdown(prev => {
-        let { hours, minutes, seconds } = prev
-        
-        if (seconds > 0) {
-          seconds--
-        } else if (minutes > 0) {
-          minutes--
-          seconds = 59
-        } else if (hours > 0) {
-          hours--
-          minutes = 59
-          seconds = 59
-        } else {
-          // Reset to next funding period (8 hours)
-          hours = 7
-          minutes = 59
-          seconds = 59
-        }
-        
-        return { hours, minutes, seconds }
-      })
-    }, 1000)
 
-    return () => clearInterval(timer)
-  }, [])
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -223,24 +190,7 @@ export function IndexInfoBar() {
           <div className="text-xs hl-text-secondary">24h Volume</div>
         </div>
         
-        <div className="relative group">
-          <div className="text-sm font-medium text-yellow-400">0.05%</div>
-          <div className="text-xs hl-text-secondary flex items-center space-x-1">
-            <span>Funding Rate</span>
-            <ClockIcon className="h-3 w-3" />
-          </div>
-          {/* Funding Countdown Tooltip */}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none min-w-max">
-            <div className="text-center">
-              <div className="text-white font-mono text-lg">
-                {String(fundingCountdown.hours).padStart(2, '0')}:
-                {String(fundingCountdown.minutes).padStart(2, '0')}:
-                {String(fundingCountdown.seconds).padStart(2, '0')}
-              </div>
-              <div className="text-xs text-slate-400">Until Next Funding</div>
-            </div>
-          </div>
-        </div>
+
         
         <div>
           <div className="text-sm font-medium text-white">$12.34M</div>
@@ -253,19 +203,19 @@ export function IndexInfoBar() {
           {/* Premium/Discount Tooltip */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none min-w-max">
             <div className="text-center">
-              <div className="text-xs text-slate-400 mb-2">Funding Rate History</div>
+              <div className="text-xs text-slate-400 mb-2">Index Performance</div>
               <div className="space-y-1">
                 <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">8h avg:</span>
-                  <span className="text-green-400">+0.032%</span>
+                  <span className="text-slate-400">NAV Premium:</span>
+                  <span className="text-green-400">+0.12%</span>
                 </div>
                 <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">1d avg:</span>
-                  <span className="text-yellow-400">+0.045%</span>
+                  <span className="text-slate-400">Tracking Error:</span>
+                  <span className="text-yellow-400">0.045%</span>
                 </div>
                 <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">7d avg:</span>
-                  <span className="text-red-400">-0.012%</span>
+                  <span className="text-slate-400">Liquidity:</span>
+                  <span className="text-green-400">High</span>
                 </div>
               </div>
             </div>
@@ -281,23 +231,7 @@ export function IndexInfoBar() {
         </div>
       </div>
 
-      {/* Info Button */}
-      <div className="ml-auto">
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="px-3 py-1.5 rounded text-black text-sm font-medium transition-colors hover:opacity-90"
-          style={{ background: 'var(--hl-accent-primary)' }}
-        >
-          Index Info
-        </button>
-      </div>
 
-      {/* Index Info Modal */}
-      <IndexInfoModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        indexSymbol={selectedIndex}
-      />
     </div>
   )
 }
