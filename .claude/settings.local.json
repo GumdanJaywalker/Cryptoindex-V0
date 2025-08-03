@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(rm:*)",
@@ -28,7 +29,13 @@
       "Bash(pnpm install:*)",
       "Bash(pnpm:*)",
       "Bash(git config:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(chmod:*)",
+      "Bash(docker:*)",
+      "Bash(npm run:*)",
+      "Bash(bash:*)",
+      "Bash(sed:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   },

@@ -83,8 +83,6 @@ export interface CreateAdvancedOrderRequest {
   leverage?: string;                 // Leverage multiplier
   marginType?: 'isolated' | 'cross'; // Margin type
   
-  // Testing (remove in production)
-  walletPrivateKey?: string;
 }
 
 // Order execution result

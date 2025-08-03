@@ -17,7 +17,6 @@ const CreateOrderSchema = z.object({
   side: z.enum(['buy', 'sell']),
   amount: z.string().regex(/^\d+\.?\d*$/, 'Invalid amount format'),
   price: z.string().regex(/^\d+\.?\d*$/, 'Invalid price format').optional(),
-  walletPrivateKey: z.string().optional() // For testing - in production, use wallet connect
 });
 
 const QuerySchema = z.object({
@@ -54,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { tokenAddress, type, side, amount, price, walletPrivateKey } = validationResult.data;
+    const { tokenAddress, type, side, amount, price } = validationResult.data;
 
     // Validate that price is provided for limit orders
     if (type === 'limit' && !price) {
@@ -103,7 +102,6 @@ export async function POST(request: NextRequest) {
       side,
       amount,
       price,
-      walletPrivateKey // Remove this in production
     });
 
     if (!orderResult.success) {

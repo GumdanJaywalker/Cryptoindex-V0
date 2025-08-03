@@ -6,7 +6,12 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "redis:start": "./scripts/start-redis.sh",
+    "redis:stop": "docker-compose down",
+    "redis:logs": "docker-compose logs -f redis",
+    "redis:cli": "docker exec -it hyperindex-redis redis-cli -a hyperindex_secure_password",
+    "redis:test": "curl http://localhost:3000/api/redis/test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -51,6 +56,7 @@
     "ethers": "^6.13.2",
     "framer-motion": "^12.23.6",
     "input-otp": "1.4.1",
+    "ioredis": "^5.7.0",
     "jose": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.454.0",

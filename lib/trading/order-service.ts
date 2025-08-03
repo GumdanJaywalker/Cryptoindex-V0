@@ -12,7 +12,6 @@ interface CreateOrderRequest {
   side: 'buy' | 'sell';
   amount: string;
   price?: string;
-  walletPrivateKey?: string; // For testing - remove in production
 }
 
 interface CreateOrderResult {
@@ -150,7 +149,7 @@ export class TradingOrderService {
         price: request.price,
         status: 'pending',
         userId: request.userId
-      }, request.walletPrivateKey);
+      });
 
       if (!hypercoreResult.success) {
         // Update order status as failed
@@ -301,15 +300,10 @@ export class TradingOrderService {
   /**
    * Submit order to HyperCore
    */
-  private async submitOrderToHyperCore(order: Order, walletPrivateKey?: string): Promise<TradeResult> {
+  private async submitOrderToHyperCore(order: Order): Promise<TradeResult> {
     try {
-      // In production, this would use the user's connected wallet
-      // For testing, we use a test wallet
-      const wallet = walletPrivateKey 
-        ? new ethers.Wallet(walletPrivateKey)
-        : this.getTestWallet();
-
-      return await this.hyperCore.placeOrder(order, wallet);
+      // Use session-based authentication instead of private keys
+      return await this.hyperCore.placeOrder(order);
 
     } catch (error) {
       console.error('❌ Failed to submit order to HyperCore:', error);

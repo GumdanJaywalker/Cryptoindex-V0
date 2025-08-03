@@ -107,7 +107,6 @@ export interface CreateOrderRequest {
   side: 'buy' | 'sell';
   amount: string;
   price?: string;
-  walletPrivateKey?: string; // For testing only
 }
 
 export interface ApiResponse<T> {

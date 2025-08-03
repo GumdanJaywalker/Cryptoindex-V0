@@ -3,12 +3,15 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-**P2PFiat** - An anonymous peer-to-peer cryptocurrency trading platform with integrated authentication using Privy and wallet management.
+**HyperIndex** - A hybrid decentralized exchange for meme coin index tokens on HyperEVM, combining AMM liquidity pools with off-chain orderbook for CEX-like trading experience. The platform tracks external memecoins (DOGE, PEPE, SHIB, etc.) through oracle price feeds without holding actual tokens.
 
 ## Tech Stack
 - **Frontend**: Next.js 15.2.4, React 19, TypeScript
 - **Authentication**: Privy (email OTP + wallet connections)
 - **Database**: Supabase with Row Level Security
+- **Smart Contracts**: HyperEVM (Solidity)
+- **Trading Engine**: Hybrid AMM + Off-chain Orderbook
+- **Price Oracles**: Chainlink for external meme coin prices
 - **UI Components**: Radix UI + shadcn/ui
 - **Styling**: TailwindCSS with CSS modules
 
@@ -160,6 +163,44 @@ import { usePrivy } from '@privy-io/react-auth';
 
 const { ready, authenticated, user, login, logout } = usePrivy();
 ```
+
+## Trading System Architecture
+
+### CRITICAL: HyperCore vs HyperEVM Distinction
+
+**⚠️ NEVER CONFUSE THESE CONCEPTS - THEY ARE COMPLETELY SEPARATE**
+
+#### HyperCore (❌ WE DO NOT USE THIS)
+1. **HIP-1 Standard**: Requires "Core Spot" tokens with Dutch Auction listing
+2. **Dutch Auction**: Extremely expensive process (millions of dollars)
+3. **HIP-3 Perp**: Requires 1M HYPE (~$40M) to list perpetual pairs
+4. **Orderbook Precompiles**: Available but we don't use them
+5. **Linking Requirement**: ERC-20 ↔ HIP-1 linking requires Dutch Auction participation
+
+#### HyperEVM (✅ THIS IS OUR PLATFORM)
+1. **ERC-20 Standard**: Standard Ethereum-compatible tokens ("EVM Spot")
+2. **No Dutch Auction**: Deploy directly without expensive listing costs
+3. **Native Deployment**: Fully independent from HyperCore
+4. **Standard Solidity**: Use regular Ethereum development tools
+5. **HYPE Gas**: Pay transaction fees with HYPE token
+
+### Our Project Strategy
+- **HyperEVM Native**: We operate exclusively on HyperEVM
+- **ERC-20 Only**: All tokens are standard ERC-20 contracts
+- **No HyperCore Integration**: We ignore HyperCore features to avoid costs
+- **Future Expansion**: Can add HyperCore features later if budget allows
+
+### Hybrid Trading Model
+- **AMM (Automated Market Maker)**: On-chain liquidity pools for INDEX/USDC pairs
+- **Off-chain Orderbook**: CEX-style limit orders stored off-chain, executed on-chain
+- **Smart Router**: Automatically routes orders through optimal path (AMM vs Orderbook)
+
+### Key Features
+- **No Dutch Auction Required**: Deploy directly on HyperEVM without HyperCore costs
+- **Cost Effective**: Avoid $40M+ costs associated with HyperCore features
+- **EVM Compatible**: Use standard Ethereum tooling and patterns
+- **Gasless Trading**: Session-based authentication for seamless UX
+- **Real-time Updates**: WebSocket for orderbook and price updates
 
 ## Important Notes
 

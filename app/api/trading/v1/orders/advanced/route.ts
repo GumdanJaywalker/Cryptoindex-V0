@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
       visibleSize: body.visibleSize,
       leverage: body.leverage,
       marginType: body.marginType,
-      walletPrivateKey: body.walletPrivateKey // Testing only
     };
 
     // Validate required fields

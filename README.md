@@ -1,22 +1,28 @@
-# CryptoIndex - P2P Trading Platform
+# HyperIndex - Hybrid DEX for Meme Coin Index Trading
 
-**Anonymous P2P cryptocurrency trading platform with Privy authentication**
+**A hybrid decentralized exchange combining AMM liquidity with off-chain orderbook for trading meme coin index tokens on HyperEVM**
 
 ## 🚀 **Features**
 
+- **📈 Meme Coin Index**: Track DOGE, PEPE, SHIB and more without holding tokens
+- **🔄 Hybrid Trading**: AMM pools + CEX-style orderbook in one platform
+- **⚡ HyperEVM Native**: No expensive Dutch Auction required
 - **🔐 Privy Authentication**: Email OTP and wallet-based login
-- **🎭 Privacy-First**: Anonymous trading without KYC requirements  
-- **💳 Auto Wallet Creation**: Embedded wallets for email users
-- **🛡 Security**: JWT authentication with rate limiting
-- **📊 Database**: Supabase with Row Level Security (RLS)
+- **📊 Real-time Oracles**: Chainlink price feeds for accurate index valuation
+- **💡 Smart Router**: Automatic best price execution across AMM and orderbook
+- **🛡 Security**: Session-based trading with JWT authentication
 
 ## 🛠 **Tech Stack**
 
+- **Blockchain**: HyperEVM (EVM-compatible Layer 1)
+- **Smart Contracts**: Solidity (AMM, Index Token, Router)
 - **Frontend**: Next.js 14, TypeScript, TailwindCSS
+- **Trading Engine**: Hybrid AMM + Off-chain Orderbook
+- **Price Oracles**: Chainlink for external meme coin prices
 - **Authentication**: Privy (Email OTP + Wallet)
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Supabase (PostgreSQL) for orderbook
+- **Real-time**: WebSocket for live updates
 - **UI Components**: Radix UI + shadcn/ui
-- **Styling**: TailwindCSS + CSS Variables
 
 ## 🚀 **Quick Start**
 
@@ -167,6 +173,6 @@ LOG_LEVEL=error npm run dev
 
 ---
 
-**🚀 Secure and scalable P2P trading platform authentication system is ready for production!**
+**🚀 Next-generation hybrid DEX combining the best of AMM and orderbook trading!**
 
-*Built with Privy integration for seamless Web3 authentication*
+*Built on HyperEVM for high-performance meme coin index trading without Dutch Auction costs*
