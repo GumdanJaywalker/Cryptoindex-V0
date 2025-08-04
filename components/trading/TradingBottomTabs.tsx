@@ -850,34 +850,6 @@ export function TradingBottomTabs() {
                 </div>
               </div>
 
-              {/* Account Summary */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="w-4 h-4 text-green-400" />
-                    <h4 className="text-sm font-semibold text-white">Account Summary</h4>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Total Balance</div>
-                      <div className="text-sm font-semibold text-white">$12,543.67</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">Available</div>
-                      <div className="text-sm font-semibold text-green-400">$8,234.12</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">In Orders</div>
-                      <div className="text-sm font-semibold text-yellow-400">$1,234.56</div>
-                    </div>
-                    <div className="bg-slate-900/50 rounded p-2 text-center">
-                      <div className="text-xs text-slate-400">In Positions</div>
-                      <div className="text-sm font-semibold text-blue-400">$3,074.99</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* Asset List */}
               <Card className="bg-slate-800/50 border-slate-700">
