@@ -37,7 +37,8 @@
       "Bash(sed:*)",
       "Bash(cat:*)",
       "Bash(grep:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   },

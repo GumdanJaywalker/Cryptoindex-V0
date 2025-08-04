@@ -40,7 +40,7 @@ export async function getPrivySessionInfo(request: NextRequest): Promise<Session
     if (process.env.NODE_ENV === 'development' && token === 'dev-token') {
       return {
         isValid: true,
-        user: { id: 'dev-user', email: 'dev@example.com' },
+        user: { id: '550e8400-e29b-41d4-a716-446655440000', email: 'dev@example.com' },
         sessionData: {
           sessionId: 'dev-session',
           createdAt: new Date(),

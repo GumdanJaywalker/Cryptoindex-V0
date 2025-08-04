@@ -49,7 +49,7 @@ export async function verifyPrivyMfaAuth(
         isAuthenticated: true,
         isMfaRequired: false,
         isMfaCompleted: true,
-        user: { id: 'dev-user', email: 'dev@example.com' }
+        user: { id: '550e8400-e29b-41d4-a716-446655440000', email: 'dev@example.com' }
       };
     }
 

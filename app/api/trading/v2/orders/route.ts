@@ -1,72 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractPrivyAuthFromRequest } from '@/lib/middleware/privy-auth';
-import { createClient } from '@supabase/supabase-js';
+import { AsyncDBWriter } from '@/lib/utils/async-db-writer';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const asyncDBWriter = AsyncDBWriter.getInstance();
 
 /**
- * V2 주문 이력을 PostgreSQL에 저장
+ * V2 주문 이력을 비동기 큐에 추가 (즉시 반환)
  */
-async function saveOrderHistory(order: any, routingResult: any, userId: string) {
+function queueOrderHistory(order: any, routingResult: any, userId: string) {
   try {
-    console.log('💾 Saving V2 order history to PostgreSQL...');
-    
     const filledAmount = parseFloat(routingResult.totalFilled);
     const status = filledAmount >= parseFloat(order.amount) * 0.99 ? 'filled' : 'partial';
     
-    // order_history 테이블에 저장
-    const { data, error } = await supabase
-      .from('order_history')
-      .insert({
-        id: order.id,
-        user_id: userId,
-        pair: order.pair,
-        side: order.side,
-        order_type: order.type,
-        price: order.type === 'limit' ? order.price : routingResult.averagePrice,
-        amount: order.amount,
-        filled_amount: routingResult.totalFilled,
-        status: status,
-        redis_order_id: order.id
-      });
+    // 주문 이력을 큐에 추가 (즉시 반환)
+    asyncDBWriter.queueOrderHistory({
+      user_id: userId,
+      pair: order.pair,
+      side: order.side,
+      order_type: order.type,
+      price: order.type === 'limit' ? parseFloat(order.price) : (routingResult.averagePrice ? parseFloat(routingResult.averagePrice) : null),
+      amount: parseFloat(order.amount),
+      filled_amount: parseFloat(routingResult.totalFilled),
+      status: status,
+      redis_order_id: order.id
+    });
 
-    if (error) {
-      console.error('❌ Failed to save order history:', error);
-      // 이력 저장 실패는 치명적이지 않으므로 경고만 출력
-    } else {
-      console.log('✅ V2 order history saved successfully');
-    }
-
-    // trade_history 테이블에 개별 거래 저장
+    // 거래 이력들을 큐에 추가
     if (routingResult.fills && routingResult.fills.length > 0) {
-      const tradePromises = routingResult.fills.map(async (fill: any) => {
-        return supabase
-          .from('trade_history')
-          .insert({
-            id: crypto.randomUUID(),
-            user_id: userId,
-            pair: order.pair,
-            side: order.side,
-            amount: fill.amount,
-            price: fill.price,
-            source: fill.source || 'unknown',
-            price_impact: fill.priceImpact || null,
-            amm_reserves_before: fill.ammReservesBefore ? JSON.stringify(fill.ammReservesBefore) : null,
-            amm_reserves_after: fill.ammReservesAfter ? JSON.stringify(fill.ammReservesAfter) : null,
-            redis_trade_id: fill.id || null
-          });
+      routingResult.fills.forEach((fill: any) => {
+        asyncDBWriter.queueTradeHistory({
+          id: crypto.randomUUID(),
+          pair: order.pair,
+          buyer_order_id: order.side === 'buy' ? order.id : (fill.source === 'AMM' ? 'amm' : null),
+          seller_order_id: order.side === 'sell' ? order.id : (fill.source === 'AMM' ? 'amm' : null),
+          price: parseFloat(fill.price),
+          amount: parseFloat(fill.amount),
+          side: order.side,
+          source: fill.source || 'unknown',
+          buyer_fee: 0,
+          seller_fee: 0,
+          price_impact: fill.priceImpact || null,
+          amm_reserves_before: fill.ammReservesBefore || null,
+          amm_reserves_after: fill.ammReservesAfter || null,
+          redis_trade_id: fill.id || null
+        });
       });
-
-      await Promise.allSettled(tradePromises);
-      console.log(`✅ Saved ${routingResult.fills.length} trade records`);
     }
+
+    console.log(`⚡ Queued order ${order.id} and ${routingResult.fills?.length || 0} trades for async DB write`);
 
   } catch (error) {
-    console.error('❌ Error saving V2 order history:', error);
-    // 이력 저장 실패는 주문 처리에 영향을 주지 않음
+    console.error('❌ Error queuing order history:', error);
+    // 큐 추가 실패는 주문 처리에 영향을 주지 않음
   }
 }
 
@@ -132,8 +117,8 @@ export async function POST(request: NextRequest) {
     // V2 하이브리드 라우팅 실행
     const routingResult = await smartRouterV2.processHybridOrder(orderV2);
 
-    // PostgreSQL에 주문 이력 저장
-    await saveOrderHistory(orderV2, routingResult, user.id);
+    // PostgreSQL에 주문 이력 비동기 큐에 추가 (즉시 반환)
+    queueOrderHistory(orderV2, routingResult, user.id);
 
     console.log('✅ V2 ORDER COMPLETED:', {
       orderId: orderV2.id,

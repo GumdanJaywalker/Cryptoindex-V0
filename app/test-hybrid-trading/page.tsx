@@ -72,7 +72,7 @@ export default function TestHybridTradingPage() {
             <div className="flex-1">
               <HybridTradingPanel 
                 pair={selectedPair} 
-                userId="dev-user-123"
+                userId="550e8400-e29b-41d4-a716-446655440000"
                 onOrderPlaced={handleRefresh}
               />
             </div>
@@ -96,7 +96,7 @@ export default function TestHybridTradingPage() {
               📋 My Orders
             </h2>
             <HybridOpenOrders 
-              userId="dev-user-123" 
+              userId="550e8400-e29b-41d4-a716-446655440000" 
               onOrderCancelled={handleRefresh}
               refreshKey={refreshKey}
             />
@@ -114,7 +114,7 @@ export default function TestHybridTradingPage() {
               <strong>Mode:</strong> Hybrid Trading (AMM + Orderbook)
             </div>
             <div>
-              <strong>User ID:</strong> dev-user-123
+              <strong>User ID:</strong> 550e8400-e29b-41d4-a716-446655440000
             </div>
             <div>
               <strong>Auth Token:</strong> dev-token

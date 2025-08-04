@@ -7,6 +7,8 @@
  * - 성능 측정 (TPS, 지연시간, 성공률)
  * - 다양한 주문 패턴 (마켓/리밋, 매수/매도)
  * - 실시간 진행 상황 모니터링
+ * - 🎯 리얼리스틱 타이밍: 각 주문마다 미묘한 시차 (0.01~0.2ms)
+ * - 🎯 스태거링: 배치 내 주문들의 점진적 시작
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -33,6 +35,8 @@ interface SimulationConfig {
     max: number;
   };
   useV2Router: boolean;       // V2 라우터 사용 여부
+  patternMode?: 'uniform' | 'realistic' | 'burst'; // 주문 패턴 모드
+  burstIntensity?: number;    // 버스트 강도 (1-10)
 }
 
 interface SimulationResult {
@@ -117,7 +121,163 @@ function validateConfig(config: SimulationConfig): boolean {
 }
 
 /**
- * 시뮬레이션 실행 - 성능 최적화 버전
+ * 🚀 다양한 주문 패턴 생성
+ */
+function generateOrderPattern(config: SimulationConfig): Array<{
+  delay: number;
+  burstSize: number;
+  intensity: 'low' | 'medium' | 'high';
+}> {
+  const patternMode = config.patternMode || 'realistic';
+  const burstIntensity = config.burstIntensity || 5;
+  
+  if (patternMode === 'uniform') {
+    // 균등 분산 패턴
+    return generateUniformPattern(config);
+  } else if (patternMode === 'burst') {
+    // 집중 버스트 패턴
+    return generateBurstPattern(config, burstIntensity);
+  } else {
+    // 현실적 패턴 (기본)
+    return generateRealisticPattern(config, burstIntensity);
+  }
+}
+
+/**
+ * 균등 분산 패턴 (기존 방식)
+ */
+function generateUniformPattern(config: SimulationConfig): Array<{
+  delay: number;
+  burstSize: number;
+  intensity: 'low' | 'medium' | 'high';
+}> {
+  const patterns = [];
+  const totalBatches = Math.ceil(config.totalOrders / config.batchSize);
+  const intervalTime = (1000 / config.ordersPerSecond) * config.batchSize;
+  
+  for (let i = 0; i < totalBatches; i++) {
+    const remainingOrders = config.totalOrders - (i * config.batchSize);
+    const batchSize = Math.min(config.batchSize, remainingOrders);
+    
+    patterns.push({
+      delay: i * intervalTime,
+      burstSize: batchSize,
+      intensity: 'medium' as const
+    });
+  }
+  
+  return patterns;
+}
+
+/**
+ * 집중 버스트 패턴
+ */
+function generateBurstPattern(config: SimulationConfig, intensity: number): Array<{
+  delay: number;
+  burstSize: number;
+  intensity: 'low' | 'medium' | 'high';
+}> {
+  const patterns = [];
+  let remainingOrders = config.totalOrders;
+  let currentTime = 0;
+  
+  // 강도에 따른 버스트 크기 조정
+  const maxBurstSize = Math.floor(config.batchSize * (intensity / 5) * 2); // 2~4x batch size
+  
+  while (remainingOrders > 0) {
+    // 큰 버스트
+    const burstSize = Math.min(
+      remainingOrders,
+      Math.floor(Math.random() * maxBurstSize) + config.batchSize
+    );
+    
+    patterns.push({
+      delay: currentTime,
+      burstSize,
+      intensity: 'high' as const
+    });
+    
+    remainingOrders -= burstSize;
+    currentTime += Math.random() * 200 + 50; // 50~250ms 간격
+  }
+  
+  return patterns;
+}
+
+/**
+ * 현실적 패턴 (실제 거래소와 유사)
+ */
+function generateRealisticPattern(config: SimulationConfig, intensity: number): Array<{
+  delay: number;
+  burstSize: number;
+  intensity: 'low' | 'medium' | 'high';
+}> {
+  const patterns = [];
+  let remainingOrders = config.totalOrders;
+  let currentTime = 0;
+  
+  // 강도에 따른 패턴 조정
+  const intensityMultiplier = intensity / 5; // 0.2 ~ 2.0
+  
+  while (remainingOrders > 0) {
+    // 1. 버스트 구간 (짧은 시간에 많은 주문)
+    const burstSize = Math.min(
+      remainingOrders, 
+      Math.floor(Math.random() * config.batchSize * 2 * intensityMultiplier) + config.batchSize
+    );
+    const burstDuration = (burstSize / config.ordersPerSecond) * 1000 * 0.4; // 40% 시간에 집중
+    
+    patterns.push({
+      delay: currentTime,
+      burstSize,
+      intensity: 'high' as const
+    });
+    
+    remainingOrders -= burstSize;
+    currentTime += burstDuration;
+    
+    if (remainingOrders <= 0) break;
+    
+    // 2. 보통 구간
+    const mediumSize = Math.min(
+      remainingOrders,
+      Math.floor(Math.random() * config.batchSize * intensityMultiplier) + 1
+    );
+    const mediumDuration = (mediumSize / config.ordersPerSecond) * 1000 * 1.2;
+    
+    patterns.push({
+      delay: currentTime,
+      burstSize: mediumSize,
+      intensity: 'medium' as const
+    });
+    
+    remainingOrders -= mediumSize;
+    currentTime += mediumDuration;
+    
+    if (remainingOrders <= 0) break;
+    
+    // 3. 조용한 구간 (적은 주문) - 강도가 높을수록 짧아짐
+    const quietSize = Math.min(
+      remainingOrders,
+      Math.floor(Math.random() * config.batchSize * 0.3) + 1
+    );
+    const quietDuration = (quietSize / config.ordersPerSecond) * 1000 * (3 - intensityMultiplier); // 강도 반비례
+    
+    patterns.push({
+      delay: currentTime,
+      burstSize: quietSize,
+      intensity: 'low' as const
+    });
+    
+    remainingOrders -= quietSize;
+    currentTime += quietDuration;
+  }
+  
+  return patterns;
+}
+
+/**
+ * 시뮬레이션 실행 - 현실적 패턴 버전
  */
 async function runSimulation(config: SimulationConfig, userId: string): Promise<SimulationStats> {
   const stats: SimulationStats = {
@@ -132,67 +292,78 @@ async function runSimulation(config: SimulationConfig, userId: string): Promise<
   };
 
   const results: SimulationResult[] = [];
-  const batchDelay = 1000 / (config.ordersPerSecond / config.batchSize); // 배치 간 지연시간
-
-  console.log(`📊 Simulation parameters:`, {
-    totalBatches: Math.ceil(config.totalOrders / config.batchSize),
-    batchDelay: `${batchDelay.toFixed(2)}ms`,
-    estimatedDuration: `${(config.totalOrders / config.ordersPerSecond).toFixed(2)}s`
+  
+  // 🎯 다양한 주문 패턴 생성
+  const orderPatterns = generateOrderPattern(config);
+  
+  console.log(`📊 ${config.patternMode || 'realistic'} simulation starting:`, {
+    patternMode: config.patternMode || 'realistic',
+    burstIntensity: config.burstIntensity || 5,
+    totalPatterns: orderPatterns.length,
+    estimatedDuration: `${(config.totalOrders / config.ordersPerSecond).toFixed(2)}s`,
+    patternPreview: orderPatterns.slice(0, 3).map(p => `${p.burstSize} orders (${p.intensity})`)
   });
 
-  // 🚀 최적화된 배치별 주문 실행
-  const concurrentPromises: Promise<SimulationResult>[] = [];
-  let currentBatch = 0;
+  let orderIndex = 0;
   
-  for (let batchIndex = 0; batchIndex < Math.ceil(config.totalOrders / config.batchSize); batchIndex++) {
-    const batchStartTime = Date.now();
-    const batchSize = Math.min(config.batchSize, config.totalOrders - (batchIndex * config.batchSize));
+  // 패턴별 주문 실행
+  for (const pattern of orderPatterns) {
+    console.log(`🎯 Executing pattern: ${pattern.burstSize} orders at ${pattern.intensity} intensity`);
     
-    // 배치 생성 및 실행 프로미스 수집
-    const batchPromises: Promise<SimulationResult>[] = [];
-    for (let i = 0; i < batchSize; i++) {
-      const orderIndex = (batchIndex * config.batchSize) + i;
-      const order = generateOrder(config, userId, orderIndex);
-      batchPromises.push(executeOrder(order, config.useV2Router));
-    }
+    const patternPromises: Promise<SimulationResult>[] = [];
     
-    // 동시 실행 제한 (메모리 관리)
-    concurrentPromises.push(...batchPromises);
-    
-    // 배치 크기에 따른 동적 처리
-    if (concurrentPromises.length >= config.batchSize * 2 || batchIndex === Math.ceil(config.totalOrders / config.batchSize) - 1) {
-      console.log(`🔄 Processing ${concurrentPromises.length} concurrent orders...`);
+    // 패턴 내 주문들을 현실적 타이밍으로 분산
+    for (let i = 0; i < pattern.burstSize; i++) {
+      const order = generateOrder(config, userId, orderIndex++);
       
-      const batchResults = await Promise.allSettled(concurrentPromises);
-      
-      for (const result of batchResults) {
-        if (result.status === 'fulfilled') {
-          results.push(result.value);
-        } else {
-          results.push({
-            orderId: `failed-${Date.now()}-${Math.random()}`,
-            success: false,
-            responseTime: 0,
-            error: result.reason?.message || 'Unknown error'
-          });
-        }
+      // 현실적 지연 계산
+      let microDelay = 0;
+      if (pattern.intensity === 'high') {
+        // 버스트: 0~2ms 랜덤 지연
+        microDelay = Math.random() * 2;
+      } else if (pattern.intensity === 'medium') {
+        // 보통: 0~10ms 랜덤 지연  
+        microDelay = Math.random() * 10;
+      } else {
+        // 조용: 0~50ms 랜덤 지연
+        microDelay = Math.random() * 50;
       }
       
-      stats.completedOrders += concurrentPromises.length;
-      concurrentPromises.length = 0; // 배열 초기화
-      
-      // 진행 상황 로그
-      const currentTPS = stats.completedOrders / ((Date.now() - stats.startTime) / 1000);
-      console.log(`📈 Progress: ${stats.completedOrders}/${config.totalOrders} orders (${currentTPS.toFixed(1)} TPS)`);
+      // 각 주문을 미세하게 다른 시점에 실행
+      patternPromises.push(
+        new Promise(resolve => 
+          setTimeout(() => resolve(executeOrder(order, config.useV2Router)), microDelay)
+        )
+      );
     }
-
-    // 적응적 배치 간 지연
-    const batchDuration = Date.now() - batchStartTime;
-    const targetBatchDuration = (batchSize / config.ordersPerSecond) * 1000;
-    const remainingDelay = Math.max(0, targetBatchDuration - batchDuration);
     
-    if (remainingDelay > 0) {
-      await new Promise(resolve => setTimeout(resolve, remainingDelay));
+    // 패턴 내 모든 주문 동시 실행
+    const patternResults = await Promise.allSettled(patternPromises);
+    
+    // 결과 수집
+    for (const result of patternResults) {
+      if (result.status === 'fulfilled') {
+        results.push(result.value);
+      } else {
+        results.push({
+          orderId: `failed-${Date.now()}-${Math.random()}`,
+          success: false,
+          responseTime: 0,
+          error: result.reason?.message || 'Unknown error'
+        });
+      }
+    }
+    
+    stats.completedOrders += pattern.burstSize;
+    
+    // 진행 상황 로그
+    const currentTPS = stats.completedOrders / ((Date.now() - stats.startTime) / 1000);
+    console.log(`📈 Pattern completed: ${stats.completedOrders}/${config.totalOrders} orders (${currentTPS.toFixed(1)} TPS)`);
+    
+    // 패턴 간 자연스러운 간격 (실제 시장과 유사)
+    const patternGap = Math.random() * 100 + 10; // 10~110ms 랜덤 간격
+    if (orderIndex < config.totalOrders) {
+      await new Promise(resolve => setTimeout(resolve, patternGap));
     }
   }
 
@@ -214,11 +385,14 @@ async function runSimulation(config: SimulationConfig, userId: string): Promise<
     stats.errors[errorType] = (stats.errors[errorType] || 0) + 1;
   });
 
-  console.log('🎉 Simulation completed:', {
+  console.log(`🎉 ${config.patternMode || 'realistic'} simulation completed:`, {
+    patternMode: config.patternMode || 'realistic',
+    burstIntensity: config.burstIntensity || 5,
     duration: `${((stats.endTime - stats.startTime) / 1000).toFixed(2)}s`,
     actualTPS: stats.actualTPS.toFixed(1),
     successRate: `${((stats.successfulOrders / stats.totalOrders) * 100).toFixed(1)}%`,
-    avgResponseTime: `${stats.averageResponseTime.toFixed(2)}ms`
+    avgResponseTime: `${stats.averageResponseTime.toFixed(2)}ms`,
+    patterns: orderPatterns.length
   });
 
   return stats;
@@ -234,15 +408,19 @@ function generateOrder(config: SimulationConfig, userId: string, orderIndex: num
   const amount = (Math.random() * (config.amountRange.max - config.amountRange.min) + config.amountRange.min).toFixed(2);
   const price = isMarketOrder ? undefined : (Math.random() * (config.priceRange.max - config.priceRange.min) + config.priceRange.min).toFixed(4);
 
+  // 🎯 리얼리스틱 타이밍: 각 주문의 생성 시점을 미묘하게 다르게
+  const now = Date.now();
+  const microTimingOffset = Math.random() * 0.1; // 0~0.1밀리초 오프셋
+
   return {
-    id: `sim-${orderIndex}-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+    id: `sim-${orderIndex}-${now}-${Math.random().toString(36).substring(7)}`,
     userId,
     pair: 'HYPERINDEX-USDC',
     type: isMarketOrder ? 'market' : 'limit',
     side: isBuyOrder ? 'buy' : 'sell',
     amount,
     price: price || '0',
-    timestamp: Date.now()
+    timestamp: now + microTimingOffset // 미묘한 타이밍 차이
   };
 }
 
@@ -253,6 +431,10 @@ async function executeOrder(order: any, useV2Router: boolean): Promise<Simulatio
   const startTime = Date.now();
   
   try {
+    // 🎯 리얼리스틱 타이밍: 각 주문마다 미묘한 지연 (0-0.2ms)
+    const randomDelay = Math.random() * 0.2; // 0~0.2밀리초 랜덤 지연
+    await new Promise(resolve => setTimeout(resolve, randomDelay));
+    
     const apiEndpoint = useV2Router ? '/api/trading/v2/orders' : '/api/trading/v1/orders';
     
     const response = await fetch(`http://localhost:3000${apiEndpoint}`, {
@@ -323,7 +505,9 @@ export async function GET() {
       min: 0.5,
       max: 1.5
     },
-    useV2Router: true
+    useV2Router: true,
+    patternMode: 'realistic',
+    burstIntensity: 7
   };
 
   return NextResponse.json({

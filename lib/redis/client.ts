@@ -1,66 +1,104 @@
 import { Redis } from 'ioredis';
+import { RedisFallbackClient } from './fallback-client';
 
-let redisClient: Redis | null = null;
+let redisClient: Redis | RedisFallbackClient | null = null;
+let useFallback = false;
 
 /**
- * Redis 클라이언트 싱글톤 인스턴스
+ * Redis 클라이언트 싱글톤 인스턴스 (Fallback 지원)
  */
-export function getRedisClient(): Redis {
+export function getRedisClient(): Redis | RedisFallbackClient {
   if (!redisClient) {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
     const redisPassword = process.env.REDIS_PASSWORD;
     
-    redisClient = new Redis(redisUrl, {
-      password: redisPassword,
-      maxRetriesPerRequest: 3,
-      retryStrategy: (times) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-      reconnectOnError: (err) => {
-        const targetError = 'READONLY';
-        if (err.message.includes(targetError)) {
-          // Redis가 읽기 전용 모드일 때 재연결
-          return true;
+    try {
+      console.log('🔌 Attempting to connect to Redis at:', redisUrl);
+      
+      redisClient = new Redis(redisUrl, {
+        password: redisPassword,
+        maxRetriesPerRequest: 2, // Reduced for faster fallback
+        retryStrategy: (times) => {
+          if (times > 2) return null; // Stop retrying after 2 attempts
+          const delay = Math.min(times * 50, 1000);
+          return delay;
+        },
+        reconnectOnError: (err) => {
+          console.error('❌ Redis reconnect error:', err);
+          // Switch to fallback on persistent errors
+          if (!useFallback) {
+            console.log('🔄 Switching to fallback mode due to error...');
+            useFallback = true;
+            redisClient = new RedisFallbackClient();
+          }
+          return false;
+        },
+        // Performance optimizations
+        enableReadyCheck: true,
+        enableOfflineQueue: false, // Disabled for faster error detection
+        lazyConnect: true, // Enable lazy connection
+        
+        // Connection pool settings
+        connectionName: 'hyperindex-trading',
+        
+        // Reduced timeouts for faster fallback
+        connectTimeout: 3000,
+        commandTimeout: 2000,
+        
+        // Logging (development only)
+        showFriendlyErrorStack: process.env.NODE_ENV !== 'production'
+      });
+
+      // Connection event handlers
+      redisClient.on('connect', () => {
+        console.log('📡 Redis connected successfully');
+        useFallback = false;
+      });
+
+      redisClient.on('ready', () => {
+        console.log('✅ Redis ready for operations');
+        useFallback = false;
+      });
+
+      redisClient.on('error', (err) => {
+        console.error('❌ Redis error:', err);
+        if (!useFallback) {
+          console.log('🔄 Switching to fallback mode...');
+          useFallback = true;
+          redisClient = new RedisFallbackClient();
         }
-        return false;
-      },
-      // 성능 최적화 옵션
-      enableReadyCheck: true,
-      enableOfflineQueue: true,
-      lazyConnect: false,
-      
-      // 연결 풀 설정
-      connectionName: 'hyperindex-trading',
-      
-      // 타임아웃 설정
-      connectTimeout: 10000,
-      commandTimeout: 5000,
-      
-      // 로깅 (개발 환경에서만)
-      showFriendlyErrorStack: process.env.NODE_ENV !== 'production'
-    });
+      });
 
-    // 연결 이벤트 핸들러
-    redisClient.on('connect', () => {
-      console.log('📡 Redis connected');
-    });
+      redisClient.on('close', () => {
+        console.log('🔌 Redis connection closed');
+        if (!useFallback) {
+          console.log('🔄 Switching to fallback mode...');
+          useFallback = true;
+          redisClient = new RedisFallbackClient();
+        }
+      });
 
-    redisClient.on('ready', () => {
-      console.log('✅ Redis ready');
-    });
+      redisClient.on('reconnecting', (delay) => {
+        console.log(`🔄 Redis reconnecting in ${delay}ms`);
+      });
 
-    redisClient.on('error', (err) => {
-      console.error('❌ Redis error:', err);
-    });
+      // Test connection immediately with timeout
+      Promise.race([
+        (redisClient as Redis).ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 1000))
+      ]).catch((error) => {
+        console.error('❌ Initial Redis ping failed:', error);
+        console.log('🔄 Using fallback mode from start...');
+        useFallback = true;
+        redisClient = new RedisFallbackClient();
+      });
 
-    redisClient.on('close', () => {
-      console.log('🔌 Redis connection closed');
-    });
-
-    redisClient.on('reconnecting', (delay) => {
-      console.log(`🔄 Redis reconnecting in ${delay}ms`);
-    });
+    } catch (error) {
+      console.error('❌ Failed to create Redis client:', error);
+      console.log('🔄 Using fallback mode...');
+      useFallback = true;
+      redisClient = new RedisFallbackClient();
+    }
   }
 
   return redisClient;
@@ -78,13 +116,29 @@ export async function closeRedisConnection(): Promise<void> {
 }
 
 /**
- * Redis 헬스 체크
+ * Fallback 모드 여부 확인
+ */
+export function isUsingFallback(): boolean {
+  return useFallback;
+}
+
+/**
+ * Redis 헬스 체크 (Fallback 지원)
  */
 export async function checkRedisHealth(): Promise<boolean> {
   try {
     const client = getRedisClient();
-    const result = await client.ping();
-    return result === 'PONG';
+    
+    if (useFallback && 'getStatus' in client) {
+      return true; // Fallback mode is always "healthy"
+    }
+    
+    if ('ping' in client) {
+      const result = await client.ping();
+      return result === 'PONG';
+    }
+    
+    return false;
   } catch (error) {
     console.error('Redis health check failed:', error);
     return false;

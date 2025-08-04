@@ -341,7 +341,7 @@ export class HyperIndexWebSocketServer {
       // 실제로는 Privy JWT 검증 로직 사용
       // 여기서는 개발용 간단한 구현
       if (token === 'dev-token') {
-        return 'dev-user';
+        return '550e8400-e29b-41d4-a716-446655440000';
       }
       
       // JWT 디코딩 (실제로는 검증도 필요)

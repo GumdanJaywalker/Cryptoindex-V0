@@ -159,6 +159,17 @@ export class RedisOrderbook {
       const price = orderData.price;
       const amount = orderData.remaining;
 
+      // 🛡️ 음수 수량 필터링
+      if (PrecisionMath.compare(amount, '0', base.decimals) <= 0) {
+        console.warn('🚨 Negative amount detected in orderbook, skipping:', {
+          orderId,
+          price,
+          amount,
+          pair
+        });
+        continue;
+      }
+
       if (levels.has(price)) {
         const level = levels.get(price)!;
         // 🔢 정밀한 수량 합계
@@ -245,13 +256,38 @@ export class RedisOrderbook {
     
     const currentFilled = orderData.filled || '0';
     const newFilled = PrecisionMath.add(currentFilled, filledAmount, base.decimals);
-    const remaining = PrecisionMath.subtract(orderData.amount, newFilled, base.decimals);
+    
+    // 🛡️ 안전장치: 과도한 체결 방지
+    const maxFillable = PrecisionMath.subtract(orderData.amount, currentFilled, base.decimals);
+    const actualFilled = PrecisionMath.compare(filledAmount, maxFillable, base.decimals) > 0
+      ? PrecisionMath.add(currentFilled, maxFillable, base.decimals)
+      : newFilled;
+    
+    const remaining = PrecisionMath.subtract(orderData.amount, actualFilled, base.decimals);
+    
+    // 🚨 디버그: 음수 remaining 감지
+    if (PrecisionMath.compare(remaining, '0', base.decimals) < 0) {
+      console.error('🚨 NEGATIVE REMAINING DETECTED:', {
+        orderId,
+        orderAmount: orderData.amount,
+        currentFilled,
+        filledAmount,
+        newFilled,
+        actualFilled,
+        remaining,
+        maxFillable
+      });
+      // 음수 방지: 0으로 설정
+      const safeFilled = orderData.amount;
+      const safeRemaining = '0';
+      return this.updateOrderSafely(orderId, orderData, safeFilled, safeRemaining);
+    }
 
     const pipe = this.redis.pipeline();
 
     // 주문 상태 업데이트
     pipe.hset(REDIS_KEYS.ORDER(orderId), {
-      filled: newFilled,
+      filled: actualFilled,
       remaining: remaining,
       status: PrecisionMath.isZero(remaining) ? 'filled' : 'active'
     });
@@ -306,6 +342,39 @@ export class RedisOrderbook {
     } while (cursor !== '0');
 
     return cleanedCount;
+  }
+
+  /**
+   * 🛡️ 안전한 주문 업데이트 (음수 방지)
+   */
+  private async updateOrderSafely(orderId: string, orderData: any, filled: string, remaining: string): Promise<void> {
+    const pipe = this.redis.pipeline();
+    
+    pipe.hset(REDIS_KEYS.ORDER(orderId), {
+      filled: filled,
+      remaining: remaining,
+      status: 'filled' // 음수가 발생한 주문은 완전 체결로 처리
+    });
+
+    // 오더북에서 완전 제거
+    const order = orderData as Order;
+    const bookKey = order.side === 'buy' 
+      ? REDIS_KEYS.BIDS(order.pair)
+      : REDIS_KEYS.ASKS(order.pair);
+    
+    pipe.zrem(bookKey, `${orderId}:${order.timestamp}`);
+
+    // 가격 레벨에서도 제거
+    const priceLevelKey = REDIS_KEYS.PRICE_LEVEL(order.pair, order.side, order.price);
+    pipe.srem(priceLevelKey, orderId);
+
+    await pipe.exec();
+    
+    console.log('🛡️ Order safely updated to prevent negative remaining:', {
+      orderId,
+      filled,
+      remaining: '0'
+    });
   }
 
   /**

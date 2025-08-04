@@ -33,6 +33,11 @@ interface SimulationConfig {
     max: number;
   };
   useV2Router: boolean;
+  // 🆕 현실적 패턴 설정 추가
+  patternMode: 'uniform' | 'realistic' | 'burst';
+  burstIntensity: number; // 1-10 스케일
+  // 🚀 Ultra 모드 추가
+  useUltraMode: boolean;
 }
 
 interface SimulationStats {
@@ -56,18 +61,64 @@ export default function TradingSimulatorPage() {
     sides: { buy: 0.5, sell: 0.5 },
     amountRange: { min: 1, max: 1000 },
     priceRange: { min: 0.5, max: 1.5 },
-    useV2Router: true
+    useV2Router: true,
+    patternMode: 'realistic',
+    burstIntensity: 7,
+    useUltraMode: false
   });
 
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState<SimulationStats | null>(null);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
+  const [redisStatus, setRedisStatus] = useState<{
+    connected: boolean;
+    mode: string;
+    estimatedTPS: number;
+    message: string;
+  } | null>(null);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs(prev => [...prev.slice(-49), `${timestamp}: ${message}`]);
   };
+
+  // Redis 상태 확인
+  const checkRedisStatus = async () => {
+    try {
+      const response = await fetch('/api/redis/ultra-status');
+      const result = await response.json();
+      
+      if (result.success) {
+        setRedisStatus({
+          connected: result.redis.connected,
+          mode: result.redis.mode,
+          estimatedTPS: result.ultraMode.estimatedTPS,
+          message: result.redis.message
+        });
+      }
+    } catch (error) {
+      console.error('Failed to check Redis status:', error);
+      setRedisStatus({
+        connected: false,
+        mode: 'error',
+        estimatedTPS: 500,
+        message: 'Unable to check Redis status'
+      });
+    }
+  };
+
+  // 컴포넌트 마운트 시 Redis 상태 확인
+  useEffect(() => {
+    checkRedisStatus();
+  }, []);
+
+  // Ultra 모드 전환 시 Redis 상태 재확인
+  useEffect(() => {
+    if (config.useUltraMode) {
+      checkRedisStatus();
+    }
+  }, [config.useUltraMode]);
 
   const handleStartSimulation = async () => {
     if (isRunning) return;
@@ -80,7 +131,10 @@ export default function TradingSimulatorPage() {
     addLog(`🚀 Starting simulation: ${config.totalOrders} orders at ${config.ordersPerSecond} TPS`);
 
     try {
-      const response = await fetch('/api/trading/simulator', {
+      // Ultra 모드에 따라 다른 엔드포인트 사용
+      const endpoint = config.useUltraMode ? '/api/trading/ultra-simulator' : '/api/trading/simulator';
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,15 +162,19 @@ export default function TradingSimulatorPage() {
   };
 
   const handleResetConfig = () => {
+    const ultraMode = config.useUltraMode;
     setConfig({
-      totalOrders: 1000,
-      ordersPerSecond: 900,
-      batchSize: 50,
-      orderTypes: { market: 0.7, limit: 0.3 },
+      totalOrders: ultraMode ? 5000 : 1000,
+      ordersPerSecond: ultraMode ? 2000 : 900,
+      batchSize: ultraMode ? 100 : 50,
+      orderTypes: { market: ultraMode ? 0.8 : 0.7, limit: ultraMode ? 0.2 : 0.3 },
       sides: { buy: 0.5, sell: 0.5 },
-      amountRange: { min: 1, max: 1000 },
-      priceRange: { min: 0.5, max: 1.5 },
-      useV2Router: true
+      amountRange: { min: 1, max: ultraMode ? 500 : 1000 },
+      priceRange: { min: ultraMode ? 0.8 : 0.5, max: ultraMode ? 1.2 : 1.5 },
+      useV2Router: true,
+      patternMode: ultraMode ? 'burst' : 'realistic',
+      burstIntensity: ultraMode ? 8 : 7,
+      useUltraMode: ultraMode
     });
   };
 
@@ -146,7 +204,40 @@ export default function TradingSimulatorPage() {
         {/* 헤더 */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">🚀 Trading Simulator</h1>
-          <p className="text-gray-600 mt-2">Mass order performance testing (Target: 900+ TPS)</p>
+          <p className="text-gray-600 mt-2">
+            {config.useUltraMode ? 
+              'Ultra-High Performance Testing (Target: 15,000+ TPS)' : 
+              'Mass order performance testing (Target: 900+ TPS)'
+            }
+          </p>
+          <div className="mt-3 text-sm">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              🔄 Redis Fallback Mode Available
+            </span>
+            <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              ⚡ Async DB Writes
+            </span>
+            <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              🎯 Realistic Patterns
+            </span>
+            {config.useUltraMode && (
+              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                🚀 ULTRA MODE
+              </span>
+            )}
+            {redisStatus && (
+              <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                redisStatus.mode === 'redis' ? 'bg-green-100 text-green-800' : 
+                redisStatus.mode === 'fallback' ? 'bg-yellow-100 text-yellow-800' : 
+                'bg-red-100 text-red-800'
+              }`}>
+                {redisStatus.mode === 'redis' ? '⚡ Redis Connected' : 
+                 redisStatus.mode === 'fallback' ? '🔄 Fallback Mode' : 
+                 '❌ Redis Error'}
+                {config.useUltraMode && ` (~${redisStatus.estimatedTPS.toLocaleString()} TPS)`}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -315,6 +406,97 @@ export default function TradingSimulatorPage() {
                 </div>
               </div>
 
+              {/* 패턴 모드 선택 */}
+              <div className="space-y-2">
+                <Label>Order Pattern Mode</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'uniform', label: 'Uniform', desc: '일정한 간격' },
+                    { value: 'realistic', label: 'Realistic', desc: '실제 거래소 패턴' },
+                    { value: 'burst', label: 'Burst', desc: '집중 버스트' }
+                  ].map((mode) => (
+                    <div key={mode.value} className="text-center">
+                      <input
+                        type="radio"
+                        id={`pattern-${mode.value}`}
+                        name="patternMode"
+                        value={mode.value}
+                        checked={config.patternMode === mode.value}
+                        onChange={(e) => setConfig(prev => ({ ...prev, patternMode: e.target.value as any }))}
+                        disabled={isRunning}
+                        className="mb-1"
+                      />
+                      <Label htmlFor={`pattern-${mode.value}`} className="block text-sm font-medium">
+                        {mode.label}
+                      </Label>
+                      <div className="text-xs text-gray-500">{mode.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 버스트 강도 */}
+              {config.patternMode !== 'uniform' && (
+                <div>
+                  <Label htmlFor="burstIntensity">
+                    Burst Intensity: {config.burstIntensity}/10
+                  </Label>
+                  <Input
+                    id="burstIntensity"
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={config.burstIntensity}
+                    onChange={(e) => setConfig(prev => ({ ...prev, burstIntensity: parseInt(e.target.value) }))}
+                    disabled={isRunning}
+                    className="mt-1"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    {config.burstIntensity <= 3 ? '낮은 변동성' : 
+                     config.burstIntensity <= 7 ? '보통 변동성' : 
+                     '높은 변동성'}
+                  </div>
+                </div>
+              )}
+
+              {/* Ultra 모드 선택 */}
+              <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50">
+                <div className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="useUltraMode"
+                    checked={config.useUltraMode}
+                    onChange={(e) => {
+                      const ultraMode = e.target.checked;
+                      setConfig(prev => ({
+                        ...prev,
+                        useUltraMode: ultraMode,
+                        // Ultra 모드 시 기본값 조정
+                        totalOrders: ultraMode ? 5000 : 1000,
+                        ordersPerSecond: ultraMode ? 2000 : 900,
+                        batchSize: ultraMode ? 100 : 50,
+                        orderTypes: { 
+                          market: ultraMode ? 0.8 : 0.7, 
+                          limit: ultraMode ? 0.2 : 0.3 
+                        },
+                        patternMode: ultraMode ? 'burst' : 'realistic',
+                        burstIntensity: ultraMode ? 8 : 7
+                      }));
+                    }}
+                    disabled={isRunning}
+                  />
+                  <Label htmlFor="useUltraMode" className="font-bold text-red-800">
+                    🚀 ULTRA Mode (15K+ TPS)
+                  </Label>
+                </div>
+                <div className="text-xs text-red-600">
+                  {config.useUltraMode ? 
+                    '⚡ Redis Lua Scripts + High-Performance Orderbook + Batch Processing' :
+                    'Standard simulation with V2 router'
+                  }
+                </div>
+              </div>
+
               {/* 라우터 선택 */}
               <div className="flex items-center space-x-2">
                 <input
@@ -322,9 +504,11 @@ export default function TradingSimulatorPage() {
                   id="useV2Router"
                   checked={config.useV2Router}
                   onChange={(e) => setConfig(prev => ({ ...prev, useV2Router: e.target.checked }))}
-                  disabled={isRunning}
+                  disabled={isRunning || config.useUltraMode}
                 />
-                <Label htmlFor="useV2Router">Use V2 Hybrid Router</Label>
+                <Label htmlFor="useV2Router">
+                  Use V2 Hybrid Router {config.useUltraMode && '(Auto-enabled in Ultra Mode)'}
+                </Label>
               </div>
 
               {/* 컨트롤 버튼 */}

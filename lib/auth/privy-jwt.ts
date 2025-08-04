@@ -103,7 +103,7 @@ export function extractPrivyUserId(token: string): string | null {
     if (process.env.NODE_ENV === 'development') {
       // 특별한 개발 토큰 처리
       if (token === 'dev-token') {
-        return 'dev-user-123' // 개발용 사용자 ID
+        return '550e8400-e29b-41d4-a716-446655440000' // 개발용 고정 UUID
       }
       
       const parts = token.split('.')
