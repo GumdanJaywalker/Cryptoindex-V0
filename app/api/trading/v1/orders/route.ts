@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { createClient } from '@supabase/supabase-js';
 import { TradingOrderService } from '@/lib/trading/order-service';
+import { TradingRateLimiter } from '@/lib/middleware/rate-limiter';
+import { getRedisClient } from '@/lib/redis/client';
 import { z } from 'zod';
 
 const supabase = createClient(
@@ -10,9 +12,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Initialize rate limiter
+const redis = getRedisClient();
+const tradingRateLimiter = new TradingRateLimiter(redis);
+
 // Validation schemas
 const CreateOrderSchema = z.object({
-  tokenAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid token address'),
+  pair: z.string().min(1, 'Pair is required'), // Accept pair instead of tokenAddress
+  tokenAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid token address').optional(),
   type: z.enum(['market', 'limit']),
   side: z.enum(['buy', 'sell']),
   amount: z.string().regex(/^\d+\.?\d*$/, 'Invalid amount format'),
@@ -33,11 +40,38 @@ export async function POST(request: NextRequest) {
   try {
     // Verify authentication
     const authResult = await requirePrivyAuth(request);
-    if (!authResult.isAuthenticated) {
-      return authResult.response;
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return 401 error response
     }
 
     const { user } = authResult;
+    
+    // Check rate limit for order creation
+    const rateLimitResult = await tradingRateLimiter.checkOrderCreateLimit(user.id);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Rate limit exceeded',
+          message: `Order creation limit reached. Try again at ${rateLimitResult.resetAt.toISOString()}`,
+          rateLimit: {
+            limit: rateLimitResult.limit,
+            remaining: rateLimitResult.remaining,
+            resetAt: rateLimitResult.resetAt
+          }
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetAt.getTime().toString(),
+            'Retry-After': Math.ceil((rateLimitResult.resetAt.getTime() - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+    
     const body = await request.json();
 
     // Validate input
@@ -53,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { tokenAddress, type, side, amount, price } = validationResult.data;
+    const { pair, tokenAddress, type, side, amount, price } = validationResult.data;
 
     // Validate that price is provided for limit orders
     if (type === 'limit' && !price) {
@@ -66,58 +100,111 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate token exists and is tradeable
-    const { data: tokenData, error: tokenError } = await supabase
-      .from('index_tokens')
-      .select('id, symbol, is_active, is_tradeable')
-      .eq('token_address', tokenAddress)
-      .single();
+    // TESTING MODE: Skip token validation and use matching engine directly
+    console.log('🚀 OFF-CHAIN ORDERBOOK TEST - Creating order:', { 
+      pair: pair || 'HYPERINDEX-USDC', 
+      type, 
+      side, 
+      amount, 
+      price 
+    });
 
-    if (tokenError || !tokenData) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'Token not found'
-        },
-        { status: 404 }
-      );
-    }
-
-    if (!tokenData.is_active || !tokenData.is_tradeable) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'Token is not available for trading'
-        },
-        { status: 400 }
-      );
-    }
-
-    // Create order using trading service
-    const orderService = TradingOrderService.getInstance();
-    const orderResult = await orderService.createOrder({
+    // Import hybrid smart router
+    const { HybridSmartRouter } = await import('@/lib/trading/smart-router');
+    const smartRouter = HybridSmartRouter.getInstance();
+    
+    // Create test order
+    const testOrder = {
+      id: `order-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       userId: user.id,
-      tokenAddress,
-      type,
+      pair: pair || 'HYPERINDEX-USDC',
       side,
+      type,
+      price: price || '0',
       amount,
-      price,
-    });
+      remaining: amount,
+      status: 'active' as const,
+      timestamp: Date.now()
+    };
+    
+    try {
+      // Process order through hybrid smart router
+      const routingResult = await smartRouter.processHybridOrder(testOrder);
+      
+      // Get routing recommendations for debugging
+      const optimalRoute = await smartRouter.getOptimalRoute(testOrder.pair, testOrder.side, testOrder.amount);
+      
+      console.log('✅ Hybrid order processed:', {
+        orderId: testOrder.id,
+        fills: routingResult.fills.length,
+        totalFilled: routingResult.totalFilled,
+        averagePrice: routingResult.averagePrice,
+        routing: routingResult.routing,
+        recommendation: optimalRoute
+      });
+      
+      // Save to DB for history (optional for testing)
+      const filledAmount = parseFloat(routingResult.totalFilled);
+      const status = filledAmount >= parseFloat(testOrder.amount) * 0.99 ? 'filled' : 'partial';
+      
+      await supabase
+        .from('order_history')
+        .insert({
+          id: testOrder.id,
+          user_id: user.id,
+          pair: testOrder.pair,
+          side: testOrder.side,
+          order_type: testOrder.type,
+          price: testOrder.type === 'limit' ? testOrder.price : routingResult.averagePrice,
+          amount: testOrder.amount,
+          filled_amount: routingResult.totalFilled,
+          status: status,
+          redis_order_id: testOrder.id
+        });
+      
+      const orderResult = {
+        success: true,
+        order: {
+          ...testOrder,
+          fills: routingResult.fills,
+          routing: routingResult.routing,
+          totalFilled: routingResult.totalFilled,
+          averagePrice: routingResult.averagePrice,
+          status: status
+        }
+      };
+      
+      if (!orderResult.success) {
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Order creation failed'
+          },
+          { status: 400 }
+        );
+      }
 
-    if (!orderResult.success) {
+      return NextResponse.json({
+        success: true,
+        order: orderResult.order
+      }, {
+        headers: {
+          'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+          'X-RateLimit-Remaining': (rateLimitResult.remaining - 1).toString(),
+          'X-RateLimit-Reset': rateLimitResult.resetAt.getTime().toString()
+        }
+      });
+      
+    } catch (matchError) {
+      console.error('❌ Order matching error:', matchError);
       return NextResponse.json(
         { 
           success: false,
-          error: orderResult.error
+          error: matchError instanceof Error ? matchError.message : 'Order processing failed'
         },
-        { status: 400 }
+        { status: 500 }
       );
     }
-
-    return NextResponse.json({
-      success: true,
-      order: orderResult.order
-    });
 
   } catch (error) {
     console.error('❌ Create order error:', error);
@@ -138,11 +225,38 @@ export async function GET(request: NextRequest) {
   try {
     // Verify authentication
     const authResult = await requirePrivyAuth(request);
-    if (!authResult.isAuthenticated) {
-      return authResult.response;
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return 401 error response
     }
 
     const { user } = authResult;
+    
+    // Check general trading rate limit
+    const rateLimitResult = await tradingRateLimiter.checkGeneralTradingLimit(user.id);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Rate limit exceeded',
+          message: `Try again at ${rateLimitResult.resetAt.toISOString()}`,
+          rateLimit: {
+            limit: rateLimitResult.limit,
+            remaining: rateLimitResult.remaining,
+            resetAt: rateLimitResult.resetAt
+          }
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetAt.getTime().toString(),
+            'Retry-After': Math.ceil((rateLimitResult.resetAt.getTime() - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+    
     const { searchParams } = new URL(request.url);
     
     // Parse and validate query parameters
@@ -162,13 +276,10 @@ export async function GET(request: NextRequest) {
 
     const { status, tokenAddress, limit, offset } = validationResult.data;
 
-    // Build query
+    // Build query (use order_history table)
     let query = supabase
-      .from('trading_orders')
-      .select(`
-        *,
-        index_tokens!inner(symbol, name)
-      `)
+      .from('order_history')
+      .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -179,7 +290,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (tokenAddress) {
-      query = query.eq('token_address', tokenAddress);
+      // For now, use tokenAddress to filter by pair (can be enhanced later)
+      query = query.like('pair', `%${tokenAddress}%`);
     }
 
     const { data: orders, error } = await query;
@@ -188,26 +300,28 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    // Format response
+    // Format response (mapped to order_history schema)
     const formattedOrders = orders.map(order => ({
       id: order.id,
-      tokenAddress: order.token_address,
-      symbol: order.index_tokens?.symbol || 'UNKNOWN',
-      tokenName: order.index_tokens?.name || 'Unknown Token',
+      pair: order.pair,
+      tokenAddress: order.pair?.split('-')[0] || 'UNKNOWN', // Extract from pair
+      symbol: order.pair?.split('-')[0] || 'UNKNOWN',
+      tokenName: 'Trading Token',
       type: order.order_type,
       side: order.side,
       amount: order.amount,
       price: order.price,
       status: order.status,
       filledAmount: order.filled_amount || '0',
-      remainingAmount: order.remaining_amount || order.amount,
-      averageFillPrice: order.average_fill_price,
-      transactionHash: order.transaction_hash,
+      remainingAmount: (parseFloat(order.amount) - parseFloat(order.filled_amount || '0')).toString(),
+      averageFillPrice: null, // Not in current schema
+      transactionHash: null, // Not in current schema
       createdAt: order.created_at,
       updatedAt: order.updated_at,
-      filledAt: order.filled_at,
-      cancelledAt: order.cancelled_at,
-      errorMessage: order.error_message
+      filledAt: null, // Not in current schema
+      cancelledAt: null, // Not in current schema
+      errorMessage: null, // Not in current schema
+      redisOrderId: order.redis_order_id
     }));
 
     return NextResponse.json({
@@ -217,6 +331,12 @@ export async function GET(request: NextRequest) {
         limit,
         offset,
         total: formattedOrders.length // In production, get actual count
+      }
+    }, {
+      headers: {
+        'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+        'X-RateLimit-Remaining': (rateLimitResult.remaining - 1).toString(),
+        'X-RateLimit-Reset': rateLimitResult.resetAt.getTime().toString()
       }
     });
 

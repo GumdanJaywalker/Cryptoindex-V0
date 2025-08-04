@@ -1,51 +1,162 @@
-// app/api/health/route.ts
-import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/client'
+// app/api/health/route.ts - Enhanced Trading System Health Check
+import { NextRequest, NextResponse } from 'next/server';
+import { checkRedisHealth, getRedisInfo } from '@/lib/redis/client';
+import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { createClient } from '@supabase/supabase-js';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const healthCheck = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    environment: process.env.NODE_ENV,
+    services: {} as Record<string, any>,
+    performance: {} as Record<string, any>,
+    config: {} as Record<string, any>,
+    errors: [] as string[]
+  };
+
   try {
-    // Supabase 연결 테스트
-    const { data, error } = await supabaseAdmin
-      .from('users')
-      .select('count')
-      .limit(1)
-
-    const supabaseStatus = error ? 'error' : 'connected'
+    // 1. Redis Health Check
+    const redisStart = Date.now();
+    const redisHealthy = await checkRedisHealth();
+    const redisTime = Date.now() - redisStart;
     
-    // 환경변수 확인
-    const envCheck = {
-      supabaseUrl: !!process.env.SUPABASE_URL,
-      supabaseAnonKey: !!process.env.SUPABASE_ANON_KEY,
-      supabaseServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      jwtSecret: !!process.env.JWT_SECRET,
-      emailService: !!process.env.EMAIL_FROM,
+    if (redisHealthy) {
+      const redisInfo = await getRedisInfo();
+      healthCheck.services.redis = {
+        status: 'healthy',
+        responseTime: `${redisTime}ms`,
+        info: redisInfo
+      };
+    } else {
+      healthCheck.services.redis = {
+        status: 'unhealthy',
+        responseTime: `${redisTime}ms`,
+        error: 'Redis connection failed'
+      };
+      healthCheck.errors.push('Redis connection failed');
     }
 
-    const allEnvVarsPresent = Object.values(envCheck).every(Boolean)
-
-    return NextResponse.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      environment: process.env.NODE_ENV,
-      services: {
-        supabase: supabaseStatus,
-        database: supabaseStatus === 'connected' ? 'connected' : 'error'
-      },
-      config: {
-        environmentVariables: envCheck,
-        allConfigured: allEnvVarsPresent
+    // 2. Supabase Health Check
+    const supabaseStart = Date.now();
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      
+      const { data, error } = await supabase
+        .from('users')
+        .select('count')
+        .limit(1);
+      
+      const supabaseTime = Date.now() - supabaseStart;
+      
+      if (!error) {
+        healthCheck.services.supabase = {
+          status: 'healthy',
+          responseTime: `${supabaseTime}ms`,
+        };
+      } else {
+        throw error;
       }
-    }, { status: 200 })
+    } catch (error) {
+      const supabaseTime = Date.now() - supabaseStart;
+      healthCheck.services.supabase = {
+        status: 'unhealthy',
+        responseTime: `${supabaseTime}ms`,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+      healthCheck.errors.push('Supabase connection failed');
+    }
+
+    // 3. Matching Engine Health Check
+    const engineStart = Date.now();
+    try {
+      const matchingEngine = MatchingEngine.getInstance();
+      const testOrderbook = await matchingEngine.getOrderbook('HYPERINDEX-USDC', 1);
+      const engineTime = Date.now() - engineStart;
+      
+      healthCheck.services.matchingEngine = {
+        status: 'healthy',
+        responseTime: `${engineTime}ms`,
+        orderbookBids: testOrderbook.bids.length,
+        orderbookAsks: testOrderbook.asks.length
+      };
+    } catch (error) {
+      const engineTime = Date.now() - engineStart;
+      healthCheck.services.matchingEngine = {
+        status: 'unhealthy',
+        responseTime: `${engineTime}ms`,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+      healthCheck.errors.push('Matching Engine failed');
+    }
+
+    // 4. Environment Configuration Check
+    healthCheck.config = {
+      redis: !!process.env.REDIS_URL,
+      supabase: !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      privy: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID && !!process.env.PRIVY_APP_SECRET,
+      hypervm: !!process.env.HYPERVM_TESTNET_RPC,
+      allConfigured: true // Will be calculated below
+    };
+    
+    healthCheck.config.allConfigured = Object.values(healthCheck.config).every(Boolean);
+
+    // 5. Performance Metrics
+    const totalTime = Date.now() - startTime;
+    healthCheck.performance = {
+      totalResponseTime: `${totalTime}ms`,
+      redisLatency: healthCheck.services.redis.responseTime,
+      supabaseLatency: healthCheck.services.supabase.responseTime,
+      matchingEngineLatency: healthCheck.services.matchingEngine.responseTime,
+      memoryUsage: process.memoryUsage(),
+      nodeVersion: process.version,
+      platform: process.platform,
+      uptime: `${Math.floor(process.uptime())}s`
+    };
+
+    // 6. Overall Status
+    const hasErrors = healthCheck.errors.length > 0;
+    const configIncomplete = !healthCheck.config.allConfigured;
+    
+    if (hasErrors) {
+      healthCheck.status = 'unhealthy';
+    } else if (configIncomplete) {
+      healthCheck.status = 'degraded';
+    } else {
+      healthCheck.status = 'healthy';
+    }
+
+    const statusCode = hasErrors ? 503 : (configIncomplete ? 206 : 200);
+    
+    return NextResponse.json(healthCheck, { 
+      status: statusCode,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Health-Check': 'v2',
+        'X-Response-Time': `${totalTime}ms`
+      }
+    });
 
   } catch (error) {
-    console.error('Health check error:', error)
+    console.error('Health check failed:', error);
     
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: 'Service unavailable',
-      details: process.env.NODE_ENV === 'development' ? error : undefined
-    }, { status: 503 })
+      version: '2.0.0',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      responseTime: `${Date.now() - startTime}ms`
+    }, { 
+      status: 500,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Health-Check': 'v2'
+      }
+    });
   }
 }

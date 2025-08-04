@@ -9,10 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@privy-io/server-auth', 'twilio'],
-    appDir: true,
-  },
   // CORS 및 보안 헤더 설정
   async headers() {
     return [
@@ -76,8 +72,8 @@ const nextConfig = {
     return config;
   },
   
-  // 서버 외부 패키지 설정
-  serverExternalPackages: ['@reown/appkit'],
+  // 서버 외부 패키지 설정 (experimental.serverComponentsExternalPackages 대체)
+  serverExternalPackages: ['@privy-io/server-auth', 'twilio', '@reown/appkit'],
 }
 
 export default nextConfig

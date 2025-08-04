@@ -1,7 +1,12 @@
 // lib/trading/portfolio-service.ts
 import { createClient } from '@supabase/supabase-js';
-import { getHyperCoreInterface } from '@/lib/blockchain/hypercore-interface';
-import type { Balance, MarketData } from '@/lib/blockchain/hypercore-interface';
+
+interface Balance {
+  tokenAddress: string;
+  available: string;
+  locked: string;
+  total: string;
+}
 
 interface PortfolioSummary {
   totalValue: string;
@@ -36,14 +41,12 @@ interface TradeUpdate {
 export class PortfolioService {
   private static instance: PortfolioService;
   private supabase;
-  private hyperCore;
 
   private constructor() {
     this.supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    this.hyperCore = getHyperCoreInterface();
   }
 
   static getInstance(): PortfolioService {
@@ -126,9 +129,10 @@ export class PortfolioService {
       const positions: Position[] = await Promise.all(
         dbPositions.map(async (position) => {
           try {
-            // Get current price
-            const marketData = await this.hyperCore.getMarketData(position.token_address);
-            const currentPrice = parseFloat(marketData.price);
+            // Get current price from cached data or use NAV
+            const currentPrice = position.index_tokens?.nav_per_token ? 
+              parseFloat(position.index_tokens.nav_per_token) : 
+              parseFloat(position.average_price); // Fallback to average price
             const amount = parseFloat(position.amount);
             const averagePrice = parseFloat(position.average_price);
             
@@ -319,17 +323,26 @@ export class PortfolioService {
    */
   async syncBalancesFromBlockchain(userId: string, walletAddress: string): Promise<void> {
     try {
-      // Get all tradeable tokens
-      const tradingPairs = await this.hyperCore.getTradingPairs();
+      // Get all tradeable tokens from database
+      const { data: tokens } = await this.supabase
+        .from('index_tokens')
+        .select('token_address');
+      
+      if (!tokens) return;
       
       // Add USDC for base currency
       const usdcAddress = '0xA0b86991c431C924b3c27dF22c2F7aD5e8b6d8E67';
-      const allTokens = [...tradingPairs, usdcAddress];
+      const allTokens = [...tokens.map(t => t.token_address), usdcAddress];
 
-      // Get balances from blockchain
+      // Mock balance data for now (replace with actual blockchain calls later)
       const balancePromises = allTokens.map(async (tokenAddress) => {
         try {
-          const balance = await this.hyperCore.getBalance(walletAddress, tokenAddress);
+          // TODO: Implement actual blockchain balance fetching
+          const balance = {
+            available: '0.000000',
+            locked: '0.000000', 
+            total: '0.000000'
+          };
           
           // Get token symbol
           const { data: tokenData } = await this.supabase

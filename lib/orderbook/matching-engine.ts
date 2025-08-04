@@ -1,13 +1,24 @@
 import { RedisOrderbook } from './redis-orderbook';
 import { Order, Trade, MatchResult } from '../types/orderbook';
 import { PrecisionMath, TradingPairPrecision } from '../utils/precision';
+import { getMockAMM, MockAMM } from '../trading/mock-amm';
 import { v4 as uuidv4 } from 'uuid';
 
 export class MatchingEngine {
+  private static instance: MatchingEngine;
   private orderbook: RedisOrderbook;
+  private amm: MockAMM;
 
-  constructor() {
+  private constructor() {
     this.orderbook = new RedisOrderbook();
+    this.amm = getMockAMM();
+  }
+
+  static getInstance(): MatchingEngine {
+    if (!MatchingEngine.instance) {
+      MatchingEngine.instance = new MatchingEngine();
+    }
+    return MatchingEngine.instance;
   }
 
   /**
@@ -18,6 +29,14 @@ export class MatchingEngine {
     const validationError = this.validateOrder(order);
     if (validationError) {
       throw new Error(`Invalid order: ${validationError}`);
+    }
+
+    // 🔥 Limit order AMM 가격 검증
+    if (order.type === 'limit') {
+      const ammValidationError = await this.validateLimitOrderAgainstAMM(order);
+      if (ammValidationError) {
+        throw new Error(`Limit order validation failed: ${ammValidationError}`);
+      }
     }
 
     const result: MatchResult = {
@@ -264,12 +283,12 @@ export class MatchingEngine {
    * 사용자 주문 조회
    */
   async getUserOrders(userId: string): Promise<Order[]> {
-    // Redis에서 사용자의 모든 주문 ID 가져오기
-    const orderIds = await this.orderbook['redis'].smembers(`user:${userId}:orders`);
+    // 캡슐화된 메서드를 통해 사용자 주문 조회
+    const orderIds = await this.orderbook.getUserOrderIds(userId);
     
     const orders: Order[] = [];
     for (const orderId of orderIds) {
-      const orderData = await this.orderbook['redis'].hgetall(`order:${orderId}`);
+      const orderData = await this.orderbook.getOrderData(orderId);
       if (orderData.id) {
         orders.push({
           ...orderData,
@@ -283,16 +302,58 @@ export class MatchingEngine {
   }
 
   /**
+   * 특정 주문 조회
+   */
+  async getOrder(orderId: string): Promise<Order | null> {
+    const orderData = await this.orderbook.getOrderData(orderId);
+    if (!orderData.id) return null;
+    
+    return {
+      ...orderData,
+      timestamp: parseInt(orderData.timestamp),
+      expiresAt: orderData.expiresAt ? parseInt(orderData.expiresAt) : undefined,
+    } as Order;
+  }
+
+  /**
    * 최근 거래 내역 조회
    */
   async getRecentTrades(pair: string, limit: number = 50): Promise<Trade[]> {
-    const tradesData = await this.orderbook['redis'].lrange(
-      `trades:${pair}`, 
-      0, 
-      limit - 1
-    );
-
+    const tradesData = await this.orderbook.getRecentTrades(pair, limit);
     return tradesData.map(data => JSON.parse(data) as Trade);
+  }
+
+  /**
+   * Limit order AMM 가격 검증
+   * HybridTradingSystem_Architecture_0801.md 기준으로 구현
+   */
+  private async validateLimitOrderAgainstAMM(order: Order): Promise<string | null> {
+    try {
+      // AMM에서 현재 시장가 조회
+      const ammPrice = this.amm.getSpotPrice(order.pair);
+      const orderPrice = parseFloat(order.price);
+
+      console.log(`🔍 AMM Price Check - Pair: ${order.pair}, AMM: ${ammPrice}, Order: ${orderPrice}, Side: ${order.side}`);
+
+      if (order.side === 'buy' && orderPrice > ammPrice) {
+        // 매수 지정가가 AMM보다 높음 - 시장가보다 높은 가격으로 사려고 함
+        return `Buy limit price (${orderPrice}) is higher than AMM market price (${ammPrice}). Use market order instead or set a lower limit price.`;
+      }
+
+      if (order.side === 'sell' && orderPrice < ammPrice) {
+        // 매도 지정가가 AMM보다 낮음 - 시장가보다 낮은 가격으로 팔려고 함
+        return `Sell limit price (${orderPrice}) is lower than AMM market price (${ammPrice}). Use market order instead or set a higher limit price.`;
+      }
+
+      console.log(`✅ Limit order passed AMM validation`);
+      return null; // 검증 통과
+
+    } catch (error) {
+      console.error('AMM validation error:', error);
+      // AMM 검증 실패 시 주문을 거부하지 않고 경고만 로그
+      console.warn(`⚠️ AMM validation failed for pair ${order.pair}, proceeding with orderbook-only validation`);
+      return null;
+    }
   }
 
   /**
@@ -346,6 +407,74 @@ export class MatchingEngine {
     }
     
     return null; // 검증 통과
+  }
+
+  /**
+   * AMM 가격 정보 조회
+   */
+  async getAMMPrice(pair: string): Promise<{
+    spotPrice: number;
+    poolInfo: any;
+  } | null> {
+    try {
+      const spotPrice = this.amm.getSpotPrice(pair);
+      const poolInfo = this.amm.getPoolInfo(pair);
+      
+      return {
+        spotPrice,
+        poolInfo
+      };
+    } catch (error) {
+      console.error(`Failed to get AMM price for ${pair}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * 하이브리드 시장 현황 조회 (AMM + Orderbook)
+   */
+  async getHybridMarketStats(pair: string) {
+    try {
+      // 1. 오더북 통계
+      const orderbookStats = await this.getMarketStats(pair);
+      
+      // 2. AMM 가격 정보
+      const ammInfo = await this.getAMMPrice(pair);
+      
+      // 3. 오더북 베스트 호가
+      const orderbook = await this.getOrderbook(pair, 1);
+      const bestBid = orderbook.bids.length > 0 ? parseFloat(orderbook.bids[0].price) : null;
+      const bestAsk = orderbook.asks.length > 0 ? parseFloat(orderbook.asks[0].price) : null;
+      
+      return {
+        pair,
+        orderbook: {
+          ...orderbookStats,
+          bestBid,
+          bestAsk,
+          spread: bestBid && bestAsk ? bestAsk - bestBid : null
+        },
+        amm: ammInfo ? {
+          spotPrice: ammInfo.spotPrice,
+          tvl: ammInfo.poolInfo.tvl,
+          volume24h: ammInfo.poolInfo.volume24h
+        } : null,
+        routing: {
+          // 최적 거래 경로 제안
+          bestBuyPrice: Math.min(
+            ammInfo?.spotPrice || Infinity,
+            bestAsk || Infinity
+          ),
+          bestSellPrice: Math.max(
+            ammInfo?.spotPrice || 0,
+            bestBid || 0
+          )
+        }
+      };
+    } catch (error) {
+      console.error('Failed to get hybrid market stats:', error);
+      return this.getMarketStats(pair); // fallback to orderbook only
+    }
   }
 
   /**

@@ -1,9 +1,10 @@
 // lib/trading/order-service.ts
 import { createClient } from '@supabase/supabase-js';
 import { ethers } from 'ethers';
-import { getHyperCoreInterface } from '@/lib/blockchain/hypercore-interface';
 import { PortfolioService } from './portfolio-service';
-import type { Order, TradeResult } from '@/lib/blockchain/hypercore-interface';
+import { SmartRouter } from '@/lib/trading/smart-router';
+import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import type { Order } from '@/lib/types/trading';
 
 interface CreateOrderRequest {
   userId: string;
@@ -28,7 +29,8 @@ interface CancelOrderResult {
 export class TradingOrderService {
   private static instance: TradingOrderService;
   private supabase;
-  private hyperCore;
+  private smartRouter: SmartRouter;
+  private matchingEngine: MatchingEngine;
   private portfolioService;
 
   private constructor() {
@@ -36,7 +38,8 @@ export class TradingOrderService {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    this.hyperCore = getHyperCoreInterface();
+    this.smartRouter = SmartRouter.getInstance();
+    this.matchingEngine = MatchingEngine.getInstance();
     this.portfolioService = PortfolioService.getInstance();
   }
 
@@ -139,55 +142,52 @@ export class TradingOrderService {
         };
       }
 
-      // Submit order to HyperCore
-      const hypercoreResult = await this.submitOrderToHyperCore({
+      // Submit order to off-chain matching engine
+      const matchingOrder: Order = {
         id: orderData.id,
-        tokenAddress: request.tokenAddress,
-        type: request.type,
+        pair: `${request.tokenAddress}-USDC`, // Assuming USDC pairs
         side: request.side,
+        type: request.type,
+        price: request.price || '0',
         amount: request.amount,
-        price: request.price,
+        userId: request.userId,
         status: 'pending',
-        userId: request.userId
-      });
+        filled: '0',
+        timestamp: Date.now()
+      };
 
-      if (!hypercoreResult.success) {
+      const matchResult = await this.matchingEngine.placeOrder(matchingOrder);
+
+      if (!matchResult.success) {
         // Update order status as failed
         await this.supabase
           .from('trading_orders')
           .update({
             status: 'cancelled',
-            error_message: hypercoreResult.error,
+            error_message: 'Failed to place order in matching engine',
             cancelled_at: new Date().toISOString()
           })
           .eq('id', orderData.id);
 
         return {
           success: false,
-          error: hypercoreResult.error
+          error: 'Failed to place order in matching engine'
         };
       }
 
-      // Update order with HyperCore information
+      // Get updated order data
       const { data: updatedOrder, error: updateError } = await this.supabase
         .from('trading_orders')
-        .update({
-          hypercore_order_id: hypercoreResult.orderId,
-          transaction_hash: hypercoreResult.txHash
-        })
-        .eq('id', orderData.id)
         .select(`
           *,
           index_tokens!inner(symbol, name)
         `)
+        .eq('id', orderData.id)
         .single();
 
       if (updateError) {
-        console.error('❌ Failed to update order with HyperCore info:', updateError);
+        console.error('❌ Failed to get updated order:', updateError);
       }
-
-      // Start monitoring order status
-      this.monitorOrderStatus(orderData.id, hypercoreResult.orderId || '');
 
       console.log(`✅ Order created successfully: ${orderData.id}`);
 
@@ -201,9 +201,8 @@ export class TradingOrderService {
           side: request.side,
           amount: request.amount,
           price: request.price,
-          status: 'pending',
-          hypercoreOrderId: hypercoreResult.orderId,
-          transactionHash: hypercoreResult.txHash,
+          status: matchResult.status || 'pending',
+          filled: matchResult.filledAmount || '0',
           createdAt: orderData.created_at
         }
       };
@@ -246,20 +245,14 @@ export class TradingOrderService {
         };
       }
 
-      // Cancel on HyperCore if we have the ID
-      if (order.hypercore_order_id) {
-        const wallet = this.getTestWallet(); // In production, use user's wallet
-        const cancelResult = await this.hyperCore.cancelOrder(
-          order.hypercore_order_id,
-          wallet
-        );
-
-        if (!cancelResult.success) {
-          return {
-            success: false,
-            error: `Failed to cancel on HyperCore: ${cancelResult.error}`
-          };
-        }
+      // Cancel order in off-chain matching engine
+      const cancelResult = await this.matchingEngine.cancelOrder(orderId);
+      
+      if (!cancelResult) {
+        return {
+          success: false,
+          error: 'Failed to cancel order in matching engine'
+        };
       }
 
       // Update order status in database
@@ -298,19 +291,21 @@ export class TradingOrderService {
   }
 
   /**
-   * Submit order to HyperCore
+   * Get user's wallet address from Privy session
    */
-  private async submitOrderToHyperCore(order: Order): Promise<TradeResult> {
+  private async getUserWalletAddress(userId: string): Promise<string | null> {
     try {
-      // Use session-based authentication instead of private keys
-      return await this.hyperCore.placeOrder(order);
+      // Get user wallet from Privy integration
+      const { data: user } = await this.supabase
+        .from('users')
+        .select('wallet_address, privy_user_id')
+        .eq('privy_user_id', userId)
+        .single();
 
+      return user?.wallet_address || null;
     } catch (error) {
-      console.error('❌ Failed to submit order to HyperCore:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'HyperCore submission failed'
-      };
+      console.error('Failed to get user wallet:', error);
+      return null;
     }
   }
 
@@ -342,9 +337,12 @@ export class TradingOrderService {
       let requiredAmount: number;
       
       if (type === 'market') {
-        // For market orders, estimate using current spot price
-        const spotPrice = await this.hyperCore.getSpotPrice(tokenAddress);
-        requiredAmount = parseFloat(amount) * parseFloat(spotPrice);
+        // For market orders, get best available price from orderbook
+        const orderbook = await this.matchingEngine.getOrderbook(`${tokenAddress}-USDC`, 1);
+        const bestPrice = side === 'buy' 
+          ? orderbook.asks[0]?.price || '0'
+          : orderbook.bids[0]?.price || '0';
+        requiredAmount = parseFloat(amount) * parseFloat(bestPrice);
       } else {
         // For limit orders, use specified price
         requiredAmount = parseFloat(amount) * parseFloat(price!);
@@ -407,115 +405,18 @@ export class TradingOrderService {
   }
 
   /**
-   * Monitor order status changes
+   * Get order status from matching engine
    */
-  private async monitorOrderStatus(orderId: string, hypercoreOrderId: string): Promise<void> {
-    if (!hypercoreOrderId) return;
-
+  async getOrderStatus(orderId: string): Promise<string> {
     try {
-      // Check order status every 10 seconds for 5 minutes
-      const maxChecks = 30;
-      let checks = 0;
-
-      const checkStatus = async () => {
-        try {
-          const status = await this.hyperCore.getOrderStatus(hypercoreOrderId);
-          
-          if (status === 'filled' || status === 'partial') {
-            // Update order status in database
-            await this.updateOrderFromHyperCore(orderId, hypercoreOrderId);
-          }
-          
-          if (status === 'filled' || status === 'cancelled' || checks >= maxChecks) {
-            return; // Stop monitoring
-          }
-          
-          checks++;
-          setTimeout(checkStatus, 10000); // Check again in 10 seconds
-          
-        } catch (error) {
-          console.error('❌ Order status check failed:', error);
-        }
-      };
-
-      // Start monitoring
-      setTimeout(checkStatus, 10000);
-
+      const order = await this.matchingEngine.getOrder(orderId);
+      return order?.status || 'unknown';
     } catch (error) {
-      console.error('❌ Failed to start order monitoring:', error);
+      console.error('Failed to get order status:', error);
+      return 'unknown';
     }
   }
 
-  /**
-   * Update order from HyperCore status
-   */
-  private async updateOrderFromHyperCore(orderId: string, hypercoreOrderId: string): Promise<void> {
-    try {
-      // In a real implementation, you'd query HyperCore for fill information
-      // For now, we'll simulate a filled order
-      
-      const { data: order } = await this.supabase
-        .from('trading_orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-
-      if (!order) return;
-
-      // Simulate order fill
-      const fillAmount = order.amount; // Full fill for simplicity
-      const fillPrice = order.price || await this.hyperCore.getSpotPrice(order.token_address);
-
-      // Update order
-      await this.supabase
-        .from('trading_orders')
-        .update({
-          status: 'filled',
-          filled_amount: fillAmount,
-          remaining_amount: '0',
-          average_fill_price: fillPrice,
-          filled_at: new Date().toISOString()
-        })
-        .eq('id', orderId);
-
-      // Record trade
-      await this.supabase
-        .from('trade_history')
-        .insert({
-          user_id: order.user_id,
-          order_id: orderId,
-          token_address: order.token_address,
-          side: order.side,
-          amount: fillAmount,
-          price: fillPrice,
-          total_value: (parseFloat(fillAmount) * parseFloat(fillPrice)).toString()
-        });
-
-      // Update user positions and balances
-      await this.portfolioService.updatePositionFromTrade({
-        userId: order.user_id,
-        tokenAddress: order.token_address,
-        side: order.side,
-        amount: fillAmount,
-        price: fillPrice
-      });
-
-      console.log(`✅ Order filled and updated: ${orderId}`);
-
-    } catch (error) {
-      console.error('❌ Failed to update order from HyperCore:', error);
-    }
-  }
-
-  /**
-   * Get test wallet for development
-   */
-  private getTestWallet(): ethers.Wallet {
-    const testPrivateKey = process.env.TEST_WALLET_PRIVATE_KEY || 
-      '0x' + '1'.repeat(64); // Dummy key for testing
-    
-    return new ethers.Wallet(testPrivateKey);
-  }
 }
 
 export default TradingOrderService;

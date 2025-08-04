@@ -35,7 +35,9 @@
       "Bash(npm run:*)",
       "Bash(bash:*)",
       "Bash(sed:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   },

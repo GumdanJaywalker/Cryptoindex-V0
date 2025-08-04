@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { redis, redisPubSub } from '../redis/client';
+import { getRedisClient } from '../redis/client';
 import { 
   Order, 
   OrderbookSnapshot, 
@@ -15,8 +15,8 @@ export class RedisOrderbook {
   private pubsub: Redis;
 
   constructor() {
-    this.redis = redis;
-    this.pubsub = redisPubSub;
+    this.redis = getRedisClient();
+    this.pubsub = getRedisClient(); // For pub/sub, we'll use the same client for now
   }
 
   /**
@@ -289,18 +289,59 @@ export class RedisOrderbook {
     const now = Date.now();
     let cleanedCount = 0;
 
-    // 모든 활성 주문 확인 (실제로는 배치 작업으로 처리)
-    const allOrderKeys = await this.redis.keys('order:*');
-    
-    for (const orderKey of allOrderKeys) {
-      const orderData = await this.redis.hgetall(orderKey);
-      if (orderData.expiresAt && parseInt(orderData.expiresAt) < now) {
-        const orderId = orderKey.split(':')[1];
-        await this.cancelOrder(orderId);
-        cleanedCount++;
+    // SCAN을 사용하여 모든 주문 확인 (성능 최적화)
+    let cursor = '0';
+    do {
+      const [newCursor, keys] = await this.redis.scan(cursor, 'MATCH', 'order:*', 'COUNT', 100);
+      cursor = newCursor;
+      
+      for (const orderKey of keys) {
+        const orderData = await this.redis.hgetall(orderKey);
+        if (orderData.expiresAt && parseInt(orderData.expiresAt) < now) {
+          const orderId = orderKey.split(':')[1];
+          await this.cancelOrder(orderId);
+          cleanedCount++;
+        }
       }
-    }
+    } while (cursor !== '0');
 
     return cleanedCount;
+  }
+
+  /**
+   * 사용자의 주문 ID 목록 조회 (캡슐화된 메서드)
+   */
+  async getUserOrderIds(userId: string): Promise<string[]> {
+    return await this.redis.smembers(`user:${userId}:orders`);
+  }
+
+  /**
+   * 주문 데이터 조회 (캡슐화된 메서드)
+   */
+  async getOrderData(orderId: string): Promise<any> {
+    return await this.redis.hgetall(`order:${orderId}`);
+  }
+
+  /**
+   * 최근 거래 내역 조회 (캡슐화된 메서드)
+   */
+  async getRecentTrades(pair: string, limit: number = 50): Promise<string[]> {
+    return await this.redis.lrange(`trades:${pair}`, 0, limit - 1);
+  }
+
+  /**
+   * 거래 내역 저장 (캡슐화된 메서드)
+   */
+  async saveTrade(pair: string, trade: any): Promise<void> {
+    const pipeline = this.redis.pipeline();
+    
+    // 거래 내역 저장
+    pipeline.lpush(`trades:${pair}`, JSON.stringify(trade));
+    pipeline.ltrim(`trades:${pair}`, 0, 999); // 최근 1000개만 유지
+    
+    // 거래 이벤트 발행
+    pipeline.publish(`trades:${pair}`, JSON.stringify(trade));
+    
+    await pipeline.exec();
   }
 }

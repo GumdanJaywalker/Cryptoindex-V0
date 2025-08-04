@@ -1,453 +1,526 @@
-import { MatchingEngine } from '../orderbook/matching-engine';
-import { Order, Trade } from '../types/orderbook';
+// lib/trading/smart-router.ts
+/**
+ * 하이브리드 스마트 라우터 - HybridTradingSystem_Architecture_0801.md 구현
+ * 
+ * 핵심 원칙: "유저에게 가장 낮은 가격과 편의성 제공"
+ * - 시장가 주문: AMM vs 오더북 실시간 비교 → 최적 경로 자동 선택
+ * - 동적 라우팅: 주문 처리 중 AMM ↔ 오더북 실시간 전환
+ * - 가격 동기화: 시스템이 자동으로 가격 일관성 유지
+ */
 
-// AMM 관련 타입 (기존 AMM 컨트랙트와 연동)
-interface AMMQuote {
-  path: string[];
-  amountIn: string;
-  amountOut: string;
-  priceImpact: string;
-  gasEstimate: string;
+import { getMockAMM, MockAMM } from './mock-amm';
+import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+
+export interface Order {
+  id: string;
+  userId: string;
+  pair: string;
+  side: 'buy' | 'sell';
+  type: 'market' | 'limit';
+  amount: string;
+  price: string;
+  remaining: string;
+  status: 'active' | 'filled' | 'cancelled';
+  timestamp: number;
 }
 
-interface OrderbookQuote {
+export interface Fill {
+  id: string;
+  orderId: string;
   price: string;
   amount: string;
-  depth: number;
+  side: 'buy' | 'sell';
+  source: 'AMM' | 'Orderbook';
+  timestamp: number;
+}
+
+export interface RoutingResult {
+  fills: Fill[];
+  totalFilled: string;
   averagePrice: string;
+  routing: Array<{
+    source: 'AMM' | 'Orderbook';
+    amount: string;
+    price: string;
+    priceImpact?: number;
+  }>;
+  gasEstimate?: string;
 }
 
-interface RouteOption {
-  type: 'amm' | 'orderbook' | 'hybrid';
-  quote: AMMQuote | OrderbookQuote | HybridQuote;
-  expectedOutput: string;
-  gasEstimate: string;
-  priceImpact: string;
-}
-
-interface HybridQuote {
-  ammPortion: number; // 0-1
-  orderbookPortion: number; // 0-1
-  ammQuote: AMMQuote;
-  orderbookQuote: OrderbookQuote;
-  totalOutput: string;
-  averagePrice: string;
-}
-
-export class SmartRouter {
+export class HybridSmartRouter {
+  private static instance: HybridSmartRouter;
+  private amm: MockAMM;
   private matchingEngine: MatchingEngine;
-  
-  constructor() {
-    this.matchingEngine = new MatchingEngine();
+
+  private constructor() {
+    this.amm = getMockAMM();
+    this.matchingEngine = MatchingEngine.getInstance();
+  }
+
+  static getInstance(): HybridSmartRouter {
+    if (!HybridSmartRouter.instance) {
+      HybridSmartRouter.instance = new HybridSmartRouter();
+    }
+    return HybridSmartRouter.instance;
   }
 
   /**
-   * 최적의 거래 경로 찾기
+   * 하이브리드 주문 처리 - 문서 120-161라인 로직 구현
    */
-  async findBestRoute(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string,
-    maxSlippage: number = 0.5 // 0.5%
-  ): Promise<RouteOption[]> {
-    
-    const routes: RouteOption[] = [];
-
-    // 1. AMM 경로 확인
-    const ammRoute = await this.getAMMRoute(pair, side, amount);
-    if (ammRoute) {
-      routes.push(ammRoute);
-    }
-
-    // 2. Orderbook 경로 확인
-    const orderbookRoute = await this.getOrderbookRoute(pair, side, amount);
-    if (orderbookRoute) {
-      routes.push(orderbookRoute);
-    }
-
-    // 3. 하이브리드 경로 확인
-    const hybridRoute = await this.getHybridRoute(pair, side, amount, maxSlippage);
-    if (hybridRoute) {
-      routes.push(hybridRoute);
-    }
-
-    // 4. 최적 경로 정렬 (수익률 기준)
-    return routes.sort((a, b) => {
-      const outputA = parseFloat(a.expectedOutput);
-      const outputB = parseFloat(b.expectedOutput);
-      return side === 'buy' ? outputA - outputB : outputB - outputA;
+  async processHybridOrder(order: Order): Promise<RoutingResult> {
+    console.log(`🔄 Processing hybrid order:`, {
+      id: order.id,
+      side: order.side,
+      type: order.type,
+      amount: order.amount,
+      price: order.price
     });
-  }
 
-  /**
-   * AMM 경로 분석
-   */
-  private async getAMMRoute(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string
-  ): Promise<RouteOption | null> {
-    try {
-      // AMM 컨트랙트와 연동하여 견적 받기
-      // 실제로는 HyperIndexRouter 컨트랙트를 호출
-      const quote = await this.getAMMQuote(pair, side, amount);
-      
-      if (!quote) return null;
-
-      return {
-        type: 'amm',
-        quote,
-        expectedOutput: quote.amountOut,
-        gasEstimate: quote.gasEstimate,
-        priceImpact: quote.priceImpact
-      };
-    } catch (error) {
-      console.error('AMM route error:', error);
-      return null;
+    if (order.type === 'limit') {
+      return await this.processLimitOrder(order);
+    } else {
+      return await this.processMarketOrder(order);
     }
   }
 
   /**
-   * Orderbook 경로 분석
+   * 시장가 주문 처리 - 문서 120-161라인 알고리즘
+   * AMM vs 오더북 실시간 비교하여 최적 가격으로 체결
    */
-  private async getOrderbookRoute(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string
-  ): Promise<RouteOption | null> {
-    try {
-      const orderbook = await this.matchingEngine.getOrderbook(pair, 50);
-      const levels = side === 'buy' ? orderbook.asks : orderbook.bids;
-      
-      if (levels.length === 0) return null;
+  private async processMarketOrder(order: Order): Promise<RoutingResult> {
+    let remainingAmount = parseFloat(order.amount);
+    const fills: Fill[] = [];
+    const routing: RoutingResult['routing'] = [];
 
-      let remainingAmount = parseFloat(amount);
-      let totalCost = 0;
-      let filledAmount = 0;
-      let depth = 0;
+    console.log(`🎯 Market order processing started - Amount: ${remainingAmount}`);
 
-      for (const level of levels) {
-        if (remainingAmount <= 0) break;
+    while (remainingAmount > 0.001) { // 최소 단위
+      // 1. 현재 AMM 가격과 오더북 최우선 호가 비교
+      const ammPrice = this.amm.getSpotPrice(order.pair);
+      const bestOrderbookPrice = await this.getBestOrderbookPrice(order.pair, order.side);
+
+      console.log(`📊 Price comparison - AMM: ${ammPrice}, Orderbook: ${bestOrderbookPrice || 'N/A'}, Remaining: ${remainingAmount}`);
+
+      // 2. 가격 비교 및 실행 결정 (문서 130-157라인)
+      if (!bestOrderbookPrice) {
+        // 오더북 호가가 없는 경우 → 전체 AMM 처리
+        console.log(`🏦 No orderbook, executing full amount on AMM`);
+        const ammResult = await this.executeAMMUntilOrderbookPrice(order, remainingAmount, null);
         
-        const levelAmount = parseFloat(level.amount);
-        const levelPrice = parseFloat(level.price);
-        const fillAmount = Math.min(remainingAmount, levelAmount);
+        if (ammResult.actualInputAmount > 0) {
+          const fill = await this.createAMMFill(order, ammResult);
+          fills.push(fill);
+          routing.push({
+            source: 'AMM',
+            amount: ammResult.actualInputAmount.toString(),
+            price: fill.price,
+            priceImpact: ammResult.priceImpact
+          });
+          
+          remainingAmount -= ammResult.actualInputAmount;
+          console.log(`✅ AMM full execution: ${ammResult.actualInputAmount}, remaining: ${remainingAmount}`);
+        }
+        break; // 더 이상 처리할 것 없음
+
+      } else if (this.isAMMBetter(ammPrice, bestOrderbookPrice, order.side)) {
+        // 시나리오 1: AMM이 더 유리한 경우 - 오더북 가격까지만 처리
+        console.log(`🏦 AMM is better, executing until orderbook price: ${bestOrderbookPrice}`);
+        const ammResult = await this.executeAMMUntilOrderbookPrice(order, remainingAmount, bestOrderbookPrice);
         
-        if (side === 'buy') {
-          totalCost += fillAmount * levelPrice;
+        if (ammResult.actualInputAmount > 0) {
+          const fill = await this.createAMMFill(order, ammResult);
+          fills.push(fill);
+          routing.push({
+            source: 'AMM',
+            amount: ammResult.actualInputAmount.toString(),
+            price: fill.price,
+            priceImpact: ammResult.priceImpact
+          });
+          
+          remainingAmount -= ammResult.actualInputAmount;
+          console.log(`✅ AMM partial execution: ${ammResult.actualInputAmount}, remaining: ${remainingAmount}, hit limit: ${ammResult.hitPriceLimit}`);
         } else {
-          totalCost += fillAmount;
+          console.log(`⚠️ AMM cannot execute anymore, switching to orderbook`);
         }
         
-        filledAmount += fillAmount;
-        remainingAmount -= fillAmount;
-        depth++;
+        // AMM에서 처리 완료 후, 남은 물량은 다음 루프에서 오더북으로 처리
+        continue;
+
+      } else {
+        // 시나리오 2: 오더북이 더 유리하거나 같은 경우 → 오더북 처리
+        console.log(`📖 Orderbook is better, executing at price: ${bestOrderbookPrice}`);
+        const executeAmount = await this.executeOrderbookAtPrice(order, remainingAmount, bestOrderbookPrice);
+        
+        if (executeAmount > 0) {
+          const fill = await this.executeOrderbookTrade(order, executeAmount, bestOrderbookPrice);
+          fills.push(fill);
+          routing.push({
+            source: 'Orderbook',
+            amount: executeAmount.toString(),
+            price: fill.price
+          });
+          
+          remainingAmount -= executeAmount;
+          console.log(`✅ Orderbook execution: ${executeAmount}, remaining: ${remainingAmount}`);
+        } else {
+          // 오더북 소진됨, AMM으로 전환
+          console.log(`🔄 Orderbook exhausted at price ${bestOrderbookPrice}, continuing with AMM`);
+        }
+        
+        continue; // 다음 루프에서 다시 가격 비교
       }
+    }
 
-      if (filledAmount === 0) return null;
+    // 결과 계산
+    const totalFilled = fills.reduce((sum, fill) => sum + parseFloat(fill.amount), 0);
+    const weightedPriceSum = fills.reduce((sum, fill) => 
+      sum + (parseFloat(fill.price) * parseFloat(fill.amount)), 0
+    );
+    const averagePrice = totalFilled > 0 ? weightedPriceSum / totalFilled : 0;
 
-      const averagePrice = side === 'buy' 
-        ? (totalCost / filledAmount).toFixed(8)
-        : (totalCost / filledAmount).toFixed(8);
+    console.log(`🎉 Market order completed:`, {
+      totalFilled,
+      averagePrice,
+      fills: fills.length,
+      routingSources: routing.map(r => r.source)
+    });
 
-      const quote: OrderbookQuote = {
-        price: averagePrice,
-        amount: filledAmount.toFixed(8),
-        depth,
-        averagePrice
-      };
+    return {
+      fills,
+      totalFilled: totalFilled.toString(),
+      averagePrice: averagePrice.toString(),
+      routing
+    };
+  }
 
-      return {
-        type: 'orderbook',
-        quote,
-        expectedOutput: side === 'buy' ? filledAmount.toFixed(8) : totalCost.toFixed(8),
-        gasEstimate: '0', // 오더북은 가스비 없음
-        priceImpact: '0'
-      };
-    } catch (error) {
-      console.error('Orderbook route error:', error);
-      return null;
+  /**
+   * 지정가 주문 처리 - 문서 166-185라인 로직
+   */
+  private async processLimitOrder(order: Order): Promise<RoutingResult> {
+    const ammPrice = this.amm.getSpotPrice(order.pair);
+    const limitPrice = parseFloat(order.price);
+
+    console.log(`📝 Limit order validation - AMM: ${ammPrice}, Limit: ${limitPrice}, Side: ${order.side}`);
+
+    // AMM 가격 검증 (문서 170-178라인)
+    if ((order.side === 'buy' && limitPrice > ammPrice) ||
+        (order.side === 'sell' && limitPrice < ammPrice)) {
+      throw new Error(`Limit price crosses market price. Place market order instead.`);
+    }
+
+    // 정상적인 지정가: 오더북에 등록
+    console.log(`✅ Valid limit order - registering to orderbook`);
+    
+    // 실제로는 오더북에 등록하지만, 테스트를 위해 즉시 매칭 시도
+    const matchResult = await this.matchingEngine.processOrder(order);
+    
+    const fills: Fill[] = matchResult.trades.map(trade => ({
+      id: trade.id,
+      orderId: order.id,
+      price: trade.price,
+      amount: trade.amount,
+      side: order.side,
+      source: 'Orderbook' as const,
+      timestamp: trade.timestamp
+    }));
+
+    const totalFilled = fills.reduce((sum, fill) => sum + parseFloat(fill.amount), 0);
+    const averagePrice = fills.length > 0 ? parseFloat(fills[0].price) : parseFloat(order.price);
+
+    return {
+      fills,
+      totalFilled: totalFilled.toString(),
+      averagePrice: averagePrice.toString(),
+      routing: [{
+        source: 'Orderbook',
+        amount: totalFilled.toString(),
+        price: averagePrice.toString()
+      }]
+    };
+  }
+
+  /**
+   * AMM이 오더북보다 유리한지 확인
+   */
+  private isAMMBetter(ammPrice: number, orderbookPrice: number, side: 'buy' | 'sell'): boolean {
+    if (side === 'buy') {
+      return ammPrice < orderbookPrice; // 매수시 AMM이 더 싸면 유리
+    } else {
+      return ammPrice > orderbookPrice; // 매도시 AMM이 더 비싸면 유리
     }
   }
 
   /**
-   * 하이브리드 경로 분석 (AMM + Orderbook 조합)
+   * 오더북 최우선 호가 조회
    */
-  private async getHybridRoute(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string,
-    maxSlippage: number
-  ): Promise<RouteOption | null> {
+  private async getBestOrderbookPrice(pair: string, side: 'buy' | 'sell'): Promise<number | null> {
     try {
-      const totalAmount = parseFloat(amount);
+      const orderbook = await this.matchingEngine.getOrderbook(pair, 1);
       
-      // 여러 비율로 테스트해서 최적 조합 찾기
-      const ratios = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-      let bestHybrid: RouteOption | null = null;
-      let bestOutput = 0;
-
-      for (const ammRatio of ratios) {
-        const orderbookRatio = 1 - ammRatio;
-        const ammAmount = (totalAmount * ammRatio).toFixed(8);
-        const orderbookAmount = (totalAmount * orderbookRatio).toFixed(8);
-
-        // AMM 부분
-        const ammQuote = await this.getAMMQuote(pair, side, ammAmount);
-        if (!ammQuote) continue;
-
-        // Orderbook 부분
-        const orderbookRoute = await this.getOrderbookRoute(pair, side, orderbookAmount);
-        if (!orderbookRoute) continue;
-
-        const orderbookQuote = orderbookRoute.quote as OrderbookQuote;
-        
-        // 전체 결과 계산
-        const ammOutput = parseFloat(ammQuote.amountOut);
-        const orderbookOutput = parseFloat(orderbookRoute.expectedOutput);
-        const totalOutput = ammOutput + orderbookOutput;
-
-        if (totalOutput > bestOutput) {
-          bestOutput = totalOutput;
-          
-          const hybridQuote: HybridQuote = {
-            ammPortion: ammRatio,
-            orderbookPortion: orderbookRatio,
-            ammQuote,
-            orderbookQuote,
-            totalOutput: totalOutput.toFixed(8),
-            averagePrice: side === 'buy' 
-              ? (totalAmount / totalOutput).toFixed(8)
-              : (totalOutput / totalAmount).toFixed(8)
-          };
-
-          bestHybrid = {
-            type: 'hybrid',
-            quote: hybridQuote,
-            expectedOutput: totalOutput.toFixed(8),
-            gasEstimate: ammQuote.gasEstimate, // AMM 부분만 가스비 발생
-            priceImpact: this.calculateHybridPriceImpact(ammQuote, orderbookQuote, ammRatio)
-          };
-        }
+      if (side === 'buy') {
+        // 매수시 가장 낮은 매도호가 (asks)
+        return orderbook.asks.length > 0 ? parseFloat(orderbook.asks[0].price) : null;
+      } else {
+        // 매도시 가장 높은 매수호가 (bids)
+        return orderbook.bids.length > 0 ? parseFloat(orderbook.bids[0].price) : null;
       }
-
-      return bestHybrid;
     } catch (error) {
-      console.error('Hybrid route error:', error);
+      console.error('Failed to get orderbook price:', error);
       return null;
     }
   }
 
   /**
-   * 하이브리드 가격 영향 계산
+   * 🔥 CRITICAL: AMM을 오더북 가격까지만 실행하는 새로운 메서드
    */
-  private calculateHybridPriceImpact(
-    ammQuote: AMMQuote,
-    orderbookQuote: OrderbookQuote,
-    ammRatio: number
-  ): string {
-    const ammImpact = parseFloat(ammQuote.priceImpact);
-    const orderbookImpact = 0; // 오더북은 기본적으로 가격 영향 없음
-    
-    const weightedImpact = (ammImpact * ammRatio) + (orderbookImpact * (1 - ammRatio));
-    return weightedImpact.toFixed(4);
-  }
-
-  /**
-   * 경로 실행
-   */
-  async executeRoute(
-    route: RouteOption,
-    userId: string,
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string
-  ): Promise<{ success: boolean; trades?: Trade[]; error?: string }> {
-    try {
-      switch (route.type) {
-        case 'orderbook':
-          return await this.executeOrderbookRoute(userId, pair, side, amount);
-          
-        case 'amm':
-          return await this.executeAMMRoute(userId, pair, side, amount, route.quote as AMMQuote);
-          
-        case 'hybrid':
-          return await this.executeHybridRoute(userId, pair, side, amount, route.quote as HybridQuote);
-          
-        default:
-          return { success: false, error: 'Unknown route type' };
-      }
-    } catch (error) {
-      console.error('Route execution error:', error);
-      return { success: false, error: 'Route execution failed' };
+  private async executeAMMUntilOrderbookPrice(
+    order: Order, 
+    maxAmount: number, 
+    orderbookPrice: number | null
+  ): Promise<{
+    actualInputAmount: number;
+    outputAmount: number;
+    effectivePrice: number;
+    priceImpact: number;
+    newSpotPrice: number;
+    hitPriceLimit: boolean;
+    reservesBefore: any;
+    reservesAfter: any;
+  }> {
+    if (!orderbookPrice) {
+      // 오더북 호가가 없으면 전체 수량 AMM으로 처리 (제한 없음)
+      const limitedAmount = Math.min(maxAmount, 10000); // 최대 10K 제한
+      return this.amm.executeSwapUntilPrice(order.pair, order.side, limitedAmount, 0); // 가격 제한 없음
     }
+
+    // 🎯 핵심: 오더북 가격까지만 AMM 실행
+    console.log(`🎯 AMM will execute until orderbook price: ${orderbookPrice}`);
+    return this.amm.executeSwapUntilPrice(order.pair, order.side, maxAmount, orderbookPrice);
   }
 
   /**
-   * Orderbook 경로 실행
+   * AMM 스왑 결과로부터 Fill 객체 생성
    */
-  private async executeOrderbookRoute(
-    userId: string,
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string
-  ): Promise<{ success: boolean; trades?: Trade[]; error?: string }> {
-    
-    const order: Order = {
-      id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId,
-      pair,
-      side,
-      type: 'market', // 시장가로 즉시 실행
-      price: '0',
-      amount,
-      filled: '0',
-      remaining: amount,
-      status: 'pending',
+  private async createAMMFill(order: Order, ammResult: any): Promise<Fill> {
+    const fill: Fill = {
+      id: `amm-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      orderId: order.id,
+      price: ammResult.effectivePrice.toString(),
+      amount: ammResult.actualInputAmount.toString(),
+      side: order.side,
+      source: 'AMM',
       timestamp: Date.now()
     };
 
-    const result = await this.matchingEngine.processOrder(order);
+    // Redis와 PostgreSQL에 저장
+    await this.recordAMMTrade(fill, ammResult);
     
-    return {
-      success: result.trades.length > 0,
-      trades: result.trades
-    };
+    return fill;
   }
 
   /**
-   * AMM 경로 실행
+   * AMM 거래를 Redis와 PostgreSQL에 기록
    */
-  private async executeAMMRoute(
-    userId: string,
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string,
-    quote: AMMQuote
-  ): Promise<{ success: boolean; trades?: Trade[]; error?: string }> {
-    
-    // 실제로는 스마트 컨트랙트 호출
-    // 여기서는 시뮬레이션
+  private async recordAMMTrade(fill: Fill, ammResult: any): Promise<void> {
     try {
-      // HyperIndexRouter.swapExactTokensForTokens() 또는 swapTokensForExactTokens() 호출
-      console.log('Executing AMM swap:', { userId, pair, side, amount, quote });
-      
-      // 시뮬레이션된 거래 결과
-      const trade: Trade = {
-        id: `amm_trade_${Date.now()}`,
-        pair,
-        price: (parseFloat(amount) / parseFloat(quote.amountOut)).toFixed(8),
-        amount: quote.amountOut,
-        side,
+      // 1. Redis 저장
+      await this.matchingEngine.recordTrade({
+        id: fill.id,
+        pair: fill.orderId.includes('HYPERINDEX') ? 'HYPERINDEX-USDC' : 'HYPERINDEX-USDC',
+        price: fill.price,
+        amount: fill.amount,
+        side: fill.side,
         buyOrderId: 'amm',
         sellOrderId: 'amm',
+        timestamp: fill.timestamp
+      });
+
+      // 2. PostgreSQL 저장
+      await this.saveTradeToDatabase(fill, ammResult);
+      
+      console.log(`💾 AMM trade recorded: ${fill.id}`);
+    } catch (error) {
+      console.warn('Failed to record AMM trade:', error);
+    }
+  }
+
+  /**
+   * 특정 가격에서 오더북 수량 확인 및 실행
+   */
+  private async executeOrderbookAtPrice(
+    order: Order,
+    remainingAmount: number, 
+    price: number
+  ): Promise<number> {
+    try {
+      const orderbook = await this.matchingEngine.getOrderbook(order.pair, 10);
+      const levels = order.side === 'buy' ? orderbook.asks : orderbook.bids;
+      
+      // 해당 가격의 총 수량 계산
+      const availableAmount = levels
+        .filter(level => Math.abs(parseFloat(level.price) - price) < 0.0001)
+        .reduce((sum, level) => sum + parseFloat(level.amount), 0);
+      
+      return Math.min(remainingAmount, availableAmount);
+    } catch (error) {
+      console.error('Failed to calculate orderbook execution amount:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * 거래 내역을 PostgreSQL에 영구 저장
+   */
+  private async saveTradeToDatabase(fill: Fill, swapResult?: any): Promise<void> {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const tradeData = {
+      pair: 'HYPERINDEX-USDC', // 현재는 하나의 페어만 지원
+      price: parseFloat(fill.price),
+      amount: parseFloat(fill.amount),
+      side: fill.side,
+      source: fill.source,
+      buyer_order_id: fill.source === 'AMM' ? 'amm' : fill.orderId,
+      seller_order_id: fill.source === 'AMM' ? 'amm' : fill.orderId,
+      buyer_fee: 0,
+      seller_fee: 0,
+      redis_trade_id: fill.id,
+      executed_at: new Date(fill.timestamp).toISOString()
+    };
+
+    // AMM 관련 추가 정보
+    if (fill.source === 'AMM' && swapResult) {
+      Object.assign(tradeData, {
+        price_impact: swapResult.priceImpact || 0,
+        amm_reserves_before: swapResult.reservesBefore || null,
+        amm_reserves_after: swapResult.reservesAfter || null
+      });
+    }
+
+    const { error } = await supabase
+      .from('trade_history')
+      .insert(tradeData);
+
+    if (error) {
+      throw new Error(`Database insert failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * 오더북 거래 실행 - 실제로 매칭엔진으로 Market 주문 전송
+   */
+  private async executeOrderbookTrade(order: Order, amount: number, price: number): Promise<Fill> {
+    try {
+      // 🔥 핵심: 남은 물량으로 새로운 Market 주문을 오더북에 전송
+      const orderbookOrder: Order = {
+        id: `ob-market-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        userId: order.userId,
+        pair: order.pair,
+        side: order.side,
+        type: 'market', // Market 주문으로 오더북에 전송
+        amount: amount.toString(),
+        price: price.toString(),
+        remaining: amount.toString(),
+        status: 'active',
         timestamp: Date.now()
       };
 
-      return { success: true, trades: [trade] };
+      console.log(`📖 Sending market order to orderbook:`, orderbookOrder);
+
+      // 매칭엔진으로 주문 전송
+      const matchResult = await this.matchingEngine.processOrder(orderbookOrder);
+      
+      if (matchResult.trades.length > 0) {
+        // 체결된 첫 번째 거래를 Fill로 변환
+        const trade = matchResult.trades[0];
+        const fill: Fill = {
+          id: trade.id,
+          orderId: order.id, // 원본 주문 ID 유지
+          price: trade.price,
+          amount: trade.amount,
+          side: order.side,
+          source: 'Orderbook',
+          timestamp: trade.timestamp
+        };
+
+        console.log(`✅ Orderbook trade executed:`, fill);
+        return fill;
+      } else {
+        // 체결되지 않은 경우 (이론상 발생하지 않아야 함)
+        console.warn(`⚠️ No orderbook trades executed for amount: ${amount}`);
+        return {
+          id: `ob-failed-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+          orderId: order.id,
+          price: price.toString(),
+          amount: "0", // 체결 안됨
+          side: order.side,
+          source: 'Orderbook',
+          timestamp: Date.now()
+        };
+      }
     } catch (error) {
-      return { success: false, error: 'AMM execution failed' };
+      console.error(`❌ Orderbook trade execution failed:`, error);
+      
+      // 에러 발생 시 빈 Fill 반환
+      return {
+        id: `ob-error-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        orderId: order.id,
+        price: price.toString(),
+        amount: "0",
+        side: order.side,
+        source: 'Orderbook',
+        timestamp: Date.now()
+      };
     }
   }
 
   /**
-   * 하이브리드 경로 실행
+   * 가격 영향 계산
    */
-  private async executeHybridRoute(
-    userId: string,
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string,
-    quote: HybridQuote
-  ): Promise<{ success: boolean; trades?: Trade[]; error?: string }> {
-    
-    const totalAmount = parseFloat(amount);
-    const ammAmount = (totalAmount * quote.ammPortion).toFixed(8);
-    const orderbookAmount = (totalAmount * quote.orderbookPortion).toFixed(8);
-
-    const allTrades: Trade[] = [];
-
-    // 1. AMM 부분 실행
-    if (quote.ammPortion > 0) {
-      const ammResult = await this.executeAMMRoute(userId, pair, side, ammAmount, quote.ammQuote);
-      if (ammResult.success && ammResult.trades) {
-        allTrades.push(...ammResult.trades);
-      }
+  private calculatePriceImpact(amount: number, pair: string): number {
+    try {
+      const simulation = this.amm.calculateSwapOutput(pair, 'buy', amount);
+      return simulation.priceImpact;
+    } catch (error) {
+      return 0;
     }
+  }
 
-    // 2. Orderbook 부분 실행
-    if (quote.orderbookPortion > 0) {
-      const orderbookResult = await this.executeOrderbookRoute(userId, pair, side, orderbookAmount);
-      if (orderbookResult.success && orderbookResult.trades) {
-        allTrades.push(...orderbookResult.trades);
+  /**
+   * 최적 거래 경로 추천
+   */
+  async getOptimalRoute(pair: string, side: 'buy' | 'sell', amount: string): Promise<{
+    recommended: 'AMM' | 'Orderbook' | 'Hybrid';
+    ammPrice: number;
+    orderbookPrice: number | null;
+    priceImpact: number;
+    estimatedGas: string;
+  }> {
+    const ammPrice = this.amm.getSpotPrice(pair);
+    const orderbookPrice = await this.getBestOrderbookPrice(pair, side);
+    const amountNum = parseFloat(amount);
+    const priceImpact = this.calculatePriceImpact(amountNum, pair);
+
+    let recommended: 'AMM' | 'Orderbook' | 'Hybrid' = 'AMM';
+
+    if (orderbookPrice) {
+      if (this.isAMMBetter(ammPrice, orderbookPrice, side)) {
+        recommended = priceImpact > 0.05 ? 'Hybrid' : 'AMM';
+      } else {
+        recommended = 'Orderbook';
       }
     }
 
     return {
-      success: allTrades.length > 0,
-      trades: allTrades
+      recommended,
+      ammPrice,
+      orderbookPrice,
+      priceImpact,
+      estimatedGas: '0.001' // 가스 추정값
     };
-  }
-
-  /**
-   * AMM 견적 받기 (실제로는 컨트랙트 호출)
-   */
-  private async getAMMQuote(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string
-  ): Promise<AMMQuote | null> {
-    // 실제로는 HyperIndexRouter.getAmountsOut() 호출
-    // 여기서는 시뮬레이션
-    try {
-      const [tokenA, tokenB] = pair.split('-');
-      const path = side === 'buy' ? [tokenB, tokenA] : [tokenA, tokenB];
-      
-      // 간단한 AMM 시뮬레이션 (실제로는 컨트랙트에서 계산)
-      const amountIn = parseFloat(amount);
-      const amountOut = amountIn * 0.997; // 0.3% 수수료 반영
-      const priceImpact = Math.min(amountIn / 100000, 5); // 간단한 가격 영향 계산
-      
-      return {
-        path,
-        amountIn: amount,
-        amountOut: amountOut.toFixed(8),
-        priceImpact: priceImpact.toFixed(4),
-        gasEstimate: '21000' // 예상 가스
-      };
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * 최적 경로 추천
-   */
-  async getRecommendedRoute(
-    pair: string,
-    side: 'buy' | 'sell',
-    amount: string,
-    userPreference: 'speed' | 'cost' | 'output' = 'output'
-  ): Promise<RouteOption | null> {
-    
-    const routes = await this.findBestRoute(pair, side, amount);
-    if (routes.length === 0) return null;
-
-    switch (userPreference) {
-      case 'speed':
-        // 오더북이 가장 빠름 (가스비 없음)
-        return routes.find(r => r.type === 'orderbook') || routes[0];
-        
-      case 'cost':
-        // 가스비가 낮은 순서
-        return routes.sort((a, b) => 
-          parseFloat(a.gasEstimate) - parseFloat(b.gasEstimate)
-        )[0];
-        
-      case 'output':
-      default:
-        // 최고 수익률
-        return routes[0];
-    }
   }
 }

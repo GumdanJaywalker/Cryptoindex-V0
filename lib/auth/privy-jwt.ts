@@ -101,6 +101,11 @@ export function extractPrivyUserId(token: string): string | null {
   try {
     // 개발 환경에서는 간단한 디코딩
     if (process.env.NODE_ENV === 'development') {
+      // 특별한 개발 토큰 처리
+      if (token === 'dev-token') {
+        return 'dev-user-123' // 개발용 사용자 ID
+      }
+      
       const parts = token.split('.')
       if (parts.length !== 3) return null
       

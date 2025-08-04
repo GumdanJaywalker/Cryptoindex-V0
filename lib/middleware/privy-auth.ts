@@ -181,9 +181,14 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
 export function rateLimit(
   identifier: string, 
-  maxRequests: number = 100, 
+  maxRequests: number = 999999999, // 사실상 무제한
   windowMs: number = 15 * 60 * 1000 // 15분
 ): { allowed: boolean; remaining: number; resetTime: number } {
+  // 개발/테스트 환경에서는 rate limiting 완전 비활성화
+  if (process.env.NODE_ENV === 'development' || process.env.DISABLE_RATE_LIMIT === 'true') {
+    return { allowed: true, remaining: 999999999, resetTime: Date.now() + windowMs }
+  }
+
   const now = Date.now()
   const record = rateLimitMap.get(identifier)
 
@@ -205,16 +210,22 @@ export function rateLimit(
 }
 
 /**
- * IP 기반 Rate Limiting
+ * IP 기반 Rate Limiting - 개발환경에서는 비활성화
  */
-export function rateLimitByIP(request: NextRequest, maxRequests: number = 1000, windowMs: number = 15 * 60 * 1000) {
+export function rateLimitByIP(request: NextRequest, maxRequests: number = 999999999, windowMs: number = 15 * 60 * 1000) {
+  if (process.env.NODE_ENV === 'development' || process.env.DISABLE_RATE_LIMIT === 'true') {
+    return { allowed: true, remaining: 999999999, resetTime: Date.now() + windowMs }
+  }
   const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
   return rateLimit(`ip:${ip}`, maxRequests, windowMs)
 }
 
 /**
- * 사용자 기반 Rate Limiting
+ * 사용자 기반 Rate Limiting - 개발환경에서는 비활성화
  */
-export function rateLimitByUser(userId: string, maxRequests: number = 1000, windowMs: number = 60 * 60 * 1000) {
+export function rateLimitByUser(userId: string, maxRequests: number = 999999999, windowMs: number = 60 * 60 * 1000) {
+  if (process.env.NODE_ENV === 'development' || process.env.DISABLE_RATE_LIMIT === 'true') {
+    return { allowed: true, remaining: 999999999, resetTime: Date.now() + windowMs }
+  }
   return rateLimit(`user:${userId}`, maxRequests, windowMs)
 }

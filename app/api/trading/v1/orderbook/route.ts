@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MatchingEngine } from '@/lib/orderbook/matching-engine';
 
-const matchingEngine = new MatchingEngine();
-
 // GET /api/trading/v1/orderbook - 오더북 조회
 export async function GET(request: NextRequest) {
   try {
@@ -12,23 +10,44 @@ export async function GET(request: NextRequest) {
 
     if (!pair) {
       return NextResponse.json(
-        { error: 'Pair parameter is required' },
+        { success: false, error: 'Pair parameter is required' },
         { status: 400 }
       );
     }
 
     // 오더북 조회
+    const matchingEngine = MatchingEngine.getInstance();
     const orderbook = await matchingEngine.getOrderbook(pair, depth);
+
+    // Calculate spread
+    let spread = null;
+    if (orderbook.bids.length > 0 && orderbook.asks.length > 0) {
+      const bestBid = parseFloat(orderbook.bids[0].price);
+      const bestAsk = parseFloat(orderbook.asks[0].price);
+      const spreadValue = bestAsk - bestBid;
+      const spreadPercent = (spreadValue / bestBid) * 100;
+      
+      spread = {
+        absolute: spreadValue.toFixed(9),
+        percent: spreadPercent.toFixed(4)
+      };
+    }
 
     return NextResponse.json({
       success: true,
-      data: orderbook
+      orderbook: {
+        pair,
+        bids: orderbook.bids,
+        asks: orderbook.asks,
+        spread,
+        lastUpdate: Date.now()
+      }
     });
 
   } catch (error) {
     console.error('Orderbook fetch error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }
