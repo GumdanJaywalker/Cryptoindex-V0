@@ -120,6 +120,22 @@ async function main() {
     deployedContracts.HYPERINDEX_USDC_PAIR = pairAddress;
     console.log("🌊 Liquidity Pair created at:", pairAddress);
     
+    // 6. Deploy Settlement Contract
+    console.log("\n🔥 6. Deploying Settlement Contract...");
+    const HyperIndexSettlement = await ethers.getContractFactory("HyperIndexSettlement");
+    const settlement = await HyperIndexSettlement.deploy(deployer.address); // fee recipient
+    await settlement.waitForDeployment();
+    
+    const settlementAddress = await settlement.getAddress();
+    deployedContracts.SETTLEMENT = settlementAddress;
+    console.log("✅ Settlement Contract deployed to:", settlementAddress);
+    
+    // Add supported tokens to settlement
+    console.log("📝 Configuring settlement contract...");
+    await settlement.addToken(hyperIndexAddress);
+    await settlement.addToken(usdcAddress);
+    console.log("✅ Tokens added to settlement contract");
+    
     // 6. Verify deployment
     console.log("\n🔍 Verifying deployment...");
     const pair = await ethers.getContractAt("HyperIndexPair", pairAddress);
@@ -166,6 +182,7 @@ async function main() {
     console.log(`NEXT_PUBLIC_AMM_FACTORY_ADDRESS=${deployedContracts.AMM_FACTORY}`);
     console.log(`NEXT_PUBLIC_AMM_ROUTER_ADDRESS=${deployedContracts.AMM_ROUTER}`);
     console.log(`NEXT_PUBLIC_HYPERINDEX_USDC_PAIR=${deployedContracts.HYPERINDEX_USDC_PAIR}`);
+    console.log(`NEXT_PUBLIC_SETTLEMENT_ADDRESS=${deployedContracts.SETTLEMENT}`);
     
     // Generate .env.local update script
     const envUpdate = `
@@ -175,6 +192,7 @@ NEXT_PUBLIC_USDC_TOKEN_ADDRESS=${deployedContracts.USDC_TOKEN}
 NEXT_PUBLIC_AMM_FACTORY_ADDRESS=${deployedContracts.AMM_FACTORY}
 NEXT_PUBLIC_AMM_ROUTER_ADDRESS=${deployedContracts.AMM_ROUTER}
 NEXT_PUBLIC_HYPERINDEX_USDC_PAIR=${deployedContracts.HYPERINDEX_USDC_PAIR}
+NEXT_PUBLIC_SETTLEMENT_ADDRESS=${deployedContracts.SETTLEMENT}
 `;
     
     fs.writeFileSync(path.join(__dirname, "../.env.deployment"), envUpdate);

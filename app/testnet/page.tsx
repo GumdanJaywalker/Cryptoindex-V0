@@ -20,19 +20,22 @@ import { usePrivy } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
 import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
 
+// Official Hyperliquid testnet USDC token address
+const OFFICIAL_TESTNET_USDC = '0xd9CBEC81df392A88AEff575E962d149d57F4d6bc';
+
 // Contract addresses (will be populated from env vars)
 const CONTRACT_ADDRESSES = {
   router: process.env.NEXT_PUBLIC_AMM_ROUTER_ADDRESS || '',
   factory: process.env.NEXT_PUBLIC_AMM_FACTORY_ADDRESS || '',
   hyperIndex: process.env.NEXT_PUBLIC_HYPERINDEX_TOKEN_ADDRESS || '',
-  usdc: process.env.NEXT_PUBLIC_USDC_TOKEN_ADDRESS || '',
+  usdc: process.env.NEXT_PUBLIC_USDC_TOKEN_ADDRESS || OFFICIAL_TESTNET_USDC, // Use official USDC as fallback
   pair: process.env.NEXT_PUBLIC_HYPERINDEX_USDC_PAIR || ''
 };
 
 const HYPERVM_TESTNET = {
   chainId: '0x3e6', // 998 in hex
   chainName: 'HyperEVM Testnet',
-  rpcUrls: [process.env.NEXT_PUBLIC_HYPERVM_TESTNET_RPC || 'https://api.hyperliquid-testnet.xyz/evm'],
+  rpcUrls: [process.env.NEXT_PUBLIC_HYPERVM_TESTNET_RPC || 'https://rpc.hyperliquid-testnet.xyz/evm'],
   nativeCurrency: {
     name: 'HYPE',
     symbol: 'HYPE',
@@ -41,7 +44,19 @@ const HYPERVM_TESTNET = {
   blockExplorerUrls: [process.env.NEXT_PUBLIC_HYPERVM_EXPLORER || 'https://explorer.hyperliquid-testnet.xyz']
 };
 
-const TESTNET_RPC = process.env.NEXT_PUBLIC_HYPERVM_TESTNET_RPC || 'https://api.hyperliquid-testnet.xyz/evm';
+const HYPERVM_MAINNET = {
+  chainId: '0x3e7', // 999 in hex
+  chainName: 'Hyperliquid',
+  rpcUrls: ['https://rpc.hyperliquid.xyz/evm'],
+  nativeCurrency: {
+    name: 'HYPE',
+    symbol: 'HYPE',
+    decimals: 18,
+  },
+  blockExplorerUrls: ['https://explorer.hyperliquid.xyz']
+};
+
+const TESTNET_RPC = process.env.NEXT_PUBLIC_HYPERVM_TESTNET_RPC || 'https://rpc.hyperliquid-testnet.xyz/evm';
 
 interface TokenBalance {
   hyperIndex: string;
@@ -158,6 +173,53 @@ export default function TestnetPage() {
         } else {
           console.error('Failed to switch network:', switchError);
         }
+      }
+    }
+  };
+
+  const switchToMainnet = async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: HYPERVM_MAINNET.chainId }],
+        });
+      } catch (switchError: any) {
+        // This error code indicates that the chain has not been added to MetaMask
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [HYPERVM_MAINNET],
+            });
+          } catch (addError) {
+            console.error('Failed to add mainnet:', addError);
+          }
+        } else {
+          console.error('Failed to switch to mainnet:', switchError);
+        }
+      }
+    }
+  };
+
+  const addUSDCToWallet = async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: OFFICIAL_TESTNET_USDC,
+              symbol: 'USDC',
+              decimals: 6,
+              image: '', // Optional token icon
+            },
+          },
+        });
+        console.log('✅ USDC token added to wallet');
+      } catch (error) {
+        console.error('❌ Failed to add USDC token:', error);
       }
     }
   };
@@ -415,6 +477,9 @@ export default function TestnetPage() {
               <p className="text-yellow-300">
                 📝 Contracts not yet deployed to testnet. Run deployment script first.
               </p>
+              <p className="text-yellow-200 text-xs mt-1">
+                💡 If you received USDC from faucet but can't see it in MetaMask, you need to add the token manually after deployment.
+              </p>
             </div>
           )}
         </div>
@@ -437,14 +502,17 @@ export default function TestnetPage() {
         ) : !isConnectedToTestnet ? (
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-center">Switch to HyperEVM Testnet</CardTitle>
+              <CardTitle className="text-center">Switch to HyperEVM Network</CardTitle>
             </CardHeader>
-            <CardContent className="text-center">
-              <Button onClick={switchToTestnet} className="mb-4">
-                🔄 Switch Network
+            <CardContent className="text-center space-y-3">
+              <Button onClick={switchToTestnet} className="w-full">
+                🧪 Switch to Testnet
+              </Button>
+              <Button onClick={switchToMainnet} variant="outline" className="w-full">
+                🚀 Switch to Mainnet
               </Button>
               <p className="text-sm text-gray-400">
-                Please switch to HyperEVM Testnet to continue
+                Choose testnet for safe testing or mainnet for live trading
               </p>
             </CardContent>
           </Card>
@@ -474,6 +542,9 @@ export default function TestnetPage() {
                 </Button>
                 <Button onClick={updateBalances} className="w-full" variant="outline">
                   🔄 Refresh Balances
+                </Button>
+                <Button onClick={addUSDCToWallet} className="w-full" variant="outline">
+                  ➕ Add USDC to Wallet
                 </Button>
               </CardContent>
             </Card>

@@ -38,7 +38,9 @@
       "Bash(cat:*)",
       "Bash(grep:*)",
       "Bash(mv:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "WebFetch(domain:chainlist.org)",
+      "WebFetch(domain:hyperliquid-names.gitbook.io)"
     ],
     "deny": []
   },

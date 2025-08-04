@@ -17,7 +17,7 @@ module.exports = {
       chainId: 31337,
     },
     "hypervm-testnet": {
-      url: process.env.HYPERVM_TESTNET_RPC || "https://api.hyperliquid-testnet.xyz/evm",
+      url: process.env.HYPERVM_TESTNET_RPC || "https://rpc.hyperliquid-testnet.xyz/evm",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 998, // HyperEVM Testnet Chain ID
       gasPrice: "auto",

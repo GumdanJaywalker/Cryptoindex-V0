@@ -441,6 +441,35 @@ const orderbook = await engine.getOrderbook('HYPERINDEX-USDC', 10);
 - **Testing Focus**: Heavy emphasis on performance testing (900+ TPS capability)
 - **Documentation**: Legacy docs moved to `/docs/archive/`
 
+## ⚠️ Critical Database Guidelines
+
+**ALWAYS check migration files before any Supabase operations:**
+1. **Review all files in `/supabase/migrations/` directory**
+2. **Understand exact table schemas, column names, and types**
+3. **Maintain strict consistency with existing structure**
+4. **Never assume column names or data types**
+5. **Check for:**
+   - Exact column names (e.g., `redis_order_id` not `order_id`)
+   - Data types (DECIMAL vs TEXT vs UUID)
+   - Constraints and defaults
+   - Foreign key relationships
+   - RLS policies
+
+**Example workflow:**
+```bash
+# Before writing any SQL/Supabase code:
+1. Check /supabase/migrations/*.sql files
+2. Identify exact table structure  
+3. Use EXACT column names from migrations
+4. Test with small data first
+```
+
+**Common mistakes to avoid:**
+- Using `order_id` instead of `redis_order_id`
+- Assuming TIMESTAMP when it's TIMESTAMPTZ
+- Missing required columns in INSERT statements
+- Not handling NULL constraints properly
+
 ## Troubleshooting
 
 ### Trading System Issues
