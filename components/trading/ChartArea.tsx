@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -40,14 +40,23 @@ const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w']
 const chartTypes = ['Candlestick', 'Line', 'Area']
 const chartTabs = ['Chart', 'Info', 'Trading Data']
 
-// Mock chart data for DOG_INDEX
+// Static mock data to prevent SSR hydration issues
+const mockCandleData = [
+  { timestamp: new Date('2024-08-04T10:00:00Z'), open: 1.2567, high: 1.2634, low: 1.2489, close: 1.2598, volume: 125000 },
+  { timestamp: new Date('2024-08-04T11:00:00Z'), open: 1.2598, high: 1.2712, low: 1.2534, close: 1.2687, volume: 142000 },
+  { timestamp: new Date('2024-08-04T12:00:00Z'), open: 1.2687, high: 1.2756, low: 1.2621, close: 1.2734, volume: 98000 },
+  { timestamp: new Date('2024-08-04T13:00:00Z'), open: 1.2734, high: 1.2823, low: 1.2698, close: 1.2789, volume: 187000 },
+  { timestamp: new Date('2024-08-04T14:00:00Z'), open: 1.2789, high: 1.2834, low: 1.2723, close: 1.2801, volume: 156000 }
+]
+
+// Generate mock data function for client-side rendering
 const generateMockCandleData = () => {
   const data = []
   let basePrice = 1.2567
   const now = new Date()
   
   for (let i = 50; i >= 0; i--) {
-    const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000) // hourly data
+    const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000)
     const open = basePrice + (Math.random() - 0.5) * 0.02
     const volatility = 0.01 + Math.random() * 0.02
     const high = open + Math.random() * volatility
@@ -63,23 +72,26 @@ const generateMockCandleData = () => {
       volume: 50000 + Math.random() * 200000
     })
     
-    basePrice = close + (Math.random() - 0.5) * 0.01 // drift
+    basePrice = close + (Math.random() - 0.5) * 0.01
   }
   
   return data
 }
 
-const mockCandleData = generateMockCandleData()
-
 
 
 // Mock Candlestick Chart Component
 function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartType: string, timeframe: string }) {
-  const containerWidth = 800
-  const containerHeight = 400
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  const svgWidth = 800
+  const svgHeight = 400
   const margin = { top: 20, right: 60, bottom: 40, left: 60 }
-  const chartWidth = containerWidth - margin.left - margin.right
-  const chartHeight = containerHeight - margin.top - margin.bottom
+  const chartWidth = svgWidth - margin.left - margin.right
+  const chartHeight = svgHeight - margin.top - margin.bottom
   
   const maxPrice = Math.max(...data.map(d => d.high))
   const minPrice = Math.min(...data.map(d => d.low))
@@ -94,16 +106,26 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
     return margin.left + (index / (data.length - 1)) * chartWidth
   }
 
-  const currentPrice = data[data.length - 1]?.close || 1.2567
-  const previousPrice = data[data.length - 2]?.close || 1.2500
+  // Use static values for SSR compatibility, then update on client
+  const currentPrice = isClient ? (data[data.length - 1]?.close || 1.2567) : 1.2567
+  const previousPrice = isClient ? (data[data.length - 2]?.close || 1.2500) : 1.2500
   const priceChange = currentPrice - previousPrice
   const priceChangePercent = ((priceChange / previousPrice) * 100)
+
+  // Show loading state during SSR
+  if (!isClient) {
+    return (
+      <div className="w-full h-full bg-slate-950 flex items-center justify-center">
+        <div className="text-slate-400">Loading chart...</div>
+      </div>
+    )
+  }
 
   if (chartType === 'Line' || chartType === 'Area') {
     const pathData = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(d.close)}`).join(' ')
     
     return (
-      <div className="w-full bg-slate-950 relative">
+      <div className="w-full h-full bg-slate-950 relative">
         {/* Price Info Header */}
         <div className="absolute top-4 left-4 z-10">
           <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
@@ -126,7 +148,11 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
           </div>
         </div>
 
-        <svg width={containerWidth} height={containerHeight} className="w-full h-full">
+        <svg 
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          className="w-full h-full"
+          preserveAspectRatio="none"
+        >
           {/* Grid lines */}
           <defs>
             <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
@@ -145,8 +171,8 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
             const y = yScale(price)
             return (
               <g key={ratio}>
-                <line x1={margin.left} y1={y} x2={containerWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
-                <text x={containerWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
+                <line x1={margin.left} y1={y} x2={svgWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
+                <text x={svgWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
                   ${price.toFixed(4)}
                 </text>
               </g>
@@ -156,7 +182,7 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
           {/* Area chart gradient (only for Area type) */}
           {chartType === 'Area' && (
             <path 
-              d={`${pathData} L ${xScale(data.length - 1)} ${containerHeight - margin.bottom} L ${margin.left} ${containerHeight - margin.bottom} Z`} 
+              d={`${pathData} L ${xScale(data.length - 1)} ${svgHeight - margin.bottom} L ${margin.left} ${svgHeight - margin.bottom} Z`} 
               fill="url(#lineGradient)" 
             />
           )}
@@ -187,7 +213,7 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
 
   // Candlestick Chart (default)
   return (
-    <div className="w-full bg-slate-950 relative">
+    <div className="w-full h-full bg-slate-950 relative">
       {/* Price Info Header */}
       <div className="absolute top-4 left-4 z-10">
         <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
@@ -210,7 +236,11 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
         </div>
       </div>
 
-      <svg width={containerWidth} height={containerHeight} className="w-full h-full">
+      <svg 
+        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        className="w-full h-full"
+        preserveAspectRatio="none"
+      >
         {/* Grid */}
         <defs>
           <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
@@ -225,8 +255,8 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
           const y = yScale(price)
           return (
             <g key={ratio}>
-              <line x1={margin.left} y1={y} x2={containerWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
-              <text x={containerWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
+              <line x1={margin.left} y1={y} x2={svgWidth - margin.right} y2={y} stroke="rgb(71 85 105)" strokeWidth="0.5" />
+              <text x={svgWidth - margin.right + 5} y={y + 4} fill="rgb(148 163 184)" fontSize="11" fontFamily="monospace">
                 ${price.toFixed(4)}
               </text>
             </g>
@@ -266,7 +296,7 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
           const x = xScale(index)
           const maxVolume = Math.max(...data.map(d => d.volume))
           const volumeHeight = (candle.volume / maxVolume) * 60
-          const volumeY = containerHeight - margin.bottom - volumeHeight
+          const volumeY = svgHeight - margin.bottom - volumeHeight
           const isGreen = candle.close > candle.open
           
           return (
@@ -299,9 +329,9 @@ function InfoTabContent() {
   const infoTabs = ['Index Info', 'Token Info', 'Composition', 'Trading Rules', 'Performance']
 
   return (
-    <div className="bg-slate-950">
+    <div className="h-full bg-slate-950 flex flex-col">
       {/* Info Sub-tabs */}
-      <div className="border-b border-slate-700">
+      <div className="border-b border-slate-700 flex-shrink-0">
         <div className="flex px-4">
           {infoTabs.map((tab) => (
             <button
@@ -320,7 +350,7 @@ function InfoTabContent() {
       </div>
 
       {/* Info Tab Content */}
-      <div className="p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-350px)]">
         {activeInfoTab === 'Index Info' && (
           <div className="space-y-4">
             {/* Basic Index Information */}
@@ -746,49 +776,60 @@ export function ChartArea() {
   const [selectedChartType, setSelectedChartType] = useState('Candlestick')
   const [activeChartTab, setActiveChartTab] = useState('Chart')
   
-  // Generate new data when timeframe changes
-  const getTimeframeData = (timeframe: string) => {
-    const intervals = {
-      '1m': 60,
-      '5m': 300, 
-      '15m': 900,
-      '1h': 3600,
-      '4h': 14400,
-      '1d': 86400,
-      '1w': 604800
+  const [chartData, setChartData] = useState(mockCandleData)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Generate new data when timeframe changes (client-side only)
+  useEffect(() => {
+    if (!isClient) return
+
+    const getTimeframeData = (timeframe: string) => {
+      const intervals = {
+        '1m': 60,
+        '5m': 300, 
+        '15m': 900,
+        '1h': 3600,
+        '4h': 14400,
+        '1d': 86400,
+        '1w': 604800
+      }
+      
+      const interval = intervals[timeframe as keyof typeof intervals] || 3600
+      const dataPoints = timeframe === '1d' || timeframe === '1w' ? 30 : 50
+      
+      const data = []
+      let basePrice = 1.2567
+      const now = new Date()
+      
+      for (let i = dataPoints; i >= 0; i--) {
+        const timestamp = new Date(now.getTime() - i * interval * 1000)
+        const open = basePrice + (Math.random() - 0.5) * 0.02
+        const volatility = 0.005 + Math.random() * 0.015
+        const high = open + Math.random() * volatility
+        const low = open - Math.random() * volatility
+        const close = low + Math.random() * (high - low)
+        
+        data.push({
+          timestamp,
+          open,
+          high,
+          low,
+          close,
+          volume: 20000 + Math.random() * 180000
+        })
+        
+        basePrice = close + (Math.random() - 0.5) * 0.008
+      }
+      
+      return data
     }
     
-    const interval = intervals[timeframe as keyof typeof intervals] || 3600
-    const dataPoints = timeframe === '1d' || timeframe === '1w' ? 30 : 50
-    
-    const data = []
-    let basePrice = 1.2567
-    const now = new Date()
-    
-    for (let i = dataPoints; i >= 0; i--) {
-      const timestamp = new Date(now.getTime() - i * interval * 1000)
-      const open = basePrice + (Math.random() - 0.5) * 0.02
-      const volatility = 0.005 + Math.random() * 0.015
-      const high = open + Math.random() * volatility
-      const low = open - Math.random() * volatility
-      const close = low + Math.random() * (high - low)
-      
-      data.push({
-        timestamp,
-        open,
-        high,
-        low,
-        close,
-        volume: 20000 + Math.random() * 180000
-      })
-      
-      basePrice = close + (Math.random() - 0.5) * 0.008
-    }
-    
-    return data
-  }
-  
-  const chartData = getTimeframeData(selectedTimeframe)
+    setChartData(getTimeframeData(selectedTimeframe))
+  }, [selectedTimeframe, isClient])
 
   return (
     <div className="flex flex-col bg-slate-950">
@@ -851,9 +892,9 @@ export function ChartArea() {
         </div>
 
         {/* Tab Content */}
-        <div className="min-h-[60vh] bg-slate-950">
+        <div className="flex-1 bg-slate-950 overflow-hidden">
           {activeChartTab === 'Chart' && (
-            <div className="min-h-[400px] bg-slate-950 p-4">
+            <div className="h-full bg-slate-950 p-4">
               <CandlestickChart 
                 data={chartData} 
                 chartType={selectedChartType} 
@@ -867,7 +908,7 @@ export function ChartArea() {
           )}
 
           {activeChartTab === 'Trading Data' && (
-            <div className="p-4 space-y-4 bg-slate-950">
+            <div className="h-full overflow-y-auto p-4 space-y-4 bg-slate-950">
               {/* Market Statistics */}
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardContent className="p-4">
