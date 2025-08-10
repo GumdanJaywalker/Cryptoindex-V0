@@ -283,172 +283,7 @@ const mockMarketData = {
   }
 }
 
-// Mock data for analytics
-const mockAnalytics = {
-  onChainMetrics: {
-    largeTransactions: [
-      { 
-        hash: '0x1a2b3c...', 
-        amount: 125000, 
-        type: 'Buy', 
-        wallet: '0x4d5e6f...', 
-        time: '3m ago',
-        impact: 0.45
-      },
-      { 
-        hash: '0x2b3c4d...', 
-        amount: 89000, 
-        type: 'Sell', 
-        wallet: '0x5e6f7a...', 
-        time: '8m ago',
-        impact: 0.32
-      },
-      { 
-        hash: '0x3c4d5e...', 
-        amount: 234000, 
-        type: 'Buy', 
-        wallet: '0x6f7a8b...', 
-        time: '15m ago',
-        impact: 0.78
-      }
-    ],
-    holderAnalysis: {
-      totalHolders: 12456,
-      change24h: 234,
-      topHolders: [
-        { address: '0xa1b2c3...', balance: 2.5e6, percentage: 8.7, change: 12500 },
-        { address: '0xb2c3d4...', balance: 1.8e6, percentage: 6.2, change: -5600 },
-        { address: '0xc3d4e5...', balance: 1.4e6, percentage: 4.9, change: 8900 },
-        { address: '0xd4e5f6...', balance: 1.1e6, percentage: 3.8, change: 0 }
-      ],
-      distribution: {
-        whales: 15.2, // >100k USDC
-        mediumHolders: 35.8, // 10k-100k
-        smallHolders: 49.0 // <10k
-      }
-    },
-    flowAnalysis: {
-      netFlow24h: 1.2e6, // USDC
-      inflow: 2.8e6,
-      outflow: 1.6e6,
-      trend: 'accumulation',
-      exchangeInflow: 850000,
-      exchangeOutflow: 1200000
-    }
-  },
-  marketSentiment: {
-    longShortRatio: {
-      current: 2.34, // Long:Short
-      trend: 'increasing',
-      history: [
-        { time: '00:00', ratio: 2.12 },
-        { time: '04:00', ratio: 2.18 },
-        { time: '08:00', ratio: 2.25 },
-        { time: '12:00', ratio: 2.34 },
-        { time: '16:00', ratio: 2.29 },
-        { time: '20:00', ratio: 2.34 }
-      ]
-    },
-    fearGreedIndex: {
-      value: 68,
-      label: 'Greed',
-      change24h: 5,
-      components: {
-        volatility: 72,
-        marketMomentum: 65,
-        socialVolume: 71,
-        surveys: 62,
-        dominance: 58,
-        trends: 75
-      }
-    },
-    socialSentiment: {
-      twitterMentions: 12567,
-      sentiment: 'positive', // positive, neutral, negative
-      sentimentScore: 0.65, // -1 to 1
-      keyPhrases: ['moon', 'bullish', 'hodl', 'pump'],
-      influencerPosts: [
-        { author: '@CryptoGuru', followers: 234000, content: 'MEME_INDEX looking strong 🚀', engagement: 1250 },
-        { author: '@DefiLlama', followers: 567000, content: 'New ATH incoming?', engagement: 2340 }
-      ]
-    }
-  },
-  technicalAnalysis: {
-    patternRecognition: [
-      {
-        pattern: 'Ascending Triangle',
-        timeframe: '4h',
-        confidence: 0.78,
-        target: 2.89,
-        breakout: 'bullish',
-        status: 'forming'
-      },
-      {
-        pattern: 'Bull Flag',
-        timeframe: '1h',
-        confidence: 0.65,
-        target: 2.67,
-        breakout: 'bullish',
-        status: 'completed'
-      },
-      {
-        pattern: 'Support Zone',
-        timeframe: '1d',
-        confidence: 0.82,
-        level: 2.34,
-        type: 'support',
-        status: 'active'
-      }
-    ],
-    backtesting: {
-      strategy: 'MACD + RSI Divergence',
-      period: '30 days',
-      winRate: 68.4,
-      totalTrades: 23,
-      avgReturn: 4.2,
-      maxDrawdown: 8.9,
-      sharpeRatio: 1.45,
-      results: [
-        { date: '2024-01-20', signal: 'buy', entry: 2.34, exit: 2.45, pnl: 4.7 },
-        { date: '2024-01-18', signal: 'sell', entry: 2.56, exit: 2.48, pnl: 3.1 },
-        { date: '2024-01-15', signal: 'buy', entry: 2.21, exit: 2.38, pnl: 7.7 }
-      ]
-    },
-    signals: {
-      active: [
-        {
-          type: 'RSI Oversold',
-          strength: 'Strong',
-          direction: 'Bullish',
-          timeframe: '4h',
-          generated: '2h ago',
-          confidence: 0.85
-        },
-        {
-          type: 'Volume Breakout',
-          strength: 'Medium',
-          direction: 'Bullish',
-          timeframe: '1h',
-          generated: '45m ago',
-          confidence: 0.72
-        },
-        {
-          type: 'MA Golden Cross',
-          strength: 'Strong',
-          direction: 'Bullish',
-          timeframe: '1d',
-          generated: '6h ago',
-          confidence: 0.91
-        }
-      ],
-      history: [
-        { signal: 'MACD Bullish Cross', time: '2024-01-20 14:30', accuracy: 'Hit', pnl: 5.6 },
-        { signal: 'BB Squeeze Release', time: '2024-01-19 09:15', accuracy: 'Miss', pnl: -2.1 },
-        { signal: 'Volume Spike Alert', time: '2024-01-18 16:45', accuracy: 'Hit', pnl: 8.3 }
-      ]
-    }
-  }
-};
+
 
 // Mock data for order history
 const mockOrderHistory = [
@@ -553,7 +388,7 @@ export function TradingBottomTabs() {
   return (
     <div className="min-h-[50vh] bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-7 bg-secondary border-b border-slate-700 rounded-none w-full">
+        <TabsList className="grid grid-cols-6 bg-secondary border-b border-slate-700 rounded-none w-full">
           <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-blue-600">
             Positions
           </TabsTrigger>
@@ -571,9 +406,6 @@ export function TradingBottomTabs() {
           </TabsTrigger>
           <TabsTrigger value="assets" className="text-xs data-[state=active]:bg-blue-600">
             Assets
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="text-xs data-[state=active]:bg-blue-600">
-            Analytics
           </TabsTrigger>
         </TabsList>
         
@@ -1794,30 +1626,30 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Total Holders</div>
                           <div className="text-sm font-semibold text-white">
-                            {mockAnalytics.onChainMetrics.holderAnalysis.totalHolders.toLocaleString()}
+    12,456
                           </div>
                           <div className="text-xs text-green-400">
-                            +{mockAnalytics.onChainMetrics.holderAnalysis.change24h} (24h)
+                            +234 (24h)
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Whales</div>
                           <div className="text-sm font-semibold text-orange-400">
-                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.whales}%
+                            15.2%
                           </div>
                           <div className="text-xs text-slate-400">&gt;$100K</div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Medium</div>
                           <div className="text-sm font-semibold text-blue-400">
-                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.mediumHolders}%
+                            35.8%
                           </div>
                           <div className="text-xs text-slate-400">$10K-100K</div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Small</div>
                           <div className="text-sm font-semibold text-green-400">
-                            {mockAnalytics.onChainMetrics.holderAnalysis.distribution.smallHolders}%
+                            49.0%
                           </div>
                           <div className="text-xs text-slate-400">&lt;$10K</div>
                         </div>
@@ -1827,7 +1659,12 @@ export function TradingBottomTabs() {
                       <div>
                         <div className="text-xs font-medium text-white mb-2">Top Holders</div>
                         <div className="space-y-1">
-                          {mockAnalytics.onChainMetrics.holderAnalysis.topHolders.map((holder, index) => (
+                          {[
+                            { address: '0xa1b2c3...', balance: 2.5e6, percentage: 8.7, change: 12500 },
+                            { address: '0xb2c3d4...', balance: 1.8e6, percentage: 6.2, change: -5600 },
+                            { address: '0xc3d4e5...', balance: 1.4e6, percentage: 4.9, change: 8900 },
+                            { address: '0xd4e5f6...', balance: 1.1e6, percentage: 3.8, change: 0 }
+                          ].map((holder, index) => (
                             <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
@@ -1866,30 +1703,30 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Net Flow 24h</div>
                           <div className={`text-sm font-semibold ${
-                            mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h > 0 ? 'text-green-400' : 'text-red-400'
+                            'text-green-400'
                           }`}>
-                            {mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h > 0 ? '+' : ''}${(mockAnalytics.onChainMetrics.flowAnalysis.netFlow24h / 1e6).toFixed(1)}M
+                            +$1.2M
                           </div>
                           <div className="text-xs text-slate-400 capitalize">
-                            {mockAnalytics.onChainMetrics.flowAnalysis.trend}
+                            accumulation
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Inflow</div>
                           <div className="text-sm font-semibold text-green-400">
-                            ${(mockAnalytics.onChainMetrics.flowAnalysis.inflow / 1e6).toFixed(1)}M
+                            $2.8M
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Outflow</div>
                           <div className="text-sm font-semibold text-red-400">
-                            ${(mockAnalytics.onChainMetrics.flowAnalysis.outflow / 1e6).toFixed(1)}M
+                            $1.6M
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Exchange Flow</div>
                           <div className="text-sm font-semibold text-white">
-                            ${((mockAnalytics.onChainMetrics.flowAnalysis.exchangeOutflow - mockAnalytics.onChainMetrics.flowAnalysis.exchangeInflow) / 1e6).toFixed(1)}M
+                            +$0.35M
                           </div>
                           <div className="text-xs text-slate-400">Net out</div>
                         </div>
@@ -1942,7 +1779,11 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="space-y-2">
-                        {mockAnalytics.onChainMetrics.largeTransactions.map((tx, index) => (
+                        {[
+                          { hash: '0x1a2b3c...', amount: 125000, type: 'Buy', wallet: '0x4d5e6f...', time: '3m ago', impact: 0.45 },
+                          { hash: '0x2b3c4d...', amount: 89000, type: 'Sell', wallet: '0x5e6f7a...', time: '8m ago', impact: 0.32 },
+                          { hash: '0x3c4d5e...', amount: 234000, type: 'Buy', wallet: '0x6f7a8b...', time: '15m ago', impact: 0.78 }
+                        ].map((tx, index) => (
                           <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-3">
                             <div className="flex items-center gap-3">
                               <Badge 
@@ -1985,28 +1826,28 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Large Buys</div>
                           <div className="text-sm font-semibold text-green-400">
-                            {mockAnalytics.onChainMetrics.largeTransactions.filter(tx => tx.type === 'Buy').length}
+                            2
                           </div>
                           <div className="text-xs text-slate-400">Last 24h</div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Large Sells</div>
                           <div className="text-sm font-semibold text-red-400">
-                            {mockAnalytics.onChainMetrics.largeTransactions.filter(tx => tx.type === 'Sell').length}
+                            1
                           </div>
                           <div className="text-xs text-slate-400">Last 24h</div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Total Volume</div>
                           <div className="text-sm font-semibold text-white">
-                            ${(mockAnalytics.onChainMetrics.largeTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 1e6).toFixed(1)}M
+                            $0.45M
                           </div>
                           <div className="text-xs text-slate-400">Whale trades</div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Avg Impact</div>
                           <div className="text-sm font-semibold text-orange-400">
-                            {(mockAnalytics.onChainMetrics.largeTransactions.reduce((sum, tx) => sum + tx.impact, 0) / mockAnalytics.onChainMetrics.largeTransactions.length).toFixed(2)}%
+                            0.52%
                           </div>
                           <div className="text-xs text-slate-400">Price impact</div>
                         </div>
@@ -2018,173 +1859,7 @@ export function TradingBottomTabs() {
             </div>
           </TabsContent>
 
-          {/* Analytics Tab - 고급 분석 */}
-          <TabsContent value="analytics" className="h-full m-0 p-4 overflow-y-auto">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">Advanced Analytics</h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-purple-400 border-purple-400/30">
-                    <Brain className="w-3 h-3 mr-1" />
-                    AI Powered
-                  </Badge>
-                </div>
-              </div>
 
-
-              {/* Technical Analysis Section */}
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Brain className="w-4 h-4 text-green-400" />
-                    <h4 className="text-sm font-semibold text-white">Technical Analysis</h4>
-                  </div>
-                  
-                  {/* Pattern Recognition */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Target className="w-3 h-3 text-purple-400" />
-                      Pattern Recognition
-                    </div>
-                    
-                    <div className="space-y-2">
-                      {mockAnalytics.technicalAnalysis.patternRecognition.map((pattern, index) => (
-                        <div key={index} className="bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-medium text-white">{pattern.pattern}</span>
-                            <div className="flex items-center gap-1">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${pattern.breakout === 'bullish' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                              >
-                                {pattern.breakout}
-                              </Badge>
-                              <span className="text-xs text-cyan-400">{(pattern.confidence * 100).toFixed(0)}%</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-400">{pattern.timeframe} • {pattern.status}</span>
-                            <span className="text-white">Target: ${pattern.target}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Backtesting Results */}
-                  <div className="mb-4">
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3 text-blue-400" />
-                      Strategy Backtesting
-                      <Badge variant="outline" className="text-xs text-blue-400 border-blue-400/30 ml-auto">
-                        {mockAnalytics.technicalAnalysis.backtesting.strategy}
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Win Rate</div>
-                        <div className="text-sm font-semibold text-green-400">
-                          {mockAnalytics.technicalAnalysis.backtesting.winRate}%
-                        </div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Total Trades</div>
-                        <div className="text-sm font-semibold text-white">
-                          {mockAnalytics.technicalAnalysis.backtesting.totalTrades}
-                        </div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Avg Return</div>
-                        <div className="text-sm font-semibold text-green-400">
-                          +{mockAnalytics.technicalAnalysis.backtesting.avgReturn}%
-                        </div>
-                      </div>
-                      <div className="bg-slate-900/50 rounded p-2 text-center">
-                        <div className="text-xs text-slate-400">Sharpe</div>
-                        <div className="text-sm font-semibold text-blue-400">
-                          {mockAnalytics.technicalAnalysis.backtesting.sharpeRatio}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      {mockAnalytics.technicalAnalysis.backtesting.results.slice(0, 3).map((result, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${result.signal === 'buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {result.signal.toUpperCase()}
-                            </Badge>
-                            <span className="text-xs text-slate-400">{result.date}</span>
-                            <span className="text-xs text-slate-300">${result.entry} → ${result.exit}</span>
-                          </div>
-                          <div className="text-xs font-medium text-green-400">
-                            +{result.pnl}%
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Signal Generator */}
-                  <div>
-                    <div className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                      <Signal className="w-3 h-3 text-cyan-400" />
-                      Active Signals
-                    </div>
-                    
-                    <div className="space-y-1 mb-2">
-                      {mockAnalytics.technicalAnalysis.signals.active.map((signal, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${
-                              signal.strength === 'Strong' ? 'bg-green-400' :
-                              signal.strength === 'Medium' ? 'bg-yellow-400' :
-                              'bg-red-400'
-                            }`} />
-                            <span className="text-xs font-medium text-white">{signal.type}</span>
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${signal.direction === 'Bullish' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
-                            >
-                              {signal.direction}
-                            </Badge>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs text-cyan-400">
-                              {(signal.confidence * 100).toFixed(0)}%
-                            </div>
-                            <div className="text-xs text-slate-400">
-                              {signal.timeframe} • {signal.generated}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="text-xs font-medium text-slate-300 mb-1">Recent Signal Performance</div>
-                    <div className="space-y-1">
-                      {mockAnalytics.technicalAnalysis.signals.history.slice(0, 2).map((signal, index) => (
-                        <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${signal.accuracy === 'Hit' ? 'bg-green-400' : 'bg-red-400'}`} />
-                            <span className="text-xs text-slate-300">{signal.signal}</span>
-                            <span className="text-xs text-slate-400">{signal.time}</span>
-                          </div>
-                          <div className={`text-xs font-medium ${signal.pnl > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {signal.pnl > 0 ? '+' : ''}{signal.pnl}%
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
         </div>
       </Tabs>
     </div>
