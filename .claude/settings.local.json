@@ -25,7 +25,8 @@
       "Bash(npx:*)",
       "Bash(pnpm list:*)",
       "Bash(node:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   },
