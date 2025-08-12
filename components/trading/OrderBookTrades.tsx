@@ -32,21 +32,21 @@ const mockOrderBook = {
 
 // Mock data for recent trades
 const mockTrades = [
-  { price: 43.217, size: 3.04, time: '14시 23분 7초', type: 'sell' },
-  { price: 43.216, size: 1.43, time: '14시 23분 6초', type: 'sell' },
-  { price: 43.216, size: 0.89, time: '14시 23분 6초', type: 'sell' },
-  { price: 43.218, size: 0.81, time: '14시 23분 5초', type: 'buy' },
-  { price: 43.221, size: 2.64, time: '14시 23분 4초', type: 'buy' },
-  { price: 43.220, size: 12.20, time: '14시 23분 4초', type: 'buy' },
-  { price: 43.220, size: 0.81, time: '14시 23분 4초', type: 'buy' },
-  { price: 43.215, size: 0.89, time: '14시 23분 3초', type: 'sell' },
-  { price: 43.220, size: 17.97, time: '14시 23분 2초', type: 'buy' },
-  { price: 43.221, size: 0.81, time: '14시 23분 2초', type: 'buy' },
-  { price: 43.217, size: 0.89, time: '14시 23분 0초', type: 'sell' },
-  { price: 43.217, size: 0.89, time: '14시 23분 0초', type: 'sell' },
-  { price: 43.219, size: 0.80, time: '14시 23분 0초', type: 'buy' },
-  { price: 43.215, size: 26.11, time: '14시 22분 59초', type: 'sell' },
-  { price: 43.218, size: 12.14, time: '14시 22분 59초', type: 'buy' },
+  { price: 43.217, size: 3.04, time: '14:23:07', type: 'sell' },
+  { price: 43.216, size: 1.43, time: '14:23:06', type: 'sell' },
+  { price: 43.216, size: 0.89, time: '14:23:06', type: 'sell' },
+  { price: 43.218, size: 0.81, time: '14:23:05', type: 'buy' },
+  { price: 43.221, size: 2.64, time: '14:23:04', type: 'buy' },
+  { price: 43.220, size: 12.20, time: '14:23:04', type: 'buy' },
+  { price: 43.220, size: 0.81, time: '14:23:04', type: 'buy' },
+  { price: 43.215, size: 0.89, time: '14:23:03', type: 'sell' },
+  { price: 43.220, size: 17.97, time: '14:23:02', type: 'buy' },
+  { price: 43.221, size: 0.81, time: '14:23:02', type: 'buy' },
+  { price: 43.217, size: 0.89, time: '14:23:00', type: 'sell' },
+  { price: 43.217, size: 0.89, time: '14:23:00', type: 'sell' },
+  { price: 43.219, size: 0.80, time: '14:23:00', type: 'buy' },
+  { price: 43.215, size: 26.11, time: '14:22:59', type: 'sell' },
+  { price: 43.218, size: 12.14, time: '14:22:59', type: 'buy' },
 ]
 
 export function OrderBookTrades() {

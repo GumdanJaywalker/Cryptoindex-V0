@@ -1159,35 +1159,118 @@ function InfoTabContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Pie Chart Visualization */}
-                  <div className="space-y-4">
-                    <div className="text-sm font-medium text-slate-300">Asset Allocation</div>
-                    <div className="relative">
-                      <svg width="200" height="200" className="mx-auto">
-                        {/* Simple pie chart representation */}
-                        <circle cx="100" cy="100" r="80" fill="transparent" stroke="#334155" strokeWidth="2" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Enhanced Pie Chart Visualization */}
+                  <div className="space-y-6">
+                    <div className="text-sm font-medium text-slate-300 text-center">Asset Allocation</div>
+                    <div className="relative flex justify-center">
+                      <svg width="320" height="320" className="mx-auto drop-shadow-lg">
+                        <defs>
+                          <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="#1e293b" />
+                            <stop offset="100%" stopColor="#0f172a" />
+                          </radialGradient>
+                        </defs>
                         
-                        {/* DOGE - 25.4% */}
-                        <circle cx="100" cy="100" r="70" fill="transparent" stroke="#f59e0b" strokeWidth="14" 
-                                strokeDasharray={`${25.4 * 4.4} 440`} transform="rotate(-90 100 100)" />
+                        {/* Create pie chart segments with filled paths */}
+                        {(() => {
+                          const centerX = 160, centerY = 160, radius = 120;
+                          const colors = ['#f59e0b', '#ef4444', '#10b981', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316'];
+                          let cumulativeAngle = -90; // Start at top
+                          
+                          return mockIndexComposition.map((token, index) => {
+                            const angle = (token.weight / 100) * 360;
+                            const startAngle = cumulativeAngle * Math.PI / 180;
+                            const endAngle = (cumulativeAngle + angle) * Math.PI / 180;
+                            
+                            const x1 = centerX + radius * Math.cos(startAngle);
+                            const y1 = centerY + radius * Math.sin(startAngle);
+                            const x2 = centerX + radius * Math.cos(endAngle);
+                            const y2 = centerY + radius * Math.sin(endAngle);
+                            
+                            const largeArcFlag = angle > 180 ? 1 : 0;
+                            
+                            const pathData = [
+                              `M ${centerX} ${centerY}`,
+                              `L ${x1} ${y1}`,
+                              `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                              'Z'
+                            ].join(' ');
+                            
+                            // Calculate text position
+                            const textAngle = (startAngle + endAngle) / 2;
+                            const textRadius = radius * 0.7;
+                            const textX = centerX + textRadius * Math.cos(textAngle);
+                            const textY = centerY + textRadius * Math.sin(textAngle);
+                            
+                            // Only show text for segments larger than 10%
+                            const showText = token.weight > 10;
+                            
+                            const segment = (
+                              <g key={token.symbol}>
+                                <path
+                                  d={pathData}
+                                  fill={colors[index]}
+                                  stroke="#1e293b"
+                                  strokeWidth="2"
+                                  className="transition-all duration-300 hover:brightness-110 cursor-pointer hover:stroke-white"
+                                />
+                                {showText && (
+                                  <g>
+                                    <text
+                                      x={textX}
+                                      y={textY - 6}
+                                      textAnchor="middle"
+                                      dominantBaseline="middle"
+                                      className="text-xs fill-white pointer-events-none"
+                                      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontFamily: 'system-ui, sans-serif' }}
+                                    >
+                                      {token.symbol}
+                                    </text>
+                                    <text
+                                      x={textX}
+                                      y={textY + 6}
+                                      textAnchor="middle"
+                                      dominantBaseline="middle"
+                                      className="text-xs fill-white pointer-events-none"
+                                      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)', fontFamily: 'system-ui, sans-serif' }}
+                                    >
+                                      {token.weight.toFixed(1)}%
+                                    </text>
+                                  </g>
+                                )}
+                              </g>
+                            );
+                            
+                            cumulativeAngle += angle;
+                            return segment;
+                          });
+                        })()}
                         
-                        {/* SHIB - 18.7% */}
-                        <circle cx="100" cy="100" r="70" fill="transparent" stroke="#ef4444" strokeWidth="14" 
-                                strokeDasharray={`${18.7 * 4.4} 440`} strokeDashoffset={`-${25.4 * 4.4}`} transform="rotate(-90 100 100)" />
+                        {/* Outer glow ring */}
+                        <circle cx="160" cy="160" r="140" fill="transparent" stroke="#1e293b" strokeWidth="2" opacity="0.3" />
                         
-                        {/* PEPE - 15.9% */}
-                        <circle cx="100" cy="100" r="70" fill="transparent" stroke="#10b981" strokeWidth="14" 
-                                strokeDasharray={`${15.9 * 4.4} 440`} strokeDashoffset={`-${(25.4 + 18.7) * 4.4}`} transform="rotate(-90 100 100)" />
-                        
-                        {/* Others combined */}
-                        <circle cx="100" cy="100" r="70" fill="transparent" stroke="#6366f1" strokeWidth="14" 
-                                strokeDasharray={`${40 * 4.4} 440`} strokeDashoffset={`-${(25.4 + 18.7 + 15.9) * 4.4}`} transform="rotate(-90 100 100)" />
-                        
-                        <text x="100" y="105" textAnchor="middle" className="text-sm font-semibold fill-white">
-                          MEME Index
-                        </text>
+                        {/* Center circle removed - no more center text */}
                       </svg>
+                    </div>
+                    
+                    {/* Enhanced Legend */}
+                    <div className="grid grid-cols-2 gap-3 mt-6">
+                      {mockIndexComposition.map((token, index) => {
+                        const colors = ['#f59e0b', '#ef4444', '#10b981', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316'];
+                        return (
+                          <div key={token.symbol} className="flex items-center gap-3 p-2 bg-slate-800/30 rounded-lg hover:bg-slate-800/50 transition-colors cursor-pointer">
+                            <div 
+                              className="w-4 h-4 rounded-full shadow-lg"
+                              style={{ backgroundColor: colors[index] }}
+                            />
+                            <div className="flex-1">
+                              <div className="text-sm font-semibold text-white">{token.symbol}</div>
+                              <div className="text-xs text-slate-400">{token.weight.toFixed(1)}%</div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   
