@@ -5,6 +5,7 @@ import { IndexInfoBar } from './IndexInfoBar'
 import { ChartArea } from './ChartArea'
 import { TradingPanel } from './TradingPanelSimple'
 import { OrderBookTrades } from './OrderBookTrades'
+import { PresetPanel } from './PresetPanel'
 import { WhaleAlert } from './WhaleAlert'
 
 // Dynamic import to prevent hydration issues
@@ -58,8 +59,13 @@ export function TradingLayout() {
             <TradingPanel />
           </div>
 
+          {/* Preset Panel - 거래 프리셋 */}
+          <div className="mt-3 pt-3 border-t border-muted-foreground/20 flex-shrink-0">
+            <PresetPanel />
+          </div>
+
           {/* Whale Alert - 고정 높이로 독립적인 섹션 */}
-          <div className="mt-4 pt-4 px-3 border-t border-muted-foreground/20 flex-shrink-0">
+          <div className="mt-3 pt-3 px-3 border-t border-muted-foreground/20 flex-shrink-0">
             <WhaleAlert />
           </div>
 
