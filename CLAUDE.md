@@ -1,6 +1,6 @@
 # CLAUDE.md - CryptoIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-07-20
+> 📅 **마지막 업데이트**: 2025-01-18
 
 이 파일은 Claude Code가 CryptoIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
 
@@ -90,15 +90,31 @@ pnpm run dev
 
 ## 🎨 디자인 가이드라인
 
-### 색상 테마 (파스텔톤 남색 계열)
+### 🌟 브랜드 색상 테마 (#8BD6FF)
 ```css
 :root {
-  /* 기본 남색 계열 */
-  --primary-50: #eff6ff;
-  --primary-500: #3b82f6;
-  --primary-600: #2563eb;
-  --primary-900: #1e3a8a;
+  /* 🎨 CryptoIndex 브랜드 컬러 - #8BD6FF 기반 */
+  --brand-primary: 195 100% 76%;        /* #8BD6FF */
+  --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
+  --brand-primary-light: 195 100% 82%;  /* #A5E0FF */
+  --brand-primary-dark: 195 100% 70%;   /* #6BBDFF */
+  --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
+  --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
+}
+```
 
+### 브랜드 색상 사용법
+```css
+.text-brand           /* #8BD6FF 텍스트 */
+.bg-brand            /* #8BD6FF 배경 */
+.border-brand        /* #8BD6FF 테두리 */
+.bg-brand-gradient   /* #8BD6FF → #6BBDFF 그라데이션 */
+.hover:bg-brand      /* 호버시 #8BD6FF 배경 */
+```
+
+### 기존 색상 테마 (파스텔톤 남색 계열)
+```css
+:root {
   /* 다크 모드 배경 */
   --bg-primary: #0f172a;    /* slate-950 */
   --bg-secondary: #1e293b;  /* slate-800 */
@@ -155,9 +171,30 @@ export function Component({ ...props }: ComponentProps) {
 
 ## 🎯 현재 개발 우선순위
 
-### 🔥 1순위: Trading 페이지 완성
-- 모든 UI 컴포넌트 상세 구현
-- 인터랙션 및 애니메이션 추가
+### 🔥 현재 진행 중: Trading 페이지 UI/UX 개선 
+**#8BD6FF 브랜드 색상 테마 적용 + MagicUI/Aceternity 효과**
+
+#### ✅ 완료된 작업:
+- **color-1**: 메인 테마색상 #8BD6FF 전역 CSS 변수 설정 ✅
+- **color-2**: IndexInfoBar 강조 색상 #8BD6FF로 통일 ✅
+- **color-3**: TradingBottomTabs 탭 선택시 #8BD6FF 적용 ✅  
+- **color-4**: TradingPanelSimple 매수 버튼 #8BD6FF 적용 ✅
+- **color-5**: OrderBookTrades 탭 활성 상태 #8BD6FF ✅
+- **color-6**: WhaleAlert 중요 알림 #8BD6FF accent ✅
+- **color-7**: PresetPanel 설정 버튼 #8BD6FF 적용 ✅
+- **color-8**: ChartArea 일부 요소 #8BD6FF 적용 ✅
+- **bug-fix**: Header.tsx hydration 오류 수정 ✅
+
+#### 🚧 다음 단계 (MagicUI 효과):
+- **color-9**: IndexInfoBar에 Shimmer, Border Beam, Number Ticker 효과 추가
+- **color-10**: TradingPanelSimple에 Magic Card, Shimmer 버튼, Animated Progress 
+- **color-11**: OrderBookTrades에 Ripple 효과, 가격 변화 애니메이션
+- **color-12**: WhaleAlert에 Meteors 효과, Pulsing 애니메이션
+- **color-13**: ChartArea에 Particles, Border Beam, Skeleton UI
+
+#### 📋 필요한 MagicUI/Aceternity 컴포넌트 설치:
+- `shimmer-button`, `magic-card`, `particles`, `pulsating-button`
+- CLI 설치 명령어: `npx magicui-cli@latest add [component-name]`
 
 ### 🔥 2순위: Governance 페이지
 - Battle Votes (몰빵 투표) 시스템
