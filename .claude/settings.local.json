@@ -26,7 +26,8 @@
       "Bash(pnpm list:*)",
       "Bash(node:*)",
       "Bash(grep:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "mcp___magicuidesign_mcp__getUIComponents"
     ],
     "deny": []
   },

@@ -344,19 +344,19 @@ export function TradingBottomTabs() {
     <div className="min-h-[50vh] bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-5 bg-secondary border-b border-slate-700 rounded-none w-full">
-          <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-blue-600">
+          <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-brand">
             Positions
           </TabsTrigger>
-          <TabsTrigger value="orders" className="text-xs data-[state=active]:bg-blue-600">
+          <TabsTrigger value="orders" className="text-xs data-[state=active]:bg-brand">
             Open Orders
           </TabsTrigger>
-          <TabsTrigger value="orderHistory" className="text-xs data-[state=active]:bg-blue-600">
+          <TabsTrigger value="orderHistory" className="text-xs data-[state=active]:bg-brand">
             Order History
           </TabsTrigger>
-          <TabsTrigger value="market" className="text-xs data-[state=active]:bg-blue-600">
+          <TabsTrigger value="market" className="text-xs data-[state=active]:bg-brand">
             Market Data
           </TabsTrigger>
-          <TabsTrigger value="assets" className="text-xs data-[state=active]:bg-blue-600">
+          <TabsTrigger value="assets" className="text-xs data-[state=active]:bg-brand">
             Assets
           </TabsTrigger>
         </TabsList>
@@ -888,16 +888,16 @@ export function TradingBottomTabs() {
               {/* Market Data Sub-tabs */}
               <Tabs defaultValue="orderbook" className="w-full">
                 <TabsList className="grid grid-cols-4 bg-muted/30 rounded-md w-full max-w-lg">
-                  <TabsTrigger value="orderbook" className="text-xs">
+                  <TabsTrigger value="orderbook" className="text-xs data-[state=active]:bg-brand">
                     Order Book
                   </TabsTrigger>
-                  <TabsTrigger value="toptraders" className="text-xs">
+                  <TabsTrigger value="toptraders" className="text-xs data-[state=active]:bg-brand">
                     Top Traders
                   </TabsTrigger>
-                  <TabsTrigger value="holders" className="text-xs">
+                  <TabsTrigger value="holders" className="text-xs data-[state=active]:bg-brand">
                     Holders
                   </TabsTrigger>
-                  <TabsTrigger value="whales" className="text-xs">
+                  <TabsTrigger value="whales" className="text-xs data-[state=active]:bg-brand">
                     Whale Alert
                   </TabsTrigger>
                 </TabsList>

@@ -2048,8 +2048,8 @@ export function ChartArea() {
               key={tf}
               onClick={() => setSelectedTimeframe(tf)}
               className={`px-3 py-1 text-sm rounded transition-colors ${
-                selectedTimeframe === tf
-                  ? 'bg-blue-600 text-white'
+                isClient && selectedTimeframe === tf
+                  ? 'bg-brand'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700'
               }`}
             >

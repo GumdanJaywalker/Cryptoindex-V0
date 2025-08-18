@@ -60,7 +60,7 @@ export function OrderBookTrades() {
           onClick={() => setActiveTab('orderbook')}
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === 'orderbook'
-              ? 'text-white bg-slate-800 border-b-2 border-cyan-400'
+              ? 'text-white bg-slate-800 border-b-2 border-brand'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
           }`}
         >
@@ -70,7 +70,7 @@ export function OrderBookTrades() {
           onClick={() => setActiveTab('trades')}
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === 'trades'
-              ? 'text-white bg-slate-800 border-b-2 border-cyan-400'
+              ? 'text-white bg-slate-800 border-b-2 border-brand'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
           }`}
         >

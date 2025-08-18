@@ -59,11 +59,11 @@ export function IndexInfoBar() {
       <div className="relative index-dropdown">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center space-x-2 px-3 py-1.5 rounded transition-colors hover:opacity-80"
+          className="flex items-center space-x-2 px-3 py-1.5 rounded transition-colors hover:border-brand border border-transparent"
           style={{ background: 'var(--hl-bg-tertiary)' }}
         >
           <StarIcon 
-            className={`h-3.5 w-3.5 ${favorites.has(selectedIndex) ? 'text-white fill-current' : 'text-slate-400'}`}
+            className={`h-3.5 w-3.5 ${favorites.has(selectedIndex) ? 'text-brand fill-current' : 'text-slate-400'}`}
           />
           <span className="font-medium text-white text-sm">{selectedIndex}</span>
           <ChevronDownIcon className="h-3.5 w-3.5 text-slate-400" />
@@ -114,7 +114,7 @@ export function IndexInfoBar() {
                         }}
                         className="p-1 hover:bg-slate-600 rounded"
                       >
-                        <StarIcon className="h-3 w-3 text-white fill-current" />
+                        <StarIcon className="h-3 w-3 text-brand fill-current" />
                       </button>
                     </div>
                   ))
@@ -151,7 +151,7 @@ export function IndexInfoBar() {
                     <StarIcon 
                       className={`h-3 w-3 ${
                         favorites.has(index.symbol) 
-                          ? 'text-white fill-current' 
+                          ? 'text-brand fill-current' 
                           : 'text-slate-400'
                       }`}
                     />
@@ -171,7 +171,7 @@ export function IndexInfoBar() {
         </div>
         
         <div>
-          <div className="text-sm font-medium hl-accent-green">+5.67%</div>
+          <div className="text-sm font-medium text-brand">+5.67%</div>
           <div className="text-xs hl-text-secondary">24h Change</div>
         </div>
         
@@ -198,7 +198,7 @@ export function IndexInfoBar() {
         </div>
         
         <div className="relative group">
-          <div className="text-sm font-medium hl-accent-green">+0.12%</div>
+          <div className="text-sm font-medium text-brand">+0.12%</div>
           <div className="text-xs hl-text-secondary">Index Premium</div>
           {/* Premium/Discount Tooltip */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none min-w-max">
@@ -207,7 +207,7 @@ export function IndexInfoBar() {
               <div className="space-y-1">
                 <div className="flex justify-between space-x-4 text-xs">
                   <span className="text-slate-400">NAV Premium:</span>
-                  <span className="text-green-400">+0.12%</span>
+                  <span className="text-brand">+0.12%</span>
                 </div>
                 <div className="flex justify-between space-x-4 text-xs">
                   <span className="text-slate-400">Tracking Error:</span>
@@ -223,9 +223,9 @@ export function IndexInfoBar() {
         </div>
         
         <div className="flex items-center">
-          <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+          <div className="w-2 h-2 bg-brand rounded-full mr-2 animate-pulse"></div>
           <div>
-            <div className="text-sm hl-accent-green font-medium">OPEN</div>
+            <div className="text-sm text-brand font-medium">OPEN</div>
             <div className="text-xs hl-text-secondary">Market Status</div>
           </div>
         </div>

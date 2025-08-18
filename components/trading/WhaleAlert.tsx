@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react'
 
 // Mock whale transaction data
@@ -57,6 +58,12 @@ const mockWhaleTransactions = [
 ]
 
 export function WhaleAlert() {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
@@ -71,18 +78,20 @@ export function WhaleAlert() {
     <div className="h-96 bg-background flex flex-col border-muted-foreground/30 border rounded-sm">
       {/* Header */}
       <div className="px-3 py-1.5 border-b border-border flex items-center gap-2 bg-secondary flex-shrink-0">
-        <AlertTriangle className="w-4 h-4 text-orange-400" />
+        <AlertTriangle className="w-4 h-4 text-brand" />
         <h3 className="text-sm font-medium text-foreground">Whale Alert</h3>
         <div className="ml-auto">
-          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-brand rounded-full animate-pulse"></div>
         </div>
       </div>
 
       {/* Content - 고정 높이에서 내부 스크롤 */}
       <div className="flex-1 overflow-y-auto bg-background scrollbar-thin scrollbar-track-background scrollbar-thumb-muted-foreground/30 hover:scrollbar-thumb-muted-foreground/50">
         {/* 실제 거래 데이터 (스크롤로 확인 가능) */}
-        {[...mockWhaleTransactions, ...mockWhaleTransactions, ...mockWhaleTransactions].map((tx, index) => (
-          <div key={`${tx.id}-${index}`} className={`px-3 ${index === 0 ? 'pt-0.5 pb-2' : 'py-2'} border-b border-border/50 hover:bg-accent/50 transition-colors`}>
+        {[...mockWhaleTransactions, ...mockWhaleTransactions, ...mockWhaleTransactions].map((tx, index) => {
+          const isLargeTransaction = isClient && tx.value > 5000000; // $5M+ transactions get special treatment, only on client
+          return (
+          <div key={`${tx.id}-${index}`} className={`px-3 ${index === 0 ? 'pt-0.5 pb-2' : 'py-2'} border-b border-border/50 hover:bg-accent/50 transition-colors ${isLargeTransaction ? 'border-l-2 border-l-brand bg-brand/5' : ''}`}>
             {/* Transaction Type & Amount */}
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
@@ -114,7 +123,7 @@ export function WhaleAlert() {
             <div className="flex items-center justify-between text-xs">
               <div>
                 <span className="text-muted-foreground">$</span>
-                <span className="text-foreground font-medium">{formatNumber(tx.value)}</span>
+                <span className={`font-medium ${isLargeTransaction ? 'text-brand' : 'text-foreground'}`}>{formatNumber(tx.value)}</span>
               </div>
               <div className="text-right">
                 <div className="text-muted-foreground">{tx.exchange}</div>
@@ -122,7 +131,8 @@ export function WhaleAlert() {
               </div>
             </div>
           </div>
-        ))}  
+          )
+        })}  
       </div>
     </div>
   )
