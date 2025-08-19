@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
-import { SmartRouter } from '@/lib/trading/smart-router';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
+import { HybridSmartRouterV2 } from '@/lib/trading/smart-router-v2';
 import { Order, Trade } from '@/lib/types/orderbook';
 import { v4 as uuidv4 } from 'uuid';
 
-const matchingEngine = new MatchingEngine();
-const smartRouter = new SmartRouter();
+const matchingEngine = UltraPerformanceOrderbook.getInstance();
+const smartRouter = HybridSmartRouterV2.getInstance();
 
 export async function GET(request: NextRequest) {
   const testResults: any[] = [];

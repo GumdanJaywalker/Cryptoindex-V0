@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
       price 
     });
 
-    // Import hybrid smart router
-    const { HybridSmartRouter } = await import('@/lib/trading/smart-router');
-    const smartRouter = HybridSmartRouter.getInstance();
+    // Import hybrid smart router V2 (V1 deprecated)
+    const { HybridSmartRouterV2 } = await import('@/lib/trading/smart-router-v2');
+    const smartRouter = HybridSmartRouterV2.getInstance();
     
     // Create test order
     const testOrder = {

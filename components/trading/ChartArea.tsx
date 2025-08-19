@@ -10,7 +10,7 @@ import {
   TrendingUp, 
   Maximize2, 
   Settings,
-  Candlestick
+  BarChart2
 } from 'lucide-react'
 
 interface ChartAreaProps {
@@ -49,7 +49,7 @@ export default function ChartArea({ selectedIndex }: ChartAreaProps) {
 
           {/* 차트 타입 */}
           <div className="flex items-center space-x-2 border-l border-slate-700 pl-4">
-            <Candlestick className="w-4 h-4 text-slate-400" />
+            <BarChart2 className="w-4 h-4 text-slate-400" />
             <select 
               value={selectedChartType}
               onChange={(e) => setSelectedChartType(e.target.value)}

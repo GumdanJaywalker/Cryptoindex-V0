@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from 'framer-motion';
 import { BlurIn, SlideIn, AnimatedGradientText, Ripple } from "@/components/magicui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

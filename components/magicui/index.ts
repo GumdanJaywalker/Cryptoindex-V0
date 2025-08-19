@@ -6,4 +6,4 @@ export { default as NumberTicker } from "./number-ticker";
 export { default as BorderBeam } from "./border-beam";
 export { default as OrbitingCircles } from "./orbiting-circles";
 export { default as AnimatedBeam } from "./animated-beam";
-export { default as Globe } from "./globe";
+export { Globe } from "./globe";

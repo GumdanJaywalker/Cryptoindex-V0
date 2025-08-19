@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
 import { getRedisClient } from '@/lib/redis/client';
 import { AdvancedPrecisionMath, TradingPairHelper } from '@/lib/utils/precision-v2';
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (tests.includes('orderbook')) {
       console.log('🚀 Running Orderbook benchmark...');
       const orderbookStart = Date.now();
-      const matchingEngine = MatchingEngine.getInstance();
+      const matchingEngine = UltraPerformanceOrderbook.getInstance();
       
       const orderbookTests = [];
       for (let i = 0; i < Math.min(iterations, 50); i++) { // Limit to 50 for orderbook
@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
       const redisTime = Date.now() - redisStart;
       
       // Quick Orderbook test
-      const matchingEngine = MatchingEngine.getInstance();
+      const matchingEngine = UltraPerformanceOrderbook.getInstance();
       const orderbookStart = Date.now();
       await matchingEngine.getOrderbook('HYPERINDEX-USDC', 5);
       const orderbookTime = Date.now() - orderbookStart;

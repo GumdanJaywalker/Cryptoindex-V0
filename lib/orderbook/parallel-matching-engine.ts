@@ -173,7 +173,7 @@ export class ParallelMatchingEngine extends EventEmitter {
    */
   async processBatch(orders: Order[]): Promise<MatchResult[]> {
     // Group orders by shard
-    const ordersByS `hard = new Map<number, Order[]>();
+    const ordersByShard = new Map<number, Order[]>();
     
     for (const order of orders) {
       const shardId = this.getShardForPair(order.pair);
@@ -506,5 +506,28 @@ export class ParallelMatchingEngine extends EventEmitter {
     
     // Shutdown orderbook
     await this.orderbook.shutdown();
+  }
+
+  private static instance: ParallelMatchingEngine;
+  
+  public static getInstance(): ParallelMatchingEngine {
+    if (!ParallelMatchingEngine.instance) {
+      ParallelMatchingEngine.instance = new ParallelMatchingEngine();
+    }
+    return ParallelMatchingEngine.instance;
+  }
+
+  /**
+   * Get orderbook data (delegates to UltraPerformanceOrderbook)
+   */
+  async getOrderbook(pair: string, depth: number = 20) {
+    return await this.orderbook.getOrderbook(pair, depth);
+  }
+
+  /**
+   * Get market data (delegates to UltraPerformanceOrderbook)
+   */
+  async getMarketData(pair: string) {
+    return await this.orderbook.getMarketData(pair);
   }
 }

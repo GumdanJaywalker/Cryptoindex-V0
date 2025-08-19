@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BlurIn, AnimatedGradientText, SlideIn, Ripple, NumberTicker } from "@/components/magicui";
-import { CardSpotlight } from "@/components/ui/card-hover-effect";
-import { motion } from "motion/react";
+import { Card as HoverCard } from "@/components/ui/card-hover-effect";
+import { motion } from 'framer-motion';
 import { Wallet, Smartphone, Zap, CheckCircle, X } from "lucide-react";
 
 interface WalletOption {
@@ -189,7 +189,7 @@ export default function WalletConnectionDialog({
               <div className="grid gap-4">
                 {walletOptions.map((wallet, index) => (
                   <SlideIn key={wallet.id} direction="up" delay={index * 0.1}>
-                    <CardSpotlight className="h-full">
+                    <HoverCard className="h-full">
                       <Ripple className="w-full h-full">
                         <Card 
                           className="cursor-pointer transition-all duration-200 hover:shadow-lg bg-cryptoindex-medium/20 border-cryptoindex-medium/30 hover:border-cryptoindex-highlight/50 h-full"
@@ -265,7 +265,7 @@ export default function WalletConnectionDialog({
                           </CardContent>
                         </Card>
                       </Ripple>
-                    </CardSpotlight>
+                    </HoverCard>
                   </SlideIn>
                 ))}
               </div>

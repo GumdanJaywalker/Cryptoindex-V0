@@ -1,7 +1,7 @@
 // app/api/health/route.ts - Enhanced Trading System Health Check
 import { NextRequest, NextResponse } from 'next/server';
 import { checkRedisHealth, getRedisInfo } from '@/lib/redis/client';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { ParallelMatchingEngine } from '@/lib/orderbook/parallel-matching-engine';
 import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     // 3. Matching Engine Health Check
     const engineStart = Date.now();
     try {
-      const matchingEngine = MatchingEngine.getInstance();
+      const matchingEngine = ParallelMatchingEngine.getInstance();
       const testOrderbook = await matchingEngine.getOrderbook('HYPERINDEX-USDC', 1);
       const engineTime = Date.now() - engineStart;
       

@@ -285,7 +285,7 @@ export class FraudDetectionService {
 
       const pattern: UserBehaviorPattern = {
         userId,
-        averageTransactionAmount: amounts.reduce((sum, amt) => sum + amt, 0) / amounts.length,
+        averageTransactionAmount: amounts.length > 0 ? amounts.reduce((sum, amt) => sum + amt, 0) / amounts.length : 0,
         typicalTransactionHours: this.getMostFrequentHours(hours),
         frequentDestinations: this.getMostFrequentValues(destinations, 5),
         averageTimeBetweenTransactions: this.calculateAverageTimeBetween(transactions),
@@ -344,13 +344,15 @@ export class FraudDetectionService {
    */
   private analyzeTimePattern(pattern: UserBehaviorPattern): RiskFactor {
     const currentHour = new Date().getHours();
-    const isTypicalHour = pattern.typicalTransactionHours.includes(currentHour);
+    const isTypicalHour = (pattern.typicalTransactionHours || []).includes(currentHour);
     
-    const nearestTypicalHour = pattern.typicalTransactionHours.reduce((closest, hour) => {
-      const diff = Math.abs(hour - currentHour);
-      const closestDiff = Math.abs(closest - currentHour);
-      return diff < closestDiff ? hour : closest;
-    }, pattern.typicalTransactionHours[0] || 12);
+    const nearestTypicalHour = (pattern.typicalTransactionHours || []).length > 0 
+      ? pattern.typicalTransactionHours.reduce((closest, hour) => {
+          const diff = Math.abs(hour - currentHour);
+          const closestDiff = Math.abs(closest - currentHour);
+          return diff < closestDiff ? hour : closest;
+        }, pattern.typicalTransactionHours[0])
+      : 12;
     
     const hourDeviation = Math.abs(currentHour - nearestTypicalHour);
     
@@ -359,7 +361,7 @@ export class FraudDetectionService {
     
     if (!isTypicalHour && hourDeviation > 6) {
       severity = 'high';
-      description = `Transaction at unusual time (${currentHour}:00). Typical hours: ${pattern.typicalTransactionHours.join(', ')}`;
+      description = `Transaction at unusual time (${currentHour}:00). Typical hours: ${(pattern.typicalTransactionHours || []).join(', ')}`;
     } else if (!isTypicalHour && hourDeviation > 3) {
       severity = 'medium';
       description = `Transaction slightly outside typical hours`;
@@ -396,7 +398,7 @@ export class FraudDetectionService {
       }
 
       // Check against historical locations
-      const isKnownLocation = pattern.geolocationHistory.some(location => {
+      const isKnownLocation = (pattern.geolocationHistory || []).some(location => {
         const [lat, lon] = location.split(',').map(Number);
         const distance = this.calculateDistance(
           currentLocation.lat, currentLocation.lon,
@@ -405,8 +407,8 @@ export class FraudDetectionService {
         return distance < 100; // Within 100km
       });
 
-      if (!isKnownLocation && pattern.geolocationHistory.length > 0) {
-        const nearestLocation = this.findNearestLocation(currentLocation, pattern.geolocationHistory);
+      if (!isKnownLocation && (pattern.geolocationHistory || []).length > 0) {
+        const nearestLocation = this.findNearestLocation(currentLocation, pattern.geolocationHistory || []);
         const distance = nearestLocation.distance;
         
         let severity: 'low' | 'medium' | 'high' | 'critical';
@@ -468,15 +470,15 @@ export class FraudDetectionService {
       };
     }
 
-    const isKnownDevice = pattern.deviceFingerprints.includes(deviceFingerprint);
+    const isKnownDevice = (pattern.deviceFingerprints || []).includes(deviceFingerprint);
     
     if (!isKnownDevice) {
       return {
         type: 'device_unknown',
-        severity: pattern.deviceFingerprints.length > 0 ? 'high' : 'medium',
+        severity: (pattern.deviceFingerprints || []).length > 0 ? 'high' : 'medium',
         description: 'Transaction from unknown device',
         weight: this.config.featureWeights.deviceDeviation,
-        value: { deviceFingerprint, knownDevices: pattern.deviceFingerprints.length }
+        value: { deviceFingerprint, knownDevices: (pattern.deviceFingerprints || []).length }
       };
     }
 
@@ -542,17 +544,17 @@ export class FraudDetectionService {
    * Analyze destination address
    */
   private analyzeDestinationAddress(destinationAddress: string, pattern: UserBehaviorPattern): RiskFactor {
-    const isFrequentDestination = pattern.frequentDestinations.includes(destinationAddress);
+    const isFrequentDestination = (pattern.frequentDestinations || []).includes(destinationAddress);
     
     if (!isFrequentDestination) {
       return {
         type: 'destination_new',
-        severity: pattern.frequentDestinations.length > 0 ? 'medium' : 'low',
+        severity: (pattern.frequentDestinations || []).length > 0 ? 'medium' : 'low',
         description: 'Transaction to new destination address',
         weight: this.config.featureWeights.patternBreak,
         value: { 
           destinationAddress: `${destinationAddress.slice(0, 6)}...${destinationAddress.slice(-4)}`,
-          knownDestinations: pattern.frequentDestinations.length 
+          knownDestinations: (pattern.frequentDestinations || []).length 
         }
       };
     }
@@ -630,10 +632,10 @@ export class FraudDetectionService {
       transaction_amount: transactionData.amount,
       amount_deviation: Math.abs(transactionData.amount - userPattern.averageTransactionAmount) / userPattern.averageTransactionAmount,
       transaction_hour: new Date().getHours(),
-      is_typical_hour: userPattern.typicalTransactionHours.includes(new Date().getHours()),
-      destination_is_known: userPattern.frequentDestinations.includes(transactionData.destinationAddress),
+      is_typical_hour: (userPattern.typicalTransactionHours || []).includes(new Date().getHours()),
+      destination_is_known: (userPattern.frequentDestinations || []).includes(transactionData.destinationAddress),
       network: transactionData.network,
-      user_transaction_count: userPattern.frequentDestinations.length, // Proxy for experience
+      user_transaction_count: (userPattern.frequentDestinations || []).length, // Proxy for experience
       avg_transaction_amount: userPattern.averageTransactionAmount,
       days_since_last_transaction: this.calculateDaysSinceLastTransaction(userPattern),
       risk_score_history: userPattern.riskScore

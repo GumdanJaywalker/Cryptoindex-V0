@@ -259,8 +259,12 @@ export class RedisScriptManager {
       throw new Error(`Script not loaded: ${scriptName}`);
     }
     
+    // Ensure keys and args are arrays
+    const safeKeys = Array.isArray(keys) ? keys : [];
+    const safeArgs = Array.isArray(args) ? args : [];
+    
     try {
-      return await redis.evalsha(hash, keys.length, ...keys, ...args);
+      return await redis.evalsha(hash, safeKeys.length, ...safeKeys, ...safeArgs);
     } catch (error) {
       console.error(`❌ Failed to execute script ${scriptName}:`, error);
       // Fallback 모드에서는 더 관대하게 처리

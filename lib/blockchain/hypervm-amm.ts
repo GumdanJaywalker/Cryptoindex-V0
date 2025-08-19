@@ -113,6 +113,102 @@ export class HyperVMAMM {
   /**
    * 🔥 Execute token swap on HyperEVM
    */
+  /**
+   * 📊 현재 스팟 가격 조회
+   */
+  /**
+   * 📊 현재 스팟 가격 조회 (실제 온체인)
+   */
+  async getSpotPrice(pair: string): Promise<number> {
+    try {
+      // 실제 pool reserves 조회
+      const reserves = await this.getPairReserves();
+      
+      // token0이 HYPERINDEX, token1이 USDC인 경우
+      const isToken0Index = reserves.token0.toLowerCase() === this.contracts.hyperIndex.toLowerCase();
+      
+      const indexReserve = isToken0Index ? parseFloat(reserves.reserve0) : parseFloat(reserves.reserve1);
+      const usdcReserve = isToken0Index ? parseFloat(reserves.reserve1) : parseFloat(reserves.reserve0);
+      
+      // Price = USDC per INDEX
+      const spotPrice = usdcReserve / indexReserve;
+      
+      console.log(`💱 Real spot price from pool: ${spotPrice} USDC per INDEX`);
+      return spotPrice;
+      
+    } catch (error) {
+      console.error('Failed to get spot price from chain:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 📊 스왑 출력 계산 (시뮬레이션)
+   */
+  /**
+   * 📊 스왑 출력 계산 (실제 Router의 getAmountsOut 사용)
+   */
+  async calculateSwapOutput(
+    pair: string,
+    side: 'buy' | 'sell',
+    inputAmount: number
+  ): Promise<{
+    outputAmount: number;
+    effectivePrice: number;
+    priceImpact: number;
+  }> {
+    try {
+      const inputAmountWei = ethers.parseUnits(inputAmount.toString(), 18);
+      
+      let path: string[];
+      let amountsOut: bigint[];
+      
+      if (side === 'buy') {
+        // Buy INDEX with USDC
+        path = [this.contracts.usdc, this.contracts.hyperIndex];
+      } else {
+        // Sell INDEX for USDC
+        path = [this.contracts.hyperIndex, this.contracts.usdc];
+      }
+      
+      // Router의 getAmountsOut 호출
+      amountsOut = await this.routerContract.getAmountsOut(inputAmountWei, path);
+      const outputAmountWei = amountsOut[amountsOut.length - 1];
+      const outputAmount = parseFloat(ethers.formatUnits(outputAmountWei, 18));
+      
+      // 현재 가격과 실효 가격 계산
+      const currentPrice = await this.getSpotPrice(pair);
+      let effectivePrice: number;
+      
+      if (side === 'buy') {
+        effectivePrice = inputAmount / outputAmount; // USDC per INDEX
+      } else {
+        effectivePrice = outputAmount / inputAmount; // USDC per INDEX
+      }
+      
+      const priceImpact = Math.abs((effectivePrice - currentPrice) / currentPrice) * 100;
+      
+      console.log(`📊 Swap calculation:`, {
+        side,
+        input: inputAmount,
+        output: outputAmount,
+        currentPrice,
+        effectivePrice,
+        priceImpact: `${priceImpact.toFixed(2)}%`
+      });
+      
+      return {
+        outputAmount,
+        effectivePrice,
+        priceImpact
+      };
+      
+    } catch (error) {
+      console.error('Failed to calculate swap output:', error);
+      throw error;
+    }
+  }
+
   async executeSwap(params: SwapParams): Promise<SwapResult> {
     if (!this.signer) {
       throw new Error('Signer not connected');
@@ -188,6 +284,139 @@ export class HyperVMAMM {
       throw error;
     }
   }
+
+  /**
+   * 🆕 특정 가격까지 도달하는데 필요한 수량 계산
+   */
+  /**
+   * 🆕 특정 가격까지 도달하는데 필요한 수량 계산 (실제 AMM 수식)
+   */
+  async getAmountToReachPrice(pair: string, targetPrice: number, side: 'buy' | 'sell'): Promise<number> {
+    try {
+      const reserves = await this.getPairReserves();
+      const currentPrice = await this.getSpotPrice(pair);
+      
+      // token0이 HYPERINDEX, token1이 USDC인지 확인
+      const isToken0Index = reserves.token0.toLowerCase() === this.contracts.hyperIndex.toLowerCase();
+      
+      const indexReserve = parseFloat(isToken0Index ? reserves.reserve0 : reserves.reserve1);
+      const usdcReserve = parseFloat(isToken0Index ? reserves.reserve1 : reserves.reserve0);
+      
+      // Constant Product AMM: x * y = k
+      const k = indexReserve * usdcReserve;
+      
+      let requiredAmount: number;
+      
+      if (side === 'buy') {
+        // Buy INDEX: 가격을 targetPrice까지 올리는데 필요한 USDC
+        if (targetPrice <= currentPrice) return 0;
+        
+        // 새로운 INDEX reserve 계산 (가격 상승 시 INDEX 감소)
+        const newIndexReserve = Math.sqrt(k / targetPrice);
+        const indexDelta = indexReserve - newIndexReserve;
+        
+        // 필요한 USDC 양 (실제로 지불해야 할 양)
+        const newUsdcReserve = k / newIndexReserve;
+        requiredAmount = newUsdcReserve - usdcReserve;
+        
+      } else {
+        // Sell INDEX: 가격을 targetPrice까지 내리는데 필요한 INDEX
+        if (targetPrice >= currentPrice) return 0;
+        
+        // 새로운 INDEX reserve 계산 (가격 하락 시 INDEX 증가)
+        const newIndexReserve = Math.sqrt(k / targetPrice);
+        requiredAmount = newIndexReserve - indexReserve;
+      }
+      
+      console.log(`📐 Amount to reach price ${targetPrice}:`, {
+        currentPrice,
+        targetPrice,
+        side,
+        requiredAmount,
+        currentReserves: { index: indexReserve, usdc: usdcReserve }
+      });
+      
+      return Math.max(0, requiredAmount);
+      
+    } catch (error) {
+      console.error('Error calculating amount to reach price:', error);
+      return 100; // Fallback to safe amount
+    }
+  }
+
+  /**
+   * 🆕 특정 가격까지만 스왑 실행
+   */
+  /**
+   * 🆕 특정 가격까지만 스왑 실행 (실제 온체인)
+   */
+  async executeSwapUntilPrice(
+    pair: string,
+    side: 'buy' | 'sell',
+    maxAmount: number,
+    targetPrice: number
+  ): Promise<{
+    effectivePrice: number;
+    outputAmount: number;
+    priceImpact: number;
+    actualInputAmount?: number;
+    reservesBefore?: any;
+    reservesAfter?: any;
+  }> {
+    try {
+      // 실행 전 리저브 상태
+      const reservesBefore = await this.getPairReserves();
+      
+      // 목표 가격까지 필요한 수량 계산
+      const amountToReachPrice = await this.getAmountToReachPrice(pair, targetPrice, side);
+      const actualAmount = Math.min(maxAmount, amountToReachPrice);
+      
+      if (actualAmount <= 0) {
+        const currentPrice = await this.getSpotPrice(pair);
+        return {
+          effectivePrice: currentPrice,
+          outputAmount: 0,
+          priceImpact: 0,
+          actualInputAmount: 0,
+          reservesBefore,
+          reservesAfter: reservesBefore
+        };
+      }
+      
+      // 실제 스왑 실행 (제한된 수량으로)
+      console.log(`🔄 Executing swap until price ${targetPrice} with amount ${actualAmount}`);
+      
+      const swapParams = {
+        tokenIn: side === 'buy' ? this.contracts.usdc : this.contracts.hyperIndex,
+        tokenOut: side === 'buy' ? this.contracts.hyperIndex : this.contracts.usdc,
+        amountIn: ethers.parseUnits(actualAmount.toString(), 18).toString(),
+        slippageTolerance: 100, // 1% slippage
+        recipient: await this.signer!.getAddress(),
+        deadline: Math.floor(Date.now() / 1000) + 60 * 20
+      };
+      
+      // 실제 온체인 스왑 실행
+      const swapResult = await this.executeSwap(swapParams);
+      
+      // 실행 후 리저브 상태
+      const reservesAfter = await this.getPairReserves();
+      
+      return {
+        effectivePrice: parseFloat(swapResult.effectivePrice),
+        outputAmount: parseFloat(swapResult.amountOut),
+        priceImpact: swapResult.priceImpact,
+        actualInputAmount: actualAmount,
+        reservesBefore,
+        reservesAfter
+      };
+      
+    } catch (error) {
+      console.error('Error executing swap until price:', error);
+      throw error;
+    }
+  }
+
+
 
   /**
    * 💧 Add liquidity to HyperEVM pool

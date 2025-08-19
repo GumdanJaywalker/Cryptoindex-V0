@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BlurIn, AnimatedGradientText, SlideIn, Ripple, NumberTicker } from "@/components/magicui";
 import { CardSpotlight } from "@/components/ui/card-hover-effect";
-import { motion } from "motion/react";
+import { motion } from 'framer-motion';
 import { Wallet, Smartphone, Zap, CheckCircle, X } from "lucide-react";
 
 interface WalletOption {

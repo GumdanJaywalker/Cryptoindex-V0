@@ -10,10 +10,11 @@ let useFallback = false;
 export function getRedisClient(): Redis | RedisFallbackClient {
   if (!redisClient) {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    const redisPassword = process.env.REDIS_PASSWORD;
+    const redisPassword = process.env.REDIS_PASSWORD || 'hyperindex_secure_password';
     
     try {
       console.log('🔌 Attempting to connect to Redis at:', redisUrl);
+      console.log('🔑 Using Redis password:', redisPassword ? '[HIDDEN]' : 'none');
       
       redisClient = new Redis(redisUrl, {
         password: redisPassword,
@@ -199,7 +200,7 @@ export async function deleteKeysByPattern(pattern: string): Promise<number> {
     const [newCursor, keys] = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
     cursor = newCursor;
 
-    if (keys.length > 0) {
+    if (keys && keys.length > 0) {
       deletedCount += keys.length;
       await client.del(...keys);
     }

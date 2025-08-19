@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { createClient } from '@supabase/supabase-js';
-import { getHyperCoreInterface } from '@/lib/blockchain/hypercore-interface';
+import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,9 +54,17 @@ export async function GET(
       );
     }
 
-    // Get market data
-    const hyperCore = getHyperCoreInterface();
-    const marketData = await hyperCore.getMarketData(token.token_address);
+    // Get market data from HyperVM AMM
+    const hyperVMAMM = HyperVMAMM.getInstance();
+    const currentPrice = await hyperVMAMM.getSpotPrice(`${token.symbol}-USDC`);
+    const marketData = {
+      price: currentPrice,
+      change24h: '0', // TODO: Calculate from historical data
+      volume24h: '0', // TODO: Get from trade history
+      high24h: currentPrice,
+      low24h: currentPrice,
+      lastUpdated: Date.now()
+    };
 
     // Build response
     const response: any = {
@@ -82,12 +91,14 @@ export async function GET(
     // Include order book if requested
     if (includeOrderBook) {
       try {
-        const orderBook = await hyperCore.getOrderBook(token.token_address, orderBookDepth);
-        response.market.orderBook = {
-          bids: orderBook.bids,
-          asks: orderBook.asks,
-          timestamp: orderBook.timestamp
+        const orderbook = UltraPerformanceOrderbook.getInstance();
+        const orderBookData = await orderbook.getOrderbook(`${token.symbol}-USDC`, orderBookDepth);
+        const orderBook = {
+          bids: orderBookData.bids,
+          asks: orderBookData.asks,
+          timestamp: Date.now()
         };
+        response.market.orderBook = orderBook;
       } catch (error) {
         console.error(`❌ Failed to get order book for ${token.symbol}:`, error);
         response.market.orderBook = {

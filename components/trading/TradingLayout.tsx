@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import IndexInfoBar from './IndexInfoBar'
 import ChartArea from './ChartArea'
-import OrderBook from './OrderBook'
-import TradingPanel from './TradingPanel'
-import RecentTrades from './RecentTrades'
-import AccountPanel from './AccountPanel'
-import CommunityFeed from './CommunityFeed'
+// Temporarily commented out - components not yet implemented
+// import OrderBook from './OrderBook'
+// import TradingPanel from './TradingPanel'
+// import RecentTrades from './RecentTrades'
+// import AccountPanel from './AccountPanel'
+// import CommunityFeed from './CommunityFeed'
 
 export default function TradingLayout() {
   const [selectedIndex, setSelectedIndex] = useState('MEME_INDEX')
@@ -34,7 +35,10 @@ export default function TradingLayout() {
           
           {/* 계정 패널 */}
           <div className="h-80 bg-slate-900 rounded-sm">
-            <AccountPanel />
+            {/* <AccountPanel /> */}
+            <div className="bg-slate-900 p-4 border border-slate-800 rounded">
+              <p className="text-slate-400">Account Panel - Coming Soon</p>
+            </div>
           </div>
         </div>
 
@@ -43,22 +47,34 @@ export default function TradingLayout() {
           
           {/* 오더북 */}
           <div className="bg-slate-900 rounded-sm">
-            <OrderBook selectedIndex={selectedIndex} />
+            {/* <OrderBook selectedIndex={selectedIndex} /> */}
+            <div className="bg-slate-900 p-4 border border-slate-800 rounded h-full">
+              <p className="text-slate-400">Order Book - Coming Soon</p>
+            </div>
           </div>
           
           {/* 트레이딩 패널 */}
           <div className="bg-slate-900 rounded-sm">
-            <TradingPanel selectedIndex={selectedIndex} />
+            {/* <TradingPanel selectedIndex={selectedIndex} /> */}
+            <div className="bg-slate-900 p-4 border border-slate-800 rounded h-full">
+              <p className="text-slate-400">Trading Panel - Coming Soon</p>
+            </div>
           </div>
           
           {/* 최근 거래 */}
           <div className="bg-slate-900 rounded-sm">
-            <RecentTrades selectedIndex={selectedIndex} />
+            {/* <RecentTrades selectedIndex={selectedIndex} /> */}
+            <div className="bg-slate-900 p-4 border border-slate-800 rounded h-full">
+              <p className="text-slate-400">Recent Trades - Coming Soon</p>
+            </div>
           </div>
           
           {/* 커뮤니티 피드 */}
           <div className="bg-slate-900 rounded-sm">
-            <CommunityFeed />
+            {/* <CommunityFeed /> */}
+            <div className="bg-slate-900 p-4 border border-slate-800 rounded h-full">
+              <p className="text-slate-400">Community Feed - Coming Soon</p>
+            </div>
           </div>
           
         </div>

@@ -1,66 +1,61 @@
+// hardhat.config.js
+/**
+ * Hardhat configuration for HyperEVM deployment
+ * Created: 2025-08-11
+ */
+
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.19",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 1000,
+        details: {
+          yul: true,
+          yulDetails: {
+            stackAllocation: true,
+            optimizerSteps: "dhfoDgvulfnTUtnIf"
+          }
+        }
       },
-    },
+      viaIR: true
+    }
   },
+  
   networks: {
-    hardhat: {
-      chainId: 31337,
-    },
     "hypervm-testnet": {
       url: process.env.HYPERVM_TESTNET_RPC || "https://rpc.hyperliquid-testnet.xyz/evm",
+      chainId: 998,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 998, // HyperEVM Testnet Chain ID
-      gasPrice: "auto",
-      gas: "auto",
-      timeout: 60000,
+      gasPrice: 1,  // 1 wei - HyperEVM optimal
+      gas: 3000000,  // 3M gas limit
+      blockGasLimit: 30000000,  // 30M block gas limit  
+      timeout: 60000,  // 60초 timeout
+      confirmations: 1  // 1 confirmation only
     },
+    
     "hypervm-mainnet": {
       url: process.env.HYPERVM_MAINNET_RPC || "https://api.hyperliquid.xyz/evm",
+      chainId: 999,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 999, // HyperEVM Mainnet Chain ID
       gasPrice: "auto",
-      gas: "auto",
-      timeout: 60000,
-    },
+      gas: "auto"
+    }
   },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
-  },
-  etherscan: {
-    // HyperEVM explorer API key (if available)
-    apiKey: {
-      "hypervm-testnet": process.env.HYPERVM_EXPLORER_API_KEY || "dummy",
-      "hypervm-mainnet": process.env.HYPERVM_EXPLORER_API_KEY || "dummy"
-    },
-    customChains: [
-      {
-        network: "hypervm-testnet",
-        chainId: 998,
-        urls: {
-          apiURL: process.env.HYPERVM_TESTNET_EXPLORER_API || "https://explorer.hyperliquid-testnet.xyz/api",
-          browserURL: process.env.HYPERVM_TESTNET_EXPLORER || "https://explorer.hyperliquid-testnet.xyz"
-        }
-      }
-    ]
-  },
+
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "./artifacts",
+    artifacts: "./artifacts"
   },
+
   mocha: {
-    timeout: 60000,
-  },
+    timeout: 60000 // 60 seconds
+  }
 };

@@ -401,9 +401,9 @@ export class WithdrawalVerificationService {
       .eq('transaction_type', 'withdrawal')
       .eq('status', 'completed');
 
-    const usedAddresses = previousWithdrawals?.map(tx => 
+    const usedAddresses = (previousWithdrawals || []).map(tx => 
       tx.metadata?.destination_address
-    ).filter(Boolean) || [];
+    ).filter(Boolean);
 
     if (!usedAddresses.includes(destinationAddress)) {
       reasons.push('New destination address');

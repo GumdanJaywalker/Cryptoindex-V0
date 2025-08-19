@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
     // 1. 오더북 거래 내역 조회 (Redis에서)
     let orderbookTrades: HybridTrade[] = [];
     try {
-      const { MatchingEngine } = await import('@/lib/orderbook/matching-engine');
-      const matchingEngine = MatchingEngine.getInstance();
+      const { UltraPerformanceOrderbook } = await import('@/lib/orderbook/ultra-performance-orderbook');
+      const matchingEngine = UltraPerformanceOrderbook.getInstance();
       const recentTrades = await matchingEngine.getRecentTrades(pair, Math.floor(limit * 0.7));
       
       orderbookTrades = recentTrades.map(trade => ({

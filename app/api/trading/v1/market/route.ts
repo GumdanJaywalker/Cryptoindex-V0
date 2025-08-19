@@ -1,8 +1,8 @@
 // app/api/trading/v1/market/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
-import { getMockAMM } from '@/lib/trading/mock-amm';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
+import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
 import { z } from 'zod';
 
 const QuerySchema = z.object({
@@ -41,8 +41,14 @@ export async function GET(request: NextRequest) {
 
     console.log(`🔍 Market data request - Pair: ${pair}, AMM: ${includeAMM}, Orderbook: ${includeOrderbook}`);
 
-    const matchingEngine = MatchingEngine.getInstance();
-    const amm = getMockAMM();
+    const matchingEngine = UltraPerformanceOrderbook.getInstance();
+    const amm = new HyperVMAMM('wss://testnet.hyperliquid.xyz', {
+      router: process.env.HYPEREVM_ROUTER_ADDRESS || '',
+      factory: process.env.HYPEREVM_FACTORY_ADDRESS || '',
+      hyperIndex: process.env.HYPERINDEX_TOKEN_ADDRESS || '',
+      usdc: process.env.USDC_TOKEN_ADDRESS || '',
+      pair: process.env.HYPERINDEX_USDC_PAIR_ADDRESS || ''
+    });
 
     // Collect market data
     const marketData: any = {
@@ -167,7 +173,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const amm = getMockAMM();
+    const amm = new HyperVMAMM('wss://testnet.hyperliquid.xyz', {
+      router: process.env.HYPEREVM_ROUTER_ADDRESS || '',
+      factory: process.env.HYPEREVM_FACTORY_ADDRESS || '',
+      hyperIndex: process.env.HYPERINDEX_TOKEN_ADDRESS || '',
+      usdc: process.env.USDC_TOKEN_ADDRESS || '',
+      pair: process.env.HYPERINDEX_USDC_PAIR_ADDRESS || ''
+    });
     
     // Simulate trade without executing
     const simulation = amm.calculateSwapOutput(pair, side, parseFloat(amount));

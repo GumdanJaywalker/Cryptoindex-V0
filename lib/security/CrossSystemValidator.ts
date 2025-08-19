@@ -74,7 +74,10 @@ export class CrossSystemValidator extends EventEmitter {
     this.redis = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379'),
-      enableAutoPipelining: true
+      password: process.env.REDIS_PASSWORD || 'hyperindex_secure_password',
+      enableAutoPipelining: true,
+      lazyConnect: true, // Enable lazy connect to prevent immediate failures
+      enableOfflineQueue: true // Enable offline queue for better error handling
     });
     
     this.provider = new ethers.JsonRpcProvider(providerUrl);

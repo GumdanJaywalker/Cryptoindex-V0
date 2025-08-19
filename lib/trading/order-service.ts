@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { ethers } from 'ethers';
 import { PortfolioService } from './portfolio-service';
-import { SmartRouter } from '@/lib/trading/smart-router';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { HybridSmartRouterV2 } from '@/lib/trading/smart-router-v2';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
 import type { Order } from '@/lib/types/trading';
 
 interface CreateOrderRequest {
@@ -29,8 +29,8 @@ interface CancelOrderResult {
 export class TradingOrderService {
   private static instance: TradingOrderService;
   private supabase;
-  private smartRouter: SmartRouter;
-  private matchingEngine: MatchingEngine;
+  private smartRouter: HybridSmartRouterV2;
+  private matchingEngine: UltraPerformanceOrderbook;
   private portfolioService;
 
   private constructor() {
@@ -38,8 +38,8 @@ export class TradingOrderService {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    this.smartRouter = SmartRouter.getInstance();
-    this.matchingEngine = MatchingEngine.getInstance();
+    this.smartRouter = HybridSmartRouterV2.getInstance();
+    this.matchingEngine = UltraPerformanceOrderbook.getInstance();
     this.portfolioService = PortfolioService.getInstance();
   }
 

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth';
 import { createClient } from '@supabase/supabase-js';
-import { getHyperCoreInterface } from '@/lib/blockchain/hypercore-interface';
+import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,11 +40,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Get market data for each token
-    const hyperCore = getHyperCoreInterface();
+    const hyperVMAMM = HyperVMAMM.getInstance();
     const marketsData = await Promise.all(
       tokens.map(async (token) => {
         try {
-          const marketData = await hyperCore.getMarketData(token.token_address);
+          // Get AMM price and calculate market data
+          const currentPrice = await hyperVMAMM.getSpotPrice(`${token.symbol}-USDC`);
+          const marketData = {
+            price: currentPrice,
+            change24h: '0', // TODO: Calculate from historical data
+            volume24h: '0', // TODO: Get from trade history
+            high24h: currentPrice,
+            low24h: currentPrice,
+            lastUpdated: Date.now()
+          };
           
           return {
             tokenAddress: token.token_address,

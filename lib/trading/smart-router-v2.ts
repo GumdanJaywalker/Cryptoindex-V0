@@ -9,8 +9,8 @@
  * 4. 무한루프 및 모든 엣지케이스 방지
  */
 
-import { getMockAMM, MockAMM } from './mock-amm';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
+import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
 
 export interface Order {
   id: string;
@@ -58,8 +58,8 @@ export interface RoutingResult {
 
 export class HybridSmartRouterV2 {
   private static instance: HybridSmartRouterV2;
-  private amm: MockAMM;
-  private matchingEngine: MatchingEngine;
+  private amm: HyperVMAMM;
+  private matchingEngine: UltraPerformanceOrderbook;
 
   // 안전장치 설정
   private readonly MAX_ITERATIONS = 100;
@@ -67,8 +67,15 @@ export class HybridSmartRouterV2 {
   private readonly MAX_AMM_CHUNK_SIZE = 1000; // 최대 AMM 청크 크기 (슬리피지 방지)
 
   private constructor() {
-    this.amm = getMockAMM();
-    this.matchingEngine = MatchingEngine.getInstance();
+    // HyperVMAMM requires configuration - will be initialized when needed
+    this.amm = new HyperVMAMM('wss://testnet.hyperliquid.xyz', {
+      router: process.env.HYPEREVM_ROUTER_ADDRESS || '',
+      factory: process.env.HYPEREVM_FACTORY_ADDRESS || '',
+      hyperIndex: process.env.HYPERINDEX_TOKEN_ADDRESS || '',
+      usdc: process.env.USDC_TOKEN_ADDRESS || '',
+      pair: process.env.HYPERINDEX_USDC_PAIR_ADDRESS || ''
+    });
+    this.matchingEngine = UltraPerformanceOrderbook.getInstance();
   }
 
   static getInstance(): HybridSmartRouterV2 {
@@ -100,6 +107,13 @@ export class HybridSmartRouterV2 {
   /**
    * 🔥 V2 핵심: Market 주문을 청크 단위로 분할 처리
    */
+  /**
+   * 🔥 V2 핵심: Market 주문을 청크 단위로 분할 처리
+   * 개선사항:
+   * - 가격 기반 동적 청킹 (다음 오더북 가격까지만)
+   * - AMM = 오더북일 때 오더북 완전 소진
+   * - 연속적 가격 추적 및 재평가
+   */
   private async processMarketOrderInChunks(order: Order): Promise<RoutingResult> {
     let remainingAmount = parseFloat(order.amount);
     const fills: Fill[] = [];
@@ -107,35 +121,62 @@ export class HybridSmartRouterV2 {
     let iteration = 0;
     let chunkIndex = 0;
 
-    console.log(`🎯 V2 Market order chunk processing started - Amount: ${remainingAmount}`);
+    console.log(`🎯 V2 Improved Market order processing - Amount: ${remainingAmount}`);
 
     while (remainingAmount > this.MIN_CHUNK_SIZE && iteration < this.MAX_ITERATIONS) {
       iteration++;
       chunkIndex++;
 
       // 1. 현재 상황 실시간 파악
-      const ammPrice = this.amm.getSpotPrice(order.pair);
+      const ammPrice = await this.amm.getSpotPrice(order.pair);
+      const orderbook = await this.matchingEngine.getOrderbook(order.pair, 10);
       const bestOrderbookPrice = await this.getBestOrderbookPrice(order.pair, order.side);
+      const nextOrderbookPrice = await this.getNextOrderbookPrice(order.pair, order.side);
 
-      console.log(`📊 V2 Chunk ${chunkIndex} - AMM: ${ammPrice}, Orderbook: ${bestOrderbookPrice || 'N/A'}, Remaining: ${remainingAmount}`);
+      console.log(`📊 Chunk ${chunkIndex} - AMM: ${ammPrice}, Best OB: ${bestOrderbookPrice || 'N/A'}, Next OB: ${nextOrderbookPrice || 'N/A'}, Remaining: ${remainingAmount}`);
 
-      // 2. 최적 소스 선택 - 단, AMM 가격이 오더북보다 불리하면 오더북 우선
-      let bestSource = this.selectBestSource(ammPrice, bestOrderbookPrice, order.side);
-      
-      // 추가 검증: AMM이 선택되었지만 실제로는 오더북이 더 유리한 경우 방지
-      if (bestSource === 'AMM' && bestOrderbookPrice !== null) {
-        if (order.side === 'sell' && ammPrice < bestOrderbookPrice) {
-          bestSource = 'Orderbook'; // sell할 때 오더북이 더 높은 가격이면 오더북 선택
-          console.log(`🔄 Override to Orderbook: AMM ${ammPrice} < Orderbook ${bestOrderbookPrice}`);
-        } else if (order.side === 'buy' && ammPrice > bestOrderbookPrice) {
-          bestSource = 'Orderbook'; // buy할 때 오더북이 더 낮은 가격이면 오더북 선택  
-          console.log(`🔄 Override to Orderbook: AMM ${ammPrice} > Orderbook ${bestOrderbookPrice}`);
-        }
-      }
-      
-      if (bestSource === 'AMM') {
-        // 🔥 핵심: AMM 청크 처리
+      // 2. 가격 비교 및 소스 선택
+      if (!bestOrderbookPrice) {
+        // 시나리오 1: 오더북 호가 없음 → AMM 전량 처리
         const chunkResult = await this.processAMMChunk(
+          order, remainingAmount, ammPrice, null, chunkIndex
+        );
+        
+        if (chunkResult && chunkResult.actualAmount > 0) {
+          fills.push(chunkResult.fill);
+          routing.push(chunkResult.routing);
+          remainingAmount -= chunkResult.actualAmount;
+          console.log(`✅ AMM only chunk ${chunkIndex}: ${chunkResult.actualAmount}, remaining: ${remainingAmount}`);
+        } else {
+          console.log(`⚠️ AMM chunk ${chunkIndex} failed, breaking loop`);
+          break;
+        }
+        
+      } else if (Math.abs(ammPrice - bestOrderbookPrice) < 0.0001) {
+        // 시나리오 2: AMM = 오더북 가격 → 오더북 우선 완전 소진
+        console.log(`🔄 AMM = Orderbook (${ammPrice}), prioritizing orderbook exhaustion`);
+        
+        // 해당 가격 레벨 오더북 전량 처리
+        const orderbookAvailable = await this.getOrderbookAvailableAtPrice(order.pair, bestOrderbookPrice, order.side);
+        if (orderbookAvailable > 0) {
+          const chunkResult = await this.processOrderbookPriceLevel(
+            order, Math.min(remainingAmount, orderbookAvailable), bestOrderbookPrice, chunkIndex
+          );
+          
+          if (chunkResult && chunkResult.actualAmount > 0) {
+            fills.push(chunkResult.fill);
+            routing.push(chunkResult.routing);
+            remainingAmount -= chunkResult.actualAmount;
+            console.log(`✅ Orderbook priority chunk ${chunkIndex}: ${chunkResult.actualAmount} @ ${bestOrderbookPrice}, remaining: ${remainingAmount}`);
+          }
+        }
+        
+      } else if ((order.side === 'buy' && ammPrice < bestOrderbookPrice) || 
+                 (order.side === 'sell' && ammPrice > bestOrderbookPrice)) {
+        // 시나리오 3: AMM이 더 유리 → 다음 오더북 가격까지만 AMM 처리
+        console.log(`🏦 AMM better (${ammPrice} vs ${bestOrderbookPrice}), processing until next price`);
+        
+        const chunkResult = await this.processAMMUntilPrice(
           order, remainingAmount, ammPrice, bestOrderbookPrice, chunkIndex
         );
         
@@ -143,33 +184,32 @@ export class HybridSmartRouterV2 {
           fills.push(chunkResult.fill);
           routing.push(chunkResult.routing);
           remainingAmount -= chunkResult.actualAmount;
-          
-          console.log(`✅ AMM chunk ${chunkIndex}: ${chunkResult.actualAmount}, remaining: ${remainingAmount}`);
+          console.log(`✅ AMM dynamic chunk ${chunkIndex}: ${chunkResult.actualAmount}, AMM price moved to ${await this.amm.getSpotPrice(order.pair)}`);
         } else {
-          console.log(`⚠️ AMM chunk ${chunkIndex} failed, breaking loop`);
+          console.log(`⚠️ AMM chunk ${chunkIndex} failed`);
           break;
         }
-
-      } else if (bestSource === 'Orderbook') {
-        // 🔥 핵심: 오더북 청크 처리
-        const chunkResult = await this.processOrderbookChunk(
-          order, remainingAmount, bestOrderbookPrice!, chunkIndex
+        
+      } else {
+        // 시나리오 4: 오더북이 더 유리 → 오더북 처리
+        console.log(`📖 Orderbook better (${bestOrderbookPrice} vs ${ammPrice})`);
+        
+        const orderbookAvailable = await this.getOrderbookAvailableAtPrice(order.pair, bestOrderbookPrice, order.side);
+        const chunkSize = Math.min(remainingAmount, orderbookAvailable);
+        
+        const chunkResult = await this.processOrderbookPriceLevel(
+          order, chunkSize, bestOrderbookPrice, chunkIndex
         );
         
         if (chunkResult && chunkResult.actualAmount > 0) {
           fills.push(chunkResult.fill);
           routing.push(chunkResult.routing);
           remainingAmount -= chunkResult.actualAmount;
-          
-          console.log(`✅ Orderbook chunk ${chunkIndex}: ${chunkResult.actualAmount}, remaining: ${remainingAmount}`);
+          console.log(`✅ Orderbook chunk ${chunkIndex}: ${chunkResult.actualAmount} @ ${bestOrderbookPrice}, remaining: ${remainingAmount}`);
         } else {
-          console.log(`⚠️ Orderbook chunk ${chunkIndex} failed, breaking loop`);
+          console.log(`⚠️ Orderbook chunk ${chunkIndex} failed`);
           break;
         }
-
-      } else {
-        console.error(`❌ No valid source selected for chunk ${chunkIndex}`);
-        break;
       }
 
       // 무한루프 조기 감지
@@ -186,13 +226,13 @@ export class HybridSmartRouterV2 {
     );
     const averagePrice = totalFilled > 0 ? weightedPriceSum / totalFilled : 0;
 
-    console.log(`🎉 V2 Market order completed:`, {
+    console.log(`🎉 V2 Improved Market order completed:`, {
       totalFilled,
       averagePrice,
       chunks: fills.length,
       iterations: iteration,
-      ammChunks: fills.filter(f => f.source === 'AMM').length,
-      orderbookChunks: fills.filter(f => f.source === 'Orderbook').length
+      ammChunks: (fills || []).filter(f => f?.source === 'AMM').length,
+      orderbookChunks: (fills || []).filter(f => f?.source === 'Orderbook').length
     });
 
     return {
@@ -201,12 +241,189 @@ export class HybridSmartRouterV2 {
       averagePrice: averagePrice.toString(),
       routing,
       executionStats: {
-        totalChunks: fills.length,
-        ammChunks: fills.filter(f => f.source === 'AMM').length,
-        orderbookChunks: fills.filter(f => f.source === 'Orderbook').length,
+        totalChunks: (fills || []).length,
+        ammChunks: (fills || []).filter(f => f?.source === 'AMM').length,
+        orderbookChunks: (fills || []).filter(f => f?.source === 'Orderbook').length,
         iterations: iteration
       }
     };
+  }
+
+  /**
+   * 🆕 다음 오더북 가격 조회 (두 번째 호가)
+   */
+  private async getNextOrderbookPrice(pair: string, side: 'buy' | 'sell'): Promise<number | null> {
+    try {
+      const orderbook = await this.matchingEngine.getOrderbook(pair, 2);
+      
+      if (side === 'buy') {
+        return orderbook.asks.length > 1 ? parseFloat(orderbook.asks[1].price) : null;
+      } else {
+        return orderbook.bids.length > 1 ? parseFloat(orderbook.bids[1].price) : null;
+      }
+    } catch (error) {
+      console.error('Failed to get next orderbook price:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 🆕 특정 가격 레벨의 오더북 가용 수량 조회
+   */
+  private async getOrderbookAvailableAtPrice(
+    pair: string, 
+    price: number, 
+    side: 'buy' | 'sell'
+  ): Promise<number> {
+    try {
+      const orderbook = await this.matchingEngine.getOrderbook(pair, 10);
+      const levels = side === 'buy' ? orderbook.asks : orderbook.bids;
+      
+      const availableAmount = levels
+        .filter(level => Math.abs(parseFloat(level.price) - price) < 0.0001)
+        .reduce((sum, level) => sum + parseFloat(level.amount), 0);
+      
+      return availableAmount;
+    } catch (error) {
+      console.error('Failed to get orderbook available at price:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * 🆕 오더북 특정 가격 레벨 전체 처리
+   */
+  private async processOrderbookPriceLevel(
+    order: Order,
+    amount: number,
+    price: number,
+    chunkIndex: number
+  ): Promise<{
+    fill: Fill;
+    routing: RoutingResult['routing'][0];
+    actualAmount: number;
+  } | null> {
+    try {
+      console.log(`📖 Processing orderbook price level: ${amount} @ ${price}`);
+
+      // 오더북에 Market 주문 전송
+      const orderbookOrder: Order = {
+        id: `ob-level-${chunkIndex}-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        userId: order.userId,
+        pair: order.pair,
+        side: order.side,
+        type: 'market',
+        amount: amount.toString(),
+        price: price.toString(),
+        remaining: amount.toString(),
+        status: 'active',
+        timestamp: Date.now()
+      };
+
+      const matchResult = await this.matchingEngine.processOrder(orderbookOrder);
+      
+      if (matchResult.trades.length > 0) {
+        // 해당 가격 레벨의 모든 거래를 하나의 Fill로 집계
+        const totalAmount = matchResult.trades.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        const weightedPrice = matchResult.trades.reduce((sum, t) => 
+          sum + (parseFloat(t.price) * parseFloat(t.amount)), 0) / totalAmount;
+        
+        const fill: Fill = {
+          id: `ob-fill-${chunkIndex}-${Date.now()}`,
+          orderId: order.id,
+          price: weightedPrice.toString(),
+          amount: totalAmount.toString(),
+          side: order.side,
+          source: 'Orderbook',
+          timestamp: Date.now(),
+          chunkIndex
+        };
+
+        const routing = {
+          source: 'Orderbook' as const,
+          amount: fill.amount,
+          price: fill.price,
+          chunkIndex
+        };
+
+        await this.recordTrade(fill, undefined, order.userId);
+        return { fill, routing, actualAmount: totalAmount };
+      }
+
+      return null;
+
+    } catch (error) {
+      console.error(`❌ Orderbook price level processing failed:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * 🆕 AMM을 특정 가격까지만 실행
+   */
+  private async processAMMUntilPrice(
+    order: Order,
+    remainingAmount: number,
+    currentAmmPrice: number,
+    targetPrice: number,
+    chunkIndex: number
+  ): Promise<{
+    fill: Fill;
+    routing: RoutingResult['routing'][0];
+    actualAmount: number;
+  } | null> {
+    try {
+      // 목표 가격까지 도달하는데 필요한 수량 계산
+      const amountToReachPrice = await this.amm.getAmountToReachPrice(
+        order.pair, targetPrice, order.side
+      );
+      
+      const optimalAmount = Math.min(
+        remainingAmount, 
+        Math.max(0, amountToReachPrice),
+        this.MAX_AMM_CHUNK_SIZE
+      );
+
+      if (optimalAmount <= 0) {
+        return null;
+      }
+
+      console.log(`🏦 AMM until price: ${optimalAmount} (${currentAmmPrice} → ${targetPrice})`);
+
+      // AMM 스왑 실행 (목표 가격까지만)
+      const swapResult = await this.amm.executeSwapUntilPrice(
+        order.pair, order.side, optimalAmount, targetPrice
+      );
+
+      // Fill 생성
+      const fill: Fill = {
+        id: `amm-until-${chunkIndex}-${Date.now()}`,
+        orderId: order.id,
+        price: swapResult.effectivePrice.toString(),
+        amount: swapResult.actualInputAmount ? swapResult.actualInputAmount.toString() : optimalAmount.toString(),
+        side: order.side,
+        source: 'AMM',
+        timestamp: Date.now(),
+        chunkIndex
+      };
+
+      const routing = {
+        source: 'AMM' as const,
+        amount: fill.amount,
+        price: fill.price,
+        priceImpact: swapResult.priceImpact,
+        chunkIndex
+      };
+
+      await this.recordTrade(fill, swapResult, order.userId);
+
+      const actualAmount = parseFloat(fill.amount);
+      return { fill, routing, actualAmount };
+
+    } catch (error) {
+      console.error(`❌ AMM until price processing failed:`, error);
+      return null;
+    }
   }
 
   /**
@@ -257,8 +474,8 @@ export class HybridSmartRouterV2 {
 
       // AMM 스왑 실행
       const swapResult = nextOrderbookPrice 
-        ? this.amm.executeSwapUntilPrice(order.pair, order.side, optimalChunkSize, nextOrderbookPrice)
-        : this.amm.executeSwap(order.pair, order.side, optimalChunkSize);
+        ? await this.amm.executeSwapUntilPrice(order.pair, order.side, optimalChunkSize, nextOrderbookPrice)
+        : await this.amm.executeSwap(order.pair, order.side, optimalChunkSize);
 
       // Fill 생성
       const fill: Fill = {
@@ -384,35 +601,52 @@ export class HybridSmartRouterV2 {
   /**
    * 최적 AMM 청크 크기 계산
    */
-  private calculateOptimalAMMChunk(
+  /**
+   * 최적 AMM 청크 크기 계산 (개선됨)
+   * - 다음 오더북 가격까지만 처리
+   * - 슬리피지 고려
+   */
+  private async calculateOptimalAMMChunk(
     remainingAmount: number,
     currentAmmPrice: number,
     nextOrderbookPrice: number | null,
     side: 'buy' | 'sell'
-  ): number {
+  ): Promise<number> {
     if (!nextOrderbookPrice) {
       // 오더북 호가가 없으면 적당한 크기로 분할 (슬리피지 방지)
-      return Math.min(remainingAmount, this.MAX_AMM_CHUNK_SIZE);
+      const maxChunk = Math.min(this.MAX_AMM_CHUNK_SIZE, remainingAmount * 0.1); // 10%씩
+      return Math.min(remainingAmount, maxChunk);
     }
 
     try {
-      // 오더북 가격까지 도달하는데 필요한 수량 계산
-      const amountToReachPrice = this.amm.getAmountToReachPrice(
+      // 목표: 다음 오더북 가격까지만 AMM 실행
+      const amountToReachPrice = await this.amm.getAmountToReachPrice(
         'HYPERINDEX-USDC', nextOrderbookPrice, side
       );
       
+      // 실제 실행량은 잔량과 계산된 양 중 작은 값
       const optimalAmount = Math.min(
         remainingAmount, 
-        Math.max(0, amountToReachPrice),
-        this.MAX_AMM_CHUNK_SIZE
+        Math.max(0, amountToReachPrice)
       );
 
-      console.log(`🧮 AMM chunk calculation: remaining=${remainingAmount}, toReach=${amountToReachPrice}, optimal=${optimalAmount}`);
+      // 너무 큰 청크는 슬리피지 위험이 있으므로 제한
+      const safeAmount = Math.min(optimalAmount, this.MAX_AMM_CHUNK_SIZE);
+
+      console.log(`🧮 AMM chunk calculation:`, {
+        remaining: remainingAmount,
+        toReachPrice: amountToReachPrice,
+        optimal: optimalAmount,
+        safe: safeAmount,
+        currentPrice: currentAmmPrice,
+        targetPrice: nextOrderbookPrice
+      });
       
-      return optimalAmount;
+      return safeAmount;
     } catch (error) {
       console.error('Failed to calculate optimal AMM chunk:', error);
-      return Math.min(remainingAmount, 100); // 안전한 기본값
+      // 에러 시 안전한 작은 청크 사용
+      return Math.min(remainingAmount, 100);
     }
   }
 
@@ -551,7 +785,7 @@ export class HybridSmartRouterV2 {
    * 지정가 주문 처리 (기존 로직 유지)
    */
   private async processLimitOrder(order: Order): Promise<RoutingResult> {
-    const ammPrice = this.amm.getSpotPrice(order.pair);
+    const ammPrice = await this.amm.getSpotPrice(order.pair);
     const limitPrice = parseFloat(order.price);
 
     // AMM 가격 검증
@@ -607,7 +841,7 @@ export class HybridSmartRouterV2 {
     estimatedChunks: number;
     estimatedGas: string;
   }> {
-    const ammPrice = this.amm.getSpotPrice(pair);
+    const ammPrice = await this.amm.getSpotPrice(pair);
     const orderbookPrice = await this.getBestOrderbookPrice(pair, side);
     const amountNum = parseFloat(amount);
 
@@ -629,7 +863,7 @@ export class HybridSmartRouterV2 {
     }
 
     // 가격 영향 계산
-    const simulation = this.amm.calculateSwapOutput(pair, side, Math.min(amountNum, 1000));
+    const simulation = await this.amm.calculateSwapOutput(pair, side, Math.min(amountNum, 1000));
 
     return {
       recommended,

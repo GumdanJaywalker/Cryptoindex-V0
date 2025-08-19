@@ -121,8 +121,9 @@ export class RedisConnectionPool {
       const conn = new Redis({
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
-        lazyConnect: false,
-        enableOfflineQueue: false,
+        password: process.env.REDIS_PASSWORD || 'hyperindex_secure_password',
+        lazyConnect: true, // Enable lazy connect to prevent immediate failures
+        enableOfflineQueue: true, // Enable offline queue for better error handling
         maxRetriesPerRequest: 3,
         connectTimeout: 5000,
         // Performance optimizations
@@ -207,8 +208,9 @@ export class RedisConnectionPool {
     const conn = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379'),
-      lazyConnect: false,
-      enableOfflineQueue: false,
+      password: process.env.REDIS_PASSWORD || 'hyperindex_secure_password',
+      lazyConnect: true, // Enable lazy connect to prevent immediate failures
+      enableOfflineQueue: true, // Enable offline queue for better error handling
       dropBufferSupport: true,
       enableAutoPipelining: true
     });

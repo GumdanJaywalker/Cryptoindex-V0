@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/IHyperIndexFactory.sol";
 import "./interfaces/IHyperIndexPair.sol";
 import "./libraries/HyperIndexLibrary.sol";
 
 /**
  * @title HyperIndexRouter
- * @notice Router contract for HyperIndex AMM with user-friendly functions
+ * @notice Router contract for HyperIndex AMM with OpenZeppelin v5 compatibility
  * @dev Handles multi-hop swaps, liquidity management, and slippage protection
  */
-contract HyperIndexRouter {
+contract HyperIndexRouter is ReentrancyGuard {
     address public immutable factory;
-    address public immutable WHYPE; // Wrapped HYPE for ETH-like functionality
+    address public immutable WHYPE;
     
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "HyperIndexRouter: EXPIRED");
@@ -26,10 +27,10 @@ contract HyperIndexRouter {
     }
     
     receive() external payable {
-        assert(msg.sender == WHYPE); // only accept HYPE via fallback from the WHYPE contract
+        assert(msg.sender == WHYPE);
     }
     
-    // **** ADD LIQUIDITY ****
+    // ADD LIQUIDITY
     function addLiquidity(
         address tokenA,
         address tokenB,
@@ -71,13 +72,12 @@ contract HyperIndexRouter {
         assert(IWHYPE(WHYPE).transfer(pair, amountHYPE));
         liquidity = IHyperIndexPair(pair).mint(to);
         
-        // Refund excess HYPE
         if (msg.value > amountHYPE) {
             payable(msg.sender).transfer(msg.value - amountHYPE);
         }
     }
     
-    // **** REMOVE LIQUIDITY ****
+    // REMOVE LIQUIDITY
     function removeLiquidity(
         address tokenA,
         address tokenB,
@@ -88,7 +88,7 @@ contract HyperIndexRouter {
         uint256 deadline
     ) public ensure(deadline) returns (uint256 amountA, uint256 amountB) {
         address pair = HyperIndexLibrary.pairFor(factory, tokenA, tokenB);
-        IHyperIndexPair(pair).transferFrom(msg.sender, pair, liquidity);
+        IERC20(pair).transferFrom(msg.sender, pair, liquidity);
         (uint256 amount0, uint256 amount1) = IHyperIndexPair(pair).burn(to);
         (address token0,) = HyperIndexLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
@@ -118,7 +118,7 @@ contract HyperIndexRouter {
         payable(to).transfer(amountHYPE);
     }
     
-    // **** SWAP ****
+    // SWAP
     function swapExactTokensForTokens(
         uint256 amountIn,
         uint256 amountOutMin,
@@ -210,13 +210,12 @@ contract HyperIndexRouter {
         assert(IWHYPE(WHYPE).transfer(HyperIndexLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
         
-        // Refund excess HYPE
         if (msg.value > amounts[0]) {
             payable(msg.sender).transfer(msg.value - amounts[0]);
         }
     }
     
-    // **** LIBRARY FUNCTIONS ****
+    // LIBRARY FUNCTIONS
     function quote(uint256 amountA, uint256 reserveA, uint256 reserveB) 
         public pure returns (uint256 amountB) 
     {
@@ -247,7 +246,7 @@ contract HyperIndexRouter {
         return HyperIndexLibrary.getAmountsIn(factory, amountOut, path);
     }
     
-    // **** INTERNAL FUNCTIONS ****
+    // INTERNAL FUNCTIONS
     function _addLiquidity(
         address tokenA,
         address tokenB,
@@ -256,7 +255,6 @@ contract HyperIndexRouter {
         uint256 amountAMin,
         uint256 amountBMin
     ) internal returns (uint256 amountA, uint256 amountB) {
-        // Create the pair if it doesn't exist yet
         if (IHyperIndexFactory(factory).getPair(tokenA, tokenB) == address(0)) {
             IHyperIndexFactory(factory).createPair(tokenA, tokenB);
         }
@@ -292,7 +290,6 @@ contract HyperIndexRouter {
     }
 }
 
-// Interfaces
 interface IWHYPE {
     function deposit() external payable;
     function transfer(address to, uint256 value) external returns (bool);

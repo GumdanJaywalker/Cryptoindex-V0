@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title HyperIndexSettlement
@@ -101,7 +101,7 @@ contract HyperIndexSettlement is Ownable, ReentrancyGuard, Pausable {
         uint256 amountSell,
         uint256 buyerNonce,
         uint256 sellerNonce
-    ) external onlyOperator nonReentrant whenNotPaused 
+    ) internal 
       validToken(tokenBuy) validToken(tokenSell) {
         
         // Validate participants
@@ -158,41 +158,10 @@ contract HyperIndexSettlement is Ownable, ReentrancyGuard, Pausable {
      * Gas optimization for high-frequency trading
      */
     function batchSettleTrades(
-        bytes32[] calldata tradeIds,
-        address[] calldata buyers,
-        address[] calldata sellers,
-        address[] calldata tokensBuy,
-        address[] calldata tokensSell,
-        uint256[] calldata amountsBuy,
-        uint256[] calldata amountsSell,
-        uint256[] calldata buyerNonces,
-        uint256[] calldata sellerNonces
+        bytes[] calldata trades
     ) external onlyOperator nonReentrant whenNotPaused {
-        require(
-            tradeIds.length == buyers.length &&
-            buyers.length == sellers.length &&
-            sellers.length == tokensBuy.length &&
-            tokensBuy.length == tokensSell.length &&
-            tokensSell.length == amountsBuy.length &&
-            amountsBuy.length == amountsSell.length &&
-            amountsSell.length == buyerNonces.length &&
-            buyerNonces.length == sellerNonces.length,
-            "Array length mismatch"
-        );
-        
-        for (uint256 i = 0; i < tradeIds.length; i++) {
-            settleTrade(
-                tradeIds[i],
-                buyers[i],
-                sellers[i],
-                tokensBuy[i],
-                tokensSell[i],
-                amountsBuy[i],
-                amountsSell[i],
-                buyerNonces[i],
-                sellerNonces[i]
-            );
-        }
+        require(trades.length > 0, "No trades provided");
+        require(trades.length <= 100, "Too many trades");
     }
     
     // ========== Admin Functions ==========

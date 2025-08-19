@@ -28,6 +28,8 @@ interface PerformanceMetrics {
 }
 
 export class UltraPerformanceOrderbook extends EventEmitter {
+  private static instance: UltraPerformanceOrderbook;
+  
   private redis: Redis;
   private pipeline: Redis.Pipeline | null = null;
   private batchQueue: BatchOperation[] = [];
@@ -57,22 +59,23 @@ export class UltraPerformanceOrderbook extends EventEmitter {
     local remaining = order_amount
     
     -- Get matching orders
-    local matches
+    local matches = {}
     if order_side == 'buy' then
-      matches = redis.call('ZRANGEBYSCORE', opposite_key, '-inf', order_price, 'WITHSCORES', 'LIMIT', 0, 100)
+      matches = redis.call('ZRANGEBYSCORE', opposite_key, '-inf', order_price, 'WITHSCORES', 'LIMIT', 0, 100) or {}
     else
-      matches = redis.call('ZREVRANGEBYSCORE', opposite_key, order_price, '+inf', 'WITHSCORES', 'LIMIT', 0, 100)
+      matches = redis.call('ZREVRANGEBYSCORE', opposite_key, order_price, '+inf', 'WITHSCORES', 'LIMIT', 0, 100) or {}
     end
     
     -- Process matches atomically
-    for i = 1, #matches, 2 do
-      if remaining <= 0 then break end
-      
-      local match_id = matches[i]
-      local match_price = tonumber(matches[i + 1])
-      local match_data = redis.call('HGETALL', 'order:' .. match_id)
-      
-      if #match_data > 0 then
+    if matches and type(matches) == "table" then
+        for i = 1, #matches, 2 do
+        if remaining <= 0 then break end
+        
+        local match_id = matches[i]
+        local match_price = tonumber(matches[i + 1])
+        local match_data = redis.call('HGETALL', 'order:' .. match_id)
+        
+        if match_data and #match_data > 0 then
         local match_amount = tonumber(match_data[6])
         local trade_amount = math.min(remaining, match_amount)
         
@@ -97,6 +100,7 @@ export class UltraPerformanceOrderbook extends EventEmitter {
           -- Update partial fill
           redis.call('HSET', 'order:' .. match_id, 'amount', match_amount)
         end
+        end
       end
     end
     
@@ -119,11 +123,12 @@ export class UltraPerformanceOrderbook extends EventEmitter {
     })
   `;
 
-  constructor() {
+  private constructor() {
     super();
     this.redis = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD || 'hyperindex_secure_password',
       enableReadyCheck: true,
       enableOfflineQueue: false,
       lazyConnect: false,
@@ -417,6 +422,16 @@ export class UltraPerformanceOrderbook extends EventEmitter {
       ...this.metrics,
       tps: this.calculateTPS()
     };
+  }
+
+  /**
+   * Get singleton instance of UltraPerformanceOrderbook
+   */
+  public static getInstance(): UltraPerformanceOrderbook {
+    if (!UltraPerformanceOrderbook.instance) {
+      UltraPerformanceOrderbook.instance = new UltraPerformanceOrderbook();
+    }
+    return UltraPerformanceOrderbook.instance;
   }
 
   /**

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -112,7 +112,7 @@ contract HyperEVMSequencerNetwork is ReentrancyGuard, Ownable {
     
     // ==================== CONSTRUCTOR ====================
     
-    constructor(address _hypeToken) {
+    constructor(address _hypeToken) Ownable(msg.sender) {
         HYPE_TOKEN = IERC20(_hypeToken);
         rotation.blockDuration = ROTATION_BLOCKS;
         rotation.currentEpoch = block.number;

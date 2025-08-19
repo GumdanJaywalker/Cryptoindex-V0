@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MatchingEngine } from '@/lib/orderbook/matching-engine';
+import { ParallelMatchingEngine } from '@/lib/orderbook/parallel-matching-engine';
 
 // GET /api/trading/v1/orderbook - 오더북 조회
 export async function GET(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 오더북 조회
-    const matchingEngine = MatchingEngine.getInstance();
+    const matchingEngine = ParallelMatchingEngine.getInstance();
     const orderbook = await matchingEngine.getOrderbook(pair, depth);
 
     // Calculate spread
