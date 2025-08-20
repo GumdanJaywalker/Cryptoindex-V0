@@ -24,7 +24,13 @@
     "test:blocks": "hardhat run scripts/test-block-monitor.js --network hypervm-testnet",
     "test:routing": "echo 'Routing tests not implemented yet'",
     "test:security": "echo 'Security tests not implemented yet'",
-    "test:all": "npm run test:setup && npm run test:simple"
+    "test:all": "npm run test:setup && npm run test:simple",
+    "hooats:start": "docker-compose -f docker-compose.hooats.yml up -d",
+    "hooats:stop": "docker-compose -f docker-compose.hooats.yml down",
+    "hooats:logs": "docker-compose -f docker-compose.hooats.yml logs -f hooats-api",
+    "hooats:restart": "npm run hooats:stop && npm run hooats:start",
+    "hooats:test": "API_BASE_URL=http://localhost:3000/api hardhat run scripts/test-hooats-existing.js --network hypervm-testnet",
+    "hooats:dev": "node standalone-api.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",
@@ -73,11 +79,13 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "cobe": "^0.6.4",
+    "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "date-fns": "4.1.0",
     "dotenv": "^17.2.1",
     "embla-carousel-react": "8.5.1",
     "ethers": "^6.13.2",
+    "express": "^5.1.0",
     "framer-motion": "^12.23.6",
     "input-otp": "1.4.1",
     "ioredis": "^5.7.0",
@@ -108,6 +116,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
     "@types/crypto-js": "^4.2.2",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^22",
@@ -117,6 +126,7 @@
     "hardhat": "^3.0.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

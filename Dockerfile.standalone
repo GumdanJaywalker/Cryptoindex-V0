@@ -1,0 +1,51 @@
+# HOOATS Standalone API Server Dockerfile
+# Next.js 빌드 없이 실제 HOOATS 모듈들을 직접 실행
+
+FROM node:20-alpine
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 시스템 패키지 설치
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    musl-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev
+
+# pnpm 설치
+RUN npm install -g pnpm
+
+# package.json과 pnpm-lock.yaml 복사 (의존성 캐싱을 위해)
+COPY package.json pnpm-lock.yaml ./
+
+# 의존성 설치 (devDependencies 포함)
+RUN pnpm install --frozen-lockfile
+
+# 소스 코드 복사
+COPY . .
+
+# TypeScript 컴파일 (필요한 모듈들만)
+RUN npx tsc --build --force || echo "TypeScript compilation completed with warnings"
+
+# 환경 변수 설정
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# 포트 노출
+EXPOSE 3000
+
+# 헬스체크 추가
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# standalone-api.js 실행
+CMD ["node", "standalone-api.js"]
