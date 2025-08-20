@@ -9,8 +9,8 @@
  * 4. 무한루프 및 모든 엣지케이스 방지
  */
 
-import { HyperVMAMM } from '@/lib/blockchain/hypervm-amm';
-import { UltraPerformanceOrderbook } from '@/lib/orderbook/ultra-performance-orderbook';
+import { HyperVMAMM } from '../blockchain/hypervm-amm';
+import { UltraPerformanceOrderbook } from '../orderbook/ultra-performance-orderbook';
 
 export interface Order {
   id: string;
@@ -67,13 +67,13 @@ export class HybridSmartRouterV2 {
   private readonly MAX_AMM_CHUNK_SIZE = 1000; // 최대 AMM 청크 크기 (슬리피지 방지)
 
   private constructor() {
-    // HyperVMAMM requires configuration - will be initialized when needed
-    this.amm = new HyperVMAMM('wss://testnet.hyperliquid.xyz', {
-      router: process.env.HYPEREVM_ROUTER_ADDRESS || '',
-      factory: process.env.HYPEREVM_FACTORY_ADDRESS || '',
-      hyperIndex: process.env.HYPERINDEX_TOKEN_ADDRESS || '',
-      usdc: process.env.USDC_TOKEN_ADDRESS || '',
-      pair: process.env.HYPERINDEX_USDC_PAIR_ADDRESS || ''
+    // HyperVMAMM with Real Deployed Contracts (2025-08-12)
+    this.amm = new HyperVMAMM('https://rpc.hyperliquid-testnet.xyz/evm', {
+      router: process.env.HYPEREVM_ROUTER_ADDRESS || '0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A',
+      factory: process.env.HYPEREVM_FACTORY_ADDRESS || '0x73bF19534DA1c60772E40136A4e5E77921b7a632',
+      hyperIndex: process.env.HYPERINDEX_TOKEN_ADDRESS || '0x6065Ab1ec8334ab6099aF27aF145411902EAef40',
+      usdc: process.env.USDC_TOKEN_ADDRESS || '0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3',
+      pair: process.env.HYPERINDEX_USDC_PAIR_ADDRESS || '0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1'
     });
     this.matchingEngine = UltraPerformanceOrderbook.getInstance();
   }
@@ -697,7 +697,7 @@ export class HybridSmartRouterV2 {
   private async recordTrade(fill: Fill, swapResult?: any, userId?: string): Promise<void> {
     try {
       // V2: Redis 저장을 위해 RedisOrderbook에 직접 접근
-      const { RedisOrderbook } = await import('@/lib/orderbook/redis-orderbook');
+      const { RedisOrderbook } = await import('../orderbook/redis-orderbook');
       const redisOrderbook = new RedisOrderbook();
       
       await redisOrderbook.saveTrade('HYPERINDEX-USDC', {

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-20T07:35:13.672Z",
+  "mode": "lua-script-performance",
+  "tests": [
+    {
+      "name": "Lua Script Basic Operation",
+      "status": "passed",
+      "duration": 13,
+      "error": null,
+      "data": {
+        "executionTime": 11,
+        "success": false
+      }
+    },
+    {
+      "name": "HOOATS Lua Script Integration",
+      "status": "passed",
+      "duration": 77,
+      "error": null,
+      "data": {
+        "redisConnected": true,
+        "redisMode": "redis",
+        "orderExecutionTime": 5,
+        "orderSuccess": true,
+        "totalFilled": "2000",
+        "luaScriptsActive": true
+      }
+    },
+    {
+      "name": "Lua vs JavaScript Performance",
+      "status": "passed",
+      "duration": 57,
+      "error": null,
+      "data": {
+        "iterations": 50,
+        "lua": {
+          "totalTime": 30,
+          "averageTime": 0.6,
+          "minTime": 0,
+          "maxTime": 1
+        },
+        "javascript": {
+          "totalTime": 27,
+          "averageTime": 0.54,
+          "minTime": 0,
+          "maxTime": 1
+        },
+        "performanceRatio": "0.90",
+        "winner": "JavaScript"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

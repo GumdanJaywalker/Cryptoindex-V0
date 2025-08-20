@@ -1,0 +1,175 @@
+{
+  "timestamp": "2025-08-20T07:38:31.295Z",
+  "mode": "real-contracts-integration",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "Health Check (Real Contracts)",
+      "status": "passed",
+      "duration": 109,
+      "error": null,
+      "data": {
+        "status": "healthy",
+        "mode": "real-hooats",
+        "services": {
+          "redis": {
+            "status": "connected"
+          },
+          "orderbook": {
+            "status": "active",
+            "tps": 15810,
+            "latency_p50": 3.462182945999066
+          }
+        },
+        "contractsConnected": true
+      }
+    },
+    {
+      "name": "Redis Connectivity (Real System)",
+      "status": "passed",
+      "duration": 2,
+      "error": null,
+      "data": {
+        "connected": true,
+        "mode": "redis",
+        "queueUtilization": 0.7110347853406334,
+        "shardCount": 8,
+        "metrics": {
+          "tps": 12898,
+          "latency": {
+            "p50": 2.4790308336316063
+          },
+          "queueUtilization": 0.7110347853406334,
+          "shards": [
+            {
+              "id": 0,
+              "load": 0.4289470789685066
+            },
+            {
+              "id": 1,
+              "load": 0.8694721985910701
+            },
+            {
+              "id": 2,
+              "load": 0.31931470469136114
+            },
+            {
+              "id": 3,
+              "load": 0.4692450720087271
+            },
+            {
+              "id": 4,
+              "load": 0.0015082554821692629
+            },
+            {
+              "id": 5,
+              "load": 0.33527900911268027
+            },
+            {
+              "id": 6,
+              "load": 0.8229700955998978
+            },
+            {
+              "id": 7,
+              "load": 0.7638482176430323
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Real AMM Price Quoting",
+      "status": "passed",
+      "duration": 3,
+      "error": null,
+      "data": {
+        "success": true,
+        "orderId": "12535680-939c-4cac-86fd-239033efffeb",
+        "totalFilled": "5000",
+        "averagePrice": "1.041436",
+        "totalChunks": 6,
+        "ammChunks": 2,
+        "orderbookChunks": 4,
+        "contractAddresses": {
+          "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+          "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+          "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+          "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+          "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+          "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+        },
+        "executionMode": "real-hooats"
+      }
+    },
+    {
+      "name": "Limit Order (Real Contracts)",
+      "status": "passed",
+      "duration": 5,
+      "error": null,
+      "data": {
+        "success": true,
+        "orderId": "f41f765b-f3c4-4ea9-9905-77753214bf4c",
+        "status": "filled",
+        "pair": "HYPERINDEX-USDC",
+        "side": "sell",
+        "type": "limit",
+        "amount": "1000",
+        "price": "1.25",
+        "contractsUsed": {
+          "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+          "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+          "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+          "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+          "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+          "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+        }
+      }
+    },
+    {
+      "name": "Orderbook (Real Data)",
+      "status": "passed",
+      "duration": 3,
+      "error": null,
+      "data": {
+        "success": true,
+        "pair": "HYPERINDEX-USDC",
+        "bidsCount": 10,
+        "asksCount": 10,
+        "spread": {
+          "absolute": "0.000200000",
+          "percent": "0.0200"
+        },
+        "mode": "real-hooats",
+        "lastUpdate": 1755675511418
+      }
+    },
+    {
+      "name": "Market Data (Real Contracts)",
+      "status": "passed",
+      "duration": 2,
+      "error": null,
+      "data": {
+        "success": true,
+        "pair": "HYPERINDEX-USDC",
+        "price": "1.004867",
+        "volume24h": "117691.95",
+        "change24h": "-0.04%",
+        "high24h": "1.001690",
+        "low24h": "0.992019",
+        "mode": "real-hooats"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

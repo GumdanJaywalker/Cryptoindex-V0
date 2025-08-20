@@ -1,0 +1,135 @@
+{
+  "timestamp": "2025-08-20T07:36:54.069Z",
+  "mode": "mev-security-test",
+  "tests": [
+    {
+      "name": "Sandwich Attack Detection",
+      "status": "passed",
+      "duration": 791,
+      "error": null,
+      "data": {
+        "totalAttacks": 3,
+        "detectedAttacks": 0,
+        "detectionRate": "0.0%",
+        "securityLevel": "low",
+        "attackResults": [
+          {
+            "attackType": "frontrun",
+            "orderId": "8b15307c-7a9f-4f65-9760-67f3ceeb6821"
+          },
+          {
+            "attackType": "victim",
+            "orderId": "99f8cb28-4e0f-4ac6-8454-183b9a6c9ca6"
+          },
+          {
+            "attackType": "backrun",
+            "orderId": "9247ccc2-9314-4737-accb-f8ef4b8221ef"
+          }
+        ],
+        "recommendation": "Improve MEV detection algorithms"
+      },
+      "securityLevel": "low"
+    },
+    {
+      "name": "SecureTPSEngine Validation",
+      "status": "passed",
+      "duration": 90,
+      "error": null,
+      "data": {
+        "totalOrders": 10,
+        "successfulOrders": 10,
+        "blockedOrders": 0,
+        "blockRate": "0.0%",
+        "executionTime": 89,
+        "estimatedTPS": "112.4",
+        "securityLevel": "low",
+        "spamResults": [
+          {
+            "index": 0,
+            "success": true,
+            "orderId": "a77b4219-26be-436a-bedf-c0a5499645aa"
+          },
+          {
+            "index": 1,
+            "success": true,
+            "orderId": "c1977016-9f13-4c34-81c0-3787eaaac3ea"
+          },
+          {
+            "index": 2,
+            "success": true,
+            "orderId": "31e2ec67-cb21-44ec-b96c-8d5118d7be37"
+          },
+          {
+            "index": 3,
+            "success": true,
+            "orderId": "cc52a953-96ed-4ced-991e-8c39efc25b70"
+          },
+          {
+            "index": 4,
+            "success": true,
+            "orderId": "d6c6441c-3706-4230-9cd4-292396078dec"
+          },
+          {
+            "index": 5,
+            "success": true,
+            "orderId": "18ae8439-3ee6-417f-8ad4-005f496ff7f7"
+          },
+          {
+            "index": 6,
+            "success": true,
+            "orderId": "180faa00-948c-4313-859a-77adb2b28070"
+          },
+          {
+            "index": 7,
+            "success": true,
+            "orderId": "63bcf071-368e-4151-bb84-0a5afb154e2d"
+          },
+          {
+            "index": 8,
+            "success": true,
+            "orderId": "9634d32f-c814-48e2-8ba5-f72e32fca47b"
+          },
+          {
+            "index": 9,
+            "success": true,
+            "orderId": "04f4ee57-464d-463b-8d38-a562621a8946"
+          }
+        ],
+        "tpsEngineActive": false,
+        "recommendation": "Strengthen rate limiting"
+      },
+      "securityLevel": "low"
+    },
+    {
+      "name": "Cross-System Validation",
+      "status": "passed",
+      "duration": 515,
+      "error": null,
+      "data": {
+        "validations": {
+          "orderSubmission": true,
+          "orderbookConsistency": true,
+          "marketDataConsistency": true,
+          "dataIntegrity": true
+        },
+        "validationRate": "100.0%",
+        "securityLevel": "high",
+        "orderResult": {
+          "success": true,
+          "orderId": "071ad16a-d38b-4e33-a0a2-94d9b9c10f0e",
+          "filled": "500"
+        },
+        "systemConsistency": "consistent"
+      },
+      "securityLevel": "high"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3
+  },
+  "securityMetrics": {
+    "overallScore": 55.55555555555556
+  }
+}

@@ -286,23 +286,28 @@ class MockAsyncDBWriter {
 // =============================================================================
 
 async function initializeRedis() {
+  console.log('🔄 Attempting Redis connection...');
   const redisConfig = {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD,
+    password: process.env.REDIS_PASSWORD || 'hyperindex_secure_password',
     retryDelayOnFailover: 100,
     maxRetriesPerRequest: 3,
     lazyConnect: true
   };
 
+  console.log('🔧 Redis config:', { ...redisConfig, password: '***' });
+  
   redisClient = new Redis(redisConfig);
   
   try {
+    console.log('🔍 Testing Redis ping...');
     await redisClient.ping();
     console.log('✅ Redis connection established');
     return true;
   } catch (error) {
     console.warn('⚠️ Redis connection failed, using mock data:', error.message);
+    console.warn('⚠️ Error details:', error);
     redisClient = null;
     return false;
   }
