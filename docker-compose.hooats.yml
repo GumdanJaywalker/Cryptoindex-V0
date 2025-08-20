@@ -68,7 +68,7 @@ services:
     volumes:
       # 개발시 코드 변경사항을 실시간 반영 (선택사항)
       - ./lib:/app/lib
-      - ./standalone-api.js:/app/standalone-api.js
+      - ./standalone-api-mock.cjs:/app/standalone-api-mock.cjs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s

@@ -2,6 +2,7 @@
   "name": "cryptoindex",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -30,7 +31,9 @@
     "hooats:logs": "docker-compose -f docker-compose.hooats.yml logs -f hooats-api",
     "hooats:restart": "npm run hooats:stop && npm run hooats:start",
     "hooats:test": "API_BASE_URL=http://localhost:3000/api hardhat run scripts/test-hooats-existing.js --network hypervm-testnet",
-    "hooats:dev": "node standalone-api.js"
+    "hooats:dev": "node standalone-api-mock.cjs",
+    "hooats:dev-ts": "ts-node --esm --project tsconfig.standalone.json standalone-api-fixed.ts",
+    "hooats:dev-legacy": "node standalone-api.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",
