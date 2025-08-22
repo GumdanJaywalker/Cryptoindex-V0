@@ -34,11 +34,16 @@ export function WalletConnectButton({
 
   // Update connection state based on Privy status
   useEffect(() => {
+    console.log('Privy Status:', { ready, authenticated, user: !!user });
+    
     if (!ready) {
-      setConnectionState(WalletConnectionState.CONNECTING);
+      // Privy is initializing, show disconnected state instead of connecting
+      setConnectionState(WalletConnectionState.DISCONNECTED);
     } else if (authenticated && user) {
+      console.log('User authenticated successfully');
       setConnectionState(WalletConnectionState.CONNECTED);
     } else {
+      console.log('User not authenticated or ready');
       setConnectionState(WalletConnectionState.DISCONNECTED);
     }
   }, [ready, authenticated, user]);
@@ -75,6 +80,7 @@ export function WalletConnectButton({
     try {
       setConnectionState(WalletConnectionState.CONNECTING);
       await login();
+      // Don't manually set state here - let useEffect handle it
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       setConnectionState(WalletConnectionState.ERROR);
@@ -112,13 +118,16 @@ export function WalletConnectButton({
         );
 
       case WalletConnectionState.CONNECTED:
+        const walletAddress = getWalletAddress();
         return (
           <div className="relative flex items-center gap-2">
             <div className="relative">
               <CheckCircle className="w-4 h-4 text-green-400" />
               <div className="absolute inset-0 rounded-full bg-green-400/20 animate-pulse" />
             </div>
-            <span className="font-medium">Wallet Connected</span>
+            <span className="font-medium">
+              {walletAddress ? formatAddress(walletAddress) : 'Connected'}
+            </span>
             <ChevronDown className="w-3 h-3 opacity-60 hover:opacity-100 transition-opacity" />
           </div>
         );
@@ -217,8 +226,7 @@ export function WalletConnectButton({
           
           {/* Shimmer effect for connecting state */}
           {connectionState === WalletConnectionState.CONNECTING && (
-            <div className="absolute inset-0 -top-1 -bottom-1 bg-gradient-to-r from-transparent via-white/20 to-transparent 
-                           animate-shimmer bg-[length:200%_100%] rounded-md" />
+            <div className="absolute inset-0 -top-1 -bottom-1 bg-slate-700/30 rounded-md" />
           )}
           
           {/* Content */}

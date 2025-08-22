@@ -27,7 +27,17 @@
       "Bash(node:*)",
       "Bash(grep:*)",
       "Bash(pkill:*)",
-      "mcp___magicuidesign_mcp__getUIComponents"
+      "mcp___magicuidesign_mcp__getUIComponents",
+      "Bash(cp:*)",
+      "Bash(pnpm store prune:*)",
+      "Bash(true)",
+      "Bash(mv:*)",
+      "Bash(sudo rm:*)",
+      "mcp__puppeteer__puppeteer_navigate",
+      "mcp__puppeteer__puppeteer_screenshot",
+      "mcp__puppeteer__puppeteer_click",
+      "mcp__puppeteer__puppeteer_evaluate",
+      "mcp__puppeteer__puppeteer_hover"
     ],
     "deny": []
   },
