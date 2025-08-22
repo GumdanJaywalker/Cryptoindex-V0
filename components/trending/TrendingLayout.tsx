@@ -14,7 +14,7 @@ export function TrendingLayout() {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <div className="container mx-auto px-6 py-8">
+      <div className="px-6 py-8">
         {/* 상단 필터 바 */}
         <FilterBar filters={filters} onFiltersChange={setFilters} />
         

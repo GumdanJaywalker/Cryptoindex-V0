@@ -10,14 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { 
   ArrowRight, 
-  Zap,
-  Users,
-  Crown,
-  Activity,
-  BarChart3,
-  Copy,
-  ExternalLink,
-  TrendingUp
+  ExternalLink
 } from 'lucide-react'
 
 // Import mock data and types
@@ -25,6 +18,7 @@ import { allMockIndices, mockTopTraders, mockMarketStats } from '@/lib/data/mock
 import { MemeIndex, TopTrader, TraderFilter } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
 import { AnimatedBackground } from '@/components/ui/animated-background'
+import { Header } from '@/components/layout/header'
 
 // Dynamic imports for performance optimization - load after scroll
 const TrendingIndices = dynamic(() => import('@/components/trading/trending-indices'), {
@@ -161,58 +155,11 @@ export default function Home() {
         size={6}
       /> */}
       
-      {/* Hero Stats Bar - hidden on mobile (shown in MobileStatusBar) */}
-      <div className="bg-slate-900/30 border-b border-slate-800 hidden md:block relative z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              {/* HyperIndex Logo */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-black" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-white">HyperIndex</h1>
-                  <p className="text-xs text-slate-400">Hyper Network</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-slate-400">24h Volume:</span>
-                <span className="text-sm font-semibold text-white">
-                  ${(mockMarketStats.totalVolume24h / 1000000).toFixed(1)}M
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-slate-400">Active Traders:</span>
-                <span className="text-sm font-semibold text-white">
-                  {mockMarketStats.activeTraders.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-slate-400">Total TVL:</span>
-                <span className="text-sm font-semibold text-white">
-                  ${(mockMarketStats.totalTVL / 1000000000).toFixed(2)}B
-                </span>
-              </div>
-            </div>
-            <Link href="/trading">
-              <Button 
-                className="bg-brand text-black hover:bg-brand-hover cursor-pointer"
-                type="button"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Start Trading
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* Unified Header */}
+      <Header />
       
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-6 py-8 pt-20">
         <div className="grid lg:grid-cols-[1fr_400px] gap-8">
           
           {/* Left Side - Trending Indices (70%) */}
@@ -266,10 +213,6 @@ export default function Home() {
                 </Link>
                 <Link href="/governance" className="flex items-center justify-between text-sm text-slate-400 hover:text-white transition-colors">
                   <span>Governance</span>
-                  <ExternalLink className="w-3 h-3" />
-                </Link>
-                <Link href="/vaults" className="flex items-center justify-between text-sm text-slate-400 hover:text-white transition-colors">
-                  <span>Trading Vaults</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>

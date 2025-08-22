@@ -16,7 +16,6 @@ const navigation = [
   { name: 'Trading', href: '/trading' },
   { name: 'Trending', href: '/trending' },
   { name: 'Governance', href: '/governance' },
-  { name: 'Vaults', href: '/vaults' },
   { name: 'Portfolio', href: '/portfolio' },
 ]
 
