@@ -30,10 +30,11 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
   const [config, setConfig] = useState(soundManager.getConfig())
   const [testingSound, setTestingSound] = useState<SoundType | null>(null)
 
-  // Update config when sound manager changes
+  // Update config when sound manager changes - removed soundManager dependency to prevent infinite loop
   useEffect(() => {
-    setConfig(soundManager.getConfig())
-  }, [soundManager])
+    const currentConfig = soundManager.getConfig()
+    setConfig(currentConfig)
+  }, []) // Empty dependency array to run only once on mount
 
   const handleVolumeChange = (value: number[]) => {
     const volume = value[0] / 100

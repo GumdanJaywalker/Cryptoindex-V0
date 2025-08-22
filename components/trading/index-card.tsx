@@ -258,7 +258,7 @@ const IndexCard = memo(function IndexCard({
     borderColor: isPositive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
   }), [isPositive])
 
-  const handleTrade = useCallback((type: 'buy' | 'short', amount: number, leverage: number) => {
+  const handleTrade = useCallback((type: 'buy' | 'sell', amount: number, leverage: number) => {
     // 거래 로직 구현
     console.log(`${type} ${index.symbol} - Amount: $${amount}, Leverage: ${leverage}x`)
     onSelect(index) // 인덱스 선택하여 거래 페이지로 이동

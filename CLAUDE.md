@@ -64,7 +64,6 @@ pnpm run dev
   /governance                 # 거버넌스 투표 페이지
   /portfolio                  # 포트폴리오 관리
   /trending                   # 인기 인덱스
-  /vaults                     # 카피 트레이딩
   /bridge                     # 브릿지
   layout.tsx                  # 공통 레이아웃
 
@@ -215,7 +214,7 @@ export function Component({ ...props }: ComponentProps) {
 ### 🔥 3순위: 기타 페이지 완성
 - **Governance**: 투표 시스템 구현
 - **Portfolio**: 자산 관리 대시보드  
-- **Trending/Vaults/Bridge**: 기본 UI/UX 구현
+- **Trending/Bridge**: 기본 UI/UX 구현
 
 ## 🎨 새로운 개발 방식
 

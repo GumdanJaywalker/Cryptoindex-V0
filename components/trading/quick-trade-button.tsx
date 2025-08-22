@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils'
 
 interface QuickTradeButtonProps {
   index: MemeIndex
-  onTrade: (type: 'buy' | 'short', amount: number, leverage: number) => void
+  onTrade: (type: 'buy' | 'sell', amount: number, leverage: number) => void
   className?: string
   variant?: 'default' | 'compact'
   showExpectedReturn?: boolean
@@ -39,12 +39,12 @@ interface TradeCalculation {
   netReturn: number
 }
 
-// 거래 계산 유틸리티
+// 현물 거래 계산 유틸리티
 function calculateTrade(
-  type: 'buy' | 'short',
+  type: 'buy' | 'sell',
   currentPrice: number,
   amount: number,
-  leverage: number,
+  leverage: number, // 현물에서는 사용되지 않음 (호환성 유지)
   priceChange: number
 ): TradeCalculation {
   const entryPrice = currentPrice
@@ -52,24 +52,24 @@ function calculateTrade(
     ? currentPrice * (1 + priceChange) 
     : currentPrice * (1 - Math.abs(priceChange))
   
-  const positionSize = amount * leverage
+  // 현물 거래에서는 레버리지 없이 실제 투자금액만 사용
+  const positionSize = amount
   const grossReturn = type === 'buy'
     ? (exitPrice - entryPrice) / entryPrice * positionSize
     : (entryPrice - exitPrice) / entryPrice * positionSize
   
-  const fees = positionSize * 0.001 // 0.1% trading fee
+  const fees = positionSize * 0.005 // 0.5% trading fee (현물 거래 수수료)
   const netReturn = grossReturn - fees
   const returnPercentage = (netReturn / amount) * 100
   
-  const liquidationPrice = type === 'buy'
-    ? entryPrice * (1 - 1/leverage * 0.9) // 90% of margin
-    : entryPrice * (1 + 1/leverage * 0.9)
+  // 현물에서는 청산가격이 없으므로 0으로 설정
+  const liquidationPrice = 0
   
   return {
     entryPrice,
     exitPrice,
     amount,
-    leverage,
+    leverage: 1, // 현물은 항상 1x
     expectedReturn: netReturn,
     expectedReturnPercentage: returnPercentage,
     liquidationPrice,
@@ -86,7 +86,7 @@ function PortalTooltip({
   targetRef
 }: { 
   calculation: TradeCalculation
-  type: 'buy' | 'short'
+  type: 'buy' | 'sell'
   show: boolean
   targetRef: React.RefObject<HTMLElement>
 }) {
@@ -192,19 +192,19 @@ export function QuickTradeButton({
   showExpectedReturn = true
 }: QuickTradeButtonProps) {
   const soundManager = useSoundManager()
-  const [hoveredButton, setHoveredButton] = useState<'buy' | 'short' | null>(null)
+  const [hoveredButton, setHoveredButton] = useState<'buy' | 'sell' | null>(null)
   const [defaultAmount] = useState(100) // $100 기본값
   const [defaultLeverage] = useState(5) // 5x 레버리지 기본값
   
   // Portal 툴팁을 위한 ref들
   const buyButtonRef = useRef<HTMLButtonElement>(null)
-  const shortButtonRef = useRef<HTMLButtonElement>(null)
+  const sellButtonRef = useRef<HTMLButtonElement>(null)
   
   // 예상 수익 계산
   const buyCalculation = calculateTrade('buy', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // 10% 상승 가정
-  const shortCalculation = calculateTrade('short', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // 10% 하락 가정
+  const sellCalculation = calculateTrade('sell', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // 10% 하락 가정
   
-  const handleTrade = (type: 'buy' | 'short', e: React.MouseEvent) => {
+  const handleTrade = (type: 'buy' | 'sell', e: React.MouseEvent) => {
     e.stopPropagation()
     
     // Play trade sound
@@ -237,7 +237,7 @@ export function QuickTradeButton({
           size="sm" 
           variant="outline" 
           className="flex-1 border-red-600 text-red-400 hover:bg-red-600 hover:text-white text-xs h-6 px-2 relative overflow-hidden group"
-          onClick={(e) => handleTrade('short', e)}
+          onClick={(e) => handleTrade('sell', e)}
         >
           <motion.div
             className="absolute inset-0 bg-red-600"
@@ -247,7 +247,7 @@ export function QuickTradeButton({
           />
           <span className="relative z-10 flex items-center gap-1">
             <TrendingDown className="w-2.5 h-2.5" />
-            Short
+            Sell
           </span>
         </Button>
       </div>
@@ -308,15 +308,15 @@ export function QuickTradeButton({
           )}
         </div>
 
-        {/* Short 버튼 */}
+        {/* Sell 버튼 */}
         <div className="relative">
           <Button
-            ref={shortButtonRef}
+            ref={sellButtonRef}
             size="sm"
             variant="outline"
             className="w-full border-red-600 text-red-400 hover:bg-red-600 hover:text-white text-xs h-8 relative overflow-hidden group"
-            onClick={(e) => handleTrade('short', e)}
-            onMouseEnter={() => setHoveredButton('short')}
+            onClick={(e) => handleTrade('sell', e)}
+            onMouseEnter={() => setHoveredButton('sell')}
             onMouseLeave={() => setHoveredButton(null)}
           >
             <motion.div
@@ -328,22 +328,22 @@ export function QuickTradeButton({
             
             <span className="relative z-10 flex items-center gap-1.5 justify-center">
               <TrendingDown className="w-3 h-3" />
-              <span className="font-semibold">Short</span>
+              <span className="font-semibold">Sell</span>
               {showExpectedReturn && (
                 <div className="text-xs opacity-80">
-                  +${shortCalculation.expectedReturn.toFixed(0)}
+                  +${sellCalculation.expectedReturn.toFixed(0)}
                 </div>
               )}
             </span>
           </Button>
           
-          {/* Short 툴팁 - Portal 기반 */}
+          {/* Sell 툴팁 - Portal 기반 */}
           {showExpectedReturn && (
             <PortalTooltip
-              calculation={shortCalculation}
-              type="short"
-              show={hoveredButton === 'short'}
-              targetRef={shortButtonRef}
+              calculation={sellCalculation}
+              type="sell"
+              show={hoveredButton === 'sell'}
+              targetRef={sellButtonRef}
             />
           )}
         </div>

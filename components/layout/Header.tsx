@@ -10,7 +10,6 @@ const navigation = [
   { name: 'Trading', href: '/trading' },
   { name: 'Trending', href: '/trending' },
   { name: 'Governance', href: '/governance' },
-  { name: 'Vaults', href: '/vaults' },
   { name: 'Portfolio', href: '/portfolio' },
 ]
 
@@ -19,7 +18,7 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50">
-      <div className="flex h-14 items-center justify-between px-4 max-w-7xl mx-auto">
+      <div className="flex h-14 items-center justify-between px-6">
         {/* Minimal Logo */}
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="relative">

@@ -22,7 +22,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
-import { IndexCard } from './index-card'
+import { IndexRow } from './index-row'
 import { cn } from '@/lib/utils'
 import { staggerContainer, fadeInUp } from '@/lib/animations/micro-interactions'
 
@@ -298,57 +298,44 @@ export function TrendingIndices({
         </div>
       )}
 
-      {/* Indices Grid */}
+      {/* Indices Table Header */}
+      <div className="bg-slate-900/30 border border-slate-800 rounded-t-lg">
+        <div className="flex items-center px-4 py-3 text-xs text-slate-400 font-medium">
+          <div className="w-8 text-center">#</div>
+          <div className="flex-1 min-w-0 flex items-center gap-3">
+            <div className="min-w-0 flex-1">Name</div>
+            <div className="w-20 text-center">Chart</div>
+          </div>
+          <div className="flex items-center gap-6 text-right">
+            <div className="w-24">Price</div>
+            <div className="w-20">24h%</div>
+            <div className="w-20">Volume</div>
+            <div className="w-20">MCap</div>
+            <div className="w-16">Actions</div>
+            <div className="w-8"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indices Rows */}
       <AnimatePresence mode="wait">
         {filteredIndices.length > 0 ? (
           <motion.div 
-            key={`indices-grid-${selectedFilter}-${sortBy}-${sortDirection}`}
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 overflow-visible"
+            key={`indices-rows-${selectedFilter}-${sortBy}-${sortDirection}`}
+            className="bg-slate-900/20 border border-t-0 border-slate-800 rounded-b-lg overflow-hidden"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
             exit="exit"
           >
             {filteredIndices.map((index, i) => (
-              <motion.div
+              <IndexRow
                 key={index.id}
-                variants={{
-                  initial: { 
-                    opacity: 0, 
-                    y: 30,
-                    scale: 0.8,
-                    rotateX: 15
-                  },
-                  animate: { 
-                    opacity: 1, 
-                    y: 0,
-                    scale: 1,
-                    rotateX: 0,
-                    transition: {
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 25,
-                      delay: i * 0.05
-                    }
-                  },
-                  exit: { 
-                    opacity: 0, 
-                    y: -20,
-                    scale: 0.9,
-                    transition: {
-                      duration: 0.2
-                    }
-                  }
-                }}
-                className="perspective-1000 overflow-visible relative"
-              >
-                <IndexCard 
-                  index={index} 
-                  onSelect={onIndexSelect}
-                  showQuickTrade={true}
-                  compact={false}
-                />
-              </motion.div>
+                index={index} 
+                onSelect={onIndexSelect}
+                rank={i + 1}
+                showQuickTrade={true}
+              />
             ))}
           </motion.div>
         ) : (
