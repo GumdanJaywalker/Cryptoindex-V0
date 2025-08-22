@@ -10,71 +10,103 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* 3D Transform utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
   
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  /* Animation utilities */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from { box-shadow: 0 0 5px rgba(139, 214, 255, 0.4); }
+    to { box-shadow: 0 0 20px rgba(139, 214, 255, 0.8); }
+  }
+
   /* 🎨 CryptoIndex Brand Color Utilities */
   .text-brand {
     color: hsl(var(--brand-primary));
   }
-  
+
   .text-brand-hover {
     color: hsl(var(--brand-primary-hover));
   }
-  
+
   .text-brand-light {
     color: hsl(var(--brand-primary-light));
   }
-  
+
   .text-brand-dark {
     color: hsl(var(--brand-primary-dark));
   }
-  
+
   .bg-brand {
     background-color: hsl(var(--brand-primary));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .bg-brand-hover {
     background-color: hsl(var(--brand-primary-hover));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .bg-brand-light {
     background-color: hsl(var(--brand-primary-light));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .bg-brand-dark {
     background-color: hsl(var(--brand-primary-dark));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .border-brand {
     border-color: hsl(var(--brand-primary));
   }
-  
+
   .border-brand-hover {
     border-color: hsl(var(--brand-primary-hover));
   }
-  
+
   .bg-brand-gradient {
     background: linear-gradient(135deg, hsl(var(--brand-gradient-start)), hsl(var(--brand-gradient-end)));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .hover\:bg-brand:hover {
     background-color: hsl(var(--brand-primary));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .hover\:bg-brand-hover:hover {
     background-color: hsl(var(--brand-primary-hover));
     color: #000000; /* 검은색 글씨 */
   }
-  
+
   .hover\:text-brand:hover {
     color: hsl(var(--brand-primary));
   }
-  
+
   .hover\:border-brand:hover {
     border-color: hsl(var(--brand-primary));
   }
@@ -115,7 +147,7 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
+
     /* 🎨 CryptoIndex Brand Colors - #8BD6FF Theme */
     --brand-primary: 195 100% 76%;        /* #8BD6FF */
     --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
@@ -159,7 +191,7 @@ body {
     --sidebar-accent-foreground: 222 84% 93%;
     --sidebar-border: 222 47% 12%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
+
     /* 🎨 CryptoIndex Brand Colors - #8BD6FF Theme */
     --brand-primary: 195 100% 76%;        /* #8BD6FF */
     --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
@@ -168,6 +200,12 @@ body {
     --brand-accent: 195 100% 76%;         /* Same as primary for consistency */
     --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
     --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
+  }
+  .theme {
+    --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+    --animate-pulse: pulse var(--duration) ease-out infinite;
+    --animate-meteor: meteor 5s linear infinite;
+    --animate-ripple: ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite;
   }
 }
 
@@ -179,8 +217,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
-<<<<<<< Updated upstream
-=======
 
 /* React Grid Layout Styles */
 .react-grid-layout {
@@ -473,4 +509,50 @@ body {
 .slider-sell::-moz-range-track {
   background: transparent;
   border: none;
+}
+
+@theme inline {
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+    }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+    }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+    }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+    }
+  }
+  @keyframes pulse {
+  0%, 100% {
+    boxShadow: 0 0 0 0 var(--pulse-color);
+    }
+  50% {
+    boxShadow: 0 0 0 8px var(--pulse-color);
+    }
+  }
+  @keyframes meteor {
+  0% {
+    transform: rotate(var(--angle)) translateX(0);
+    opacity: 1;
+    }
+  70% {
+    opacity: 1;
+    }
+  100% {
+    transform: rotate(var(--angle)) translateX(-500px);
+    opacity: 0;
+    }
+  }
+  @keyframes ripple {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    }
+  50% {
+    transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
 }
