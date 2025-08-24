@@ -5,6 +5,14 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { 
   AnimatedNumber, 
   AnimatedPercentage, 
   usePriceFlash, 
@@ -18,7 +26,11 @@ import {
   Flame,
   Star,
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  Building2,
+  Crown,
+  Zap,
+  Shield
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
@@ -29,6 +41,19 @@ interface IndexRowProps {
   rank?: number
   showQuickTrade?: boolean
   className?: string
+}
+
+// 썸네일 생성 함수
+const generateThumbnail = (indexName: string, symbol: string) => {
+  const colors = ['8BD6FF', '6BBDFF', '5AABEF', '4A9ADF']
+  const colorIndex = symbol.length % colors.length
+  const selectedColor = colors[colorIndex]
+  
+  return {
+    placeholder: `https://via.placeholder.com/40x40/${selectedColor}/FFFFFF?text=${symbol.slice(0,2)}`,
+    gradient: `bg-gradient-to-r from-[#${selectedColor}] to-brand-dark`,
+    fallback: symbol.slice(0, 2)
+  }
 }
 
 // Compact Sparkline for row layout
@@ -95,10 +120,52 @@ function RowAnimatedPrice({ price, change }: { price: number, change: number }) 
   )
 }
 
+// Layer badge component
+function LayerBadge({ layerInfo }: { layerInfo?: any }) {
+  if (!layerInfo) return null
+  
+  const layerConfig = {
+    'layer-1': { 
+      icon: Building2, 
+      color: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
+      label: 'L1'
+    },
+    'layer-2': { 
+      icon: Crown, 
+      color: 'text-orange-400 bg-orange-400/10 border-orange-400/30',
+      label: 'L2'
+    },
+    'layer-3': { 
+      icon: Zap, 
+      color: 'text-red-400 bg-red-400/10 border-red-400/30',
+      label: 'L3'
+    }
+  }
+  
+  const config = layerConfig[layerInfo.layer as keyof typeof layerConfig]
+  if (!config) return null
+  
+  const Icon = config.icon
+  
+  return (
+    <div 
+      className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border ${config.color}`}
+      title={`${layerInfo.category} - ${layerInfo.riskLevel} risk`}
+    >
+      <Icon className="w-3 h-3" />
+      <span className="font-medium">{config.label}</span>
+      {layerInfo.riskLevel === 'high' && <Shield className="w-2 h-2" />}
+    </div>
+  )
+}
+
 // Row badges - more compact
 function RowBadges({ index }: { index: MemeIndex }) {
   return (
     <div className="flex items-center gap-1">
+      {/* Layer Badge */}
+      <LayerBadge layerInfo={index.layerInfo} />
+      
       <AnimatePresence>
         {index.isHot && (
           <motion.div
@@ -174,164 +241,109 @@ const IndexRow = memo(function IndexRow({
     onSelect(index)
   }, [index, onSelect])
 
+  const thumbnail = generateThumbnail(index.name, index.symbol)
+
   return (
-    <motion.div
-      variants={fadeInUp}
-      initial="initial"
-      animate="animate"
-      exit="exit"
+    <TableRow 
       className={cn(
-        "group relative border-b border-slate-800/50 last:border-b-0 transition-all duration-300",
-        "hover:bg-slate-900/30 hover:border-slate-700/50",
-        isHovered && "bg-slate-900/40 border-slate-700/60",
+        "group border-b border-border/50 hover:bg-muted/30 transition-all duration-200 cursor-pointer",
+        isHovered && "bg-muted/40",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleRowClick}
     >
-      <div className="flex items-center px-4 py-3 cursor-pointer">
-        
-        {/* Rank */}
-        {rank && (
-          <div className="w-8 text-center">
-            <span className="text-sm font-medium text-slate-400">
-              {rank}
-            </span>
+      {/* Name & Thumbnail */}
+      <TableCell className="w-[300px]">
+        <div className="flex items-center gap-3">
+          {/* 썸네일 이미지 */}
+          <div className={cn(
+            "w-10 h-10 rounded-lg overflow-hidden flex-shrink-0",
+            thumbnail.gradient
+          )}>
+            <img 
+              src={thumbnail.placeholder}
+              alt={index.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // 이미지 로드 실패시 텍스트로 대체
+                const target = e.currentTarget
+                target.style.display = 'none'
+                const parent = target.parentElement
+                if (parent) {
+                  parent.innerHTML = `<span class="text-sm font-bold text-white">${thumbnail.fallback}</span>`
+                }
+              }}
+            />
           </div>
+          <div className="min-w-0">
+            <div className="font-medium text-sm truncate text-white">{index.name}</div>
+            <div className="text-xs text-muted-foreground">{index.symbol}</div>
+          </div>
+        </div>
+      </TableCell>
+
+      {/* Chart */}
+      <TableCell className="w-[120px]">
+        <div className="w-20 h-8">
+          <CompactSparkline 
+            data={index.sparklineData || []} 
+            className="w-full h-full"
+            id={`sparkline-${index.id}`}
+          />
+        </div>
+      </TableCell>
+
+      {/* Price */}
+      <TableCell className="w-[100px] text-right">
+        <RowAnimatedPrice 
+          price={index.currentPrice} 
+          change={index.change24h}
+        />
+      </TableCell>
+
+      {/* 24h Change */}
+      <TableCell className="w-[100px] text-right">
+        <div className={cn(
+          "text-sm font-medium",
+          isPositive ? "text-green-500" : "text-red-500"
+        )}>
+          {isPositive ? '+' : ''}{index.change24h.toFixed(2)}%
+        </div>
+      </TableCell>
+
+      {/* Volume */}
+      <TableCell className="w-[120px] text-right">
+        <div className="text-sm font-mono">
+          ${(index.volume24h / 1000000).toFixed(1)}M
+        </div>
+      </TableCell>
+
+      {/* Market Cap */}
+      <TableCell className="w-[120px] text-right">
+        <div className="text-sm font-mono">
+          ${(index.marketCap / 1000000).toFixed(1)}M
+        </div>
+      </TableCell>
+
+      {/* Actions */}
+      <TableCell className="w-[100px] text-center">
+        {showQuickTrade && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 px-4 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-white transition-all duration-200 shadow-sm hover:shadow-lg"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleQuickTrade('buy')
+            }}
+          >
+            Buy Now
+          </Button>
         )}
-
-        {/* Index Info */}
-        <div className="flex-1 min-w-0 flex items-center gap-3">
-          {/* Name & Symbol */}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-white text-sm truncate">
-                {index.name}
-              </h3>
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5 flex-shrink-0">
-                {index.symbol}
-              </Badge>
-              <RowBadges index={index} />
-            </div>
-            <p className="text-xs text-slate-400 truncate">
-              {index.description}
-            </p>
-          </div>
-
-          {/* Sparkline */}
-          <div className="flex-shrink-0">
-            <CompactSparkline 
-              data={index.sparklineData} 
-              id={index.id}
-            />
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="flex items-center gap-6 text-right">
-          
-          {/* Price */}
-          <div className="w-24">
-            <RowAnimatedPrice 
-              price={index.currentPrice} 
-              change={index.change24h} 
-            />
-          </div>
-
-          {/* 24h Change */}
-          <div className="w-20">
-            <AnimatedPercentage 
-              value={index.change24h}
-              className="text-sm font-medium"
-            />
-          </div>
-
-          {/* Volume */}
-          <div className="w-20 text-sm">
-            <div className="text-slate-400 text-xs mb-1">Volume</div>
-            <div className="text-white font-medium">
-              $<AnimatedNumber 
-                value={index.volume24h / 1000000} 
-                decimals={1}
-                suffix="M"
-                duration={800}
-              />
-            </div>
-          </div>
-
-          {/* Market Cap */}
-          <div className="w-20 text-sm">
-            <div className="text-slate-400 text-xs mb-1">MCap</div>
-            <div className="text-white font-medium">
-              $<AnimatedNumber 
-                value={index.marketCap / 1000000} 
-                decimals={1}
-                suffix="M"
-                duration={800}
-              />
-            </div>
-          </div>
-
-          {/* Quick Trade Buttons */}
-          {showQuickTrade && (
-            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 px-3 text-xs border-green-600/30 text-green-400 hover:bg-green-600/20 hover:border-green-500/50"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleQuickTrade('buy')
-                }}
-              >
-                Buy
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 px-3 text-xs border-red-600/30 text-red-400 hover:bg-red-600/20 hover:border-red-500/50"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleQuickTrade('sell')
-                }}
-              >
-                Sell
-              </Button>
-            </div>
-          )}
-
-          {/* External Link */}
-          <div className="w-8 flex justify-center">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            >
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 w-6 p-0 text-slate-400 hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  window.open(`/trading?index=${index.id}`, '_blank')
-                }}
-              >
-                <ExternalLink className="w-3 h-3" />
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* Hover indicator */}
-      <motion.div
-        className="absolute left-0 top-0 w-1 h-full bg-brand origin-top"
-        initial={{ scaleY: 0 }}
-        animate={{ scaleY: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.2 }}
-      />
-    </motion.div>
+      </TableCell>
+    </TableRow>
   )
 })
 

@@ -17,9 +17,20 @@ import {
   BarChart3,
   Clock,
   RefreshCw,
-  Search
+  Search,
+  Building2,
+  Crown,
+  Zap
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
 import { IndexRow } from './index-row'
@@ -39,13 +50,17 @@ const filterOptions: Array<{
   label: string
   icon: React.ComponentType<{ className?: string }>
   description: string
+  color?: string
 }> = [
   { key: 'all', label: 'All', icon: BarChart3, description: 'All available indices' },
   { key: 'hot', label: 'Hot', icon: Flame, description: 'Trending and popular' },
   { key: 'new', label: 'New', icon: Star, description: 'Recently launched' },
   { key: 'gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Best performing 24h' },
   { key: 'losers', label: 'Top Losers', icon: TrendingDown, description: 'Worst performing 24h' },
-  { key: 'high-volume', label: 'High Volume', icon: Activity, description: 'Most active trading' }
+  { key: 'high-volume', label: 'High Volume', icon: Activity, description: 'Most active trading' },
+  { key: 'layer-1', label: 'Layer 1', icon: Building2, description: 'Institutional-grade indices (Low risk)', color: 'text-blue-400 border-blue-400' },
+  { key: 'layer-2', label: 'Layer 2', icon: Crown, description: 'Mainstream meme indices (Medium risk)', color: 'text-orange-400 border-orange-400' },
+  { key: 'layer-3', label: 'Layer 3', icon: Zap, description: 'Ultra-volatile launchpad (High risk)', color: 'text-red-400 border-red-400' }
 ]
 
 const sortOptions: Array<{
@@ -118,6 +133,15 @@ export function TrendingIndices({
         case 'losers':
           filtered = filtered.filter(index => index.change24h < 0)
           break
+        case 'layer-1':
+          filtered = filtered.filter(index => index.layerInfo?.layer === 'layer-1')
+          break
+        case 'layer-2':
+          filtered = filtered.filter(index => index.layerInfo?.layer === 'layer-2')
+          break
+        case 'layer-3':
+          filtered = filtered.filter(index => index.layerInfo?.layer === 'layer-3')
+          break
       }
     }
     
@@ -176,35 +200,7 @@ export function TrendingIndices({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {/* Header with Stats */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            🔥 Trending Indices
-            <Badge variant="outline" className="text-xs">
-              {filteredIndices.length}
-            </Badge>
-          </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            {mounted && lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : 'Loading...'}
-          </p>
-        </div>
-        
-        <Button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          variant="ghost"
-          size="sm"
-          className="text-slate-400 hover:text-white"
-        >
-          <RefreshCw className={cn(
-            "w-4 h-4 mr-2",
-            isRefreshing && "animate-spin"
-          )} />
-          Refresh
-        </Button>
-      </div>
+    <div className={cn("space-y-3", className)}>
 
       {/* Search Bar */}
       <div className="relative max-w-md">
@@ -217,54 +213,59 @@ export function TrendingIndices({
         />
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {filterOptions.map(({ key, label, icon: Icon, description }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant={selectedFilter === key ? "default" : "outline"}
-            className={cn(
-              "text-xs transition-all duration-200",
-              selectedFilter === key 
-                ? "bg-brand text-black hover:bg-brand-hover" 
-                : "border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white"
-            )}
-            onClick={() => setSelectedFilter(key as IndexFilter)}
-            title={description}
-          >
-            <Icon className="w-3 h-3 mr-1" />
-            {label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Sort Options */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-1 text-xs text-slate-400">
-          <ArrowUpDown className="w-3 h-3" />
-          Sort by:
+      {/* Filter and Sort Options - Combined Line */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        {/* Filter Tabs - Compact */}
+        <div className="flex items-center gap-1">
+          {filterOptions.map(({ key, label, icon: Icon, description, color }) => (
+            <Button
+              key={key}
+              size="sm"
+              variant={selectedFilter === key ? "default" : "ghost"}
+              className={cn(
+                "text-xs h-6 px-2 transition-all duration-200",
+                selectedFilter === key 
+                  ? key.startsWith('layer-') && color
+                    ? `bg-transparent border ${color} hover:bg-opacity-10`
+                    : "bg-brand text-white hover:bg-brand-hover"
+                  : key.startsWith('layer-') && color
+                    ? `${color} hover:bg-opacity-10`
+                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+              )}
+              onClick={() => setSelectedFilter(key as IndexFilter)}
+              title={description}
+            >
+              {label}
+            </Button>
+          ))}
         </div>
-        {sortOptions.map(({ key, label, description }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant="ghost"
-            className={cn(
-              "text-xs h-7 px-2 transition-all duration-200",
-              sortBy === key 
-                ? "text-brand bg-brand/10" 
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
-            )}
-            onClick={() => handleSort(key)}
-            title={description}
-          >
-            {label}
-            {sortBy === key && (
-              <motion.div
-                key={`sort-indicator-${key}`}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
+
+        {/* Sort Options */}
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 text-xs text-slate-400">
+            <ArrowUpDown className="w-3 h-3" />
+            Sort:
+          </div>
+          {sortOptions.map(({ key, label, description }) => (
+            <Button
+              key={key}
+              size="sm"
+              variant="ghost"
+              className={cn(
+                "text-xs h-6 px-2 transition-all duration-200",
+                sortBy === key 
+                  ? "text-brand bg-brand/10" 
+                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+              )}
+              onClick={() => handleSort(key)}
+              title={description}
+            >
+              {label}
+              {sortBy === key && (
+                <motion.div
+                  key={`sort-indicator-${key}`}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
                 className="ml-1"
               >
                 {sortDirection === 'desc' ? 
@@ -275,6 +276,7 @@ export function TrendingIndices({
             )}
           </Button>
         ))}
+        </div>
       </div>
 
       {/* Results Info */}
@@ -298,45 +300,41 @@ export function TrendingIndices({
         </div>
       )}
 
-      {/* Indices Table Header */}
-      <div className="bg-slate-900/30 border border-slate-800 rounded-t-lg">
-        <div className="flex items-center px-4 py-3 text-xs text-slate-400 font-medium">
-          <div className="w-8 text-center">#</div>
-          <div className="flex-1 min-w-0 flex items-center gap-3">
-            <div className="min-w-0 flex-1">Name</div>
-            <div className="w-20 text-center">Chart</div>
-          </div>
-          <div className="flex items-center gap-6 text-right">
-            <div className="w-24">Price</div>
-            <div className="w-20">24h%</div>
-            <div className="w-20">Volume</div>
-            <div className="w-20">MCap</div>
-            <div className="w-16">Actions</div>
-            <div className="w-8"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Indices Rows */}
+      {/* Indices Table */}
       <AnimatePresence mode="wait">
         {filteredIndices.length > 0 ? (
           <motion.div 
-            key={`indices-rows-${selectedFilter}-${sortBy}-${sortDirection}`}
-            className="bg-slate-900/20 border border-t-0 border-slate-800 rounded-b-lg overflow-hidden"
+            key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
+            className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-hidden"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {filteredIndices.map((index, i) => (
-              <IndexRow
-                key={index.id}
-                index={index} 
-                onSelect={onIndexSelect}
-                rank={i + 1}
-                showQuickTrade={true}
-              />
-            ))}
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-900/50 hover:bg-slate-900/50">
+                  <TableHead className="w-[300px] text-xs text-slate-400 font-medium">Name</TableHead>
+                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium">Chart</TableHead>
+                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">Price</TableHead>
+                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">24h%</TableHead>
+                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">Volume</TableHead>
+                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">MCap</TableHead>
+                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-center">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredIndices.map((index, i) => (
+                  <IndexRow
+                    key={index.id}
+                    index={index} 
+                    onSelect={onIndexSelect}
+                    rank={i + 1}
+                    showQuickTrade={true}
+                  />
+                ))}
+              </TableBody>
+            </Table>
           </motion.div>
         ) : (
           <motion.div

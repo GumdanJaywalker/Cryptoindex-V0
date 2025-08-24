@@ -27,14 +27,22 @@ interface SoundSettingsProps {
 
 export function SoundSettings({ className, compact = false }: SoundSettingsProps) {
   const soundManager = useSoundManager()
-  const [config, setConfig] = useState(soundManager.getConfig())
+  const [config, setConfig] = useState(() => ({
+    enabled: false,
+    volume: 0,
+    uiSounds: false,
+    tradingSounds: false,
+    alertSounds: false
+  }))
   const [testingSound, setTestingSound] = useState<SoundType | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // Update config when sound manager changes - removed soundManager dependency to prevent infinite loop
+  // Initialize config after client mount to prevent hydration mismatch
   useEffect(() => {
+    setMounted(true)
     const currentConfig = soundManager.getConfig()
     setConfig(currentConfig)
-  }, []) // Empty dependency array to run only once on mount
+  }, [])
 
   const handleVolumeChange = (value: number[]) => {
     const volume = value[0] / 100
@@ -95,6 +103,7 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
               ? "text-brand hover:text-brand-hover" 
               : "text-slate-500 hover:text-slate-400"
           )}
+          disabled={!mounted}
         >
           {config.enabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </Button>
@@ -102,18 +111,20 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
         {/* Volume slider */}
         <div className="flex items-center gap-2 min-w-20">
           <Slider
-            value={[config.volume * 100]}
+            value={[mounted ? config.volume * 100 : 0]}
             onValueChange={handleVolumeChange}
             max={100}
             step={5}
             className="flex-1"
-            disabled={!config.enabled}
+            disabled={!config.enabled || !mounted}
           />
         </div>
 
         {/* Volume percentage */}
         <Badge variant="outline" className="text-xs min-w-12 justify-center">
-          {Math.round(config.volume * 100)}%
+          <div className="inline-flex items-center justify-center min-w-0">
+            {mounted ? Math.round(config.volume * 100) : 0}%
+          </div>
         </Badge>
       </div>
     )

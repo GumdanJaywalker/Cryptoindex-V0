@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { WalletConnectButton } from '@/components/wallet'
-import { SoundSettings } from '@/components/ui/sound-settings'
 import { cn } from '@/lib/utils'
 
 const navigation = [
@@ -18,7 +17,7 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/50">
-      <div className="flex h-14 items-center justify-between px-6">
+      <div className="flex h-14 items-center px-6">
         {/* Minimal Logo */}
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="relative">
@@ -29,8 +28,8 @@ export function Header() {
           <span className="text-lg font-bold text-white block sm:hidden">HI</span>
         </Link>
 
-        {/* Compact Navigation - Hidden on mobile */}
-        <nav className="hidden md:flex items-center space-x-6">
+        {/* Centered Navigation - Hidden on mobile */}
+        <nav className="hidden md:flex items-center space-x-6 flex-1 justify-center">
           {navigation.slice(0, 4).map((item) => (
             <Link
               key={item.name}
@@ -47,12 +46,8 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Mobile Navigation Toggle (for future mobile menu) */}
-        <div className="flex items-center gap-3">
-          {/* Sound Settings - Compact */}
-          <SoundSettings compact className="hidden md:flex" />
-          
-          {/* Wallet Connect - Always visible */}
+        {/* Right Side - Wallet Only */}
+        <div className="flex items-center">
           <WalletConnectButton />
         </div>
       </div>
