@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendingUp, TrendingDown, Info, AlertTriangle, Clock, Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import NumberTicker from '@/components/magicui/number-ticker'
+import { MagicCard } from '@/components/magicui/magic-card'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
 
 export function TradingPanel() {
   const [buyQuantity, setBuyQuantity] = useState('')
@@ -21,10 +24,22 @@ export function TradingPanel() {
   const [sellStopPrice, setSellStopPrice] = useState('')
   const [mounted, setMounted] = useState(false)
   
-  const currentPrice = 1.2345
-  const availableBalance = 8234.12
-  const dogHoldings = 100.00
+  // Dynamic price data for NumberTicker animations
+  const [currentPrice, setCurrentPrice] = useState(1.2345)
+  const [availableBalance, setAvailableBalance] = useState(8234.12)
+  const [dogHoldings, setDogHoldings] = useState(100.00)
   const feeRate = 0.001 // 0.1% fee
+
+  // Simulate price updates for NumberTicker animations
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPrice(prev => prev + (Math.random() - 0.5) * 0.001)
+      // Slightly update balance for demo
+      setAvailableBalance(prev => prev + (Math.random() - 0.5) * 10)
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [])
   
   useEffect(() => {
     setMounted(true)
@@ -187,8 +202,13 @@ export function TradingPanel() {
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Market Price (USD)</label>
                 <div className="relative">
-                  <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed">
-                    ${currentPrice.toFixed(4)} (Live)
+                  <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed font-mono">
+                    <NumberTicker 
+                      value={currentPrice} 
+                      prefix="$" 
+                      decimalPlaces={4}
+                      className="font-mono"
+                    /> (Live)
                   </div>
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -207,7 +227,7 @@ export function TradingPanel() {
                   className="bg-muted border-border text-foreground"
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  Market: ${currentPrice.toFixed(4)} | Diff: {buyLimitPrice ? ((Number(buyLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
+                  Market: <NumberTicker value={currentPrice} prefix="$" decimalPlaces={4} className="font-mono" /> | Diff: {buyLimitPrice ? ((Number(buyLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
                 </div>
               </div>
             )}
@@ -263,35 +283,49 @@ export function TradingPanel() {
               </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="bg-card rounded p-3 space-y-2 border border-border">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-card-foreground">
-                  ${buyQuantity ? calculateBuyAmount(Number(buyQuantity)).subtotal.toFixed(2) : '0.00'}
-                </span>
+            {/* Order Summary with MagicCard */}
+            <MagicCard className="!bg-card !border-border" gradientColor="#8BD6FF">
+              <div className="p-3 space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-card-foreground font-mono">
+                    <NumberTicker 
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).subtotal : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Trading Fee (0.1%)</span>
+                  <span className="text-card-foreground font-mono">
+                    <NumberTicker 
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).fee : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
+                  <span className="text-muted-foreground">Total Cost</span>
+                  <span className="text-emerald-400 font-mono">
+                    <NumberTicker 
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).total : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Trading Fee (0.1%)</span>
-                <span className="text-card-foreground">
-                  ${buyQuantity ? calculateBuyAmount(Number(buyQuantity)).fee.toFixed(2) : '0.00'}
-                </span>
-              </div>
-              <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
-                <span className="text-muted-foreground">Total Cost</span>
-                <span className="text-emerald-400">
-                  ${buyQuantity ? calculateBuyAmount(Number(buyQuantity)).total.toFixed(2) : '0.00'}
-                </span>
-              </div>
-            </div>
+            </MagicCard>
 
-            {/* Place Order Button */}
-            <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
+            {/* Place Order Button with Shimmer */}
+            <ShimmerButton 
+              className="w-full !bg-brand hover:!bg-brand/90 !text-white shadow-lg shadow-brand/20"
               disabled={!buyQuantity || Number(buyQuantity) <= 0}
             >
               {getOrderButtonText(buyOrderType, buyQuantity, true)}
-            </Button>
+            </ShimmerButton>
           </TabsContent>
           
           <TabsContent value="sell" className="space-y-3 mt-3">
@@ -318,8 +352,13 @@ export function TradingPanel() {
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Market Price (USD)</label>
                 <div className="relative">
-                  <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed">
-                    ${currentPrice.toFixed(4)} (Live)
+                  <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed font-mono">
+                    <NumberTicker 
+                      value={currentPrice} 
+                      prefix="$" 
+                      decimalPlaces={4}
+                      className="font-mono"
+                    /> (Live)
                   </div>
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -338,7 +377,7 @@ export function TradingPanel() {
                   className="bg-muted border-border text-foreground"
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  Market: ${currentPrice.toFixed(4)} | Diff: {sellLimitPrice ? ((Number(sellLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
+                  Market: <NumberTicker value={currentPrice} prefix="$" decimalPlaces={4} className="font-mono" /> | Diff: {sellLimitPrice ? ((Number(sellLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
                 </div>
               </div>
             )}
@@ -394,56 +433,94 @@ export function TradingPanel() {
               </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="bg-card rounded p-3 space-y-2 border border-border">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-card-foreground">
-                  ${sellQuantity ? calculateSellAmount(Number(sellQuantity)).subtotal.toFixed(2) : '0.00'}
-                </span>
+            {/* Order Summary with MagicCard */}
+            <MagicCard className="!bg-card !border-border" gradientColor="#ef4444">
+              <div className="p-3 space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-card-foreground font-mono">
+                    <NumberTicker 
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).subtotal : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Trading Fee (0.1%)</span>
+                  <span className="text-card-foreground font-mono">
+                    <NumberTicker 
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).fee : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
+                  <span className="text-muted-foreground">Net Proceeds</span>
+                  <span className="text-red-400 font-mono">
+                    <NumberTicker 
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).total : 0} 
+                      prefix="$" 
+                      decimalPlaces={2}
+                    />
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Trading Fee (0.1%)</span>
-                <span className="text-card-foreground">
-                  ${sellQuantity ? calculateSellAmount(Number(sellQuantity)).fee.toFixed(2) : '0.00'}
-                </span>
-              </div>
-              <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
-                <span className="text-muted-foreground">Net Proceeds</span>
-                <span className="text-red-400">
-                  ${sellQuantity ? calculateSellAmount(Number(sellQuantity)).total.toFixed(2) : '0.00'}
-                </span>
-              </div>
-            </div>
+            </MagicCard>
 
-            {/* Place Order Button */}
-            <Button 
-              className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20"
+            {/* Place Order Button with Shimmer */}
+            <ShimmerButton 
+              className="w-full !bg-red-600 hover:!bg-red-700 !text-white shadow-lg shadow-red-600/20"
               disabled={!sellQuantity || Number(sellQuantity) <= 0 || Number(sellQuantity) > dogHoldings}
             >
               {getOrderButtonText(sellOrderType, sellQuantity, false)}
-            </Button>
+            </ShimmerButton>
           </TabsContent>
         </Tabs>
 
-        {/* Portfolio Info */}
+        {/* Portfolio Info with NumberTicker animations */}
         <div className="border-t border-border pt-3 pb-4 space-y-2">
           <div className="text-xs text-muted-foreground mb-2 font-medium">Portfolio Balance</div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Cash Balance</span>
-            <span className="text-foreground">${availableBalance.toFixed(2)}</span>
+            <span className="text-foreground font-mono">
+              <NumberTicker 
+                value={availableBalance} 
+                prefix="$" 
+                decimalPlaces={2}
+              />
+            </span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">DOG Holdings</span>
-            <span className="text-foreground">{dogHoldings.toFixed(4)} DOG</span>
+            <span className="text-foreground font-mono">
+              <NumberTicker 
+                value={dogHoldings} 
+                suffix=" DOG" 
+                decimalPlaces={4}
+              />
+            </span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Holdings Value</span>
-            <span className="text-foreground">${(dogHoldings * currentPrice).toFixed(2)}</span>
+            <span className="text-foreground font-mono">
+              <NumberTicker 
+                value={dogHoldings * currentPrice} 
+                prefix="$" 
+                decimalPlaces={2}
+              />
+            </span>
           </div>
           <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
             <span className="text-muted-foreground">Total Portfolio</span>
-            <span className="text-emerald-400">${(availableBalance + (dogHoldings * currentPrice)).toFixed(2)}</span>
+            <span className="text-emerald-400 font-mono">
+              <NumberTicker 
+                value={availableBalance + (dogHoldings * currentPrice)} 
+                prefix="$" 
+                decimalPlaces={2}
+              />
+            </span>
           </div>
         </div>
       </div>

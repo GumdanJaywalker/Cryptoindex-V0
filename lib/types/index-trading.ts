@@ -1,11 +1,23 @@
 // Types for CryptoIndex Landing Page - Meme Coin Index Trading
 
+// Layer system types
+export type IndexLayer = 'layer-1' | 'layer-2' | 'layer-3'
+
+export interface LayerInfo {
+  layer: IndexLayer
+  category: 'institutional' | 'mainstream-meme' | 'volatile-launchpad'
+  tradingMechanism: 'hooats' | 'direct-creation-redemption'
+  riskLevel: 'low' | 'medium' | 'high'
+  creationAccess: 'institution-only' | 'verified-only' | 'permissionless'
+}
+
 export interface MemeIndex {
   id: string
   symbol: string
   name: string
   theme: 'dog' | 'ai' | 'political' | 'gaming' | 'frog' | 'space' | 'food' | 'diamond-hands' | 'moon' | 'ape'
   description: string
+  layerInfo: LayerInfo
   currentPrice: number
   change24h: number
   change7d: number
@@ -109,7 +121,7 @@ export interface MarketStats {
 }
 
 // Filter and sorting types
-export type IndexFilter = 'all' | 'hot' | 'new' | 'gainers' | 'losers' | 'high-volume'
+export type IndexFilter = 'all' | 'hot' | 'new' | 'gainers' | 'losers' | 'high-volume' | 'layer-1' | 'layer-2' | 'layer-3'
 export type IndexSort = 'volume' | 'change' | 'market-cap' | 'name' | 'created'
 export type SortOption = 'volume' | 'change' | 'price' | 'marketCap' | 'name'
 export type TraderFilter = 'all' | 'top-gainers' | 'high-winrate' | 'new-traders' | 'most-followed'

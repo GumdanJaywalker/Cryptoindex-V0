@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import QueryProvider from '@/lib/providers/query-provider'
+import { PrivyProvider } from '@/components/providers/PrivyProvider'
 import { MobileNav, MobileHeader, MobileStatusBar } from '@/components/mobile/mobile-nav'
 import { PWAProvider } from '@/lib/pwa/pwa-provider'
 import { PWAInstallPrompt, NetworkStatus } from '@/components/pwa/install-prompt'
@@ -78,29 +79,47 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Suppress Cross-Origin-Opener-Policy errors from Coinbase Wallet SDK
+              const originalError = console.error;
+              console.error = (...args) => {
+                if (args[0] && args[0].toString().includes('Cross-Origin-Opener-Policy')) {
+                  return; // Suppress this specific error
+                }
+                originalError.apply(console, args);
+              };
+            `
+          }}
+        />
+      </head>
       <body>
         <QueryProvider>
-          <PWAProvider>
-            {/* Network Status Indicator */}
-            <NetworkStatus />
-            
-            {/* Mobile Header - only visible on mobile */}
-            <MobileHeader />
-            
-            {/* Mobile Status Bar - only visible on mobile */}
-            <MobileStatusBar />
-            
-            {/* Main Content with proper mobile spacing */}
-            <main className="pb-16 md:pb-0 pt-0 md:pt-0">
-              {children}
-            </main>
-            
-            {/* Mobile Navigation - only visible on mobile */}
-            <MobileNav />
-            
-            {/* PWA Install Prompt */}
-            <PWAInstallPrompt />
-          </PWAProvider>
+          <PrivyProvider>
+            <PWAProvider>
+              {/* Network Status Indicator */}
+              <NetworkStatus />
+              
+              {/* Mobile Header - only visible on mobile */}
+              <MobileHeader />
+              
+              {/* Mobile Status Bar - only visible on mobile */}
+              <MobileStatusBar />
+              
+              {/* Main Content with proper mobile spacing */}
+              <main className="pb-16 md:pb-0 pt-0 md:pt-0">
+                {children}
+              </main>
+              
+              {/* Mobile Navigation - only visible on mobile */}
+              <MobileNav />
+              
+              {/* PWA Install Prompt */}
+              <PWAInstallPrompt />
+            </PWAProvider>
+          </PrivyProvider>
         </QueryProvider>
       </body>
     </html>

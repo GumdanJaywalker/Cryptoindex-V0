@@ -1,4 +1,5 @@
 import { MemeIndex, TopTrader, Trade, MarketStats } from '@/lib/types/index-trading'
+import { assignLayersToIndices } from '@/lib/utils/layer-utils'
 
 // 시드 기반 랜덤 함수 (서버/클라이언트에서 일관된 결과)
 class SeededRandom {
@@ -50,6 +51,13 @@ export const mockIndices: MemeIndex[] = [
     name: '🐕 Dog Memes Index',
     theme: 'dog',
     description: 'A curated index of the most popular dog-themed meme coins including DOGE, SHIB, and emerging pups',
+    layerInfo: {
+      layer: 'layer-2',
+      category: 'mainstream-meme',
+      tradingMechanism: 'hooats',
+      riskLevel: 'medium',
+      creationAccess: 'verified-only'
+    },
     currentPrice: 2.4567,
     change24h: 15.73,
     change7d: -3.21,
@@ -462,7 +470,10 @@ export const additionalIndices: MemeIndex[] = [
 ]
 
 // Combine all indices
-export const allMockIndices = [...mockIndices, ...additionalIndices]
+// Apply layer info to all indices
+const indicesWithLayers = assignLayersToIndices([...mockIndices, ...additionalIndices])
+
+export const allMockIndices = indicesWithLayers
 
 // Mock Top Traders Data (30 traders)
 export const mockTopTraders: TopTrader[] = Array.from({ length: 30 }, (_, i) => {
