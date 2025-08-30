@@ -32,7 +32,9 @@
     "hooats:test": "API_BASE_URL=http://localhost:3000/api hardhat run scripts/test-hooats-existing.js --network hypervm-testnet",
     "hooats:dev": "node standalone-api-mock.cjs",
     "hooats:dev-ts": "ts-node --esm --project tsconfig.standalone.json standalone-api-fixed.ts",
-    "hooats:dev-legacy": "node standalone-api.js"
+    "hooats:dev-legacy": "node standalone-api.js",
+    "hooats:production": "node standalone-api-production.js",
+    "hooats:production-cluster": "USE_CLUSTER=true WORKER_COUNT=4 node standalone-api-production.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^1.4.0",

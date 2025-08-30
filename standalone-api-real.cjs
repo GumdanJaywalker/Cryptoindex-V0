@@ -295,7 +295,13 @@ app.post('/api/trading/v2/orders', devAuth, async (req, res) => {
       summary: batchResult.summary
     });
 
+    // Handle batch result data structure
+    const routingResult = batchResult.result || batchResult;
+    const orderStatus = batchResult.status || 'completed';
+
+    // Queue trade history if fills exist
     if (routingResult.fills && routingResult.fills.length > 0) {
+      const asyncDBWriter = AsyncDBWriter.getInstance();
       routingResult.fills.forEach((fill) => {
         asyncDBWriter.queueTradeHistory({
           id: randomUUID(),
@@ -316,11 +322,12 @@ app.post('/api/trading/v2/orders', devAuth, async (req, res) => {
       });
     }
 
-    console.log('✅ REAL V2 ORDER COMPLETED:', {
+    console.log('✅ REAL V2 BATCH ORDER COMPLETED:', {
       orderId: orderV2.id,
-      totalFilled: routingResult.totalFilled,
-      averagePrice: routingResult.averagePrice,
-      executionStats: routingResult.executionStats
+      totalFilled: routingResult.totalFilled || 0,
+      averagePrice: routingResult.averagePrice || 0,
+      executionStats: routingResult.executionStats || {},
+      batchStatus: batchResult.status
     });
 
     return res.json({
@@ -332,21 +339,25 @@ app.post('/api/trading/v2/orders', devAuth, async (req, res) => {
         type: orderV2.type,
         amount: orderV2.amount,
         price: orderV2.price,
-        status: status,
+        status: orderStatus,
         timestamp: orderV2.timestamp
       },
       routing: routingResult,
-      executionStats: routingResult.executionStats,
-      fills: routingResult.fills,
+      executionStats: routingResult.executionStats || {},
+      fills: routingResult.fills || [],
       summary: {
-        totalFilled: routingResult.totalFilled,
-        averagePrice: routingResult.averagePrice,
-        totalChunks: routingResult.executionStats.totalChunks,
-        ammChunks: routingResult.executionStats.ammChunks,
-        orderbookChunks: routingResult.executionStats.orderbookChunks,
-        iterations: routingResult.executionStats.iterations
+        totalFilled: routingResult.totalFilled || '0',
+        averagePrice: routingResult.averagePrice || '0',
+        totalChunks: routingResult.executionStats?.totalChunks || 0,
+        ammChunks: routingResult.executionStats?.ammChunks || 0,
+        orderbookChunks: routingResult.executionStats?.orderbookChunks || 0,
+        iterations: routingResult.executionStats?.iterations || 0
       },
-      mode: 'real-hooats'
+      batchProcessing: {
+        status: batchResult.status,
+        processingMode: 'high-performance-batch'
+      },
+      mode: 'real-hooats-v2-batch'
     });
 
   } catch (error) {
@@ -478,10 +489,16 @@ async function initializeRealHOOATS() {
 
     // 🚀 High-Performance Batch Processor 초기화
     console.log('🔧 Initializing HOOATS Batch Processor...');
+    
+    // 실제 스왑 실행 여부 확인
+    const executeRealSwaps = process.env.EXECUTE_REAL_SWAPS === 'true';
+    console.log(`🔗 Real swaps mode: ${executeRealSwaps ? 'ENABLED' : 'DISABLED'}`);
+    
     batchProcessor = getHOOATSBatchProcessor({
       batchSize: parseInt(process.env.BATCH_SIZE) || 100,
       maxWaitTime: parseInt(process.env.MAX_WAIT_TIME) || 50, // 50ms for ultra-fast processing
-      maxConcurrentBatches: parseInt(process.env.MAX_CONCURRENT_BATCHES) || 20
+      maxConcurrentBatches: parseInt(process.env.MAX_CONCURRENT_BATCHES) || 20,
+      executeRealSwaps: executeRealSwaps
     });
     
     // HOOATS 컴포넌트들 연결

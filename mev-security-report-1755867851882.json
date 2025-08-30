@@ -1,0 +1,143 @@
+{
+  "timestamp": "2025-08-22T13:03:49.860Z",
+  "mode": "mev-security-test",
+  "tests": [
+    {
+      "name": "Sandwich Attack Detection",
+      "status": "passed",
+      "duration": 15008,
+      "error": null,
+      "data": {
+        "totalAttacks": 3,
+        "detectedAttacks": 0,
+        "detectionRate": "0.0%",
+        "securityLevel": "low",
+        "attackResults": [
+          {
+            "attackType": "frontrun",
+            "error": "timeout of 5000ms exceeded",
+            "detected": false
+          },
+          {
+            "attackType": "victim",
+            "error": "timeout of 5000ms exceeded",
+            "detected": false
+          },
+          {
+            "attackType": "backrun",
+            "error": "timeout of 5000ms exceeded",
+            "detected": false
+          }
+        ],
+        "recommendation": "Improve MEV detection algorithms"
+      },
+      "securityLevel": "low"
+    },
+    {
+      "name": "SecureTPSEngine Validation",
+      "status": "passed",
+      "duration": 2007,
+      "error": null,
+      "data": {
+        "totalOrders": 10,
+        "successfulOrders": 0,
+        "blockedOrders": 0,
+        "blockRate": "0.0%",
+        "executionTime": 2007,
+        "estimatedTPS": "5.0",
+        "securityLevel": "low",
+        "spamResults": [
+          {
+            "index": 0,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 1,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 2,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 3,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 4,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 5,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 6,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 7,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 8,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          },
+          {
+            "index": 9,
+            "success": false,
+            "error": "timeout of 2000ms exceeded",
+            "rateLimited": false,
+            "securityBlocked": false
+          }
+        ],
+        "tpsEngineActive": false,
+        "recommendation": "Strengthen rate limiting"
+      },
+      "securityLevel": "low"
+    },
+    {
+      "name": "Cross-System Validation",
+      "status": "failed",
+      "duration": 5006,
+      "error": "Order submission failed: timeout of 5000ms exceeded",
+      "data": null,
+      "securityLevel": "vulnerable"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3
+  },
+  "securityMetrics": {
+    "overallScore": 33.33333333333333
+  }
+}

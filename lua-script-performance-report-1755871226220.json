@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-08-22T14:00:26.058Z",
+  "mode": "lua-script-performance",
+  "tests": [
+    {
+      "name": "Lua Script Basic Operation",
+      "status": "passed",
+      "duration": 5,
+      "error": null,
+      "data": {
+        "executionTime": 4,
+        "success": false
+      }
+    },
+    {
+      "name": "HOOATS Lua Script Integration",
+      "status": "failed",
+      "duration": 101,
+      "error": "Request failed with status code 404",
+      "data": null
+    },
+    {
+      "name": "Lua vs JavaScript Performance",
+      "status": "passed",
+      "duration": 40,
+      "error": null,
+      "data": {
+        "iterations": 50,
+        "lua": {
+          "totalTime": 19,
+          "averageTime": 0.38,
+          "minTime": 0,
+          "maxTime": 1
+        },
+        "javascript": {
+          "totalTime": 19,
+          "averageTime": 0.38,
+          "minTime": 0,
+          "maxTime": 1
+        },
+        "performanceRatio": "1.00",
+        "winner": "JavaScript"
+      }
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3
+  }
+}

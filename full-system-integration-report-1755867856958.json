@@ -1,0 +1,288 @@
+{
+  "timestamp": "2025-08-22T13:02:54.527Z",
+  "mode": "full-system-integration",
+  "suites": {
+    "Real Contracts Integration": {
+      "name": "Real Contracts Integration",
+      "status": "completed",
+      "duration": 50252,
+      "testResults": {
+        "timestamp": "2025-08-22T13:02:54.528Z",
+        "mode": "real-contracts-integration",
+        "contractAddresses": {
+          "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+          "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+          "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+          "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+          "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+          "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+        },
+        "tests": [
+          {
+            "name": "Health Check (Real Contracts)",
+            "status": "failed",
+            "duration": 10193,
+            "error": "timeout of 10000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Redis Connectivity (Real System)",
+            "status": "failed",
+            "duration": 5005,
+            "error": "timeout of 5000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Real AMM Price Quoting",
+            "status": "failed",
+            "duration": 15017,
+            "error": "timeout of 15000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Limit Order (Real Contracts)",
+            "status": "failed",
+            "duration": 10003,
+            "error": "timeout of 10000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Orderbook (Real Data)",
+            "status": "failed",
+            "duration": 5008,
+            "error": "timeout of 5000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Market Data (Real Contracts)",
+            "status": "failed",
+            "duration": 5007,
+            "error": "timeout of 5000ms exceeded",
+            "data": null
+          }
+        ],
+        "summary": {
+          "passed": 0,
+          "failed": 6,
+          "total": 6
+        }
+      },
+      "error": null
+    },
+    "Lua Script Performance": {
+      "name": "Lua Script Performance",
+      "status": "completed",
+      "duration": 5080,
+      "testResults": {
+        "timestamp": "2025-08-22T13:03:44.780Z",
+        "mode": "lua-script-performance",
+        "tests": [
+          {
+            "name": "Lua Script Basic Operation",
+            "status": "passed",
+            "duration": 3,
+            "error": null,
+            "data": {
+              "executionTime": 3,
+              "success": false
+            }
+          },
+          {
+            "name": "HOOATS Lua Script Integration",
+            "status": "failed",
+            "duration": 5006,
+            "error": "timeout of 5000ms exceeded",
+            "data": null
+          },
+          {
+            "name": "Lua vs JavaScript Performance",
+            "status": "passed",
+            "duration": 52,
+            "error": null,
+            "data": {
+              "iterations": 50,
+              "lua": {
+                "totalTime": 32,
+                "averageTime": 0.64,
+                "minTime": 0,
+                "maxTime": 2
+              },
+              "javascript": {
+                "totalTime": 19,
+                "averageTime": 0.38,
+                "minTime": 0,
+                "maxTime": 1
+              },
+              "performanceRatio": "0.59",
+              "winner": "JavaScript"
+            }
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 1,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    "MEV Security": {
+      "name": "MEV Security",
+      "status": "completed",
+      "duration": 22029,
+      "testResults": {
+        "timestamp": "2025-08-22T13:03:49.860Z",
+        "mode": "mev-security-test",
+        "tests": [
+          {
+            "name": "Sandwich Attack Detection",
+            "status": "passed",
+            "duration": 15008,
+            "error": null,
+            "data": {
+              "totalAttacks": 3,
+              "detectedAttacks": 0,
+              "detectionRate": "0.0%",
+              "securityLevel": "low",
+              "attackResults": [
+                {
+                  "attackType": "frontrun",
+                  "error": "timeout of 5000ms exceeded",
+                  "detected": false
+                },
+                {
+                  "attackType": "victim",
+                  "error": "timeout of 5000ms exceeded",
+                  "detected": false
+                },
+                {
+                  "attackType": "backrun",
+                  "error": "timeout of 5000ms exceeded",
+                  "detected": false
+                }
+              ],
+              "recommendation": "Improve MEV detection algorithms"
+            },
+            "securityLevel": "low"
+          },
+          {
+            "name": "SecureTPSEngine Validation",
+            "status": "passed",
+            "duration": 2007,
+            "error": null,
+            "data": {
+              "totalOrders": 10,
+              "successfulOrders": 0,
+              "blockedOrders": 0,
+              "blockRate": "0.0%",
+              "executionTime": 2007,
+              "estimatedTPS": "5.0",
+              "securityLevel": "low",
+              "spamResults": [
+                {
+                  "index": 0,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 1,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 2,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 3,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 4,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 5,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 6,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 7,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 8,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                },
+                {
+                  "index": 9,
+                  "success": false,
+                  "error": "timeout of 2000ms exceeded",
+                  "rateLimited": false,
+                  "securityBlocked": false
+                }
+              ],
+              "tpsEngineActive": false,
+              "recommendation": "Strengthen rate limiting"
+            },
+            "securityLevel": "low"
+          },
+          {
+            "name": "Cross-System Validation",
+            "status": "failed",
+            "duration": 5006,
+            "error": "Order submission failed: timeout of 5000ms exceeded",
+            "data": null,
+            "securityLevel": "vulnerable"
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 1,
+          "total": 3
+        },
+        "securityMetrics": {
+          "overallScore": 33.33333333333333
+        }
+      },
+      "error": null
+    }
+  },
+  "overallSummary": {
+    "totalTests": 12,
+    "totalPassed": 4,
+    "totalFailed": 8,
+    "successRate": 33.33333333333333,
+    "performanceScore": 0,
+    "securityScore": 33.33333333333333,
+    "readinessLevel": "NOT_READY"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-08-22T13:02:54.528Z",
+  "mode": "real-contracts-integration",
+  "contractAddresses": {
+    "factory": "0x73bF19534DA1c60772E40136A4e5E77921b7a632",
+    "router": "0xD70399962f491c4d38f4ACf7E6a9345B0B9a3A7A",
+    "settlement": "0x543C050a536457c47c569D26AABd52Fae17cbA4B",
+    "hyperindex": "0x6065Ab1ec8334ab6099aF27aF145411902EAef40",
+    "usdc": "0x53aE8e677f34BC709148085381Ce2D4b6ceA1Fc3",
+    "pair": "0x5706084ad9Cac84393eaA1Eb265Db9b22bA63cd1"
+  },
+  "tests": [
+    {
+      "name": "Health Check (Real Contracts)",
+      "status": "failed",
+      "duration": 10193,
+      "error": "timeout of 10000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Redis Connectivity (Real System)",
+      "status": "failed",
+      "duration": 5005,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Real AMM Price Quoting",
+      "status": "failed",
+      "duration": 15017,
+      "error": "timeout of 15000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Limit Order (Real Contracts)",
+      "status": "failed",
+      "duration": 10003,
+      "error": "timeout of 10000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Orderbook (Real Data)",
+      "status": "failed",
+      "duration": 5008,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    },
+    {
+      "name": "Market Data (Real Contracts)",
+      "status": "failed",
+      "duration": 5007,
+      "error": "timeout of 5000ms exceeded",
+      "data": null
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 6,
+    "total": 6
+  }
+}
