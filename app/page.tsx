@@ -164,6 +164,20 @@ export default function Home() {
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
           <div className="space-y-6 order-2 lg:order-1">
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search indices..."
+                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 text-sm focus:outline-none focus:border-brand/50 focus:bg-slate-800/70 transition-colors"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
             {/* Market Stats Card */}
             <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
               <h3 className="text-lg font-semibold text-white mb-3">Market Overview</h3>
@@ -187,30 +201,21 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Top Movers Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+            {/* Top Movers Card - 브랜드 색상 단순화 */}
+            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
               <h3 className="text-lg font-semibold text-white mb-3">Top Movers</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-2 bg-slate-800/30 rounded-lg cursor-pointer hover:bg-slate-800/50 transition-colors">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-white text-sm font-medium">DOG_INDEX</span>
-                  </div>
-                  <span className="text-green-400 font-semibold">+24.8%</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-brand/5 hover:border-brand/20 border border-transparent transition-colors">
+                  <span className="text-white text-sm">DOG_INDEX</span>
+                  <span className="text-brand font-semibold">+24.8%</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-slate-800/30 rounded-lg cursor-pointer hover:bg-slate-800/50 transition-colors">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-white text-sm font-medium">PEPE_INDEX</span>
-                  </div>
-                  <span className="text-green-400 font-semibold">+18.2%</span>
+                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-brand/5 hover:border-brand/20 border border-transparent transition-colors">
+                  <span className="text-white text-sm">PEPE_INDEX</span>
+                  <span className="text-brand font-semibold">+18.2%</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-slate-800/30 rounded-lg cursor-pointer hover:bg-slate-800/50 transition-colors">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-white text-sm font-medium">CAT_INDEX</span>
-                  </div>
-                  <span className="text-red-400 font-semibold">-12.4%</span>
+                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-600 border border-transparent transition-colors">
+                  <span className="text-white text-sm">CAT_INDEX</span>
+                  <span className="text-slate-400 font-semibold">-12.4%</span>
                 </div>
               </div>
             </div>
@@ -250,55 +255,43 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Recent Activity Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+            {/* Recent Activity Card - 브랜드 색상 단순화 */}
+            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
                 <div className="w-2 h-2 bg-brand rounded-full animate-pulse"></div>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-slate-400">DOG_INDEX</span>
-                  </div>
-                  <span className="text-green-400 font-medium">+12.4%</span>
+                  <span className="text-slate-400">DOG_INDEX</span>
+                  <span className="text-brand font-medium">+12.4%</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-slate-400">CAT_INDEX</span>
-                  </div>
-                  <span className="text-red-400 font-medium">-3.2%</span>
+                  <span className="text-slate-400">CAT_INDEX</span>
+                  <span className="text-slate-500 font-medium">-3.2%</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-brand rounded-full"></div>
-                    <span className="text-slate-400">PEPE_INDEX</span>
-                  </div>
-                  <span className="text-green-400 font-medium">+8.7%</span>
+                  <span className="text-slate-400">PEPE_INDEX</span>
+                  <span className="text-brand font-medium">+8.7%</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                    <span className="text-slate-400">New Position</span>
-                  </div>
-                  <span className="text-yellow-400 font-medium text-xs">2m ago</span>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-700/50">
+                  <span className="text-slate-400">New Position</span>
+                  <span className="text-brand font-medium text-xs">2m ago</span>
                 </div>
               </div>
             </div>
 
-            {/* Price Alerts Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+            {/* Price Alerts Card - 브랜드 색상 단순화 */}
+            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
               <h3 className="text-lg font-semibold text-white mb-3">Price Alerts</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between p-2 bg-slate-800/30 rounded-lg">
+                <div className="flex items-center justify-between p-2 bg-slate-800/20 rounded-lg">
                   <span className="text-slate-400">DOG_INDEX</span>
-                  <span className="text-brand">$1.25</span>
+                  <span className="text-brand font-medium">$1.25</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-slate-800/30 rounded-lg">
+                <div className="flex items-center justify-between p-2 bg-slate-800/20 rounded-lg">
                   <span className="text-slate-400">SHIBA_INDEX</span>
-                  <span className="text-brand">$0.89</span>
+                  <span className="text-brand font-medium">$0.89</span>
                 </div>
                 <button className="w-full px-3 py-2 text-xs text-brand border border-brand/30 rounded-lg hover:bg-brand/10 transition-colors">
                   + Add Alert
