@@ -84,25 +84,17 @@ export function IndexInfoBar() {
     <div className="h-12 flex items-center px-4 text-sm" style={{ background: 'var(--hl-bg-primary)', borderBottom: '1px solid var(--hl-border)' }}>
       {/* Index Selector with Border Beam */}
       <div className="relative index-dropdown">
-        <BorderBeam
-          className="!p-0 !bg-transparent"
-          colorFrom="#8BD6FF"
-          colorTo="#6BBDFF"
-          duration={10}
-          borderWidth={1}
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center space-x-2 px-3 py-1.5 rounded transition-colors hover:border-brand border border-brand/30"
+          style={{ background: 'var(--hl-bg-tertiary)' }}
         >
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center space-x-2 px-3 py-1.5 rounded transition-colors hover:border-brand border border-transparent"
-            style={{ background: 'var(--hl-bg-tertiary)' }}
-          >
-            <StarIcon 
-              className={`h-3.5 w-3.5 ${favorites.has(selectedIndex) ? 'text-brand fill-current' : 'text-slate-400'}`}
-            />
-            <span className="font-medium text-white text-sm">{selectedIndex}</span>
-            <ChevronDownIcon className="h-3.5 w-3.5 text-slate-400" />
-          </button>
-        </BorderBeam>
+          <StarIcon 
+            className={`h-3.5 w-3.5 ${favorites.has(selectedIndex) ? 'text-brand fill-current' : 'text-slate-400'}`}
+          />
+          <span className="font-medium text-white text-sm">{selectedIndex}</span>
+          <ChevronDownIcon className="h-3.5 w-3.5 text-slate-400" />
+        </button>
         
         {isDropdownOpen && (
           <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-10 w-80" style={{ background: 'var(--hl-bg-secondary)', border: '1px solid var(--hl-border)' }}>
