@@ -31,7 +31,7 @@ interface PositionsSectionProps {
 const positions = [
   {
     symbol: 'DOG_INDEX',
-    side: 'Long',
+    side: 'Buy',
     size: 150.0,
     entryPrice: 2.450,
     markPrice: 2.847,
@@ -45,7 +45,7 @@ const positions = [
   },
   {
     symbol: 'CAT_INDEX',
-    side: 'Long',
+    side: 'Buy',
     size: 200.0,
     entryPrice: 1.180,
     markPrice: 1.234,
@@ -59,7 +59,7 @@ const positions = [
   },
   {
     symbol: 'AI_INDEX',
-    side: 'Short',
+    side: 'Sell',
     size: -75.0,
     entryPrice: 6.890,
     markPrice: 6.789,
@@ -73,7 +73,7 @@ const positions = [
   },
   {
     symbol: 'MEME_INDEX',
-    side: 'Long',
+    side: 'Buy',
     size: 300.0,
     entryPrice: 0.892,
     markPrice: 0.847,
@@ -110,7 +110,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
+              <BarChart3 className="w-5 h-5 text-brand" />
               Active Positions
             </CardTitle>
             <Badge 
@@ -132,7 +132,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                 <div>
                   <div className="font-medium text-white">{position.symbol}</div>
                   <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className={position.side === 'Long' ? 'text-green-400' : 'text-red-400'}>
+                    <span className={position.side === 'Buy' ? 'text-green-400' : 'text-red-400'}>
                       {position.side}
                     </span>
                     <span>{Math.abs(position.size)}</span>
@@ -165,7 +165,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-blue-400" />
+            <BarChart3 className="w-6 h-6 text-brand" />
             Position Management
           </h2>
           <p className="text-slate-400 mt-1">Monitor and manage your active positions</p>
@@ -220,7 +220,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     <TableCell>
                       <div className="space-y-1">
                         <div className={`text-sm font-medium ${
-                          position.side === 'Long' ? 'text-green-400' : 'text-red-400'
+                          position.side === 'Buy' ? 'text-green-400' : 'text-red-400'
                         }`}>
                           {position.side}
                         </div>
@@ -350,7 +350,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
         
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-400 mb-1">
+            <div className="text-2xl font-bold text-brand mb-1">
               {positions.filter(p => p.pnl > 0).length}/{positions.length}
             </div>
             <div className="text-sm text-slate-400">Winning Positions</div>
