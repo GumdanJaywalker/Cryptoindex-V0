@@ -13,7 +13,7 @@ export function PortfolioLayout() {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <div className="px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* 계정 요약 */}
         <AccountSummary />
         
@@ -22,7 +22,7 @@ export function PortfolioLayout() {
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-slate-900 border border-slate-800">
             <TabsTrigger 
               value="overview" 
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300 text-xs sm:text-sm"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
               <span className="mr-1">📊</span>
               <span className="hidden sm:inline">Overview</span>
@@ -30,7 +30,7 @@ export function PortfolioLayout() {
             </TabsTrigger>
             <TabsTrigger 
               value="positions"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300 text-xs sm:text-sm"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
               <span className="mr-1">📈</span>
               <span className="hidden sm:inline">Positions</span>
@@ -38,7 +38,7 @@ export function PortfolioLayout() {
             </TabsTrigger>
             <TabsTrigger 
               value="analytics"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300 text-xs sm:text-sm"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
               <span className="mr-1">🎯</span>
               <span className="hidden sm:inline">Analytics</span>
@@ -46,7 +46,7 @@ export function PortfolioLayout() {
             </TabsTrigger>
             <TabsTrigger 
               value="voting"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300 text-xs sm:text-sm"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
               <span className="mr-1">🗳️</span>
               <span className="hidden sm:inline">Voting Power</span>
@@ -54,7 +54,7 @@ export function PortfolioLayout() {
             </TabsTrigger>
             <TabsTrigger 
               value="pnl-card"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300 text-xs sm:text-sm"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
               <span className="mr-1">🎨</span>
               <span className="hidden sm:inline">PnL Cards</span>
