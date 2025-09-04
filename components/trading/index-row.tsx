@@ -333,7 +333,7 @@ const IndexRow = memo(function IndexRow({
           <Button
             size="sm"
             variant="outline"
-            className="h-7 px-4 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-white transition-all duration-200 shadow-sm hover:shadow-lg"
+            className="h-7 px-4 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 shadow-sm hover:shadow-lg"
             onClick={(e) => {
               e.stopPropagation()
               handleQuickTrade('buy')

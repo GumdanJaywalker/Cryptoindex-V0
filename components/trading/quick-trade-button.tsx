@@ -16,7 +16,6 @@ import {
   Percent
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
-import { useSoundManager } from '@/lib/sound/effects'
 import { cn } from '@/lib/utils'
 
 interface QuickTradeButtonProps {
@@ -88,7 +87,7 @@ function PortalTooltip({
   calculation: TradeCalculation
   type: 'buy' | 'sell'
   show: boolean
-  targetRef: React.RefObject<HTMLElement>
+  targetRef: React.RefObject<HTMLElement | null>
 }) {
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [mounted, setMounted] = useState(false)
@@ -191,7 +190,7 @@ export function QuickTradeButton({
   variant = 'default',
   showExpectedReturn = true
 }: QuickTradeButtonProps) {
-  const soundManager = useSoundManager()
+  // sound effects disabled during core refactor
   const [hoveredButton, setHoveredButton] = useState<'buy' | 'sell' | null>(null)
   const [defaultAmount] = useState(100) // $100 기본값
   const [defaultLeverage] = useState(5) // 5x 레버리지 기본값
@@ -207,8 +206,7 @@ export function QuickTradeButton({
   const handleTrade = (type: 'buy' | 'sell', e: React.MouseEvent) => {
     e.stopPropagation()
     
-    // Play trade sound
-    soundManager.playTradeSuccess()
+    // Play sound (disabled)
     
     onTrade(type, defaultAmount, defaultLeverage)
   }
@@ -288,7 +286,7 @@ export function QuickTradeButton({
             
             <span className="relative z-10 flex items-center gap-1.5 justify-center">
               <TrendingUp className="w-3 h-3" />
-              <span className="font-semibold">Long</span>
+              <span className="font-semibold">Buy</span>
               {showExpectedReturn && (
                 <div className="text-xs opacity-80">
                   +${buyCalculation.expectedReturn.toFixed(0)}

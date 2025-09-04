@@ -246,7 +246,7 @@ export function TradingBottomSheet({
                 : "text-slate-400 hover:text-white"
             )}
           >
-            Buy Long
+            Buy
           </button>
           <button
             onClick={() => setAction('sell')}
@@ -257,7 +257,7 @@ export function TradingBottomSheet({
                 : "text-slate-400 hover:text-white"
             )}
           >
-            Sell Short
+            Sell
           </button>
         </div>
 
@@ -330,7 +330,7 @@ export function TradingBottomSheet({
             <div className="flex justify-between text-sm">
               <span className="text-slate-400">Direction:</span>
               <span className={action === 'buy' ? 'text-green-400' : 'text-red-400'}>
-                {action === 'buy' ? 'Long' : 'Short'}
+                {action === 'buy' ? 'Buy' : 'Sell'}
               </span>
             </div>
           </motion.div>
@@ -347,7 +347,7 @@ export function TradingBottomSheet({
               : "bg-red-600 hover:bg-red-700 text-white"
           )}
         >
-          {action === 'buy' ? 'Buy Long' : 'Sell Short'} {indexSymbol}
+          {action === 'buy' ? 'Buy' : 'Sell'} {indexSymbol}
         </Button>
       </div>
     </BottomSheet>

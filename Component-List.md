@@ -15,9 +15,7 @@
 | **Trading** | `/trading/page.tsx` | 🔥 1순위 | ✅ 구현됨 |
 | **Governance** | `/governance/page.tsx` | 🔥 2순위 | ✅ 구현됨 |
 | **Portfolio** | `/portfolio/page.tsx` | 🔥 3순위 | ✅ 구현됨 |
-| **Trending** | `/trending/page.tsx` | 🟡 4순위 | ✅ 구현됨 |
-| **Vaults** | `/vaults/page.tsx` | 🟡 5순위 | ✅ 구현됨 |
-| **Bridge** | `/bridge/page.tsx` | 🟢 6순위 | ✅ 구현됨 |
+| **Vaults** | `/vaults/page.tsx` | 🟡 4순위 | ✅ 구현됨 |
 | **Dashboard** | `/dashboard/page.tsx` | - | ✅ 추가 페이지 |
 
 ---
@@ -28,12 +26,7 @@
 - `PrivyAuth.tsx` - Privy 인증 컴포넌트
 - `PrivyAuth 2.tsx` - 백업 버전
 
-### 🌉 브릿지 관련 (`/components/bridge/`)
-- `BridgeLayout.tsx` - 브릿지 메인 레이아웃
-- `BridgeDashboard.tsx` - 브릿지 대시보드
-- `DepositInterface.tsx` - 입금 인터페이스  
-- `WithdrawInterface.tsx` - 출금 인터페이스
-- `BridgeHistory.tsx` - 브릿지 거래 히스토리
+ 
 
 ### 🗳️ 거버넌스 관련 (`/components/governance/`)
 - `GovernanceLayout.tsx` - 거버넌스 메인 레이아웃
@@ -63,12 +56,7 @@
 - `CommunityFeed.tsx` - 커뮤니티 피드
 - `AccountPanel.tsx` - 계정 패널
 
-### 📈 트렌딩 관련 (`/components/trending/`)
-- `TrendingLayout.tsx` - 트렌딩 메인 레이아웃
-- `HeroSection.tsx` - 히어로 섹션
-- `FilterBar.tsx` - 필터 바
-- `CategorySections.tsx` - 카테고리 섹션들
-- `IndexCard.tsx` - 인덱스 카드
+ 
 
 ### 🏦 볼트 관련 (`/components/vaults/`)
 - `VaultsLayout.tsx` - 볼트 메인 레이아웃
@@ -246,17 +234,10 @@
    - 투표권 관리 시스템
    - PnL 카드 생성기
 
-4. **🟡 Trending Page (4순위)** - 완전 구현
-   - 히어로 섹션, 필터 바
-   - 카테고리별 인덱스 표시
-
-5. **🟡 Vaults Page (5순위)** - 완전 구임
+4. **🟡 Vaults Page (4순위)** - 완전 구임
    - 볼트 대시보드, 프로토콜/사용자 볼트
    - 볼트 생성 및 관리
 
-6. **🟢 Bridge Page (6순위)** - 완전 구현
-   - 입금/출금 인터페이스
-   - 브릿지 히스토리 및 상태 추적
 
 ### 🎨 UI/UX 완성도
 - **완전한 UI 시스템**: 100+ 개의 UI 컴포넌트

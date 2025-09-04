@@ -9,7 +9,6 @@ Header Navigation
 ├── Governance (거버넌스 투표) ⭐ [NEW]
 ├── Vaults (카피 트레이딩) 
 ├── Portfolio (포트폴리오)
-├── Bridge (브릿지)
 └── More
     ├── API Docs
     ├── Spot Trading (추후 확장)
@@ -2152,34 +2151,9 @@ Vault 메인 페이지
 
 ---
 
-## 6. Bridge (브릿지)
+## 6. Bridge
 
-```
-브릿지 메인 페이지
-├── 📊 브릿지 대시보드
-│   ├── 지원 네트워크 현황
-│   │   ├── 💰 입금 지원 체인
-│   │   │   ├── 🔵 Ethereum (ETH, USDC)
-│   │   │   ├── 🔴 Arbitrum (USDC, ETH)
-│   │   │   ├── 🟡 Bitcoin (BTC)
-│   │   │   ├── 🟣 Solana (SOL, USDC)
-│   │   │   ├── 🟢 Polygon (MATIC, USDC)
-│   │   │   └── 기타 주요 L1/L2 체인들
-│   │   ├── 💸 출금 지원 체인
-│   │   │   ├── 주로 Arbitrum USDC
-│   │   │   ├── Ethereum 네이티브
-│   │   │   └── 기타 요청시 지원
-│   │   ├── ⚡ 브릿지 상태 & 성능
-│   │   │   ├── 평균 처리 시간: 2-5분
-│   │   │   ├── 일일 거래량: $2.5M
-│   │   │   ├── 성공률: 99.97%
-│   │   │   ├── 현재 대기 거래: 3건
-│   │   │   └── 다음 배치 처리: 3분 후
-│   │   └── 💰 수수료 & 환율 정보
-│   │       ├── 브릿지 수수료: 0.1% (최소 $1)
-│   │       ├── 가스비: 실시간 추정
-│   │       ├── 환율: 1:1 (USDC 기준)
-│   │       └── 슬리피지: 거의 0%
+본 문서에서 브릿지 기능은 제외되었습니다.
 
 ├── 💰 입금 (Deposit) 인터페이스
 │   ├── 1단계: 소스 체인 & 자산 선택
@@ -2661,7 +2635,6 @@ Vault 메인 페이지
 3. **Governance** - 두 가지 투표 시스템 (Battle Vote 몰빵 + Rebalancing Vote)
 4. **Vaults** - Hyperliquid 스타일 카피 트레이딩 + 고급 매니저 시스템
 5. **Portfolio** - 종합 자산 관리 + 투표권 관리 + PnL 카드 생성기
-6. **Bridge** - 멀티체인 입출금 + 고급 보안 시스템
 
 ## 🎯 핵심 차별화 포인트:
 
@@ -2700,7 +2673,7 @@ Vault 메인 페이지
 ### 🟡 중간 복잡도 (2단계 개발)
 
 1. **PnL Card Generator** - 디자인 시스템 + 소셜 연동
-2. **Bridge System** - 멀티체인 연동 + 보안 시스템
+2. ~~Bridge System~~
 3. **Portfolio Analytics** - 데이터 분석 + 시각화
 
 ### 🟢 낮은 복잡도 (3단계 개발)

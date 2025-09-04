@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { Drawer } from 'vaul'
 import { X, TrendingUp, TrendingDown, Zap, Settings, Info, AlertTriangle } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
@@ -148,7 +148,7 @@ export function TradePanel({
                 }`}
               >
                 <TrendingUp className="w-4 h-4 inline mr-2" />
-                Buy / Long
+                Buy
               </button>
               <button
                 onClick={() => setTradeType('sell')}
@@ -159,7 +159,7 @@ export function TradePanel({
                 }`}
               >
                 <TrendingDown className="w-4 h-4 inline mr-2" />
-                Sell / Short
+                Sell
               </button>
             </div>
 

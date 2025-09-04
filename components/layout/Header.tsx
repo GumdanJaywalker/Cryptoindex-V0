@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { WalletConnectButton } from '@/components/wallet'
+// Temporarily disable wallet UI to stabilize build
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,6 +15,7 @@ import { ChevronDown, FileText, BarChart3, Settings, ExternalLink, TrendingUp } 
 const navigation = [
   { name: 'Trading', href: '/trading' },
   { name: 'Governance', href: '/governance' },
+  { name: 'Create', href: '/create' },
   { name: 'Portfolio', href: '/portfolio' },
 ]
 
@@ -76,8 +77,8 @@ export function Header() {
           </DropdownMenu>
         </nav>
 
-        {/* Wallet Connect */}
-        <WalletConnectButton />
+        {/* Wallet Connect (disabled in refactor) */}
+        <Button className="bg-brand text-black hover:bg-brand-hover">Connect</Button>
       </div>
     </header>
   )

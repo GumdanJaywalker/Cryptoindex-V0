@@ -275,14 +275,14 @@ const IndexCard = memo(function IndexCard({
       y: 0,
       rotateX: 0,
       rotateY: 0,
-      transition: { type: "spring", stiffness: 300, damping: 25 }
+      transition: { type: 'spring' as const, stiffness: 300, damping: 25 }
     },
     hover: { 
       scale: 1.05, 
       y: -8,
       rotateX: 2,
       rotateY: isHovered ? 1 : -1,
-      transition: { type: "spring", stiffness: 400, damping: 20 }
+      transition: { type: 'spring' as const, stiffness: 400, damping: 20 }
     },
     tap: { 
       scale: 0.98,

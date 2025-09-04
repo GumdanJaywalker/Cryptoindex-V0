@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -19,9 +23,66 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "app/layout.tsx",
+    // Focus compile on trading and core layout while refactoring
+    "app/trading/**/*.ts",
+    "app/trading/**/*.tsx",
+    "components/layout/**/*.ts",
+    "components/layout/**/*.tsx",
+    "components/magicui/border-beam.tsx",
+    "components/magicui/magic-card.tsx",
+    "components/magicui/number-ticker.tsx",
+    "components/magicui/ripple.tsx",
+    "components/trading/**/*.ts",
+    "components/trading/**/*.tsx",
+    "components/ui/3d-effects.tsx",
+    "components/ui/badge.tsx",
+    "components/ui/button.tsx",
+    "components/ui/card.tsx",
+    "components/ui/checkbox.tsx",
+    "components/ui/dialog.tsx",
+    "components/ui/dropdown-menu.tsx",
+    "components/ui/input.tsx",
+    "components/ui/progress.tsx",
+    "components/ui/radio-group.tsx",
+    "components/ui/scroll-area.tsx",
+    "components/ui/select.tsx",
+    "components/ui/separator.tsx",
+    "components/ui/table.tsx",
+    "components/ui/tabs.tsx",
+    "components/ui/tooltip.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    // Quarantine experimental/duplicate files (with numeric suffixes)
+    "**/* 2.ts",
+    "**/* 2.tsx",
+    "**/* 3.ts",
+    "**/* 3.tsx",
+    "**/* 4.ts",
+    "**/* 4.tsx",
+    // Exclude test/demo routes and pages
+    "app/test-**",
+    "app/dialogs-demo/**",
+    "app/test-**/**",
+    "app/**/page.backup.tsx",
+    // Exclude non-app folders
+    "aceternity-setup/**",
+    "HYPERLIQUID/**",
+    ".next/**",
+    // Exclude server/API code for now (mock phase)
+    "app/api/**",
+    "lib/middleware/**",
+    "lib/privy/**"
+  ]
 }

@@ -3,7 +3,6 @@
 ## 🌐 지원 네트워크 정책
 **중요**: 우리는 **Hyperliquid 네트워크만** 지원합니다.
 - 기본 자산: USDC (Hyperliquid 네이티브)
-- 브릿지: Hyperliquid ↔ 외부 체인 (Arbitrum, Ethereum 등)
 - 거래: 모든 거래는 Hyperliquid 온체인에서 실행
 
 ## 메인 네비게이션
@@ -15,7 +14,6 @@ Header Navigation
 ├── Governance (거버넌스 투표) ⭐ [NEW] 
 ├── Vaults (카피 트레이딩)
 ├── Portfolio (포트폴리오)
-├── Bridge (브릿지 - Hyperliquid 전용)
 └── More
     ├── API Docs
     ├── Analytics
@@ -250,39 +248,9 @@ Vault 메인 페이지
 
 ---
 
-## 6. Bridge (브릿지 - Hyperliquid 전용) 🟢 6순위
+## 6. Bridge
 
-```
-브릿지 메인 페이지
-├── 📊 브릿지 대시보드
-│   ├── 지원 네트워크 현황
-│   │   ├── 💰 입금 지원 체인
-│   │   │   ├── 🔵 Ethereum (ETH, USDC)
-│   │   │   ├── 🔴 Arbitrum (USDC, ETH)  
-│   │   │   ├── 🟡 Bitcoin (BTC)
-│   │   │   ├── 🟣 Solana (SOL, USDC)
-│   │   │   └── 🟢 Polygon (MATIC, USDC)
-│   │   ├── 💸 출금 지원 체인
-│   │   │   ├── **목적지: Hyperliquid USDC (기본)**
-│   │   │   ├── 외부 체인 출금 (요청시)
-│   │   │   └── 모든 거래는 Hyperliquid에서 처리
-│   │   └── 수수료 & 환율 정보
-
-├── 💰 입금 (Deposit) 인터페이스
-│   ├── 1단계: 외부 체인에서 Hyperliquid로
-│   ├── 2단계: 금액 입력 & 계산
-│   ├── 3단계: 지갑 연결 & 승인
-│   └── 4단계: 진행 상황 추적
-
-├── 💸 출금 (Withdraw) 인터페이스  
-│   ├── 1단계: Hyperliquid에서 외부 체인으로
-│   ├── 2단계: 출금 주소 & 금액 설정
-│   ├── 3단계: 보안 인증 & 확인
-│   └── 4단계: 출금 진행 & 완료
-
-├── 📊 브릿지 히스토리 & 관리
-└── 🆘 고객 지원 & 문제 해결
-```
+본 문서에서 브릿지 기능은 제외되었습니다.
 
 ---
 
@@ -303,8 +271,8 @@ Vault 메인 페이지
 - 투표권 관리 시스템
 - PnL 카드 생성기
 
-### 🟡 4-6순위: 나머지 페이지들
-- Trending, Vaults, Bridge
+### 🟡 4순위: 나머지 페이지들
+- Vaults
 - 기본 UI/UX 구현
 - 고급 기능은 추후 단계별 확장
 

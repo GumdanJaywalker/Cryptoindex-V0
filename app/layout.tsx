@@ -4,6 +4,7 @@ import QueryProvider from '@/lib/providers/query-provider'
 import { PrivyProvider } from '@/components/providers/PrivyProvider'
 import { MobileNav, MobileHeader, MobileStatusBar } from '@/components/mobile/mobile-nav'
 import { PWAProvider } from '@/lib/pwa/pwa-provider'
+import { ToastProvider } from '@/components/notifications/toast-system'
 import { PWAInstallPrompt, NetworkStatus } from '@/components/pwa/install-prompt'
 
 export const metadata: Metadata = {
@@ -99,6 +100,7 @@ export default function RootLayout({
         <QueryProvider>
           <PrivyProvider>
             <PWAProvider>
+              <ToastProvider>
               {/* Network Status Indicator */}
               <NetworkStatus />
               
@@ -118,6 +120,7 @@ export default function RootLayout({
               
               {/* PWA Install Prompt */}
               <PWAInstallPrompt />
+              </ToastProvider>
             </PWAProvider>
           </PrivyProvider>
         </QueryProvider>

@@ -211,11 +211,13 @@ export function useTradeExecution() {
           type: params.type === 'buy' ? 'long' : 'short',
           amount: params.amount,
           entryPrice: result.executedPrice!,
+          currentPrice: result.executedPrice!,
           leverage: params.leverage || 1,
           timestamp: new Date(),
           status: 'open',
           pnl: 0,
           pnlPercentage: 0,
+          fees: 0,
           transactionHash: result.transactionHash
         }
 
