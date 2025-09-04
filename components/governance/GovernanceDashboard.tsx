@@ -3,7 +3,9 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Vote, Trophy, Clock, Zap, Target, TrendingUp } from 'lucide-react'
+import { Vote, Trophy, Clock, Zap, Target, TrendingUp, Lock, KeyRound, Info } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { useGovernance } from '@/hooks/use-governance'
 
 const userVotingStats = {
   totalVotingPower: 12500,
@@ -48,6 +50,26 @@ const currentWeekVotes = [
 ]
 
 export function GovernanceDashboard() {
+  const { proposals, load } = useGovernance()
+  useEffect(() => { if (proposals.length === 0) load() }, [proposals.length, load])
+
+  const policy = useMemo(() => {
+    let hasTimelock = false
+    let multisigCount = 0
+    let minQuorum = 101, maxQuorum = 0
+    proposals.forEach(p => {
+      if (p.config.timelockSeconds && p.config.timelockSeconds > 0) hasTimelock = true
+      if (p.config.multisig) multisigCount += 1
+      minQuorum = Math.min(minQuorum, p.config.quorumPercent)
+      maxQuorum = Math.max(maxQuorum, p.config.quorumPercent)
+    })
+    if (minQuorum === 101) minQuorum = 0
+    return {
+      timelock: hasTimelock ? 'Enabled' : '—',
+      multisig: multisigCount > 0 ? `${multisigCount} proposals` : '—',
+      quorumRange: minQuorum === maxQuorum ? `${minQuorum}%` : `${minQuorum}%–${maxQuorum}%`,
+    }
+  }, [proposals])
   return (
     <div className="space-y-6">
       {/* 헤더 - 브랜드 색상 단순화 */}
@@ -61,6 +83,58 @@ export function GovernanceDashboard() {
           Active Voter
         </Badge>
       </div>
+
+      {/* 정책 요약 카드 */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-400 border-slate-600 text-xs">Quorum</Badge>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">
+              {policy.quorumRange}
+            </div>
+            <div className="text-xs text-slate-400">Participation required</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Lock className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-400 border-slate-600 text-xs">Timelock</Badge>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">
+              {policy.timelock}
+            </div>
+            <div className="text-xs text-slate-400">Delay before execution</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <KeyRound className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-400 border-slate-600 text-xs">Multisig</Badge>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">
+              {policy.multisig}
+            </div>
+            <div className="text-xs text-slate-400">M-of-N verification</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Snapshot method 안내 (카피) */}
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardContent className="p-4 flex items-start gap-3 text-sm">
+          <Info className="w-4 h-4 text-slate-300 mt-0.5" />
+          <p className="text-slate-300">
+            Voting power is determined by how long you hold an index (time‑weighted). Longer holding increases decision power.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* 투표권 요약 카드들 - 브랜드 색상 통일 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">

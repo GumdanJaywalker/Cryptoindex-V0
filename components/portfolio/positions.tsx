@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -432,8 +432,8 @@ export function Positions({
                 className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="all">All Positions</option>
-                <option value="long">Long Only</option>
-                <option value="short">Short Only</option>
+                <option value="long">Buy Only</option>
+                <option value="short">Sell Only</option>
               </select>
               
               <select

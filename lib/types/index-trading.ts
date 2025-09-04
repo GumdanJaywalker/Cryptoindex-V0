@@ -81,7 +81,7 @@ export interface TopTrader {
 export interface Trade {
   id: string
   indexId: string
-  traderId: string
+  traderId?: string
   type: 'long' | 'short'
   entryPrice: number
   exitPrice?: number
@@ -96,6 +96,10 @@ export interface Trade {
   orderType?: 'market' | 'limit' | 'stop-loss' | 'take-profit'
   fees: number
   fundingFees?: number
+  // Optional fields used by mocks and UI helpers
+  transactionHash?: string
+  stopLoss?: number
+  takeProfit?: number
 }
 
 export interface RealtimeUpdate {

@@ -29,7 +29,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/trading', label: 'Trade', icon: TrendingUp, badge: 'HOT' },
-  { href: '/trending', label: 'Trending', icon: BarChart3 },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/governance', label: 'Vote', icon: Vote }
 ]

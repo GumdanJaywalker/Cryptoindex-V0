@@ -67,7 +67,7 @@ export function PresetPanel() {
             className={`
               text-xs h-8 transition-all duration-200
               ${preset.isActive 
-                ? 'bg-brand text-black shadow-md hover:text-white' 
+                ? 'bg-brand text-black shadow-md hover:text-black' 
                 : 'hover:bg-accent'
               }
             `}

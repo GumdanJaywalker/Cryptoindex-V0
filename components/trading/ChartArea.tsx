@@ -383,7 +383,7 @@ function TradingDataContent() {
   const activeTraderData = generateMockData(dataPoints, 15420, 2000);
 
   // Asset allocation data for stacked area chart
-  const assetAllocationData = Array.from({ length: dataPoints }, (_, i) => ({
+  const assetAllocationData: Array<{ [key: string]: number }> = Array.from({ length: dataPoints }, (_, i) => ({
     timestamp: Date.now() - (dataPoints - 1 - i) * getTimeInterval(timeframe) * 1000,
     DOGE: 25.4 + (Math.random() - 0.5) * 2,
     SHIB: 18.7 + (Math.random() - 0.5) * 1.5,

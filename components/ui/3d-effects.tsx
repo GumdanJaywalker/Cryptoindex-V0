@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState, ReactNode } from 'react'
+import React, { useRef, useEffect, useState, ReactNode } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 
 // 3D 틸트 카드 컴포넌트
@@ -457,5 +457,5 @@ export function Enhanced3DCard({
     )
   }
 
-  return cardContent as JSX.Element
+  return cardContent as React.ReactElement
 }

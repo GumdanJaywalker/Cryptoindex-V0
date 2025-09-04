@@ -7,7 +7,6 @@ const DYNAMIC_CACHE_NAME = 'cryptoindex-dynamic-v1.0.0'
 const STATIC_ASSETS = [
   '/',
   '/trading',
-  '/trending', 
   '/portfolio',
   '/governance',
   '/manifest.json',

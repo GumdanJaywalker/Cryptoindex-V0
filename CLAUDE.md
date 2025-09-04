@@ -63,7 +63,6 @@ pnpm run dev
   /trading                    # 🔥 메인 거래 페이지
   /governance                 # 거버넌스 투표 페이지
   /portfolio                  # 포트폴리오 관리
-  /bridge                     # 브릿지
   layout.tsx                  # 공통 레이아웃
 
 /components

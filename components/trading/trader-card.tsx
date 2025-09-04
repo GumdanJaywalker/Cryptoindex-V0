@@ -204,14 +204,14 @@ export function TraderCard({
       scale: 1, 
       y: 0,
       rotateX: 0,
-      transition: { type: "spring", stiffness: 300, damping: 25 }
+      transition: { type: 'spring' as const, stiffness: 300, damping: 25 }
     },
     hover: { 
       scale: 1.03, 
       y: -8,
       rotateX: 2,
       boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
-      transition: { type: "spring", stiffness: 400, damping: 20 }
+      transition: { type: 'spring' as const, stiffness: 400, damping: 20 }
     },
     tap: { 
       scale: 0.98,
@@ -422,7 +422,7 @@ export function TraderCard({
           </div>
           
           {/* PnL 차트 */}
-          {showPnLChart && variant !== 'compact' && (
+          {showPnLChart && (
             <div className="mb-3">
               <div className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />

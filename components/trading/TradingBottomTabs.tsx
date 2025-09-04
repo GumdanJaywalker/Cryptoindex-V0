@@ -54,7 +54,7 @@ const mockPositions = [
   {
     id: '1',
     symbol: 'MEME_INDEX',
-    side: 'Long',
+    side: 'Buy',
     size: 1.5,
     entryPrice: 2.45,
     currentPrice: 2.67,
@@ -69,7 +69,7 @@ const mockPositions = [
   {
     id: '2', 
     symbol: 'DOG_INDEX',
-    side: 'Short',
+    side: 'Sell',
     size: 0.8,
     entryPrice: 1.82,
     currentPrice: 1.73,
@@ -414,7 +414,7 @@ export function TradingBottomTabs() {
                             <Badge 
                               variant="outline" 
                               className={`text-xs mb-1 ${
-                                position.side === 'Long' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'
+                                position.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'
                               }`}
                             >
                               {position.side}
@@ -432,8 +432,8 @@ export function TradingBottomTabs() {
                             <div className="text-white font-medium">${position.currentPrice.toFixed(3)}</div>
                             <div className={`text-xs ${
                               position.currentPrice > position.entryPrice 
-                                ? (position.side === 'Long' ? 'text-green-400' : 'text-red-400')
-                                : (position.side === 'Long' ? 'text-red-400' : 'text-green-400')
+                                ? (position.side === 'Buy' ? 'text-green-400' : 'text-red-400')
+                                : (position.side === 'Buy' ? 'text-red-400' : 'text-green-400')
                             }`}>
                               {((position.currentPrice - position.entryPrice) / position.entryPrice * 100).toFixed(2)}%
                             </div>
@@ -480,7 +480,7 @@ export function TradingBottomTabs() {
                             }`}>
                               {position.fundingRate >= 0 ? '+' : ''}{(position.fundingRate * 100).toFixed(4)}%
                             </div>
-                            <div className="text-xs text-slate-400">{position.nextFunding}</div>
+                            {/* Next funding time not tracked in mock; hide sublabel */}
                           </div>
                         </div>
 
@@ -557,7 +557,7 @@ export function TradingBottomTabs() {
                 {[
                   {
                     symbol: 'MEME_INDEX',
-                    side: 'Long',
+                    side: 'Buy',
                     openTime: '2024-01-19 14:30:22',
                     closeTime: '2024-01-20 09:15:33',
                     size: 2.5,
@@ -569,7 +569,7 @@ export function TradingBottomTabs() {
                   },
                   {
                     symbol: 'DOG_INDEX',
-                    side: 'Short',
+                    side: 'Sell',
                     openTime: '2024-01-18 10:20:15',
                     closeTime: '2024-01-19 16:45:12',
                     size: 1.8,
@@ -581,7 +581,7 @@ export function TradingBottomTabs() {
                   },
                   {
                     symbol: 'CAT_INDEX',
-                    side: 'Long',
+                    side: 'Buy',
                     openTime: '2024-01-17 08:15:44',
                     closeTime: '2024-01-18 12:30:18',
                     size: 3.2,
@@ -598,9 +598,9 @@ export function TradingBottomTabs() {
                         <div className="flex items-center gap-3">
                           <Badge 
                             variant="outline" 
-                            className={position.side === 'Long' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}
+                            className={position.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}
                           >
-                            {position.side} {position.leverage}
+                            {position.side}
                           </Badge>
                           <span className="font-semibold text-white">{position.symbol}</span>
                         </div>
@@ -839,10 +839,10 @@ export function TradingBottomTabs() {
                               <div className="flex items-center gap-1">
                                 <span className="text-slate-400">Slippage:</span>
                                 <span className={`font-medium ${
-                                  order.slippage < 0 ? 'text-green-400' : 
-                                  order.slippage > 0.5 ? 'text-red-400' : 'text-yellow-400'
+                                  (order.slippage ?? 0) < 0 ? 'text-green-400' : 
+                                  (order.slippage ?? 0) > 0.5 ? 'text-red-400' : 'text-yellow-400'
                                 }`}>
-                                  {order.slippage > 0 ? '+' : ''}{order.slippage}%
+                                  {(order.slippage ?? 0) > 0 ? '+' : ''}{order.slippage ?? 0}%
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -1226,7 +1226,7 @@ export function TradingBottomTabs() {
                           <div className="text-xs font-medium text-white mb-2">Popular Strategies (24h)</div>
                           <div className="space-y-2">
                             {[
-                              { strategy: 'Long MEME + Short AI', traders: 142, avgPnl: '+8.2%', volume: '$3.2M' },
+                              { strategy: 'Buy MEME + Sell AI', traders: 142, avgPnl: '+8.2%', volume: '$3.2M' },
                               { strategy: 'AI Index Momentum', traders: 89, avgPnl: '+5.7%', volume: '$2.1M' },
                               { strategy: 'Dog vs Cat Pair', traders: 67, avgPnl: '+3.4%', volume: '$1.8M' },
                               { strategy: 'Multi-Index Hedge', traders: 34, avgPnl: '+12.1%', volume: '$1.2M' }
@@ -1249,10 +1249,10 @@ export function TradingBottomTabs() {
                           <div className="text-xs font-medium text-white mb-2">Recent Big Trades</div>
                           <div className="space-y-1">
                             {[
-                              { time: '14:23', trader: '0xA1b2...F8d9', action: 'Long MEME_INDEX', size: '$145.2K', leverage: '5x' },
-                              { time: '13:57', trader: '0xB2c3...H9e1', action: 'Short AI_INDEX', size: '$132.8K', leverage: '3x' },
-                              { time: '13:12', trader: '0xC3e4...A2b6', action: 'Long DOG_INDEX', size: '$98.5K', leverage: '10x' },
-                              { time: '12:45', trader: '0xD4e5...J1f3', action: 'Long MEME_INDEX', size: '$167.3K', leverage: '2x' }
+                              { time: '14:23', trader: '0xA1b2...F8d9', action: 'Buy MEME_INDEX', size: '$145.2K', leverage: '5x' },
+                              { time: '13:57', trader: '0xB2c3...H9e1', action: 'Sell AI_INDEX', size: '$132.8K', leverage: '3x' },
+                              { time: '13:12', trader: '0xC3e4...A2b6', action: 'Buy DOG_INDEX', size: '$98.5K', leverage: '10x' },
+                              { time: '12:45', trader: '0xD4e5...J1f3', action: 'Buy MEME_INDEX', size: '$167.3K', leverage: '2x' }
                             ].map((trade, index) => (
                               <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
                                 <div className="flex items-center gap-2">
@@ -1261,7 +1261,7 @@ export function TradingBottomTabs() {
                                 </div>
                                 <div className="text-right">
                                   <div className="text-xs text-white font-medium">{trade.size}</div>
-                                  <div className={`text-xs ${trade.action.startsWith('Long') ? 'text-green-400' : 'text-red-400'}`}>
+                                  <div className={`text-xs ${trade.action.startsWith('Buy') ? 'text-green-400' : 'text-red-400'}`}>
                                     {trade.action} {trade.leverage}
                                   </div>
                                 </div>

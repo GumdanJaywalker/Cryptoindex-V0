@@ -227,7 +227,7 @@ export function TrendingIndices({
                 selectedFilter === key 
                   ? key.startsWith('layer-') && color
                     ? `bg-transparent border ${color} hover:bg-opacity-10`
-                    : "bg-brand text-white hover:bg-brand-hover"
+                    : "bg-brand text-black hover:bg-brand-hover"
                   : key.startsWith('layer-') && color
                     ? `${color} hover:bg-opacity-10`
                     : "text-slate-400 hover:text-white hover:bg-slate-800"

@@ -1,7 +1,6 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState, ReactNode } from 'react'
 
 // React Query 클라이언트 설정
@@ -49,12 +48,8 @@ export default function QueryProvider({ children }: QueryProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools 
-          initialIsOpen={false}
-          buttonPosition="bottom-left"
-        />
-      )}
+      {/* React Query Devtools는 개발 환경에서만 사용합니다. 
+          패키지가 없을 수 있어 빌드 오류 방지를 위해 임시로 비활성화했습니다. */}
     </QueryClientProvider>
   )
 }

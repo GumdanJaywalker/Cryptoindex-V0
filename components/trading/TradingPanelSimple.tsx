@@ -9,7 +9,7 @@ import { TrendingUp, TrendingDown, Info, AlertTriangle, Clock, Zap } from 'lucid
 import { useState, useEffect } from 'react'
 import NumberTicker from '@/components/magicui/number-ticker'
 import { MagicCard } from '@/components/magicui/magic-card'
-import { ShimmerButton } from '@/components/magicui/shimmer-button'
+// Removed shimmer for order buttons (solid style preferred)
 
 export function TradingPanel() {
   const [buyQuantity, setBuyQuantity] = useState('')
@@ -320,12 +320,12 @@ export function TradingPanel() {
             </MagicCard>
 
             {/* Place Order Button with Shimmer */}
-            <ShimmerButton 
-              className="w-full !bg-brand hover:!bg-brand/90 !text-white shadow-lg shadow-brand/20"
+            <Button
+              className="w-full bg-brand hover:bg-brand-hover text-black font-semibold py-3 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!buyQuantity || Number(buyQuantity) <= 0}
             >
               {getOrderButtonText(buyOrderType, buyQuantity, true)}
-            </ShimmerButton>
+            </Button>
           </TabsContent>
           
           <TabsContent value="sell" className="space-y-3 mt-3">
@@ -470,12 +470,12 @@ export function TradingPanel() {
             </MagicCard>
 
             {/* Place Order Button with Shimmer */}
-            <ShimmerButton 
-              className="w-full !bg-red-600 hover:!bg-red-700 !text-white shadow-lg shadow-red-600/20"
+            <Button
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!sellQuantity || Number(sellQuantity) <= 0 || Number(sellQuantity) > dogHoldings}
             >
               {getOrderButtonText(sellOrderType, sellQuantity, false)}
-            </ShimmerButton>
+            </Button>
           </TabsContent>
         </Tabs>
 

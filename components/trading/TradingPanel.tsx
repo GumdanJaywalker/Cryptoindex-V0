@@ -16,7 +16,7 @@ const marginModes = ['Cross Margin', 'Isolated Margin']
 const timeInForceOptions = ['GTC', 'IOC', 'FOK']
 
 export function TradingPanel() {
-  const [side, setSide] = useState<'Long' | 'Short'>('Long')
+  const [side, setSide] = useState<'Buy' | 'Sell'>('Buy')
   const [orderType, setOrderType] = useState('Market')
   const [leverage, setLeverage] = useState(10)
   const [marginMode, setMarginMode] = useState('Cross Margin')
@@ -139,16 +139,16 @@ export function TradingPanel() {
       </div>
 
       <div className="px-3 pt-2.5 space-y-3 bg-background">
-        {/* Long/Short Tabs */}
-        <Tabs value={side} onValueChange={(value) => setSide(value as 'Long' | 'Short')} className="w-full">
+        {/* Buy/Sell Tabs */}
+        <Tabs value={side} onValueChange={(value) => setSide(value as 'Buy' | 'Sell')} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-secondary p-1">
-            <TabsTrigger value="Long" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
+            <TabsTrigger value="Buy" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
-              Long
+              Buy
             </TabsTrigger>
-            <TabsTrigger value="Short" className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
+            <TabsTrigger value="Sell" className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
               <TrendingDown className="w-4 h-4 mr-1" />
-              Short
+              Sell
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -268,7 +268,7 @@ export function TradingPanel() {
           <div className="flex items-center space-x-2">
             <Checkbox 
               checked={takeProfitEnabled}
-              onCheckedChange={setTakeProfitEnabled}
+              onCheckedChange={(checked) => setTakeProfitEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
             />
             <label className="text-xs text-muted-foreground">Take Profit</label>
@@ -286,7 +286,7 @@ export function TradingPanel() {
           <div className="flex items-center space-x-2">
             <Checkbox 
               checked={stopLossEnabled}
-              onCheckedChange={setStopLossEnabled}
+              onCheckedChange={(checked) => setStopLossEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
             />
             <label className="text-xs text-muted-foreground">Stop Loss</label>
@@ -304,7 +304,7 @@ export function TradingPanel() {
           <div className="flex items-center space-x-2">
             <Checkbox 
               checked={trailingStopEnabled}
-              onCheckedChange={setTrailingStopEnabled}
+              onCheckedChange={(checked) => setTrailingStopEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
             />
             <label className="text-xs text-muted-foreground">Trailing Stop</label>
@@ -326,7 +326,7 @@ export function TradingPanel() {
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     checked={postOnly}
-                    onCheckedChange={setPostOnly}
+                    onCheckedChange={(checked) => setPostOnly(Boolean(checked))}
                     className="border-border"
                   />
                   <label className="text-xs text-muted-foreground">Post Only</label>
@@ -335,7 +335,7 @@ export function TradingPanel() {
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     checked={reduceOnly}
-                    onCheckedChange={setReduceOnly}
+                    onCheckedChange={(checked) => setReduceOnly(Boolean(checked))}
                     className="border-border"
                   />
                   <label className="text-xs text-muted-foreground">Reduce Only</label>
@@ -361,7 +361,7 @@ export function TradingPanel() {
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   checked={hiddenOrder}
-                  onCheckedChange={setHiddenOrder}
+                  onCheckedChange={(checked) => setHiddenOrder(Boolean(checked))}
                   className="border-border"
                 />
                 <label className="text-xs text-muted-foreground">Hidden Order (Iceberg)</label>
@@ -383,7 +383,7 @@ export function TradingPanel() {
         {/* Execute Button */}
         <Button 
           className={`w-full py-3 h-12 rounded-lg font-semibold transition-all ${
-            side === 'Long'
+            side === 'Buy'
               ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 border-emerald-600'
               : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20 border-red-600'
           }`}
@@ -442,8 +442,8 @@ export function TradingPanel() {
         <div className="bg-card rounded-lg p-2 text-xs border border-border mt-4">
           <div className="text-muted-foreground mb-1">Hotkeys:</div>
           <div className="grid grid-cols-2 gap-1 text-muted-foreground">
-            <div>F1: Quick Long</div>
-            <div>F2: Quick Short</div>
+            <div>F1: Quick Buy</div>
+            <div>F2: Quick Sell</div>
             <div>F3: Close All</div>
             <div>F4: Cancel All</div>
           </div>
