@@ -42,8 +42,8 @@ export function IndexBuilderWizard() {
   // Relative time ticker for Saved badge
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 30000)
-    return () => clearInterval(id)
+    const id = window.setInterval(() => setNow(Date.now()), 30000)
+    return () => window.clearInterval(id)
   }, [])
 
   const formatRelative = (ts: number) => {
