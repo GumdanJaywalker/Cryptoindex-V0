@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -43,6 +43,7 @@ export function WeightTable({
   const totalOk = Math.abs(total - 100) < 0.01
   const overCap = capPercent ? symbols.filter((s) => weights[s] > capPercent) : []
   const [okHint, setOkHint] = useState<null | string>(null)
+  const okHintTimeoutRef = useRef<number | null>(null)
 
   const updateOne = (sym: string, w: number) => {
     const next = { ...weights, [sym]: Math.max(0, w) }
@@ -71,7 +72,14 @@ export function WeightTable({
     })
     onChange(formatRaw(next))
     setOkHint('All set ✓')
-    setTimeout(() => setOkHint(null), 1500)
+    if (okHintTimeoutRef.current !== null) {
+      clearTimeout(okHintTimeoutRef.current)
+      okHintTimeoutRef.current = null
+    }
+    okHintTimeoutRef.current = window.setTimeout(() => {
+      setOkHint(null)
+      okHintTimeoutRef.current = null
+    }, 1500)
   }
 
   const distributeEqual = () => {
@@ -88,8 +96,25 @@ export function WeightTable({
     })
     onChange(formatRaw(next))
     setOkHint('All set ✓')
-    setTimeout(() => setOkHint(null), 1500)
+    if (okHintTimeoutRef.current !== null) {
+      clearTimeout(okHintTimeoutRef.current)
+      okHintTimeoutRef.current = null
+    }
+    okHintTimeoutRef.current = window.setTimeout(() => {
+      setOkHint(null)
+      okHintTimeoutRef.current = null
+    }, 1500)
   }
+
+  // Cleanup any pending hint timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (okHintTimeoutRef.current !== null) {
+        clearTimeout(okHintTimeoutRef.current)
+        okHintTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <Card className="bg-slate-900/50 border-slate-800">

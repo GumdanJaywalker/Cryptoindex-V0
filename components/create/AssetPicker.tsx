@@ -54,6 +54,7 @@ export function AssetPicker({
   const [excludeBlacklisted, setExcludeBlacklisted] = useState(false)
   const [positiveReturnOnly, setPositiveReturnOnly] = useState(false)
   const [okHint, setOkHint] = useState<null | string>(null)
+  const okHintTimeoutRef = useRef<number | null>(null)
   const [selectedOnly, setSelectedOnly] = useState(false)
   const globalBL = useMemo(() => new Map(globalBlacklist.map((e) => [e.symbol.toUpperCase(), e.reason])), [])
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -169,8 +170,25 @@ useEffect(() => {
     })
     onChange(formatRaw(next))
     setOkHint('All set ✓')
-    setTimeout(() => setOkHint(null), 1500)
+    if (okHintTimeoutRef.current !== null) {
+      clearTimeout(okHintTimeoutRef.current)
+      okHintTimeoutRef.current = null
+    }
+    okHintTimeoutRef.current = window.setTimeout(() => {
+      setOkHint(null)
+      okHintTimeoutRef.current = null
+    }, 1500)
   }
+
+  // Cleanup any pending hint timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (okHintTimeoutRef.current !== null) {
+        clearTimeout(okHintTimeoutRef.current)
+        okHintTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   const total = Object.values(selected).reduce((s, v) => s + (Number.isFinite(v) ? v : 0), 0)
   const totalOk = Math.abs(total - 100) < 0.01
