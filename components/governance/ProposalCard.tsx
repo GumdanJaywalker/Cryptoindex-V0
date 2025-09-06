@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/components/notifications/toast-system'
 import { useGovernance } from '@/hooks/use-governance'
+import { getActionInfo } from '@/hooks/use-governance'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function ProposalCard({ proposal }: { proposal: Proposal }) {
   const router = useRouter()
@@ -25,9 +27,16 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
   const forPct = votesCast > 0 ? (proposal.tally.forPower / votesCast) * 100 : 0
   const againstPct = votesCast > 0 ? (proposal.tally.againstPower / votesCast) * 100 : 0
   const castPct = proposal.tally.totalSnapshotPower > 0 ? (votesCast / proposal.tally.totalSnapshotPower) * 100 : 0
+  // Periodic tick to refresh countdown/severity on the card
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000)
+    return () => clearInterval(id)
+  }, [])
+
   const endsMs = proposal.endsAt ? proposal.endsAt - Date.now() : null
-  const timeSeverity: 'none' | 'soon' | 'imminent' = proposal.phase === 'active' && endsMs !== null
-    ? (endsMs <= 2 * 3_600_000 ? 'imminent' : endsMs <= 8 * 3_600_000 ? 'soon' : 'none')
+  const timeSeverity: 'none' | 'soon' | 'imminent' | 'critical' = proposal.phase === 'active' && endsMs !== null
+    ? (endsMs <= 1 * 3_600_000 ? 'critical' : endsMs <= 6 * 3_600_000 ? 'imminent' : endsMs <= 24 * 3_600_000 ? 'soon' : 'none')
     : 'none'
 
   // Snapshot labeling removed (single method in MVP)
@@ -51,29 +60,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
     return cmap[phase] || 'text-slate-300 border-slate-600'
   })()
 
-  const actionInfo = () => {
-    const u = proposal.user
-    switch (proposal.phase) {
-      case 'commit':
-        return { label: 'Commit Vote', disabled: true, reason: 'Commit-reveal mode (commit phase)' }
-      case 'reveal':
-        return { label: 'Reveal Vote', disabled: true, reason: 'Commit-reveal mode (reveal phase)' }
-      case 'active': {
-        if (u && !u.eligible) return { label: 'Vote', disabled: true, reason: 'Not eligible at snapshot' }
-        return { label: 'Vote', disabled: true, reason: 'Voting UI not implemented' }
-      }
-      case 'queued':
-      case 'timelocked': {
-        const eta = proposal.timelock?.eta
-        const reason = eta ? `Timelock in effect (ETA ${new Date(eta).toLocaleString('en-US')})` : 'Timelock in effect'
-        return { label: 'Execute', disabled: true, reason }
-      }
-      case 'awaiting-multisig':
-        return { label: 'Sign (M-of-N)', disabled: true, reason: 'Only multisig signers can sign' }
-      default:
-        return { label: 'View', disabled: true, reason: 'Read-only' }
-    }
-  }
+  const actionInfo = () => getActionInfo(proposal)
 
   return (
     <Card
@@ -127,7 +114,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             <div className="text-xs text-slate-400 mb-1">Time</div>
             <div className={cn(
               'text-sm',
-              timeSeverity === 'imminent' ? 'text-red-400' : timeSeverity === 'soon' ? 'text-yellow-400' : 'text-white'
+              timeSeverity === 'critical' ? 'text-red-500' : timeSeverity === 'imminent' ? 'text-red-400' : timeSeverity === 'soon' ? 'text-yellow-400' : 'text-white'
             )}>
               {proposal.phase === 'active' ? (tl || '—') : proposal.phase}
             </div>
@@ -138,7 +125,21 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
         <div className="text-xs text-slate-300">
           {votesCast > 0 ? (
             <span>
-              For {forPct.toFixed(1)}% · Against {againstPct.toFixed(1)}% · Cast {castPct.toFixed(1)}%
+              For {forPct.toFixed(1)}% · Against {againstPct.toFixed(1)}% ·
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="ml-1 underline-offset-2 hover:underline cursor-default">
+                      Cast {castPct.toFixed(1)}%
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>
+                      {votesCast.toLocaleString()} / {proposal.tally.totalSnapshotPower.toLocaleString()} snapshot power
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </span>
           ) : (
             <span>No votes cast yet</span>
@@ -210,7 +211,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
           })()}
           {proposal.config.multisig && (
             <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
-              Multisig {proposal.multisig?.signed.length ?? 0}/{proposal.config.multisig.m} of {proposal.config.multisig.n}
+              Operator signatures {proposal.multisig?.signed.length ?? 0}/4 required
             </Badge>
           )}
         </div>
