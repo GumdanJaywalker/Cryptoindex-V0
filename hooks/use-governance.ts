@@ -33,3 +33,37 @@ export function useGovernance() {
   return { proposals, loading, error, load, getById, ...helpers }
 }
 
+// Standardized action info (label/reason) per phase
+import type { Proposal } from '@/lib/types/governance'
+export function getActionInfo(p: Proposal, opts?: { isSigner?: boolean }): { label: string; disabled: boolean; reason: string } {
+  const isSigner = !!opts?.isSigner
+  const u = p.user
+  switch (p.phase) {
+    case 'commit':
+      return { label: 'Commit Vote', disabled: true, reason: 'Commit-reveal mode is not used in MVP' }
+    case 'reveal':
+      return { label: 'Reveal Vote', disabled: true, reason: 'Commit-reveal mode is not used in MVP' }
+    case 'active': {
+      if (u && !u.eligible) return { label: 'Vote', disabled: true, reason: 'Not eligible at time‑weighted snapshot' }
+      return { label: 'Vote', disabled: true, reason: 'Voting UI not implemented (MVP scope)' }
+    }
+    case 'queued':
+    case 'timelocked': {
+      const eta = p.timelock?.eta
+      const reason = eta ? `Timelock in effect (ETA ${new Date(eta).toLocaleString('en-US')})` : 'Timelock in effect'
+      return { label: 'Execute', disabled: true, reason }
+    }
+    case 'awaiting-multisig':
+      return { label: 'Sign (4/4)', disabled: true, reason: isSigner ? 'Signing is not wired in MVP' : 'Operator‑only action' }
+    case 'executed':
+      return { label: 'Executed', disabled: true, reason: 'Proposal already executed' }
+    case 'succeeded':
+      return { label: 'Succeeded', disabled: true, reason: 'Will be queued/executed per policy' }
+    case 'defeated':
+      return { label: 'Defeated', disabled: true, reason: 'Did not meet quorum or pass threshold' }
+    case 'canceled':
+      return { label: 'Canceled', disabled: true, reason: 'Proposal canceled' }
+    default:
+      return { label: 'View', disabled: true, reason: 'Read-only' }
+  }
+}

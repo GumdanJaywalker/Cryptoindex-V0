@@ -6,17 +6,21 @@ import { ProposalCard } from './ProposalCard'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
 
 export function ProposalsSection() {
   const { proposals, loading, error, load } = useGovernance()
   const [filter, setFilter] = useState<'all' | 'active' | 'ending-soon' | 'queued' | 'awaiting-multisig' | 'executed'>('all')
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     if (proposals.length === 0 && !loading) load()
   }, [proposals.length, loading, load])
 
   const items = useMemo(() => {
+    const q = query.trim().toLowerCase()
     let list = proposals.filter(p => p.type === 'rebalancing')
+      .filter(p => q === '' || (p.title.toLowerCase().includes(q) || (p.indexSymbol || '').toLowerCase().includes(q)))
     if (filter === 'active') list = list.filter(p => p.phase === 'active')
     if (filter === 'queued') list = list.filter(p => p.phase === 'queued' || p.phase === 'timelocked')
     if (filter === 'awaiting-multisig') list = list.filter(p => p.phase === 'awaiting-multisig')
@@ -26,8 +30,21 @@ export function ProposalsSection() {
       const now = Date.now()
       list = list.filter(p => p.phase === 'active' && p.endsAt && (p.endsAt - now) <= within)
     }
+    // Sort: active by nearest end time asc, others by createdAt desc
+    list = list.slice().sort((a, b) => {
+      const phaseOrder = (ph: string) => (ph === 'active' ? 0 : ph === 'queued' || ph === 'timelocked' ? 1 : ph === 'awaiting-multisig' ? 2 : ph === 'executed' ? 3 : 4)
+      const pa = phaseOrder(a.phase)
+      const pb = phaseOrder(b.phase)
+      if (pa !== pb) return pa - pb
+      if (a.phase === 'active' && b.phase === 'active') {
+        const ea = a.endsAt ?? Infinity
+        const eb = b.endsAt ?? Infinity
+        return ea - eb
+      }
+      return (b.createdAt || 0) - (a.createdAt || 0)
+    })
     return list
-  }, [proposals, filter])
+  }, [proposals, filter, query])
 
   return (
     <div className="space-y-6">
@@ -58,6 +75,12 @@ export function ProposalsSection() {
         <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
           {items.length} proposals
         </Badge>
+        <Input
+          placeholder="Search title or index symbol"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="h-8 w-56 text-xs"
+        />
         <Button
           size="sm"
           variant="outline"

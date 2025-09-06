@@ -124,13 +124,13 @@ Notes
 - Done today:
   - Create: rules-before-assets reordering, L3 fixed chain; modal AssetPicker with search/sort/filters; global blacklist UX; WeightTable with 1% caps; micro feedback; virtualized grid; submit stub + toasts; hydration-safe draft loading.
   - Governance: types/store/hook/API stubs; proposals section/cards with policy badges; dashboard policy summary; time‑weighted snapshot finalized; detail page `/governance/[id]` with quorum/support/time/changes/timelock/multisig; timelock countdown + urgency; voter breakdown (percent + absolute) + tooltips; list/card “Queued soon” badge; list/time urgency color.
-- Next (short term):
-  - Governance actions (UI):
-    - Gating by `user.eligible` and phase; enrich tooltips with snapshot/quorum reasons (time‑weighted only)
-    - Timelock ETA countdown and queue/execute (disabled states + copy)
-    - Multisig signer UI (list of signers, “You are signer” cue), badge coloring by progress
-  - Proposal details route: `/governance/[id]` with full policy timeline and vote breakdown (time‑weighted)
-  - Replace/retire legacy battle UI; if retained, reframe as “weight decision” under rebalancing policy
+- Next (short term — feature only):
+  - Backend integration
+    - Wire list/detail to real endpoints
+    - Snapshot power (time‑weighted) endpoint for eligibility/voting power
+    - Tallies/timelock/multisig polling or SSE
+  - Tests (helpers)
+    - quorum/support/timeLeft calculations
 - Later (integration):
   - Hook API wiring to real backend/indexer; snapshot power endpoint; timelock/multisig status
   - (Removed) Shielded voting flows (commit/reveal) — not in MVP
@@ -148,20 +148,30 @@ Notes
   - Simplify `snapshotLabel` helpers and UI branches
   - Ensure eligibility/tooltips reference time‑weighted rules only
 
+## Policy Update — Multisig (Operator‑Only, 4/4)
+- Execution is gated by operator signatures, not a public multisig threshold.
+- Exactly 4 of 4 operator signatures are required to execute rebalancing.
+- UI Changes:
+  - Replace generic “Multisig M‑of‑N” with “Operator signatures 4/4 required”.
+  - Action tooltips: “Operator‑only” for non‑signers.
+  - Detail view highlights “You are signer” for connected operator addresses.
+- Data/Mocks:
+  - Set `config.multisig = { m: 4, n: 4 }` in all proposals; adjust `multisig.signed` accordingly.
+
 ## Resume Checklist — Governance (next agent)
 - Environment
   - Run dev: `pnpm dev` → visit `/governance` and `/governance/[id]`
   - Data source: mock via `lib/api/governance.ts` (`getProposals`, time‑weighted only)
 - Immediate next tasks (priority)
-  1) Actions stubs: wire disabled button handlers with standardized toasts
-     - Vote (active, eligible) → toast “Voting UI not implemented (MVP scope)”
-     - Execute (after timelock) → toast with timelock reason
-     - Sign (awaiting multisig) → toast “Signer only”
-  2) Detail polish
-     - Timelock urgency color thresholds: current 24h/6h; add 1h “critical” if needed
-     - Add absolute power labels to list card (optional compact tooltip)
-  3) Replace/retire legacy battle UI
-     - Remove or reframe as “weight decision” under rebalancing; do not expose outside rebalancing policy
+  1) Backend integration (replace mocks)
+     - GET `/api/governance/proposals` (list)
+     - GET `/api/governance/proposals/:id` (detail)
+     - GET `/api/governance/proposals/:id/tally`
+     - GET `/api/governance/proposals/:id/snapshot-power?address=0x...`
+     - GET `/api/governance/proposals/:id/timelock`
+     - GET `/api/governance/proposals/:id/multisig`
+  2) Error/empty states
+     - Verify list/detail fallbacks with real endpoints
 - Integration prep
   - Define API contracts: snapshot power (time‑weighted), tallies, timelock, multisig signer set
   - Error/empty states: add fallbacks in list/detail when API errors or returns 0 items
@@ -180,6 +190,41 @@ Notes
 - Card: `components/governance/ProposalCard.tsx`
 - Dashboard: `components/governance/GovernanceDashboard.tsx`
 - Detail: `app/governance/[id]/page.tsx`
+
+## API Contracts (Draft) — For Backend Integration
+
+- GET `/api/governance/proposals`
+  - Returns: `Proposal[]` (see `lib/types/governance.ts`)
+  - Each item should include minimal tally snapshot for list (for/against/abstain, totalSnapshotPower) and phase/config.
+
+- GET `/api/governance/proposals/:id`
+  - Returns: full `Proposal` with `tally`, `config`, `timelock`, `multisig`, `user`.
+
+- GET `/api/governance/proposals/:id/tally`
+  - Returns: `{ forPower: number; againstPower: number; abstainPower: number; totalSnapshotPower: number }`
+  - Time‑weighted snapshot is applied server‑side. FE does not compute.
+
+- GET `/api/governance/proposals/:id/snapshot-power?address=0x...`
+  - Returns: `{ eligible: boolean; votingPowerAtSnapshot: number }`
+
+- GET `/api/governance/proposals/:id/timelock`
+  - Returns: `{ queuedAt?: number; eta?: number }` (ms epoch)
+
+- GET `/api/governance/proposals/:id/multisig`
+  - Returns: `{ required: number; total: number; signed: string[] }`
+  - Policy: operator‑only 4/4 (required=4,total=4). FE shows operator list via static set or from API.
+
+- POST (backend‑only, FE disabled in MVP)
+  - `/api/governance/proposals/:id/vote` → body `{ optionIds?: string[] }` (time‑weighted power applied server‑side)
+  - `/api/governance/proposals/:id/queue` → queues timelock if succeeded
+  - `/api/governance/proposals/:id/execute` → executes after timelock + 4/4 signatures
+  - `/api/governance/proposals/:id/sign` → operator signature endpoint
+  - Response: `{ ok: true }` or `{ ok: false, error: string }`
+
+Notes
+- All numbers are integers in base units. FE formats via `toLocaleString()`.
+- Time‑weighted snapshot: definition/version should be included in responses if relevant (e.g., window start/end).
+- SSE or polling cadence is acceptable; FE expects eventual consistency on tally/ timelock/ multisig.
 
 ## Alignment Review — Plan vs Current Repo
 - Governance:

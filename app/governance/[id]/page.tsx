@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { CheckCircle } from 'lucide-react'
 import { use, useEffect, useMemo, useState } from 'react'
 import { useWallets } from '@privy-io/react-auth'
 import { useGovernance } from '@/hooks/use-governance'
@@ -10,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/components/notifications/toast-system'
+import { getActionInfo } from '@/hooks/use-governance'
+import { OPERATOR_ADDRESSES } from '@/lib/mock/operators'
 import { cn } from '@/lib/utils'
 
 export default function ProposalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -17,6 +21,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
   const { id } = use(params)
   const { wallets } = useWallets()
   const { addToast } = useToast()
+  const router = useRouter()
 
   useEffect(() => { if (proposals.length === 0) load() }, [proposals.length, load])
   const p = getById(id)
@@ -24,10 +29,27 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
   // Snapshot labeling removed (single method in MVP)
 
   if (!p) {
+    const loading = proposals.length === 0
     return (
       <div className="min-h-screen bg-slate-950 text-white pt-16">
         <main className="max-w-5xl mx-auto px-6 py-8">
-          <div className="text-slate-400">{proposals.length === 0 ? 'Loading…' : 'Proposal not found'}</div>
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-6 flex items-center justify-between">
+              <div className="text-sm text-slate-300">
+                {loading ? 'Loading proposal…' : 'Proposal not found'}
+              </div>
+              <div className="flex items-center gap-2">
+                {!loading && (
+                  <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => router.push('/governance')}>
+                    Back to list
+                  </Button>
+                )}
+                <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => load()} disabled={loading}>
+                  Refresh
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </main>
       </div>
     )
@@ -56,7 +78,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
   // Timelock countdown (live)
   const [countdown, setCountdown] = useState<string>(tl)
-  const [severity, setSeverity] = useState<'none' | 'soon' | 'imminent'>('none')
+  const [severity, setSeverity] = useState<'none' | 'soon' | 'imminent' | 'critical'>('none')
   useEffect(() => {
     if (!p.timelock?.eta) return
     const id = setInterval(() => {
@@ -68,7 +90,8 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
       const text = d > 0 ? `${d}d ${h}h ${m}m ${s}s` : `${h}h ${m}m ${s}s`
       setCountdown(text)
       // urgency coloring
-      if (remain <= 6 * 3_600_000) setSeverity('imminent')
+      if (remain <= 1 * 3_600_000) setSeverity('critical')
+      else if (remain <= 6 * 3_600_000) setSeverity('imminent')
       else if (remain <= 24 * 3_600_000) setSeverity('soon')
       else setSeverity('none')
     }, 1000)
@@ -92,29 +115,10 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
     return cmap[p.phase] || 'text-slate-300 border-slate-600'
   })()
 
-  const action = (() => {
-    const u = p.user
-    switch (p.phase) {
-      case 'commit':
-        return { label: 'Commit Vote', disabled: true, reason: 'Commit-reveal mode (commit phase)' }
-      case 'reveal':
-        return { label: 'Reveal Vote', disabled: true, reason: 'Commit-reveal mode (reveal phase)' }
-      case 'active': {
-        if (u && !u.eligible) return { label: 'Vote', disabled: true, reason: 'Not eligible at snapshot' }
-        return { label: 'Vote', disabled: true, reason: 'Voting UI not implemented' }
-      }
-      case 'queued':
-      case 'timelocked': {
-        const eta = p.timelock?.eta
-        const reason = eta ? `Timelock in effect (ETA ${new Date(eta).toLocaleString('en-US')})` : 'Timelock in effect'
-        return { label: 'Execute', disabled: true, reason }
-      }
-      case 'awaiting-multisig':
-        return { label: 'Sign (M-of-N)', disabled: true, reason: 'Only multisig signers can sign' }
-      default:
-        return { label: 'View', disabled: true, reason: 'Read-only' }
-    }
-  })()
+  const myAddrs = wallets.map(w => (w.address || '').toLowerCase()).filter(Boolean)
+  const opSet = new Set(OPERATOR_ADDRESSES.map(a => a.toLowerCase()))
+  const isOperator = myAddrs.some(a => opSet.has(a))
+  const action = getActionInfo(p, { isSigner: isOperator })
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
@@ -140,6 +144,18 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
             )}
           </div>
         </div>
+
+        {/* Pass state banner */}
+        {readyToQueue && (
+          <Card className="bg-green-500/10 border-green-500/30">
+            <CardContent className="p-3 flex items-center gap-2 text-sm">
+              <CheckCircle className="w-4 h-4 text-green-400" />
+              <span className="text-green-300">
+                Meets quorum and pass threshold. Proposal will be queued at the end of the voting window.
+              </span>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Policy timeline (static skeleton) */}
         <Card className="bg-slate-900/50 border-slate-800">
@@ -279,48 +295,41 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
               <div className="text-xs">
                 <span className="text-slate-400">ETA: {new Date(p.timelock.eta).toLocaleString('en-US')} </span>
                 <span className={cn(
-                  severity === 'imminent' ? 'text-red-400' : severity === 'soon' ? 'text-yellow-400' : 'text-slate-400'
+                  severity === 'critical' ? 'text-red-500' : severity === 'imminent' ? 'text-red-400' : severity === 'soon' ? 'text-yellow-400' : 'text-slate-400'
                 )}>({countdown})</span>
               </div>
             )}
           </CardContent></Card>
 
           <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
-            <div className="text-xs text-slate-400">Multisig</div>
+            <div className="text-xs text-slate-400">Operator signatures</div>
             {p.config.multisig ? (
               <div className="space-y-2 text-sm">
                 <div className="text-white flex items-center gap-2">
-                  <span>Required {p.config.multisig.m} of {p.config.multisig.n}</span>
-                  {(() => {
-                    const signed = (p.multisig?.signed || []).map(a => a.toLowerCase())
-                    const myAddrs = wallets.map(w => (w.address || '').toLowerCase()).filter(Boolean)
-                    const isSigner = myAddrs.some(a => signed.includes(a))
-                    return isSigner ? (
-                      <span className="px-2 py-0.5 rounded bg-brand text-black text-xs">You are signer</span>
-                    ) : null
-                  })()}
+                  <span>Required 4 of 4</span>
+                  {isOperator && (
+                    <span className="px-2 py-0.5 rounded bg-brand text-black text-xs">You are signer</span>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {(p.multisig?.signed || []).map((addr, i) => {
-                    const isYou = wallets.some(w => (w.address || '').toLowerCase() === addr.toLowerCase())
+                  {OPERATOR_ADDRESSES.map((op) => {
+                    const opLower = op.toLowerCase()
+                    const signedSet = new Set((p.multisig?.signed || []).map(a => a.toLowerCase()))
+                    const signed = signedSet.has(opLower)
+                    const isYou = myAddrs.includes(opLower)
                     return (
                       <span
-                        key={i}
+                        key={op}
                         className={cn(
                           'px-2 py-1 rounded border text-xs',
-                          isYou ? 'bg-brand text-black border-brand' : 'bg-slate-800 text-slate-300 border-slate-700'
+                          signed ? (isYou ? 'bg-brand text-black border-brand' : 'bg-slate-800 text-slate-200 border-slate-600') : 'bg-slate-900 text-slate-500 border-slate-700'
                         )}
-                        title={isYou ? 'You' : undefined}
+                        title={isYou ? 'You' : signed ? 'Signed' : 'Pending'}
                       >
-                        {addr.slice(0, 6)}...{addr.slice(-4)} {isYou ? '(You)' : ''}
+                        {op.slice(0, 6)}...{op.slice(-4)} {isYou ? '(You)' : signed ? '(Signed)' : '(Pending)'}
                       </span>
                     )
                   })}
-                  {Array.from({ length: Math.max(0, (p.config.multisig?.m || 0) - (p.multisig?.signed.length || 0)) }).map((_, i) => (
-                    <span key={`pending-${i}`} className="px-2 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-slate-500">
-                      Pending
-                    </span>
-                  ))}
                 </div>
               </div>
             ) : (

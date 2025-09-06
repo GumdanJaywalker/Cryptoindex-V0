@@ -70,6 +70,24 @@ export function GovernanceDashboard() {
       quorumRange: minQuorum === maxQuorum ? `${minQuorum}%` : `${minQuorum}%–${maxQuorum}%`,
     }
   }, [proposals])
+
+  const progress = useMemo(() => {
+    const active = proposals.filter(p => p.phase === 'active')
+    const activeCount = active.length
+    if (activeCount === 0) return { activeCount: 0, metCount: 0, avgCast: 0 }
+    let met = 0
+    let castSum = 0
+    active.forEach(p => {
+      const participated = p.tally.forPower + p.tally.againstPower + p.tally.abstainPower
+      const total = p.tally.totalSnapshotPower || 0
+      if (total > 0) {
+        const quorumPct = (participated / total) * 100
+        if (quorumPct >= p.config.quorumPercent) met += 1
+        castSum += quorumPct
+      }
+    })
+    return { activeCount, metCount: met, avgCast: castSum / activeCount }
+  }, [proposals])
   return (
     <div className="space-y-6">
       {/* 헤더 - 브랜드 색상 단순화 */}
@@ -85,7 +103,7 @@ export function GovernanceDashboard() {
       </div>
 
       {/* 정책 요약 카드 */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card className="bg-slate-900/50 border-slate-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
@@ -118,10 +136,21 @@ export function GovernanceDashboard() {
               <KeyRound className="w-5 h-5 text-slate-400" />
               <Badge variant="outline" className="text-slate-400 border-slate-600 text-xs">Multisig</Badge>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              {policy.multisig}
+            <div className="text-2xl font-bold text-white mb-1">4/4 required</div>
+            <div className="text-xs text-slate-400">Operator signatures</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-400 border-slate-600 text-xs">Progress</Badge>
             </div>
-            <div className="text-xs text-slate-400">M-of-N verification</div>
+            <div className="text-2xl font-bold text-white mb-1">
+              {progress.metCount}/{progress.activeCount}
+            </div>
+            <div className="text-xs text-slate-400">Quorum met · Avg cast {progress.avgCast.toFixed(1)}%</div>
           </CardContent>
         </Card>
       </div>
