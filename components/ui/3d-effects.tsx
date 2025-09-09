@@ -242,7 +242,7 @@ export function Background3DGrid() {
 
   if (!mounted) {
     return (
-      <div className="absolute inset-0 overflow-hidden opacity-20">
+      <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none -z-10">
         <div className="absolute inset-0" style={{ perspective: '1000px' }}>
           <div className="grid grid-cols-12 grid-rows-8 h-full w-full">
             {Array.from({ length: 96 }, (_, i) => (
@@ -255,7 +255,7 @@ export function Background3DGrid() {
   }
 
   return (
-    <div className="absolute inset-0 overflow-hidden opacity-20">
+    <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none -z-10">
       <div className="absolute inset-0" style={{ perspective: '1000px' }}>
         <motion.div
           className="grid grid-cols-12 grid-rows-8 h-full w-full"

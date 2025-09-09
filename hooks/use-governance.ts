@@ -39,13 +39,9 @@ export function getActionInfo(p: Proposal, opts?: { isSigner?: boolean }): { lab
   const isSigner = !!opts?.isSigner
   const u = p.user
   switch (p.phase) {
-    case 'commit':
-      return { label: 'Commit Vote', disabled: true, reason: 'Commit-reveal mode is not used in MVP' }
-    case 'reveal':
-      return { label: 'Reveal Vote', disabled: true, reason: 'Commit-reveal mode is not used in MVP' }
     case 'active': {
       if (u && !u.eligible) return { label: 'Vote', disabled: true, reason: 'Not eligible at time‑weighted snapshot' }
-      return { label: 'Vote', disabled: true, reason: 'Voting UI not implemented (MVP scope)' }
+      return { label: 'Vote', disabled: true, reason: 'Voting UI not available in MVP' }
     }
     case 'queued':
     case 'timelocked': {

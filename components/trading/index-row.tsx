@@ -33,6 +33,7 @@ import {
   Shield
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
+import IndexDetailModal from '@/components/dialogs/index-detail-modal'
 import { cn } from '@/lib/utils'
 
 interface IndexRowProps {
@@ -45,14 +46,14 @@ interface IndexRowProps {
 
 // 썸네일 생성 함수
 const generateThumbnail = (indexName: string, symbol: string) => {
+  const seed = encodeURIComponent(symbol || indexName)
+  const url = `https://picsum.photos/seed/${seed}/80/80`
   const colors = ['8BD6FF', '6BBDFF', '5AABEF', '4A9ADF']
   const colorIndex = symbol.length % colors.length
   const selectedColor = colors[colorIndex]
-  
   return {
-    placeholder: `https://via.placeholder.com/40x40/${selectedColor}/FFFFFF?text=${symbol.slice(0,2)}`,
+    url,
     gradient: `bg-gradient-to-r from-[#${selectedColor}] to-brand-dark`,
-    fallback: symbol.slice(0, 2)
   }
 }
 
@@ -214,6 +215,7 @@ const IndexRow = memo(function IndexRow({
   className 
 }: IndexRowProps) {
   const soundManager = useSoundManager()
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [lastPrice, setLastPrice] = useState(index.currentPrice)
   const isPositive = index.change24h >= 0
@@ -258,24 +260,9 @@ const IndexRow = memo(function IndexRow({
       <TableCell className="w-[300px]">
         <div className="flex items-center gap-3">
           {/* 썸네일 이미지 */}
-          <div className={cn(
-            "w-10 h-10 rounded-lg overflow-hidden flex-shrink-0",
-            thumbnail.gradient
-          )}>
-            <img 
-              src={thumbnail.placeholder}
-              alt={index.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // 이미지 로드 실패시 텍스트로 대체
-                const target = e.currentTarget
-                target.style.display = 'none'
-                const parent = target.parentElement
-                if (parent) {
-                  parent.innerHTML = `<span class="text-sm font-bold text-white">${thumbnail.fallback}</span>`
-                }
-              }}
-            />
+          <div className={cn("w-10 h-10 rounded-lg overflow-hidden flex-shrink-0", thumbnail.gradient)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={thumbnail.url} alt={index.name} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
             <div className="font-medium text-sm truncate text-white">{index.name}</div>
@@ -328,20 +315,34 @@ const IndexRow = memo(function IndexRow({
       </TableCell>
 
       {/* Actions */}
-      <TableCell className="w-[100px] text-center">
-        {showQuickTrade && (
+      <TableCell className="w-[160px] text-center">
+        <div className="flex items-center justify-center gap-2">
           <Button
             size="sm"
             variant="outline"
-            className="h-7 px-4 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 shadow-sm hover:shadow-lg"
+            className="h-7 px-3 text-xs font-medium border-slate-700 hover:bg-slate-800"
             onClick={(e) => {
               e.stopPropagation()
-              handleQuickTrade('buy')
+              setQuickViewOpen(true)
             }}
           >
-            Buy Now
+            Quick View
           </Button>
-        )}
+          {showQuickTrade && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 px-3 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 shadow-sm hover:shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleQuickTrade('buy')
+              }}
+            >
+              Trade
+            </Button>
+          )}
+        </div>
+        <IndexDetailModal open={quickViewOpen} onOpenChange={setQuickViewOpen} />
       </TableCell>
     </TableRow>
   )

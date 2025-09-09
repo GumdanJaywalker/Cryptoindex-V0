@@ -28,11 +28,80 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
   // Snapshot labeling removed (single method in MVP)
 
-  if (!p) {
-    const loading = proposals.length === 0
-    return (
-      <div className="min-h-screen bg-slate-950 text-white pt-16">
-        <main className="max-w-5xl mx-auto px-6 py-8">
+  // Derive values with safe fallbacks to keep hooks order stable
+  const participated = p ? (p.tally.forPower + p.tally.againstPower + p.tally.abstainPower) : 0
+  const quorumPct = p && p.tally.totalSnapshotPower > 0 
+    ? (participated / p.tally.totalSnapshotPower) * 100 
+    : 0
+  const support = p ? supportPercent(p) : 0
+  const pass = p ? passReached(p) : false
+  const tl = p ? timeLeft(p) : ''
+  const readyToQueue = p ? (p.phase === 'active' && pass && quorumReached(p)) : false
+
+  // Vote breakdown (of votes cast)
+  const breakdown = useMemo(() => {
+    if (!p) return { forPct: 0, againstPct: 0, abstainPct: 0 }
+    const votes = p.tally.forPower + p.tally.againstPower + p.tally.abstainPower
+    if (votes <= 0) return { forPct: 0, againstPct: 0, abstainPct: 0 }
+    return {
+      forPct: (p.tally.forPower / votes) * 100,
+      againstPct: (p.tally.againstPower / votes) * 100,
+      abstainPct: (p.tally.abstainPower / votes) * 100,
+    }
+  }, [p])
+  const votesCast = p ? (p.tally.forPower + p.tally.againstPower + p.tally.abstainPower) : 0
+  const totalSnapshot = p ? p.tally.totalSnapshotPower : 0
+  const castPct = totalSnapshot > 0 ? (votesCast / totalSnapshot) * 100 : 0
+
+  // Timelock countdown (live)
+  const [countdown, setCountdown] = useState<string>(tl)
+  const [severity, setSeverity] = useState<'none' | 'soon' | 'imminent' | 'critical'>('none')
+  useEffect(() => {
+    if (!p?.timelock?.eta) return
+    const id = setInterval(() => {
+      const remain = Math.max(0, (p?.timelock!.eta! ?? 0) - Date.now())
+      const d = Math.floor(remain / 86_400_000)
+      const h = Math.floor((remain % 86_400_000) / 3_600_000)
+      const m = Math.floor((remain % 3_600_000) / 60_000)
+      const s = Math.floor((remain % 60_000) / 1000)
+      const text = d > 0 ? `${d}d ${h}h ${m}m ${s}s` : `${h}h ${m}m ${s}s`
+      setCountdown(text)
+      // urgency coloring
+      if (remain <= 1 * 3_600_000) setSeverity('critical')
+      else if (remain <= 6 * 3_600_000) setSeverity('imminent')
+      else if (remain <= 24 * 3_600_000) setSeverity('soon')
+      else setSeverity('none')
+    }, 1000)
+    return () => clearInterval(id)
+  }, [p?.timelock?.eta])
+
+  const phaseBadge = (() => {
+    const cmap: Record<string, string> = {
+      active: 'text-green-400 border-green-400/30',
+      queued: 'text-yellow-400 border-yellow-400/30',
+      timelocked: 'text-yellow-400 border-yellow-400/30',
+      'awaiting-multisig': 'text-blue-400 border-blue-400/30',
+      executed: 'text-slate-300 border-slate-600',
+      pending: 'text-slate-300 border-slate-600',
+      succeeded: 'text-green-400 border-green-400/30',
+      defeated: 'text-red-400 border-red-400/30',
+      canceled: 'text-slate-400 border-slate-600',
+    }
+    const phase = p?.phase ?? 'pending'
+    return cmap[phase] || 'text-slate-300 border-slate-600'
+  })()
+
+  const myAddrs = wallets.map(w => (w.address || '').toLowerCase()).filter(Boolean)
+  const opSet = new Set(OPERATOR_ADDRESSES.map(a => a.toLowerCase()))
+  const isOperator = myAddrs.some(a => opSet.has(a))
+  const action = p ? getActionInfo(p, { isSigner: isOperator }) : { label: 'View', disabled: true, reason: 'Loading…' }
+
+  const loading = !p && proposals.length === 0
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white pt-16">
+      <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+        {!p ? (
           <Card className="bg-slate-900/50 border-slate-800">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="text-sm text-slate-300">
@@ -50,79 +119,8 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
               </div>
             </CardContent>
           </Card>
-        </main>
-      </div>
-    )
-  }
-
-  const participated = p.tally.forPower + p.tally.againstPower + p.tally.abstainPower
-  const quorumPct = p.tally.totalSnapshotPower > 0 ? (participated / p.tally.totalSnapshotPower) * 100 : 0
-  const support = supportPercent(p)
-  const pass = passReached(p)
-  const tl = timeLeft(p)
-  const readyToQueue = p.phase === 'active' && pass && quorumReached(p)
-
-  // Vote breakdown (of votes cast)
-  const breakdown = useMemo(() => {
-    const votes = p.tally.forPower + p.tally.againstPower + p.tally.abstainPower
-    if (votes <= 0) return { forPct: 0, againstPct: 0, abstainPct: 0 }
-    return {
-      forPct: (p.tally.forPower / votes) * 100,
-      againstPct: (p.tally.againstPower / votes) * 100,
-      abstainPct: (p.tally.abstainPower / votes) * 100,
-    }
-  }, [p])
-  const votesCast = p.tally.forPower + p.tally.againstPower + p.tally.abstainPower
-  const totalSnapshot = p.tally.totalSnapshotPower
-  const castPct = totalSnapshot > 0 ? (votesCast / totalSnapshot) * 100 : 0
-
-  // Timelock countdown (live)
-  const [countdown, setCountdown] = useState<string>(tl)
-  const [severity, setSeverity] = useState<'none' | 'soon' | 'imminent' | 'critical'>('none')
-  useEffect(() => {
-    if (!p.timelock?.eta) return
-    const id = setInterval(() => {
-      const remain = Math.max(0, p.timelock!.eta! - Date.now())
-      const d = Math.floor(remain / 86_400_000)
-      const h = Math.floor((remain % 86_400_000) / 3_600_000)
-      const m = Math.floor((remain % 3_600_000) / 60_000)
-      const s = Math.floor((remain % 60_000) / 1000)
-      const text = d > 0 ? `${d}d ${h}h ${m}m ${s}s` : `${h}h ${m}m ${s}s`
-      setCountdown(text)
-      // urgency coloring
-      if (remain <= 1 * 3_600_000) setSeverity('critical')
-      else if (remain <= 6 * 3_600_000) setSeverity('imminent')
-      else if (remain <= 24 * 3_600_000) setSeverity('soon')
-      else setSeverity('none')
-    }, 1000)
-    return () => clearInterval(id)
-  }, [p.timelock?.eta])
-
-  const phaseBadge = (() => {
-    const cmap: Record<string, string> = {
-      active: 'text-green-400 border-green-400/30',
-      queued: 'text-yellow-400 border-yellow-400/30',
-      timelocked: 'text-yellow-400 border-yellow-400/30',
-      'awaiting-multisig': 'text-blue-400 border-blue-400/30',
-      executed: 'text-slate-300 border-slate-600',
-      pending: 'text-slate-300 border-slate-600',
-      commit: 'text-slate-300 border-slate-600',
-      reveal: 'text-slate-300 border-slate-600',
-      succeeded: 'text-green-400 border-green-400/30',
-      defeated: 'text-red-400 border-red-400/30',
-      canceled: 'text-slate-400 border-slate-600',
-    }
-    return cmap[p.phase] || 'text-slate-300 border-slate-600'
-  })()
-
-  const myAddrs = wallets.map(w => (w.address || '').toLowerCase()).filter(Boolean)
-  const opSet = new Set(OPERATOR_ADDRESSES.map(a => a.toLowerCase()))
-  const isOperator = myAddrs.some(a => opSet.has(a))
-  const action = getActionInfo(p, { isSigner: isOperator })
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+        ) : (
+        <>
         {/* Breadcrumb */}
         <div className="text-sm">
           <Link href="/governance" className="text-slate-400 hover:text-white">Governance</Link>
@@ -134,7 +132,10 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
         <div className="flex items-start justify-between">
           <div>
             <div className="text-xs text-slate-400 mb-1">{p.indexSymbol}</div>
-            <h1 className="text-2xl font-bold">{p.title}</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              {p.title}
+              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">Snapshot: Time‑Weighted</Badge>
+            </h1>
             {p.description && <p className="text-slate-400 mt-1">{p.description}</p>}
           </div>
           <div className="flex items-center gap-2">
@@ -360,6 +361,8 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
           </TooltipProvider>
           <Link href="/governance" className="text-slate-300 hover:text-white text-sm">Back to list</Link>
         </div>
+        </>
+        )}
       </main>
     </div>
   )
