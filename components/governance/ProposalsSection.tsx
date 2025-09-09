@@ -68,6 +68,13 @@ export function ProposalsSection() {
               filter === key ? 'bg-brand text-black hover:bg-brand-hover' : 'border-slate-700 text-slate-300 hover:bg-slate-800'
             )}
             onClick={() => setFilter(key)}
+            title={
+              key === 'active' ? 'Open for voting' :
+              key === 'ending-soon' ? 'Ends within 8 hours' :
+              key === 'queued' ? 'Queued or in timelock' :
+              key === 'awaiting-multisig' ? 'Operator signatures 4/4 required' :
+              key === 'executed' ? 'Already executed' : 'All proposals'
+            }
           >
             {label}
           </Button>

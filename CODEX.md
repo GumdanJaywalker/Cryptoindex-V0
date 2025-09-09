@@ -7,9 +7,40 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - Focus: Trading UI, type-safety, and performance polish
 - Tooling: Next.js 15, React 19, motion/framer-motion 12, TS 5, Tailwind
 
+## Landing — Current Status (2025-09)
+- Hero: minimal CTA-only (no headline/subtext), primary “Start Trading” + secondary “View Indices”.
+- KPI strip: Daily Volume, TVL, Active Indices, Top Gainer (mockMarketStats).
+- Trending Indices: table layout with symbol/name, price, 24h%, volume, mcap, actions; deterministic thumbnails via picsum seed.
+- Top Traders (landing): hybrid layout — podium (🥇/🥈/🥉 cards) + ranked list from #4; 24H focus; index chips deep-link to `/trading?index=...`.
+- Traders page: same podium on page 1 + paginated table; filters/sort/search; mockTopTraders length expanded to 80.
+- Governance: copy simplified to time‑weighted snapshot and operator signatures 4/4; commit/reveal removed; badges/filters have tooltips.
+- Portfolio: Creator Earnings tab added (summary, per-index, payouts; policy copy states creator/influencer‑only).
+- Bugfix: React Hooks order in governance detail stabilized.
+
+## Recent Changes — Sep 2025
+- Landing
+  - Hero: headline/subtext removed; CTAs: Start Trading, Create Index, View Indices.
+  - KPI strip (Daily Volume, TVL, Active Indices, Top Gainer); numbers from `mockMarketStats`.
+  - Layout: three panels with internal scroll (sidebar/indices/top traders), sidebar right divider, unified +/- colors (green/red), removed sidebar search and Portfolio’s Start Trading button.
+- Top Traders
+  - Landing: podium (1/2/3) + rich two‑line rows from #4; 24H ROI/$PnL; index chips → `/trading?index=...`; removed crown icon.
+  - Traders page: same podium on page 1; table converted to rich rows; rank numbering fixed (continues from #4 on page 1, page‑aware otherwise); mock trader count → 80.
+- Trending Indices
+  - Deterministic thumbnails via picsum seed; Quick View modal (IndexDetailModal) + Trade button in actions.
+- Governance
+  - Time‑weighted snapshot + Operator 4/4 copy; removed commit/reveal; badges/tooltips aligned.
+- Earnings
+  - Portfolio CreatorEarnings: added Creator Fee vs LP Fee breakdown card (mock split).
+  - Create Index overview: Earnings split into Creator Fee and LP Fee (accrued/projected slots).
+- Referrals
+  - New `/referrals` route with Influencer/KOLs vs Individual tabs, tier label (Partner 0/Individual 0), referral code/link copy, metrics and earnings breakdown.
+- Infra/UX
+  - Link fixes for “View Leaderboard”; background effects set to `pointer-events-none`; Vercel Preview env guidance.
+
 ## Dev Guidelines (FE)
 - Package manager: pnpm only. Use `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`.
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
+- Communication (agents): When replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
 - Brand colors: use utilities defined in `app/globals.css`:
   - `text-brand`, `bg-brand`, `border-brand`, `bg-brand-hover`, `bg-brand-gradient`.
   - Default dark theme; prefer subtle gradients and minimal glow.
@@ -20,9 +51,9 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - For full environment details, see `CLAUDE.md`.
 
 ## Current Priorities
-1) Fix browser timer typings (timeouts/RAF) in client code
-2) Keep TypeScript scope tight to trading while refactoring
-3) Incremental cleanups in trading components (small, safe diffs)
+1) Mobile/accessibility/perf pass (focus outlines, prefers‑reduced‑motion, image optimization)
+2) Trending polish (badges: NEW/HOT; Quick View/Trade hover; minmax grid gutters)
+3) Referrals polish (metrics granularity; creator whitelist states; link analytics)
 
 ## Governance — Implementation Plan (UI + Policy)
 - Types: add `lib/types/governance.ts` for Proposal, VotingConfig, Tally, SnapshotInfo, MultisigState, TimelockInfo, UserState, ChangeSet, Option.
@@ -180,6 +211,42 @@ Notes
 - Validation checklist card on Review (required fields summary)
 - Normalize messages/toasts (success/failure) and align copy
 - Keep: AssetPicker virtual grid, global blacklist, 1% caps, hydration‑safe drafts
+
+## Next Tasks (Queue)
+- CTA: add “Create Index” next to “Start Trading” in hero.
+- Sidebar: remove “Start Trading” button from Portfolio card.
+- Scroll/structure: make sidebar, indices, and top traders scrollable within their panels; add a single divider to visually separate sidebar.
+- Trending: add NEW/HOT badges, quick view + trade hover actions; minmax grid to avoid uneven gutters.
+- Top Traders (list): convert table rows to two‑line rich rows with index chips and 24H $PnL; keep ranking from #4.
+- QA: Lighthouse 90+ for performance and accessibility; consistent microcopy (English, concise, neutral).
+
+- Referrals Page
+  - Single page with user‑type switch: Influencer/KOLs vs Individual.
+  - Show referral tier text (e.g., “Partner 0” / “Individual 0”), referral code/links, basic metrics.
+  - No public program UI; only for approved creators per business policy.
+
+- Earnings Integration (Creator Fee & LP Fee)
+  - Portfolio and Create flows: clearly separate “Creator Fee” (index token fees share) and “LP Fee” (liquidity pool trading fees).
+  - Use mock data first; align with spreadsheet model.
+  - Reference: HyperIndex-Revenue Expense Calculator.xlsx (local path).
+
+## Work Queue — Concrete Next Steps
+- Sidebar polish
+  - Adjust scrollbar styles, overscroll‑behavior, and spacing for smoother chained scroll on desktop/mobile.
+- Trending
+  - Add NEW/HOT badges on rows; hover actions on entire row (Quick View/Trade) with non‑janky transitions.
+  - Ensure minmax grid to avoid uneven gutters at xl/2xl.
+- Top Traders
+  - Landing/Traders: add skeletons for podium/list; ensure consistent number formatting; mobile card tweaks.
+- Referrals
+  - Add header nav link (done); add basic analytics (clicks/signups) charts (mock) and export CSV (mock).
+- Earnings
+  - Wire to API/spreadsheet model; expose Creator/LP fees per index, per timeframe in Portfolio/Create.
+- QA/A11y/Perf
+  - Lighthouse ≥90, keyboard nav across modals/tabs, prefers‑reduced‑motion, next/image where applicable.
+
+## Notes
+- Communication: when replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
 
 ## Quick File Map
 - Governance types: `lib/types/governance.ts`

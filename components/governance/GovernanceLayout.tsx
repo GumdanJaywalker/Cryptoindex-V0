@@ -16,7 +16,7 @@ export function GovernanceLayout() {
               Governance Proposals
             </h2>
             <p className="text-slate-400 mt-2">
-              Snapshot → Voting → Timelock → Multisig → Execute
+              Snapshot (Time‑Weighted) → Voting → Timelock → Multisig (Operator 4/4) → Execute
             </p>
           </div>
           <ProposalsSection />

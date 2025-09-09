@@ -45,17 +45,16 @@ export async function getProposals(): Promise<Proposal[]> {
       endsAt: now + 48 * hour,
       phase: 'active',
       config: {
-        snapshot: { method: 'single', snapshotBlock: 12345678 },
+        snapshot: { method: 'time-weighted', windowStart: now - 7 * 24 * hour, windowEnd: now },
         quorumPercent: 20,
         passThresholdPercent: 60,
         timelockSeconds: 48 * 3600,
         multisig: { m: 4, n: 4 },
-        shielded: false,
       },
       tally: { forPower: 12_500_000, againstPower: 2_400_000, abstainPower: 100_000, totalSnapshotPower: 80_000_000 },
       timelock: {},
       multisig: { required: 4, total: 4, signed: [] },
-      user: { eligible: true, votingPowerAtSnapshot: 2_000, hasCommitted: false, hasRevealed: false },
+      user: { eligible: true, votingPowerAtSnapshot: 2_000 },
       changes: [
         { type: 'adjust', symbol: 'WIF', currentPct: 8, proposedPct: 20, rationale: 'Exceptional growth' },
         { type: 'remove', symbol: 'SHIB', currentPct: 25, proposedPct: 0, rationale: 'Liquidity and performance' },
@@ -76,7 +75,6 @@ export async function getProposals(): Promise<Proposal[]> {
         passThresholdPercent: 55,
         timelockSeconds: 24 * 3600,
         multisig: { m: 4, n: 4 },
-        shielded: false,
       },
       tally: { forPower: 8_400_000, againstPower: 3_100_000, abstainPower: 50_000, totalSnapshotPower: 60_000_000 },
       timelock: {},
@@ -87,7 +85,6 @@ export async function getProposals(): Promise<Proposal[]> {
         { type: 'adjust', symbol: 'POPCAT', currentPct: 25, proposedPct: 35 },
       ],
     },
-    // Commit/Reveal sample (shielded voting)
     {
       id: 'pr_003',
       type: 'rebalancing',

@@ -476,7 +476,7 @@ const indicesWithLayers = assignLayersToIndices([...mockIndices, ...additionalIn
 export const allMockIndices = indicesWithLayers
 
 // Mock Top Traders Data (30 traders)
-export const mockTopTraders: TopTrader[] = Array.from({ length: 30 }, (_, i) => {
+export const mockTopTraders: TopTrader[] = Array.from({ length: 80 }, (_, i) => {
   const traderNumber = i + 1
   const isTopTrader = i < 3
   const isGoodTrader = i < 10

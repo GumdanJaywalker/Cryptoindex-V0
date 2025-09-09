@@ -14,9 +14,11 @@ import { ChevronDown, FileText, BarChart3, Settings, ExternalLink, TrendingUp } 
 
 const navigation = [
   { name: 'Trading', href: '/trading' },
+  { name: 'Traders', href: '/traders' },
   { name: 'Governance', href: '/governance' },
   { name: 'Create', href: '/create' },
   { name: 'Portfolio', href: '/portfolio' },
+  { name: 'Referrals', href: '/referrals' },
 ]
 
 export function Header() {

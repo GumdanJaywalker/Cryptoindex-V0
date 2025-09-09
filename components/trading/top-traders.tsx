@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'motion/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Crown,
   Trophy,
   TrendingUp,
   TrendingDown,
@@ -24,6 +24,7 @@ import {
   ChevronDown
 } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
+import { allMockIndices } from '@/lib/data/mock-indices'
 import { TraderCard } from './trader-card'
 import { cn } from '@/lib/utils'
 
@@ -34,6 +35,8 @@ interface TopTradersProps {
   className?: string
   showFilters?: boolean
   maxDisplay?: number
+  variant?: 'default' | 'compact'
+  initialTimeframe?: TimeframeOption
 }
 
 type TimeframeOption = '24h' | '7d' | '30d'
@@ -59,7 +62,7 @@ const filterOptions: Array<{
   { key: 'top-gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Highest PnL performers' },
   { key: 'high-winrate', label: 'High Win Rate', icon: Target, description: 'Best win rate traders' },
   { key: 'new-traders', label: 'New Traders', icon: Star, description: 'Recently joined traders' },
-  { key: 'most-followed', label: 'Most Followed', icon: Crown, description: 'Most popular traders' }
+  { key: 'most-followed', label: 'Most Followed', icon: Users, description: 'Most popular traders' }
 ]
 
 const sortOptions: Array<{
@@ -137,12 +140,14 @@ export function TopTraders({
   onViewProfile,
   className,
   showFilters = true,
-  maxDisplay = 50
+  maxDisplay = 50,
+  variant = 'default',
+  initialTimeframe = '24h',
 }: TopTradersProps) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>('24h')
+  const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>(initialTimeframe)
   const [selectedFilter, setSelectedFilter] = useState<TraderFilter>('all')
-  const [sortBy, setSortBy] = useState<TraderSort>('rank')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [sortBy, setSortBy] = useState<TraderSort>(variant === 'compact' ? 'pnl' : 'rank')
+  const [sortDirection, setSortDirection] = useState<SortDirection>(variant === 'compact' ? 'desc' : 'asc')
   const [filteredTraders, setFilteredTraders] = useState<TopTrader[]>(traders)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -185,9 +190,11 @@ export function TopTraders({
       
       switch (sortBy) {
         case 'pnl':
-          const pnlFieldSort = selectedTimeframe === '24h' ? 'pnl24h' 
-                              : selectedTimeframe === '7d' ? 'pnl7d' 
-                              : 'pnl30d'
+          const pnlFieldSort = selectedTimeframe === '24h' 
+                                ? (variant === 'compact' ? 'pnlPercentage24h' : 'pnl24h') 
+                                : selectedTimeframe === '7d' 
+                                  ? (variant === 'compact' ? 'pnlPercentage7d' : 'pnl7d') 
+                                  : (variant === 'compact' ? 'pnlPercentage30d' : 'pnl30d')
           comparison = (a[pnlFieldSort] || 0) - (b[pnlFieldSort] || 0)
           break
         case 'winrate':
@@ -235,59 +242,259 @@ export function TopTraders({
     setIsRefreshing(false)
   }
 
+  const formatPct = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`
+  const formatUsd = (v: number) => `$${Math.abs(v).toLocaleString()}`
+  const getRoiForTimeframe = (t: TopTrader) => {
+    return selectedTimeframe === '24h' ? t.pnlPercentage24h : selectedTimeframe === '7d' ? t.pnlPercentage7d : t.pnlPercentage30d
+  }
+
+  // Global rank ordering for compact podium/list
+  const rankAll = useMemo(() => {
+    return [...traders].sort((a, b) => (a.rank || 0) - (b.rank || 0))
+  }, [traders])
+
   return (
     <div className={cn("space-y-6", className)}>
       {/* Header with Stats */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Crown className="w-5 h-5 text-yellow-500" />
-            Top Traders
-            <Badge variant="outline" className="text-xs">
-              {filteredTraders.length}
-            </Badge>
-          </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            Last updated: {mounted ? lastUpdated.toLocaleTimeString() : '--:--:--'}
-          </p>
-        </div>
-        
-        <Button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          variant="ghost"
-          size="sm"
-          className="text-slate-400 hover:text-white"
-        >
-          <RefreshCw className={cn(
-            "w-4 h-4 mr-2",
-            isRefreshing && "animate-spin"
-          )} />
-          Refresh
-        </Button>
-      </div>
-
-      {/* Timeframe Tabs */}
-      <div className="flex gap-1 bg-slate-900/50 p-1 rounded-lg">
-        {timeframeOptions.map(({ key, label, description }) => (
-          <Button
-            key={key}
-            size="sm"
-            variant={selectedTimeframe === key ? "default" : "ghost"}
-            className={cn(
-              "flex-1 text-xs h-8 transition-all duration-200",
-              selectedTimeframe === key 
-                ? "bg-brand text-black hover:bg-brand-hover" 
-                : "hover:bg-slate-800 hover:text-white"
-            )}
-            onClick={() => setSelectedTimeframe(key)}
-            title={description}
+      <div>
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          Top Traders
+          <Badge variant="outline" className="text-xs">
+            {variant === 'compact' ? traders.length : filteredTraders.length}
+          </Badge>
+        </h2>
+        <div className="mt-2 flex items-center gap-2">
+          <Link
+            href="/traders"
+            className="inline-flex items-center justify-center h-9 px-3 rounded-md bg-brand text-black hover:bg-brand-hover text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            role="button"
           >
-            {label}
+            View Leaderboard
+          </Link>
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            variant="outline"
+            size="sm"
+            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+          >
+            <RefreshCw className={cn(
+              "w-4 h-4 mr-2",
+              isRefreshing && "animate-spin"
+            )} />
+            Refresh
           </Button>
-        ))}
+        </div>
+        <p className="text-slate-400 text-xs mt-2">
+          Last updated: {mounted ? lastUpdated.toLocaleTimeString() : '--:--:--'}
+        </p>
       </div>
 
+      {/* Timeframe Tabs (hidden in compact variant) */}
+      {variant !== 'compact' && (
+        <div className={cn("flex gap-1 p-1 rounded-lg", 'bg-slate-900/50')}>
+          {timeframeOptions.map(({ key, label, description }) => (
+            <Button
+              key={key}
+              size="sm"
+              variant={selectedTimeframe === key ? "default" : "ghost"}
+              className={cn(
+                "flex-1 text-xs h-8 transition-all duration-200",
+                selectedTimeframe === key 
+                  ? "bg-brand text-black hover:bg-brand-hover" 
+                  : "hover:bg-slate-800 hover:text-white"
+              )}
+              onClick={() => setSelectedTimeframe(key)}
+              title={description}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {/* Compact table view for landing */}
+      {variant === 'compact' ? (
+        <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+          {/* Top 3 spotlight cards */}
+          {rankAll.length > 0 && (
+            <div className="p-4 space-y-3">
+              {/* Top 1 centered (podium) */}
+              {rankAll[0] && (
+                <div className="flex justify-center">
+                  <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5 hover:border-slate-700 transition-colors">
+                    <button className="w-full text-left" onClick={() => onViewPortfolio(rankAll[0])} aria-label={`Open ${rankAll[0].ens || rankAll[0].address} portfolio`}>
+                      <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300 ring-2 ring-brand/40">
+                            {rankAll[0].avatar ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={rankAll[0].avatar} alt="avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              <span>{(rankAll[0].ens || rankAll[0].address).slice(2, 4).toUpperCase()}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-white font-semibold">{rankAll[0].ens || `${rankAll[0].address.slice(0,6)}...${rankAll[0].address.slice(-4)}`}</span>
+                            <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
+                          </div>
+                          <div className="mt-1 flex items-baseline gap-2">
+                            <span className={cn('text-lg font-bold', (rankAll[0].pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(rankAll[0].pnl24h||0)}</span>
+                            <span className={cn('text-xs', (rankAll[0].pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                              ({formatPct(rankAll[0].pnlPercentage24h || 0)})
+                            </span>
+                          </div>
+                          {/* Top indices chips */}
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {rankAll[0].tradingIndices.slice(0,3).map(idxId => {
+                              const m = allMockIndices.find(x => x.id === idxId)
+                              const label = m?.symbol || idxId.toUpperCase()
+                              return (
+                                <Link
+                                  key={idxId}
+                                  href={`/trading?index=${idxId}`}
+                                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                                  aria-label={`Trade ${label}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {label}
+                                </Link>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 2 and 3 side-by-side */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                {rankAll.slice(1,3).map((t, i) => (
+                  <div key={t.id} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4 hover:border-slate-700 transition-colors">
+                    <button className="w-full text-left" onClick={() => onViewPortfolio(t)} aria-label={`Open ${t.ens || t.address} portfolio`}>
+                      <div className="flex items-center gap-3">
+                        {/* Avatar */}
+                        <div className="relative">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
+                            {t.avatar ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              <span>{(t.ens || t.address).slice(2, 4).toUpperCase()}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                            <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">{i === 0 ? '🥈' : '🥉'}</Badge>
+                          </div>
+                          <div className="mt-1 flex items-baseline gap-2">
+                            <span className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
+                            <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                              ({formatPct(t.pnlPercentage24h || 0)})
+                            </span>
+                          </div>
+                          {/* Top indices chips */}
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {t.tradingIndices.slice(0,3).map(idxId => {
+                              const m = allMockIndices.find(x => x.id === idxId)
+                              const label = m?.symbol || idxId.toUpperCase()
+                              return (
+                                <Link
+                                  key={idxId}
+                                  href={`/trading?index=${idxId}`}
+                                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                                  aria-label={`Trade ${label}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {label}
+                                </Link>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Rich two-line rows from #4 */}
+          <div className="divide-y divide-slate-800">
+            {rankAll.slice(3, maxDisplay).map((t) => (
+              <div key={t.id} className="px-4 py-3">
+                {/* Line 1: rank, avatar, name, 24H $PnL + ROI */}
+                <div className="flex items-center gap-3">
+                  <div className="w-6 text-slate-500">{t.rank}</div>
+                  <button
+                    className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                    onClick={() => onViewPortfolio(t)}
+                    aria-label={`Open ${t.ens || t.address} portfolio`}
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
+                      {t.avatar ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                  </button>
+                  <div className="ml-auto flex items-baseline gap-2">
+                    <span className={cn('text-sm font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
+                    <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                      ({formatPct(t.pnlPercentage24h||0)})
+                    </span>
+                  </div>
+                </div>
+                {/* Line 2: top indices chips + win/followers */}
+                <div className="mt-2 pl-9 flex items-center justify-between">
+                  <div className="flex flex-wrap gap-1">
+                    {t.tradingIndices.slice(0,2).map(idxId => {
+                      const m = allMockIndices.find(x => x.id === idxId)
+                      const label = m?.symbol || idxId.toUpperCase()
+                      return (
+                        <Link
+                          key={idxId}
+                          href={`/trading?index=${idxId}`}
+                          className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                          aria-label={`Trade ${label}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {label}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-300">
+                    <span>Win {Math.round(t.winRate)}%</span>
+                    <span>{t.followersCount?.toLocaleString() ?? 0} followers</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between px-4 py-2">
+            <div className="text-xs text-slate-500">Ranking</div>
+            <Link
+              href="/traders"
+              className="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800 text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              role="button"
+            >
+              View Leaderboard
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Filters */}
       {showFilters && (
         <div className="space-y-3">
@@ -378,16 +585,16 @@ export function TopTraders({
                 }}
                 className="relative"
               >
-                {/* 순위 변화 표시 */}
-                <div className="absolute top-2 left-2 z-10">
-                  <RankChangeIndicator 
-                    previousRank={trader.rank + Math.floor(Math.random() * 5) - 2} // Mock previous rank
-                    currentRank={trader.rank}
-                  />
-                </div>
-                
-                {/* 신규 트레이더 하이라이트 */}
-                <NewTraderHighlight trader={trader} />
+                {/* 순위/하이라이트는 compact 모드에서 비활성화 */}
+                {variant !== 'compact' && (
+                  <div className="absolute top-2 left-2 z-10">
+                    <RankChangeIndicator 
+                      previousRank={trader.rank + Math.floor(Math.random() * 5) - 2}
+                      currentRank={trader.rank}
+                    />
+                  </div>
+                )}
+                {variant !== 'compact' && <NewTraderHighlight trader={trader} />}
                 
                 <TraderCard 
                   trader={trader} 
@@ -456,6 +663,8 @@ export function TopTraders({
             )} />
           </Button>
         </div>
+      )}
+        </>
       )}
     </div>
   )
