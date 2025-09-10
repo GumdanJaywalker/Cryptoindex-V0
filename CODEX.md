@@ -238,6 +238,10 @@ Notes
 - Trending
   - Add NEW/HOT badges on rows; hover actions on entire row (Quick View/Trade) with non‑janky transitions.
   - Ensure minmax grid to avoid uneven gutters at xl/2xl.
+- Landing Quick View (modal) — Fixes
+  - Scroll position: lock body scroll when modal opens; restore on close; avoid initial offset rendering.
+  - Overlay tone: replace overly dark/“blurry” backdrop with subtle brand‑tinted overlay (opacity 0.4–0.6).
+  - Close behavior: ensure closing X does not trigger underlying row onClick (stopPropagation, pointer-events on overlay, disable row click while open) and does not navigate to /trading.
 - Top Traders
   - Landing/Traders: add skeletons for podium/list; ensure consistent number formatting; mobile card tweaks.
 - Referrals
@@ -246,6 +250,14 @@ Notes
   - Wire to API/spreadsheet model; expose Creator/LP fees per index, per timeframe in Portfolio/Create.
 - QA/A11y/Perf
   - Lighthouse ≥90, keyboard nav across modals/tabs, prefers‑reduced‑motion, next/image where applicable.
+
+- Sidebar — Network Status Widget
+  - Add compact network indicator (RPC latency, chain status, block height) to sidebar.
+  - Update periodically; degrade gracefully on failure; minimal footprint.
+
+- Trading — IndexInfoBar Gas Fees
+  - Surface indicative gas fees in IndexInfoBar (buy/sell actions context), with tooltip and units.
+  - Mock first; wire to provider/gas oracle later.
 
 ## Notes
 - Communication: when replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
