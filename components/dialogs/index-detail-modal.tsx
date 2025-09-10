@@ -143,6 +143,7 @@ export default function IndexDetailModal({
           <BackgroundBeams className="absolute inset-0 opacity-20" />
           
           <DialogHeader className="relative z-10">
+            <DialogTitle className="sr-only">{indexData.name} details</DialogTitle>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="relative">

@@ -16,6 +16,7 @@ import {
   Layers,
   CircleDollarSign
 } from 'lucide-react'
+import NetworkStatusWidget from '@/components/sidebar/NetworkStatusWidget'
 
 // Import mock data and types
 import { allMockIndices, mockTopTraders, mockMarketStats } from '@/lib/data/mock-indices'
@@ -169,6 +170,9 @@ export default function Home() {
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
           <div className="space-y-6 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-4 lg:border-r lg:border-slate-800">
 
+            {/* Network Status (mock) */}
+            <NetworkStatusWidget />
+
             {/* Market Stats Card */}
             <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
               <h3 className="text-lg font-semibold text-white mb-3">Market Overview</h3>
@@ -287,59 +291,12 @@ export default function Home() {
           
           {/* Center - Trending Indices (First on mobile) */}
           <div className="space-y-6 order-1 lg:order-2 flex flex-col h-[calc(100vh-8rem)] min-h-0">
-            {/* Hero */}
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Button className="bg-brand text-black hover:bg-brand-hover" onClick={handleStartTrading}>
-                  Start Trading
-                </Button>
-                <Link href="/create">
-                  <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
-                    Create Index
-                  </Button>
-                </Link>
-                <Link href="#indices-section">
-                  <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
-                    View Indices
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            {/* Hero CTAs removed (moved next to search in Trending) */}
 
-            {/* KPI strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400">Daily Volume</span>
-                  <BarChart3 className="w-4 h-4 text-slate-400" />
-                </div>
-                <div className="text-lg font-semibold">${(mockMarketStats.totalVolume24h/1_000_000).toFixed(1)}M</div>
-              </div>
-              <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400">TVL</span>
-                  <CircleDollarSign className="w-4 h-4 text-slate-400" />
-                </div>
-                <div className="text-lg font-semibold">${(mockMarketStats.totalTVL/1_000_000_000).toFixed(1)}B</div>
-              </div>
-              <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400">Active Indices</span>
-                  <Layers className="w-4 h-4 text-slate-400" />
-                </div>
-                <div className="text-lg font-semibold">{mockMarketStats.activeIndices}</div>
-              </div>
-              <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400">Top Gainer</span>
-                  <TrendingUp className="w-4 h-4 text-green-400" />
-                </div>
-                <div className="text-lg font-semibold text-green-400">+{mockMarketStats.topGainer.change.toFixed(1)}%</div>
-              </div>
-            </div>
+            {/* KPI strip removed (duplicated in sidebar to maximize indices viewport) */}
 
-            {/* Enhanced Trending Indices Component (scrollable area only for the list) */}
-            <div id="indices-section" className="min-h-0 flex-1 overflow-auto overscroll-contain scrollbar-thin">
+            {/* Enhanced Trending Indices Component (card handles its own scroll) */}
+            <div id="indices-section" className="min-h-0 flex-1">
               <TrendingIndices
                 indices={allMockIndices}
                 onIndexSelect={handleIndexSelect}
@@ -349,13 +306,13 @@ export default function Home() {
           </div>
           
           {/* Right Side - Top Traders (Second on mobile) */}
-          <div className="space-y-6 order-3 lg:order-3 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin">
+          <div className="space-y-6 order-3 lg:order-3 -mt-[2%]">
             {/* Enhanced Top Traders Component */}
             <TopTraders 
               traders={mockTopTraders}
               onViewPortfolio={handleViewPortfolio}
               showFilters={false}
-              maxDisplay={16}
+              maxDisplay={7}
               variant="compact"
               initialTimeframe="7d"
             />

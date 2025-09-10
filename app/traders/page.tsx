@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Crown, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
 import { mockTopTraders, allMockIndices } from '@/lib/data/mock-indices'
 import { cn } from '@/lib/utils'
@@ -84,7 +84,7 @@ export default function TradersPage() {
         {/* Title */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><Crown className="w-5 h-5 text-yellow-500"/> Traders Leaderboard</h1>
+            <h1 className="text-2xl font-bold flex items-center gap-2">Traders Leaderboard</h1>
             <p className="text-slate-400 text-sm mt-1">Scan top performers and discover creators worth following.</p>
           </div>
           <Link href="/" className="text-slate-300 hover:text-white text-sm">Back to Home</Link>

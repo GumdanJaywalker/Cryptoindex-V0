@@ -72,7 +72,7 @@ export function useLongPress(
   delay: number = 500
 ) {
   const [isLongPress, setIsLongPress] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const start = useCallback(() => {
     setIsLongPress(false)
@@ -83,7 +83,7 @@ export function useLongPress(
   }, [onLongPress, delay])
 
   const clear = useCallback(() => {
-    if (timeoutRef.current) {
+    if (timeoutRef.current !== null) {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
@@ -247,12 +247,12 @@ export function useDoubleTap(
   delay: number = 300
 ) {
   const tapCountRef = useRef(0)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleTap = useCallback(() => {
     tapCountRef.current += 1
 
-    if (timeoutRef.current) {
+    if (timeoutRef.current !== null) {
       clearTimeout(timeoutRef.current)
     }
 

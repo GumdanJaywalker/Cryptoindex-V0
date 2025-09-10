@@ -37,6 +37,21 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - Infra/UX
   - Link fixes for “View Leaderboard”; background effects set to `pointer-events-none`; Vercel Preview env guidance.
 
+## Recent Changes — Sep 2025 (this session)
+- Accessibility/Perf
+  - Added hidden DialogTitle to IndexDetail modal and Command dialog (Radix requirement).
+  - Global focus-ring normalization and prefers‑reduced‑motion; dialog overlay tone adjusted (brand‑tinted, no blur).
+- Landing/Trending
+  - Virtualized Trending list (large catalogs) with sticky table header; card‑internal scroll with fixed height.
+  - Moved Start Trading / Create Index / View Indices CTAs next to Search; removed center hero CTAs and center KPI strip.
+  - Switched thumbnails to next/image (lazy + async decode); hover/focus polish; aria labels; initial measure fixed via ResizeObserver.
+- Top Traders
+  - Removed crown icon from Traders page title; removed "Last updated" line; home compact block shows top 7 and lifted slightly.
+- Sidebar
+  - Added mock NetworkStatusWidget (latency/chain/block height).
+- Stability
+  - React Query provider made SSR‑safe (singleton; no client hooks in provider) to avoid runtime error.
+
 ## Dev Guidelines (FE)
 - Package manager: pnpm only. Use `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`.
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
@@ -53,9 +68,11 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - For full environment details, see `CLAUDE.md`.
 
 ## Current Priorities
-1) Mobile/accessibility/perf pass (focus outlines, prefers‑reduced‑motion, image optimization)
-2) Trending polish (badges: NEW/HOT; Quick View/Trade hover; minmax grid gutters)
+1) Trending polish (badges: NEW/HOT; hover affordances; minmax grid gutters)
+2) Top Traders polish (virtualization, skeletons, number formatting)
 3) Referrals polish (metrics granularity; creator whitelist states; link analytics)
+4) Earnings split surfacing (Creator vs LP)
+5) Mobile pass (moved later)
 
 ## Governance — Implementation Plan (UI + Policy)
 - Types: add `lib/types/governance.ts` for Proposal, VotingConfig, Tally, SnapshotInfo, MultisigState, TimelockInfo, UserState, ChangeSet, Option.
@@ -238,12 +255,14 @@ Notes
 - Trending
   - Add NEW/HOT badges on rows; hover actions on entire row (Quick View/Trade) with non‑janky transitions.
   - Ensure minmax grid to avoid uneven gutters at xl/2xl.
+  - (Done) Virtualized list; sticky header; card‑internal scroll (fixed height); CTAs moved next to Search; removed center hero CTAs and KPI strip; next/image thumbs; ResizeObserver fix.
 - Landing Quick View (modal) — Fixes
   - Scroll position: lock body scroll when modal opens; restore on close; avoid initial offset rendering.
   - Overlay tone: replace overly dark/“blurry” backdrop with subtle brand‑tinted overlay (opacity 0.4–0.6).
   - Close behavior: ensure closing X does not trigger underlying row onClick (stopPropagation, pointer-events on overlay, disable row click while open) and does not navigate to /trading.
 - Top Traders
   - Landing/Traders: add skeletons for podium/list; ensure consistent number formatting; mobile card tweaks.
+  - (Done) Remove crown icon in Traders title; remove "Last updated"; show top 7 on home; lift block slightly.
 - Referrals
   - Add header nav link (done); add basic analytics (clicks/signups) charts (mock) and export CSV (mock).
 - Earnings
@@ -256,8 +275,7 @@ Notes
   - Update periodically; degrade gracefully on failure; minimal footprint.
 
 - Trading — IndexInfoBar Gas Fees
-  - Surface indicative gas fees in IndexInfoBar (buy/sell actions context), with tooltip and units.
-  - Mock first; wire to provider/gas oracle later.
+  - (Done, mock) Surface indicative gas fees in IndexInfoBar (aligned block style, no icon); wire to provider/gas oracle later.
 
 ## Notes
 - Communication: when replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
