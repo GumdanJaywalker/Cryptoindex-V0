@@ -87,16 +87,20 @@ pnpm run dev
 
 ## 🎨 디자인 가이드라인
 
-### 🌟 브랜드 색상 테마 (#8BD6FF)
+### 🌟 브랜드 색상 테마 (updated)
 ```css
 :root {
-  /* 🎨 HyperIndex 브랜드 컬러 - #8BD6FF 기반 */
-  --brand-primary: 195 100% 76%;        /* #8BD6FF */
-  --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
-  --brand-primary-light: 195 100% 82%;  /* #A5E0FF */
-  --brand-primary-dark: 195 100% 70%;   /* #6BBDFF */
-  --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
-  --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
+  /* Primary (soft mint) */
+  --brand-primary-hex: #98FCE4;
+  /* Dark teal / near-black (background) */
+  --brand-dark-hex: #072723;
+  /* Light mint-gray (neutrals) */
+  --brand-light-hex: #D7EAE8;
+
+  /* Optional HSL tokens for Tailwind utilities if needed */
+  --brand-primary: 168 95% 80%;   /* ≈ #98FCE4 */
+  --brand-dark: 183 74% 9%;       /* ≈ #072723 */
+  --brand-light: 168 30% 90%;     /* ≈ #D7EAE8 */
 }
 ```
 
@@ -108,6 +112,8 @@ pnpm run dev
 .bg-brand-gradient   /* #8BD6FF → #6BBDFF 그라데이션 */
 .hover:bg-brand      /* 호버시 #8BD6FF 배경 */
 ```
+
+> Note: 기존 예시는 이전 팔레트를 기준으로 한 유틸 예시입니다. 실제 색 값은 상단 updated 팔레트(Primary/Dark/Light)를 기준으로 `app/globals.css`와 Tailwind 설정에서 매핑해 사용하세요.
 
 ### 기존 색상 테마 (파스텔톤 남색 계열)
 ```css

@@ -41,9 +41,11 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - Package manager: pnpm only. Use `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`.
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
 - Communication (agents): When replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
-- Brand colors: use utilities defined in `app/globals.css`:
-  - `text-brand`, `bg-brand`, `border-brand`, `bg-brand-hover`, `bg-brand-gradient`.
-  - Default dark theme; prefer subtle gradients and minimal glow.
+- Brand colors (updated)
+  - Primary (soft mint): `#98FCE4`
+  - Background/dark teal (near‑black): `#072723`
+  - Light mint‑gray (neutrals): `#D7EAE8`
+  - Use utilities defined in `app/globals.css` (`text-brand`, `bg-brand`, `border-brand`, `bg-brand-hover`, `bg-brand-gradient`). Keep the default dark theme; prefer subtle gradients and minimal glow.
 - UI style: Hyperliquid-like density; chart+orderbook+trading panel tri-column on desktop; reduce on tablet/mobile.
 - TypeScript: strict typing; client hooks/components use DOM timer types (no `NodeJS.Timeout`).
 - Imports/paths: use `@/*` alias; keep components colocated by feature.
