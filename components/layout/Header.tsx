@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
+import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 // Temporarily disable wallet UI to stabilize build
 import { 
@@ -10,7 +12,8 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, FileText, BarChart3, Settings, ExternalLink, TrendingUp } from 'lucide-react'
+import { ChevronDown, FileText, BarChart3, Settings, ExternalLink } from 'lucide-react'
+// Logo served from public. Place your official backgroundless text logo at /public/logos/hyperindex-text.svg
 
 const navigation = [
   { name: 'Trading', href: '/trading' },
@@ -23,16 +26,22 @@ const navigation = [
 
 export function Header() {
   const pathname = usePathname()
+  // Prefer the official static logo; avoid unnecessary fallbacks to prevent confusion
+  const logoSrc = '/hyperindex-text.svg'
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
       <div className="flex h-16 items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded bg-brand flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-black" />
+          <div className="h-[45px] w-[180px] overflow-hidden flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoSrc}
+              alt="HyperIndex"
+              className="h-full w-full object-cover"
+            />
           </div>
-          <span className="text-xl font-bold text-white">HyperIndex</span>
         </Link>
 
         {/* Navigation */}

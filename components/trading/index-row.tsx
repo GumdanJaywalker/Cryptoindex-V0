@@ -265,8 +265,19 @@ const IndexRow = memo(function IndexRow({
             <img src={thumbnail.url} alt={index.name} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
-            <div className="font-medium text-sm truncate text-white">{index.name}</div>
-            <div className="text-xs text-muted-foreground">{index.symbol}</div>
+            <div className="font-medium text-sm truncate text-white flex items-center gap-2">
+              <span className="truncate">{index.name}</span>
+              {index.isHot && (
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-orange-400 border-orange-400/30">HOT</Badge>
+              )}
+              {index.isNew && (
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-blue-400 border-blue-400/30">NEW</Badge>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground flex items-center gap-2">
+              <span>{index.symbol}</span>
+              <RowBadges index={index} />
+            </div>
           </div>
         </div>
       </TableCell>
@@ -316,7 +327,7 @@ const IndexRow = memo(function IndexRow({
 
       {/* Actions */}
       <TableCell className="w-[160px] text-center">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <Button
             size="sm"
             variant="outline"
