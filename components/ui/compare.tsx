@@ -36,7 +36,7 @@ export const Compare = ({
 
   const [isMouseOver, setIsMouseOver] = useState(false);
 
-  const autoplayRef = useRef<NodeJS.Timeout | null>(null);
+  const autoplayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startAutoplay = useCallback(() => {
     if (!autoplay) return;

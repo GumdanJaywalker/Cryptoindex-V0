@@ -80,7 +80,7 @@ interface UseRealtimeOptions {
 // Mock WebSocket 시뮬레이션 클래스
 class MockRealtimeConnection {
   private callbacks: Map<string, Function[]> = new Map()
-  private intervalId: NodeJS.Timeout | null = null
+  private intervalId: ReturnType<typeof setInterval> | null = null
   private isConnected = false
   
   constructor() {
@@ -247,7 +247,7 @@ export function useRealtimeConnection(options: UseRealtimeOptions = {}) {
   const [connectionStatus, setConnectionStatus] = React.useState<ConnectionStatus>('disconnected')
   const [reconnectAttempts, setReconnectAttempts] = React.useState(0)
   const connectionRef = useRef<MockRealtimeConnection | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const {
     updateIndexPrice,
     updateTraderPnL,
@@ -344,8 +344,9 @@ export function useRealtimeConnection(options: UseRealtimeOptions = {}) {
 
   // 연결 해제 함수
   const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
+    if (reconnectTimeoutRef.current !== null) {
       clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
     }
     
     if (connectionRef.current) {

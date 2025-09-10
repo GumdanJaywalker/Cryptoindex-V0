@@ -97,7 +97,7 @@ export const Particles: React.FC<ParticlesProps> = ({
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
   const rafID = useRef<number | null>(null);
-  const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const resizeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -107,8 +107,9 @@ export const Particles: React.FC<ParticlesProps> = ({
     animate();
 
     const handleResize = () => {
-      if (resizeTimeout.current) {
+      if (resizeTimeout.current !== null) {
         clearTimeout(resizeTimeout.current);
+        resizeTimeout.current = null;
       }
       resizeTimeout.current = setTimeout(() => {
         initCanvas();
@@ -121,8 +122,9 @@ export const Particles: React.FC<ParticlesProps> = ({
       if (rafID.current != null) {
         window.cancelAnimationFrame(rafID.current);
       }
-      if (resizeTimeout.current) {
+      if (resizeTimeout.current !== null) {
         clearTimeout(resizeTimeout.current);
+        resizeTimeout.current = null;
       }
       window.removeEventListener("resize", handleResize);
     };

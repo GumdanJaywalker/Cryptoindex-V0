@@ -341,9 +341,7 @@ export function TopTraders({
             Refresh
           </Button>
         </div>
-        <p className="text-slate-400 text-xs mt-2">
-          Last updated: {mounted ? lastUpdated.toLocaleTimeString() : '--:--:--'}
-        </p>
+        {/* Removed last updated to declutter header */}
       </div>
 
       {/* Timeframe Tabs (hidden in compact variant) */}

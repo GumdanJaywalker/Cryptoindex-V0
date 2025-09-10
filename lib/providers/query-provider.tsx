@@ -1,7 +1,7 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 // React Query 클라이언트 설정
 function makeQueryClient() {
@@ -40,16 +40,13 @@ interface QueryProviderProps {
   children: ReactNode
 }
 
-export default function QueryProvider({ children }: QueryProviderProps) {
-  // NOTE: React에서 useState를 사용하지 않으면 컴포넌트가 re-render될 때마다 새로운 클라이언트가 생성됨
-  // 이것은 매우 나쁜 성능을 야기함. 따라서 useState를 사용하여 클라이언트를 보존함
-  const [queryClient] = useState(() => getQueryClient())
+// Create a module-scoped client to avoid hook usage on server builds
+const queryClientSingleton = getQueryClient()
 
+export default function QueryProvider({ children }: QueryProviderProps) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientSingleton}>
       {children}
-      {/* React Query Devtools는 개발 환경에서만 사용합니다. 
-          패키지가 없을 수 있어 빌드 오류 방지를 위해 임시로 비활성화했습니다. */}
     </QueryClientProvider>
   )
 }

@@ -44,6 +44,23 @@ export function IndexInfoBar() {
 
     return () => clearInterval(interval)
   }, [])
+
+  // Mock gas fee oracle (for tooltip + est. gas USD)
+  const [gasInfo, setGasInfo] = useState({
+    gasPriceGwei: 18, // mock base
+    ethUsd: 3200,     // mock ETH price
+    gasLimit: 120_000 // indicative for a trade
+  })
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setGasInfo(prev => ({
+        ...prev,
+        gasPriceGwei: Math.max(8, Math.min(60, prev.gasPriceGwei + (Math.random() - 0.5) * 2))
+      }))
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
   
 
 
@@ -315,6 +332,19 @@ export function IndexInfoBar() {
           </div>
         </div>
         
+        {/* Est. Gas Fees (mock) — aligned with other metric blocks and placed before Market Status */}
+        <div>
+          <div className="text-sm font-medium text-white font-mono">
+            {(() => {
+              const ethPerGas = gasInfo.gasPriceGwei / 1e9
+              const ethCost = ethPerGas * gasInfo.gasLimit
+              const usdCost = ethCost * gasInfo.ethUsd
+              return `$${usdCost.toFixed(2)}`
+            })()}
+          </div>
+          <div className="text-xs hl-text-secondary">Est. Gas</div>
+        </div>
+
         <div className="flex items-center">
           <div className="w-2 h-2 bg-brand rounded-full mr-2 animate-pulse"></div>
           <div>

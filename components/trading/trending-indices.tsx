@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'motion/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -36,6 +37,7 @@ import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
 import { IndexRow } from './index-row'
 import { cn } from '@/lib/utils'
 import { staggerContainer, fadeInUp } from '@/lib/animations/micro-interactions'
+import { useVirtualList } from '@/lib/hooks/use-performance'
 
 interface TrendingIndicesProps {
   indices: MemeIndex[]
@@ -88,6 +90,8 @@ export function TrendingIndices({
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null)
+  const [containerHeight, setContainerHeight] = useState(0)
 
   // Initialize client-side time to prevent hydration mismatch
   useEffect(() => {
@@ -177,6 +181,29 @@ export function TrendingIndices({
     
     setFilteredIndices(filtered)
   }, [indices, selectedFilter, sortBy, sortDirection, searchQuery])
+  // Measure container height for virtualization (robust on mount + resize)
+  useEffect(() => {
+    if (!containerEl) return
+    const ro = new ResizeObserver(() => {
+      setContainerHeight(containerEl.clientHeight)
+    })
+    // Initial measure and observe
+    setContainerHeight(containerEl.clientHeight)
+    ro.observe(containerEl)
+    return () => ro.disconnect()
+  }, [containerEl])
+
+  const ROW_HEIGHT = 56
+  const { visibleItems, totalHeight, onScroll } = useVirtualList(
+    filteredIndices,
+    ROW_HEIGHT,
+    containerHeight,
+    6
+  )
+  const startIndex = visibleItems.length ? visibleItems[0].index : 0
+  const endIndex = visibleItems.length ? visibleItems[visibleItems.length - 1].index : -1
+  const topSpacer = startIndex * ROW_HEIGHT
+  const bottomSpacer = Math.max(0, filteredIndices.length - endIndex - 1) * ROW_HEIGHT
 
   // Handle sort option change
   const handleSort = (newSortBy: SortOption) => {
@@ -202,15 +229,28 @@ export function TrendingIndices({
   return (
     <div className={cn("flex h-full min-h-0 flex-col gap-3", className)}>
 
-      {/* Search Bar */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <Input
-          placeholder="Search indices..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500"
-        />
+      {/* Search + CTAs */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="relative max-w-md flex-1 min-w-[240px]">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input
+            placeholder="Search indices..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/trading">
+            <Button className="bg-brand text-black hover:bg-brand-hover">Start Trading</Button>
+          </Link>
+          <Link href="/create">
+            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">Create Index</Button>
+          </Link>
+          <Link href="#indices-section">
+            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">View Indices</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filter and Sort Options - Combined Line */}
@@ -300,21 +340,24 @@ export function TrendingIndices({
         </div>
       )}
 
-      {/* Scrollable table area only */}
-      <div className="min-h-0 flex-1 overflow-auto overscroll-contain scrollbar-thin">
+      {/* Card-constrained internal scroll area */}
+      <div className="min-h-0 flex-1">
         <AnimatePresence mode="wait">
           {filteredIndices.length > 0 ? (
             <motion.div 
               key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
-              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-hidden"
+              ref={setContainerEl}
+              onScroll={onScroll}
+              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-auto overscroll-contain scrollbar-thin min-h-[320px]"
+              style={{ height: 'calc(100vh - 16rem)' }}
               variants={staggerContainer}
               initial="initial"
               animate="animate"
               exit="exit"
             >
-              <Table>
+              <Table containerClassName="relative w-full overflow-visible">
                 <TableHeader>
-                  <TableRow className="bg-slate-900/50 hover:bg-slate-900/50">
+                  <TableRow className="sticky top-0 z-20 bg-slate-900/80 hover:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
                     <TableHead className="w-[300px] text-xs text-slate-400 font-medium">Name</TableHead>
                     <TableHead className="w-[120px] text-xs text-slate-400 font-medium">Chart</TableHead>
                     <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">Price</TableHead>
@@ -325,15 +368,29 @@ export function TrendingIndices({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredIndices.map((index, i) => (
+                  {topSpacer > 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="p-0">
+                        <div style={{ height: topSpacer }} />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {visibleItems.map(({ item, index }) => (
                     <IndexRow
-                      key={index.id}
-                      index={index} 
+                      key={item.id}
+                      index={item}
                       onSelect={onIndexSelect}
-                      rank={i + 1}
+                      rank={index + 1}
                       showQuickTrade={true}
                     />
                   ))}
+                  {bottomSpacer > 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="p-0">
+                        <div style={{ height: bottomSpacer }} />
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </motion.div>
@@ -385,19 +442,7 @@ export function TrendingIndices({
         </AnimatePresence>
       </div>
 
-      {/* Load More Button (for future pagination) */}
-      {filteredIndices.length > 0 && (
-        <div className="text-center pt-6">
-          <Button
-            variant="outline"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
-            disabled
-          >
-            <Clock className="w-4 h-4 mr-2" />
-            Load More (Coming Soon)
-          </Button>
-        </div>
-      )}
+      {/* Virtualized list removes the need for a manual load-more */}
     </div>
   )
 }

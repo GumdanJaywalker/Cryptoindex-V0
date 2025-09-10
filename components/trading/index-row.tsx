@@ -35,6 +35,7 @@ import {
 import { MemeIndex } from '@/lib/types/index-trading'
 import IndexDetailModal from '@/components/dialogs/index-detail-modal'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface IndexRowProps {
   index: MemeIndex
@@ -248,7 +249,7 @@ const IndexRow = memo(function IndexRow({
   return (
     <TableRow 
       className={cn(
-        "group border-b border-border/50 hover:bg-muted/30 transition-all duration-200 cursor-pointer",
+        "group h-14 border-b border-border/50 hover:bg-muted/30 focus-within:bg-muted/30 transition-colors duration-200 cursor-pointer",
         isHovered && "bg-muted/40",
         className
       )}
@@ -261,8 +262,16 @@ const IndexRow = memo(function IndexRow({
         <div className="flex items-center gap-3">
           {/* 썸네일 이미지 */}
           <div className={cn("w-10 h-10 rounded-lg overflow-hidden flex-shrink-0", thumbnail.gradient)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={thumbnail.url} alt={index.name} className="w-full h-full object-cover" />
+            <Image
+              src={thumbnail.url}
+              alt={index.name}
+              width={40}
+              height={40}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+              unoptimized
+            />
           </div>
           <div className="min-w-0">
             <div className="font-medium text-sm truncate text-white flex items-center gap-2">
@@ -327,15 +336,16 @@ const IndexRow = memo(function IndexRow({
 
       {/* Actions */}
       <TableCell className="w-[160px] text-center">
-        <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 ease-out motion-reduce:transition-none">
           <Button
             size="sm"
             variant="outline"
-            className="h-7 px-3 text-xs font-medium border-slate-700 hover:bg-slate-800"
+            className="h-7 px-3 text-xs font-medium border-slate-700 hover:bg-slate-800 translate-y-0.5 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-150 ease-out motion-reduce:transition-none motion-reduce:transform-none"
             onClick={(e) => {
               e.stopPropagation()
               setQuickViewOpen(true)
             }}
+            aria-label={`Quick view ${index.name}`}
           >
             Quick View
           </Button>
@@ -343,11 +353,12 @@ const IndexRow = memo(function IndexRow({
             <Button
               size="sm"
               variant="outline"
-              className="h-7 px-3 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 shadow-sm hover:shadow-lg"
+              className="h-7 px-3 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 ease-out shadow-sm hover:shadow-lg motion-reduce:transition-none"
               onClick={(e) => {
                 e.stopPropagation()
                 handleQuickTrade('buy')
               }}
+              aria-label={`Trade ${index.symbol}`}
             >
               Trade
             </Button>

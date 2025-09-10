@@ -59,15 +59,16 @@ export function useCountUp(
 export function usePriceFlash(value: number, duration: number = 1000) {
   const [flashState, setFlashState] = useState<'none' | 'up' | 'down'>('none')
   const [previousValue, setPreviousValue] = useState(value)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   
   useEffect(() => {
     if (value !== previousValue) {
       const direction = value > previousValue ? 'up' : 'down'
       setFlashState(direction)
       
-      if (timeoutRef.current) {
+      if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
       
       timeoutRef.current = setTimeout(() => {
@@ -78,8 +79,9 @@ export function usePriceFlash(value: number, duration: number = 1000) {
     }
     
     return () => {
-      if (timeoutRef.current) {
+      if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
   }, [value, previousValue, duration])
