@@ -254,7 +254,7 @@ const IndexRow = memo(function IndexRow({
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleRowClick}
+      onClick={() => { if (!quickViewOpen) handleRowClick() }}
     >
       {/* Name & Thumbnail */}
       <TableCell className="w-[300px]">

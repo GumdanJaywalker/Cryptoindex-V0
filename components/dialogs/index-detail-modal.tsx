@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,6 +113,14 @@ export default function IndexDetailModal({
   indexData = sampleIndexData
 }: IndexDetailModalProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState<keyof IndexData['performance']>('1M');
+  // Body scroll lock
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => { document.body.style.overflow = prev }
+    }
+  }, [open])
   
   // Refs for AnimatedBeam connections
   const containerRef = useRef<HTMLDivElement>(null);

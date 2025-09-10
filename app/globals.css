@@ -110,6 +110,27 @@ body {
   .hover\:border-brand:hover {
     border-color: hsl(var(--brand-primary));
   }
+
+  /* Scrollbar polish */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(215, 234, 232, 0.25); /* light mint-gray */
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(152, 252, 228, 0.4); /* soft mint */
+  }
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
 }
 
 @layer base {
@@ -148,14 +169,15 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* 🎨 CryptoIndex Brand Colors - #8BD6FF Theme */
-    --brand-primary: 195 100% 76%;        /* #8BD6FF */
-    --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
-    --brand-primary-light: 195 100% 82%;  /* #A5E0FF */
-    --brand-primary-dark: 195 100% 70%;   /* #6BBDFF */
-    --brand-accent: 195 100% 76%;         /* Same as primary for consistency */
-    --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
-    --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
+    /* 🎨 HyperIndex Brand Colors — updated palette */
+    /* Primary soft mint: #98FCE4 ≈ hsl(168, 95%, 80%) */
+    --brand-primary: 168 95% 80%;
+    --brand-primary-hover: 168 95% 76%;
+    --brand-primary-light: 168 60% 90%;   /* near #D7EAE8 tint */
+    --brand-primary-dark: 168 95% 70%;
+    --brand-accent: 168 95% 80%;
+    --brand-gradient-start: 168 95% 80%;
+    --brand-gradient-end: 168 95% 72%;
   }
   .dark {
     /* CryptoIndex Dark Theme - 파스텔톤 남색 계열 */
@@ -192,12 +214,12 @@ body {
     --sidebar-border: 222 47% 12%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* 🎨 CryptoIndex Brand Colors - #8BD6FF Theme */
-    --brand-primary: 195 100% 76%;        /* #8BD6FF */
-    --brand-primary-hover: 195 100% 73%;  /* #7BC9FF */
-    --brand-primary-light: 195 100% 82%;  /* #A5E0FF */
-    --brand-primary-dark: 195 100% 70%;   /* #6BBDFF */
-    --brand-accent: 195 100% 76%;         /* Same as primary for consistency */
+    /* 🎨 HyperIndex Brand Colors — updated palette (dark) */
+    --brand-primary: 168 95% 80%;
+    --brand-primary-hover: 168 95% 76%;
+    --brand-primary-light: 168 60% 90%;
+    --brand-primary-dark: 168 95% 70%;
+    --brand-accent: 168 95% 80%;
     --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
     --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
   }

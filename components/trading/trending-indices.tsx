@@ -200,7 +200,7 @@ export function TrendingIndices({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("flex h-full min-h-0 flex-col gap-3", className)}>
 
       {/* Search Bar */}
       <div className="relative max-w-md">
@@ -300,88 +300,90 @@ export function TrendingIndices({
         </div>
       )}
 
-      {/* Indices Table */}
-      <AnimatePresence mode="wait">
-        {filteredIndices.length > 0 ? (
-          <motion.div 
-            key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
-            className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-hidden"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-900/50 hover:bg-slate-900/50">
-                  <TableHead className="w-[300px] text-xs text-slate-400 font-medium">Name</TableHead>
-                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium">Chart</TableHead>
-                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">Price</TableHead>
-                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">24h%</TableHead>
-                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">Volume</TableHead>
-                  <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">MCap</TableHead>
-                  <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-center">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredIndices.map((index, i) => (
-                  <IndexRow
-                    key={index.id}
-                    index={index} 
-                    onSelect={onIndexSelect}
-                    rank={i + 1}
-                    showQuickTrade={true}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="no-results"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="text-center py-12"
-          >
-            <Card className="bg-slate-900/30 border-slate-800">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
-                    <Search className="w-6 h-6 text-slate-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      No indices found
-                    </h3>
-                    <p className="text-slate-400 text-sm mb-4">
-                      Try adjusting your search or filter criteria
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => setSearchQuery('')}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Clear search
-                      </Button>
-                      <Button
-                        onClick={() => setSelectedFilter('all' as IndexFilter)}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Show all
-                      </Button>
+      {/* Scrollable table area only */}
+      <div className="min-h-0 flex-1 overflow-auto overscroll-contain scrollbar-thin">
+        <AnimatePresence mode="wait">
+          {filteredIndices.length > 0 ? (
+            <motion.div 
+              key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
+              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-hidden"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-900/50 hover:bg-slate-900/50">
+                    <TableHead className="w-[300px] text-xs text-slate-400 font-medium">Name</TableHead>
+                    <TableHead className="w-[120px] text-xs text-slate-400 font-medium">Chart</TableHead>
+                    <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">Price</TableHead>
+                    <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">24h%</TableHead>
+                    <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">Volume</TableHead>
+                    <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">MCap</TableHead>
+                    <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-center">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredIndices.map((index, i) => (
+                    <IndexRow
+                      key={index.id}
+                      index={index} 
+                      onSelect={onIndexSelect}
+                      rank={i + 1}
+                      showQuickTrade={true}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="no-results"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="text-center py-12"
+            >
+              <Card className="bg-slate-900/30 border-slate-800">
+                <CardContent className="p-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                      <Search className="w-6 h-6 text-slate-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        No indices found
+                      </h3>
+                      <p className="text-slate-400 text-sm mb-4">
+                        Try adjusting your search or filter criteria
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => setSearchQuery('')}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                        >
+                          Clear search
+                        </Button>
+                        <Button
+                          onClick={() => setSelectedFilter('all' as IndexFilter)}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                        >
+                          Show all
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Load More Button (for future pagination) */}
       {filteredIndices.length > 0 && (

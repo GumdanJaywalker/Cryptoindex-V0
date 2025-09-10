@@ -255,6 +255,62 @@ export function TopTraders({
 
   return (
     <div className={cn("space-y-6", className)}>
+      {/* Skeletons */}
+      {(!mounted || isRefreshing) && variant === 'compact' && (
+        <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+          {/* Podium skeleton */}
+          <div className="p-4 space-y-3">
+            <div className="flex justify-center">
+              <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5">
+                <div className="flex items-center gap-4 animate-pulse">
+                  <div className="w-12 h-12 rounded-full bg-slate-800"/>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-slate-800 rounded w-1/2"/>
+                    <div className="h-3 bg-slate-800 rounded w-1/3"/>
+                  </div>
+                  <div className="h-5 bg-slate-800 rounded w-24"/>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+              {[0,1].map(i => (
+                <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4">
+                  <div className="flex items-center gap-3 animate-pulse">
+                    <div className="w-10 h-10 rounded-full bg-slate-800"/>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-slate-800 rounded w-1/2"/>
+                      <div className="h-3 bg-slate-800 rounded w-1/4"/>
+                    </div>
+                    <div className="h-4 bg-slate-800 rounded w-16"/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Rows skeleton */}
+          <div className="divide-y divide-slate-800">
+            {Array.from({length: 6}).map((_,i) => (
+              <div key={`s-${i}`} className="px-4 py-3">
+                <div className="flex items-center gap-3 animate-pulse">
+                  <div className="w-6 text-slate-800">&nbsp;</div>
+                  <div className="w-8 h-8 rounded-full bg-slate-800"/>
+                  <div className="flex-1">
+                    <div className="h-4 bg-slate-800 rounded w-1/2"/>
+                  </div>
+                  <div className="h-4 bg-slate-800 rounded w-24"/>
+                </div>
+                <div className="mt-2 pl-9 flex items-center justify-between animate-pulse">
+                  <div className="flex gap-1">
+                    <div className="h-4 w-12 bg-slate-800 rounded"/>
+                    <div className="h-4 w-12 bg-slate-800 rounded"/>
+                  </div>
+                  <div className="h-3 w-32 bg-slate-800 rounded"/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Header with Stats */}
       <div>
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
