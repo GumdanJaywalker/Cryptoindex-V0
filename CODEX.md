@@ -257,9 +257,9 @@ Notes
   - Ensure minmax grid to avoid uneven gutters at xl/2xl.
   - (Done) Virtualized list; sticky header; card‑internal scroll (fixed height); CTAs moved next to Search; removed center hero CTAs and KPI strip; next/image thumbs; ResizeObserver fix.
 - Landing Quick View (modal) — Fixes
-  - Scroll position: lock body scroll when modal opens; restore on close; avoid initial offset rendering.
-  - Overlay tone: replace overly dark/“blurry” backdrop with subtle brand‑tinted overlay (opacity 0.4–0.6).
-  - Close behavior: ensure closing X does not trigger underlying row onClick (stopPropagation, pointer-events on overlay, disable row click while open) and does not navigate to /trading.
+  - (Done) Scroll position: lock body scroll when modal opens; preserve/restore scroll position; avoid initial offset rendering.
+  - (Done) Overlay tone: subtle brand‑tinted overlay (opacity ~0.5), no blur.
+  - (Done) Close behavior: closing X/overlay does not trigger underlying row or navigate away; row click disabled while open.
 - Top Traders
   - Landing/Traders: add skeletons for podium/list; ensure consistent number formatting; mobile card tweaks.
   - (Done) Remove crown icon in Traders title; remove "Last updated"; show top 7 on home; lift block slightly.
