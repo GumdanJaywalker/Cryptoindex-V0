@@ -17,7 +17,7 @@ export interface MemeIndex {
   name: string
   theme: 'dog' | 'ai' | 'political' | 'gaming' | 'frog' | 'space' | 'food' | 'diamond-hands' | 'moon' | 'ape'
   description: string
-  layerInfo: LayerInfo
+  layerInfo?: LayerInfo
   currentPrice: number
   change24h: number
   change7d: number

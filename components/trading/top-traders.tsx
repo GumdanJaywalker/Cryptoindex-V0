@@ -144,10 +144,11 @@ export function TopTraders({
   variant = 'default',
   initialTimeframe = '24h',
 }: TopTradersProps) {
+  const isCompact = variant === 'compact'
   const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeOption>(initialTimeframe)
   const [selectedFilter, setSelectedFilter] = useState<TraderFilter>('all')
-  const [sortBy, setSortBy] = useState<TraderSort>(variant === 'compact' ? 'pnl' : 'rank')
-  const [sortDirection, setSortDirection] = useState<SortDirection>(variant === 'compact' ? 'desc' : 'asc')
+  const [sortBy, setSortBy] = useState<TraderSort>(isCompact ? 'pnl' : 'rank')
+  const [sortDirection, setSortDirection] = useState<SortDirection>(isCompact ? 'desc' : 'asc')
   const [filteredTraders, setFilteredTraders] = useState<TopTrader[]>(traders)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -191,10 +192,10 @@ export function TopTraders({
       switch (sortBy) {
         case 'pnl':
           const pnlFieldSort = selectedTimeframe === '24h' 
-                                ? (variant === 'compact' ? 'pnlPercentage24h' : 'pnl24h') 
+                                ? (isCompact ? 'pnlPercentage24h' : 'pnl24h') 
                                 : selectedTimeframe === '7d' 
-                                  ? (variant === 'compact' ? 'pnlPercentage7d' : 'pnl7d') 
-                                  : (variant === 'compact' ? 'pnlPercentage30d' : 'pnl30d')
+                                  ? (isCompact ? 'pnlPercentage7d' : 'pnl7d') 
+                                  : (isCompact ? 'pnlPercentage30d' : 'pnl30d')
           comparison = (a[pnlFieldSort] || 0) - (b[pnlFieldSort] || 0)
           break
         case 'winrate':
@@ -316,7 +317,7 @@ export function TopTraders({
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           Top Traders
           <Badge variant="outline" className="text-xs">
-            {variant === 'compact' ? traders.length : filteredTraders.length}
+            {isCompact ? traders.length : filteredTraders.length}
           </Badge>
         </h2>
         <div className="mt-2 flex items-center gap-2">
@@ -345,7 +346,7 @@ export function TopTraders({
       </div>
 
       {/* Timeframe Tabs (hidden in compact variant) */}
-      {variant !== 'compact' && (
+      {!isCompact && (
         <div className={cn("flex gap-1 p-1 rounded-lg", 'bg-slate-900/50')}>
           {timeframeOptions.map(({ key, label, description }) => (
             <Button
@@ -368,7 +369,7 @@ export function TopTraders({
       )}
 
       {/* Compact table view for landing */}
-      {variant === 'compact' ? (
+      {isCompact ? (
         <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
           {/* Top 3 spotlight cards */}
           {rankAll.length > 0 && (
@@ -640,7 +641,7 @@ export function TopTraders({
                 className="relative"
               >
                 {/* 순위/하이라이트는 compact 모드에서 비활성화 */}
-                {variant !== 'compact' && (
+                {!isCompact && (
                   <div className="absolute top-2 left-2 z-10">
                     <RankChangeIndicator 
                       previousRank={trader.rank + Math.floor(Math.random() * 5) - 2}
@@ -648,7 +649,7 @@ export function TopTraders({
                     />
                   </div>
                 )}
-                {variant !== 'compact' && <NewTraderHighlight trader={trader} />}
+                {!isCompact && <NewTraderHighlight trader={trader} />}
                 
                 <TraderCard 
                   trader={trader} 

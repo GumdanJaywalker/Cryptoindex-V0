@@ -137,13 +137,13 @@ export class PWAManager {
 
   // Background sync registration
   async registerBackgroundSync(tag: string): Promise<boolean> {
-    if (!this.registration || !('sync' in this.registration)) {
+    if (!this.registration || !(this.registration as any).sync) {
       console.log('PWA: Background sync not supported')
       return false
     }
 
     try {
-      await this.registration.sync.register(tag)
+      await (this.registration as any).sync.register(tag)
       console.log(`PWA: Background sync registered for tag: ${tag}`)
       return true
     } catch (error) {

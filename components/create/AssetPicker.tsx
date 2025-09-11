@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { assetsCatalog, type AssetMeta } from '@/lib/mock/assets'
 import { globalBlacklist } from '@/lib/mock/blacklist'
+import { useToast, createSuccessToast } from '@/components/notifications/toast-system'
 
 type Asset = AssetMeta
 
@@ -192,6 +193,7 @@ useEffect(() => {
 
   const total = Object.values(selected).reduce((s, v) => s + (Number.isFinite(v) ? v : 0), 0)
   const totalOk = Math.abs(total - 100) < 0.01
+  const { addToast } = useToast()
 
   return (
     <div className="space-y-4">
@@ -236,7 +238,7 @@ useEffect(() => {
         <Button
           variant="outline"
           className="border-slate-700 text-slate-300 hover:bg-slate-800"
-          onClick={distributeEqual}
+          onClick={() => { distributeEqual(); addToast(createSuccessToast('All set ✓', undefined, { duration: 1500 })) }}
           disabled={Object.keys(selected).length === 0}
         >
           Distribute equally
