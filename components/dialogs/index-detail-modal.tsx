@@ -113,12 +113,29 @@ export default function IndexDetailModal({
   indexData = sampleIndexData
 }: IndexDetailModalProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState<keyof IndexData['performance']>('1M');
-  // Body scroll lock
+  // Body scroll lock with scroll position preservation
   useEffect(() => {
-    if (open) {
-      const prev = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = prev }
+    if (!open) return
+    const { scrollY } = window
+    const prev = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    }
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+
+    return () => {
+      document.body.style.overflow = prev.overflow
+      document.body.style.position = prev.position
+      document.body.style.top = prev.top
+      document.body.style.width = prev.width
+      // Restore scroll position
+      const y = Math.abs(parseInt(prev.top || '0', 10)) || scrollY
+      window.scrollTo(0, y)
     }
   }, [open])
   
