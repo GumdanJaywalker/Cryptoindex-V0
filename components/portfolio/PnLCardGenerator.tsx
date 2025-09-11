@@ -112,7 +112,7 @@ export function PnLCardGenerator() {
                       onClick={() => setSelectedTimeframe(timeframe.value)}
                       className={`${
                         selectedTimeframe === timeframe.value
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          ? 'bg-brand text-black hover:bg-brand-hover'
                           : 'border-slate-700 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
@@ -182,7 +182,7 @@ export function PnLCardGenerator() {
                       key={template.id}
                       className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
                         selectedTemplate === template.id
-                          ? 'border-blue-500 bg-blue-500/10'
+                          ? 'border-brand bg-brand/10'
                           : 'border-slate-700 hover:border-slate-600'
                       }`}
                       onClick={() => setSelectedTemplate(template.id)}
@@ -211,7 +211,7 @@ export function PnLCardGenerator() {
                       onClick={() => setCardSize(size.id)}
                       className={`${
                         cardSize === size.id
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          ? 'bg-brand text-black hover:bg-brand-hover'
                           : 'border-slate-700 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
@@ -339,7 +339,7 @@ export function PnLCardGenerator() {
               
               {/* 공유 옵션 */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2">
+                <Button className="bg-brand hover:bg-brand-hover text-black flex items-center justify-center gap-2">
                   <Download className="w-4 h-4" />
                   Download PNG
                 </Button>
@@ -358,21 +358,21 @@ export function PnLCardGenerator() {
                 <div className="grid grid-cols-3 gap-3">
                   <Button 
                     variant="outline"
-                    className="border-blue-500 text-blue-400 hover:bg-blue-500/10 flex items-center justify-center gap-2"
+                    className="border-brand text-brand hover:bg-brand/10 flex items-center justify-center gap-2"
                   >
                     <Twitter className="w-4 h-4" />
                     Twitter
                   </Button>
                   <Button 
                     variant="outline"
-                    className="border-pink-500 text-pink-400 hover:bg-pink-500/10 flex items-center justify-center gap-2"
+                    className="border-brand text-brand hover:bg-brand/10 flex items-center justify-center gap-2"
                   >
                     <Instagram className="w-4 h-4" />
                     Instagram
                   </Button>
                   <Button 
                     variant="outline"
-                    className="border-blue-600 text-blue-300 hover:bg-blue-600/10 flex items-center justify-center gap-2"
+                    className="border-brand text-brand hover:bg-brand/10 flex items-center justify-center gap-2"
                   >
                     <Facebook className="w-4 h-4" />
                     Facebook
@@ -384,9 +384,9 @@ export function PnLCardGenerator() {
               <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-white">Your PnL Card Gallery</h4>
-                  <Badge variant="outline" className="text-blue-400 border-blue-400/30">
-                    12 Cards
-                  </Badge>
+          <Badge variant="outline" className="text-slate-300 border-slate-600">
+            12 Cards
+          </Badge>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {[1, 2, 3, 4].map((i) => (
@@ -425,14 +425,14 @@ export function PnLCardGenerator() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Palette className="w-6 h-6 text-pink-400" />
+            <Palette className="w-6 h-6 text-brand" />
             PnL Card Generator
           </h2>
           <p className="text-slate-400 mt-1">Create stunning cards to showcase your trading success</p>
         </div>
         
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-pink-400 border-pink-400/30">
+          <Badge variant="outline" className="text-brand border-brand">
             <Sparkles className="w-3 h-3 mr-1" />
             Magic
           </Badge>
@@ -446,7 +446,7 @@ export function PnLCardGenerator() {
             <div 
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step >= stepNum 
-                  ? 'bg-blue-600 text-white' 
+                  ? 'bg-brand text-black' 
                   : 'bg-slate-700 text-slate-400'
               }`}
             >
@@ -454,7 +454,7 @@ export function PnLCardGenerator() {
             </div>
             {stepNum < 4 && (
               <div className={`w-12 sm:w-24 h-0.5 mx-2 ${
-                step > stepNum ? 'bg-blue-600' : 'bg-slate-700'
+                step > stepNum ? 'bg-brand' : 'bg-slate-700'
               }`} />
             )}
           </div>
@@ -480,7 +480,7 @@ export function PnLCardGenerator() {
             <Button
               onClick={() => setStep(Math.min(4, step + 1))}
               disabled={step === 4}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-brand hover:bg-brand-hover text-black"
             >
               {step === 3 ? 'Generate Card' : 'Next'}
             </Button>

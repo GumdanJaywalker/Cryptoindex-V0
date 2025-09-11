@@ -52,6 +52,22 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - Stability
   - React Query provider made SSR‑safe (singleton; no client hooks in provider) to avoid runtime error.
 
+### Additional Updates (this session continuation)
+- Trending
+  - Favorites system: star toggle per row; Favorites filter; favorites-first ordering in lists; Trade button always visible.
+  - Row hover affordance simplified; grid minmax gutters adjusted; NEW/HOT badges deduped to name line.
+- Top Traders (landing)
+  - Replaced podium with thick rows for ranks 1–3; kept 4–7 as compact rows; medal badges restored; strong separator between 3 and 4; win/followers aligned to line 2; reduced right column width ~5%.
+- Referrals
+  - Removed invite-only copy and policy badge; unified into single view with auto tier (Individual by default, Influencer if approved); added Apply page (/referrals/apply).
+  - Added 14d mock timeseries (clicks/signups/volume) with mini charts; CSV export button.
+- Portfolio Tone
+  - Neutralized color usage across AccountSummary, TradingAnalytics, Positions, VotingPowerManager (slate tone; softer greens/reds for PnL only).
+  - Monthly Performance chart fixed (height context) and bars thinned to 20% width; positive=green, negative=red.
+  - Overview top badges: added Creator Fees / LP Fees summary.
+- PnL Card Generator
+  - Branded period tabs, stepper, primary buttons, header icon/badge to mint; social share buttons unified to brand mint.
+
 ## Dev Guidelines (FE)
 - Package manager: pnpm only. Use `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`.
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
@@ -238,6 +254,13 @@ Notes
 - Trending: add NEW/HOT badges, quick view + trade hover actions; minmax grid to avoid uneven gutters.
 - Top Traders (list): convert table rows to two‑line rich rows with index chips and 24H $PnL; keep ranking from #4.
 - QA: Lighthouse 90+ for performance and accessibility; consistent microcopy (English, concise, neutral).
+
+- Trending
+  - Optional: explicit toggle for favorites-first; refine HOT/NEW sort rules (e.g., createdAt when backend available).
+
+- Portfolio — Liquidity (Backlog)
+  - Add Liquidity tab to Portfolio (my shares/APR/fees; Add/Remove forms; quote + risk note).
+  - Provide Liquidity entry in index detail/trading via modal (quick add/remove).
 
 - Referrals Page
   - Single page with user‑type switch: Influencer/KOLs vs Individual.

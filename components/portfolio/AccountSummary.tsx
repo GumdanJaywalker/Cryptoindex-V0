@@ -45,17 +45,13 @@ export function AccountSummary() {
         <div className="flex items-center gap-3">
           <Badge 
             variant="outline" 
-            className={`${
-              accountData.riskScore === 'Low' ? 'text-green-400 border-green-400/30' :
-              accountData.riskScore === 'Medium' ? 'text-yellow-400 border-yellow-400/30' :
-              'text-red-400 border-red-400/30'
-            }`}
+            className="text-slate-300 border-slate-600"
           >
-            <Shield className="w-3 h-3 mr-1" />
+            <Shield className="w-3 h-3 mr-1 text-slate-400" />
             {accountData.riskScore} Risk
           </Badge>
           <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
-            <Activity className="w-4 h-4 mr-2" />
+            <Activity className="w-4 h-4 mr-2 text-slate-400" />
             Live
           </Button>
         </div>
@@ -64,11 +60,11 @@ export function AccountSummary() {
       {/* 메인 통계 카드들 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 총 자산 */}
-        <Card className="bg-gradient-to-br from-blue-950/50 to-slate-900 border-blue-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Wallet className="w-5 h-5 text-blue-400" />
-              <Badge variant="outline" className="text-blue-400 border-blue-400/30 text-xs">
+              <Wallet className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">
                 USDC
               </Badge>
             </div>
@@ -82,31 +78,16 @@ export function AccountSummary() {
         </Card>
 
         {/* 일일 PnL */}
-        <Card className={`bg-gradient-to-br ${
-          accountData.dailyPnL >= 0 
-            ? 'from-green-950/50 to-slate-900 border-green-800/30' 
-            : 'from-red-950/50 to-slate-900 border-red-800/30'
-        }`}>
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              {accountData.dailyPnL >= 0 ? (
-                <TrendingUp className="w-5 h-5 text-green-400" />
-              ) : (
-                <TrendingDown className="w-5 h-5 text-red-400" />
-              )}
-              <Badge 
-                variant="outline" 
-                className={`text-xs ${
-                  accountData.dailyPnL >= 0 
-                    ? 'text-green-400 border-green-400/30' 
-                    : 'text-red-400 border-red-400/30'
-                }`}
-              >
+              <TrendingUp className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
                 24h
               </Badge>
             </div>
             <div className={`text-xl sm:text-2xl font-bold mb-1 ${
-              accountData.dailyPnL >= 0 ? 'text-green-400' : 'text-red-400'
+              accountData.dailyPnL >= 0 ? 'text-green-300' : 'text-red-300'
             }`}>
               {accountData.dailyPnL >= 0 ? '+' : ''}${accountData.dailyPnL.toLocaleString()}
             </div>
@@ -117,11 +98,11 @@ export function AccountSummary() {
         </Card>
 
         {/* 미실현 PnL */}
-        <Card className="bg-gradient-to-br from-purple-950/50 to-slate-900 border-purple-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Target className="w-5 h-5 text-purple-400" />
-              <Badge variant="outline" className="text-purple-400 border-purple-400/30 text-xs">
+              <Target className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">
                 Open
               </Badge>
             </div>
@@ -135,30 +116,11 @@ export function AccountSummary() {
         </Card>
 
         {/* 마진 사용률 */}
-        <Card className={`bg-gradient-to-br ${
-          marginUtilization > 80 
-            ? 'from-red-950/50 to-slate-900 border-red-800/30'
-            : marginUtilization > 60
-            ? 'from-yellow-950/50 to-slate-900 border-yellow-800/30'
-            : 'from-green-950/50 to-slate-900 border-green-800/30'
-        }`}>
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              {marginUtilization > 80 ? (
-                <AlertTriangle className="w-5 h-5 text-red-400" />
-              ) : (
-                <Zap className="w-5 h-5 text-green-400" />
-              )}
-              <Badge 
-                variant="outline" 
-                className={`text-xs ${
-                  marginUtilization > 80 
-                    ? 'text-red-400 border-red-400/30'
-                    : marginUtilization > 60
-                    ? 'text-yellow-400 border-yellow-400/30'
-                    : 'text-green-400 border-green-400/30'
-                }`}
-              >
+              <Zap className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
                 {marginUtilization.toFixed(1)}%
               </Badge>
             </div>
@@ -184,7 +146,7 @@ export function AccountSummary() {
             </div>
             
             <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-green-400">
+              <div className="text-lg sm:text-xl font-bold text-green-300">
                 +${accountData.realizedPnL.toLocaleString()}
               </div>
               <div className="text-xs text-slate-400 mt-1">Realized P&L</div>
@@ -192,7 +154,7 @@ export function AccountSummary() {
             
             <div className="text-center">
               <div className={`text-lg sm:text-xl font-bold ${
-                accountData.weeklyPnL >= 0 ? 'text-green-400' : 'text-red-400'
+                accountData.weeklyPnL >= 0 ? 'text-green-300' : 'text-red-300'
               }`}>
                 {accountData.weeklyPnL >= 0 ? '+' : ''}${accountData.weeklyPnL.toLocaleString()}
               </div>
@@ -200,7 +162,7 @@ export function AccountSummary() {
             </div>
             
             <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-green-400">
+              <div className="text-lg sm:text-xl font-bold text-green-300">
                 +${accountData.monthlyPnL.toLocaleString()}
               </div>
               <div className="text-xs text-slate-400 mt-1">Monthly P&L</div>
@@ -214,9 +176,7 @@ export function AccountSummary() {
             </div>
             
             <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-blue-400">
-                {accountData.winRate}%
-              </div>
+              <div className="text-lg sm:text-xl font-bold text-slate-200">{accountData.winRate}%</div>
               <div className="text-xs text-slate-400 mt-1">Win Rate</div>
             </div>
           </div>

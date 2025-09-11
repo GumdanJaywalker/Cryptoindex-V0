@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 import { 
   MemeIndex, 
   TopTrader, 
@@ -45,6 +46,9 @@ interface TradingState {
   isTradePanelOpen: boolean
   isPositionsPanelOpen: boolean
   selectedTradeId: string | null
+
+  // 즐겨찾기한 인덱스 ID 목록
+  favorites: string[]
 }
 
 // 액션 인터페이스 정의
@@ -91,6 +95,9 @@ interface TradingActions {
   refreshData: () => Promise<void>
   resetFilters: () => void
   clearCache: () => void
+
+  // 즐겨찾기 액션
+  toggleFavorite: (indexId: string) => void
 }
 
 // 초기 상태
@@ -127,6 +134,9 @@ const initialState: TradingState = {
   isTradePanelOpen: false,
   isPositionsPanelOpen: false,
   selectedTradeId: null,
+
+  // 즐겨찾기 초기값
+  favorites: [],
 }
 
 // Zustand 스토어 생성
@@ -252,6 +262,16 @@ export const useTradingStore = create<TradingState & TradingActions>()(
         
         setSelectedTradeId: (id) => set({ selectedTradeId: id }),
 
+        // 즐겨찾기 토글
+        toggleFavorite: (indexId) => set((state) => {
+          const exists = state.favorites.includes(indexId)
+          return {
+            favorites: exists
+              ? state.favorites.filter(id => id !== indexId)
+              : [...state.favorites, indexId]
+          }
+        }),
+
         // 유틸리티 액션
         refreshData: async () => {
           const state = get()
@@ -304,6 +324,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           traderSort: state.traderSort,
           traderSortDirection: state.traderSortDirection,
           traderTimeframe: state.traderTimeframe,
+          favorites: state.favorites,
         }),
       }
     ),
@@ -321,7 +342,7 @@ export const useIndicesData = () => useTradingStore((state) => ({
   indexSort: state.indexSort,
   indexSortDirection: state.indexSortDirection,
   indexSearchQuery: state.indexSearchQuery,
-}))
+}), shallow)
 
 export const useTradersData = () => useTradingStore((state) => ({
   traders: state.traders,
@@ -330,13 +351,13 @@ export const useTradersData = () => useTradingStore((state) => ({
   traderSort: state.traderSort,
   traderSortDirection: state.traderSortDirection,
   traderTimeframe: state.traderTimeframe,
-}))
+}), shallow)
 
 export const useTradesData = () => useTradingStore((state) => ({
   trades: state.trades,
   activeTrades: state.activeTrades,
   selectedTradeId: state.selectedTradeId,
-}))
+}), shallow)
 
 export const useUIState = () => useTradingStore((state) => ({
   isLoading: state.isLoading,
@@ -344,13 +365,13 @@ export const useUIState = () => useTradingStore((state) => ({
   lastUpdated: state.lastUpdated,
   isTradePanelOpen: state.isTradePanelOpen,
   isPositionsPanelOpen: state.isPositionsPanelOpen,
-}))
+}), shallow)
 
 export const useMarketData = () => useTradingStore((state) => ({
   marketStats: state.marketStats,
   indices: state.indices,
   traders: state.traders,
-}))
+}), shallow)
 
 // 액션만 가져오는 훅
 export const useTradingActions = () => useTradingStore((state) => ({
@@ -389,11 +410,12 @@ export const useTradingActions = () => useTradingStore((state) => ({
   setTradePanelOpen: state.setTradePanelOpen,
   setPositionsPanelOpen: state.setPositionsPanelOpen,
   setSelectedTradeId: state.setSelectedTradeId,
+  toggleFavorite: state.toggleFavorite,
 
   // 유틸리티 액션
   refreshData: state.refreshData,
   resetFilters: state.resetFilters,
   clearCache: state.clearCache,
-}))
+}), shallow)
 
 export default useTradingStore

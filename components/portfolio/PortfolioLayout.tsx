@@ -8,6 +8,7 @@ import { VotingPowerManager } from './VotingPowerManager'
 import { PnLCardGenerator } from './PnLCardGenerator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreatorEarnings } from './CreatorEarnings'
+import { EarningsSummary } from './EarningsSummary'
 
 export function PortfolioLayout() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -25,7 +26,6 @@ export function PortfolioLayout() {
               value="overview" 
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">📊</span>
               <span className="hidden sm:inline">Overview</span>
               <span className="sm:hidden">Home</span>
             </TabsTrigger>
@@ -33,7 +33,6 @@ export function PortfolioLayout() {
               value="positions"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">📈</span>
               <span className="hidden sm:inline">Positions</span>
               <span className="sm:hidden">Pos</span>
             </TabsTrigger>
@@ -41,7 +40,6 @@ export function PortfolioLayout() {
               value="analytics"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">🎯</span>
               <span className="hidden sm:inline">Analytics</span>
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
@@ -49,7 +47,6 @@ export function PortfolioLayout() {
               value="voting"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">🗳️</span>
               <span className="hidden sm:inline">Voting Power</span>
               <span className="sm:hidden">Vote</span>
             </TabsTrigger>
@@ -57,7 +54,6 @@ export function PortfolioLayout() {
               value="pnl-card"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">🎨</span>
               <span className="hidden sm:inline">PnL Cards</span>
               <span className="sm:hidden">Card</span>
             </TabsTrigger>
@@ -65,16 +61,18 @@ export function PortfolioLayout() {
               value="creator-earnings"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
             >
-              <span className="mr-1">💰</span>
               <span className="hidden sm:inline">Creator Earnings</span>
               <span className="sm:hidden">Earnings</span>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <PositionsSection compact />
-              <TradingAnalytics compact />
+            <div className="space-y-4">
+              <EarningsSummary />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <PositionsSection compact />
+                <TradingAnalytics compact />
+              </div>
             </div>
           </TabsContent>
           

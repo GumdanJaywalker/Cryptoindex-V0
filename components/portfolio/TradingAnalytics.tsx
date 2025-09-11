@@ -60,22 +60,20 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
       <Card className="bg-slate-900/50 border-slate-800">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-            <Target className="w-5 h-5 text-purple-400" />
+            <Target className="w-5 h-5 text-slate-400" />
             Performance Analytics
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-xl font-bold text-green-400">
+              <div className="text-xl font-bold text-green-300">
                 {analyticsData.winRate}%
               </div>
               <div className="text-xs text-slate-400">Win Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-xl font-bold text-blue-400">
-                {analyticsData.profitFactor}
-              </div>
+              <div className="text-xl font-bold text-white">{analyticsData.profitFactor}</div>
               <div className="text-xs text-slate-400">Profit Factor</div>
             </div>
           </div>
@@ -84,7 +82,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-400">Monthly P&L</span>
-                <span className="text-green-400">+${analyticsData.totalPnL.toLocaleString()}</span>
+                <span className="text-green-300">+${analyticsData.totalPnL.toLocaleString()}</span>
               </div>
               <Progress value={75} className="h-2" />
             </div>
@@ -92,7 +90,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-400">Max Drawdown</span>
-                <span className="text-red-400">${analyticsData.maxDrawdown.toLocaleString()}</span>
+                <span className="text-red-300">${analyticsData.maxDrawdown.toLocaleString()}</span>
               </div>
               <Progress value={28} className="h-2" />
             </div>
@@ -139,62 +137,46 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
 
       {/* 핵심 메트릭 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-green-950/50 to-slate-900 border-green-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Trophy className="w-5 h-5 text-green-400" />
-              <Badge variant="outline" className="text-green-400 border-green-400/30 text-xs">
-                Excellent
-              </Badge>
+              <Trophy className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Win Rate</Badge>
             </div>
-            <div className="text-2xl font-bold text-green-400 mb-1">
-              {analyticsData.winRate}%
-            </div>
+            <div className="text-2xl font-bold text-green-300 mb-1">{analyticsData.winRate}%</div>
             <div className="text-sm text-slate-400">Win Rate</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-950/50 to-slate-900 border-blue-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
-              <Badge variant="outline" className="text-blue-400 border-blue-400/30 text-xs">
-                Strong
-              </Badge>
+              <BarChart3 className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Profit Factor</Badge>
             </div>
-            <div className="text-2xl font-bold text-blue-400 mb-1">
-              {analyticsData.profitFactor}
-            </div>
+            <div className="text-2xl font-bold text-white mb-1">{analyticsData.profitFactor}</div>
             <div className="text-sm text-slate-400">Profit Factor</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-950/50 to-slate-900 border-purple-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
-              <Badge variant="outline" className="text-purple-400 border-purple-400/30 text-xs">
-                Good
-              </Badge>
+              <TrendingUp className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Sharpe</Badge>
             </div>
-            <div className="text-2xl font-bold text-purple-400 mb-1">
-              {analyticsData.sharpeRatio}
-            </div>
+            <div className="text-2xl font-bold text-white mb-1">{analyticsData.sharpeRatio}</div>
             <div className="text-sm text-slate-400">Sharpe Ratio</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-950/50 to-slate-900 border-red-800/30">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <AlertTriangle className="w-5 h-5 text-red-400" />
-              <Badge variant="outline" className="text-red-400 border-red-400/30 text-xs">
-                Risk
-              </Badge>
+              <AlertTriangle className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Max Drawdown</Badge>
             </div>
-            <div className="text-2xl font-bold text-red-400 mb-1">
-              ${Math.abs(analyticsData.maxDrawdown).toLocaleString()}
-            </div>
+            <div className="text-2xl font-bold text-red-300 mb-1">${Math.abs(analyticsData.maxDrawdown).toLocaleString()}</div>
             <div className="text-sm text-slate-400">Max Drawdown</div>
           </CardContent>
         </Card>
@@ -206,7 +188,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
         <Card className="bg-slate-900/50 border-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-400" />
+              <Activity className="w-5 h-5 text-slate-400" />
               Trade Statistics
             </CardTitle>
           </CardHeader>
@@ -217,7 +199,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
                 <div className="text-xs text-slate-400">Total Trades</div>
               </div>
               <div className="text-center p-3 bg-slate-800/50 rounded-lg">
-                <div className="text-xl font-bold text-green-400">{analyticsData.winningTrades}</div>
+                <div className="text-xl font-bold text-green-300">{analyticsData.winningTrades}</div>
                 <div className="text-xs text-slate-400">Winning</div>
               </div>
             </div>
@@ -226,7 +208,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-400">Win Rate</span>
-                  <span className="text-green-400">{analyticsData.winRate}%</span>
+                  <span className="text-green-300">{analyticsData.winRate}%</span>
                 </div>
                 <Progress value={analyticsData.winRate} className="h-2" />
               </div>
@@ -234,22 +216,22 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <div className="text-slate-400 mb-1">Avg Win</div>
-                  <div className="text-green-400 font-semibold">+${analyticsData.avgWin}</div>
+                  <div className="text-green-300 font-semibold">+${analyticsData.avgWin}</div>
                 </div>
                 <div>
                   <div className="text-slate-400 mb-1">Avg Loss</div>
-                  <div className="text-red-400 font-semibold">${analyticsData.avgLoss}</div>
+                  <div className="text-red-300 font-semibold">${analyticsData.avgLoss}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <div className="text-slate-400 mb-1">Best Trade</div>
-                  <div className="text-green-400 font-semibold">+${analyticsData.bestTrade}</div>
+                  <div className="text-green-300 font-semibold">+${analyticsData.bestTrade}</div>
                 </div>
                 <div>
                   <div className="text-slate-400 mb-1">Worst Trade</div>
-                  <div className="text-red-400 font-semibold">${analyticsData.worstTrade}</div>
+                  <div className="text-red-300 font-semibold">${analyticsData.worstTrade}</div>
                 </div>
               </div>
             </div>
@@ -260,7 +242,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
         <Card className="bg-slate-900/50 border-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-purple-400" />
+              <PieChart className="w-5 h-5 text-slate-400" />
               Performance by Index
             </CardTitle>
           </CardHeader>
@@ -271,7 +253,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
                   <div className="flex items-center justify-between mb-2">
                     <div className="font-medium text-white">{index.symbol}</div>
                     <div className={`text-sm font-semibold ${
-                      index.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                      index.pnl >= 0 ? 'text-green-300' : 'text-red-300'
                     }`}>
                       {index.pnl >= 0 ? '+' : ''}${index.pnl.toLocaleString()}
                     </div>
@@ -294,31 +276,32 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
       <Card className="bg-slate-900/50 border-slate-800">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-yellow-400" />
+            <Calendar className="w-5 h-5 text-slate-400" />
             Monthly Performance
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-end justify-between h-40 gap-2">
-            {analyticsData.monthlyPnL.map((month, index) => {
-              const maxPnL = Math.max(...analyticsData.monthlyPnL.map(m => Math.abs(m.pnl)))
-              const height = (Math.abs(month.pnl) / maxPnL) * 100
-              
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div className="text-xs text-slate-400 mb-2">
-                    {month.pnl >= 0 ? '+' : ''}${month.pnl.toLocaleString()}
+          <div className="flex items-end justify-between gap-2" style={{ height: '10rem' }}>
+            {(() => {
+              const maxAbs = Math.max(...analyticsData.monthlyPnL.map(m => Math.abs(m.pnl))) || 1
+              return analyticsData.monthlyPnL.map((month, index) => {
+                const height = (Math.abs(month.pnl) / maxAbs) * 100
+                return (
+                  <div key={index} className="flex-1 flex flex-col items-center">
+                    <div className="text-xs text-slate-400 mb-2">
+                      {month.pnl >= 0 ? '+' : ''}${month.pnl.toLocaleString()}
+                    </div>
+                    <div className="w-full h-32 flex items-end">
+                      <div
+                        className={`w-[20%] mx-auto rounded-t ${month.pnl >= 0 ? 'bg-green-300' : 'bg-red-300'}`}
+                        style={{ height: `${height}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-400 mt-2">{month.month}</div>
                   </div>
-                  <div 
-                    className={`w-full rounded-t ${
-                      month.pnl >= 0 ? 'bg-green-400' : 'bg-red-400'
-                    }`}
-                    style={{ height: `${height}%` }}
-                  />
-                  <div className="text-xs text-slate-400 mt-2">{month.month}</div>
-                </div>
-              )
-            })}
+                )
+              })
+            })()}
           </div>
         </CardContent>
       </Card>

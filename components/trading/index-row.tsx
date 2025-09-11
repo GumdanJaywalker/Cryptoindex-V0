@@ -33,9 +33,10 @@ import {
   Shield
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
-import IndexDetailModal from '@/components/dialogs/index-detail-modal'
+// Quick View modal removed from row actions in favor of favorites
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+import useTradingStore from '@/lib/store/trading-store'
 
 interface IndexRowProps {
   index: MemeIndex
@@ -167,37 +168,14 @@ function RowBadges({ index }: { index: MemeIndex }) {
     <div className="flex items-center gap-1">
       {/* Layer Badge */}
       <LayerBadge layerInfo={index.layerInfo} />
-      
+      {/* Only show dynamic performance hint; HOT/NEW already shown as text badges near name */}
       <AnimatePresence>
-        {index.isHot && (
-          <motion.div
-            key={`${index.id}-hot`}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            transition={{ type: "spring", duration: 0.3 }}
-          >
-            <Flame className="w-3 h-3 text-orange-500" />
-          </motion.div>
-        )}
-        
-        {index.isNew && (
-          <motion.div
-            key={`${index.id}-new`}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.05, type: "spring" }}
-          >
-            <Star className="w-3 h-3 text-blue-500" />
-          </motion.div>
-        )}
-        
         {index.isMooning && (
           <motion.div
             key={`${index.id}-mooning`}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: "spring" }}
+            transition={{ delay: 0.05, type: "spring" }}
           >
             <TrendingUp className="w-3 h-3 text-green-500" />
           </motion.div>
@@ -216,10 +194,12 @@ const IndexRow = memo(function IndexRow({
   className 
 }: IndexRowProps) {
   const soundManager = useSoundManager()
-  const [quickViewOpen, setQuickViewOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [lastPrice, setLastPrice] = useState(index.currentPrice)
   const isPositive = index.change24h >= 0
+  const favorites = useTradingStore((state) => state.favorites)
+  const toggleFavorite = useTradingStore((state) => state.toggleFavorite)
+  const isFavorite = favorites.includes(index.id)
 
   // Price change sound effects
   useEffect(() => {
@@ -250,12 +230,13 @@ const IndexRow = memo(function IndexRow({
     <TableRow 
       className={cn(
         "group h-14 border-b border-border/50 hover:bg-muted/30 focus-within:bg-muted/30 transition-colors duration-200 cursor-pointer",
+        // Removed ring to avoid thin lines on click
         isHovered && "bg-muted/40",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => { if (!quickViewOpen) handleRowClick() }}
+      onClick={handleRowClick}
     >
       {/* Name & Thumbnail */}
       <TableCell className="w-[300px]">
@@ -334,20 +315,29 @@ const IndexRow = memo(function IndexRow({
         </div>
       </TableCell>
 
-      {/* Actions */}
+      {/* Actions: Favorites + Trade */}
       <TableCell className="w-[160px] text-center">
-        <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 ease-out motion-reduce:transition-none">
+        <div className="flex items-center justify-center gap-2">
           <Button
-            size="sm"
+            size="icon"
             variant="outline"
-            className="h-7 px-3 text-xs font-medium border-slate-700 hover:bg-slate-800 translate-y-0.5 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-150 ease-out motion-reduce:transition-none motion-reduce:transform-none"
+            className={cn(
+              "h-7 w-7 border-slate-700 hover:bg-slate-800",
+              isFavorite && "border-brand/40 bg-brand/10"
+            )}
             onClick={(e) => {
               e.stopPropagation()
-              setQuickViewOpen(true)
+              toggleFavorite(index.id)
             }}
-            aria-label={`Quick view ${index.name}`}
+            aria-label={isFavorite ? `Remove ${index.name} from favorites` : `Add ${index.name} to favorites`}
+            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
-            Quick View
+            <Star
+              className={cn(
+                "w-4 h-4",
+                isFavorite ? "text-brand fill-current" : "text-slate-400"
+              )}
+            />
           </Button>
           {showQuickTrade && (
             <Button
@@ -364,7 +354,6 @@ const IndexRow = memo(function IndexRow({
             </Button>
           )}
         </div>
-        <IndexDetailModal open={quickViewOpen} onOpenChange={setQuickViewOpen} />
       </TableCell>
     </TableRow>
   )

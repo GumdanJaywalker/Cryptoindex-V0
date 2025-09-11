@@ -244,7 +244,7 @@ export function TopTraders({
   }
 
   const formatPct = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`
-  const formatUsd = (v: number) => `$${Math.abs(v).toLocaleString()}`
+  const formatUsd = (v: number) => `${v >= 0 ? '+' : '-'}$${Math.abs(v).toLocaleString()}`
   const getRoiForTimeframe = (t: TopTrader) => {
     return selectedTimeframe === '24h' ? t.pnlPercentage24h : selectedTimeframe === '7d' ? t.pnlPercentage7d : t.pnlPercentage30d
   }
@@ -345,6 +345,27 @@ export function TopTraders({
         {/* Removed last updated to declutter header */}
       </div>
 
+      {/* Default variant skeletons (list) */}
+      {(!mounted || isRefreshing) && variant !== 'compact' && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
+          <div className="divide-y divide-slate-800">
+            {Array.from({length: 8}).map((_, i) => (
+              <div key={`d-s-${i}`} className="px-4 py-3">
+                <div className="flex items-center gap-3 animate-pulse">
+                  <div className="w-6 h-4 bg-slate-800 rounded"/>
+                  <div className="w-8 h-8 rounded-full bg-slate-800"/>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-slate-800 rounded w-1/3"/>
+                    <div className="h-3 bg-slate-800 rounded w-1/4"/>
+                  </div>
+                  <div className="h-4 bg-slate-800 rounded w-24"/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Timeframe Tabs (hidden in compact variant) */}
       {!isCompact && (
         <div className={cn("flex gap-1 p-1 rounded-lg", 'bg-slate-900/50')}>
@@ -368,185 +389,136 @@ export function TopTraders({
         </div>
       )}
 
-      {/* Compact table view for landing */}
+      {/* Compact table view for landing: Top 3 thick rows (no podium) */}
       {isCompact ? (
         <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
-          {/* Top 3 spotlight cards */}
           {rankAll.length > 0 && (
-            <div className="p-4 space-y-3">
-              {/* Top 1 centered (podium) */}
-              {rankAll[0] && (
-                <div className="flex justify-center">
-                  <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5 hover:border-slate-700 transition-colors">
-                    <button className="w-full text-left" onClick={() => onViewPortfolio(rankAll[0])} aria-label={`Open ${rankAll[0].ens || rankAll[0].address} portfolio`}>
-                      <div className="flex items-center gap-4">
-                        {/* Avatar */}
-                        <div className="relative">
-                          <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300 ring-2 ring-brand/40">
-                            {rankAll[0].avatar ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={rankAll[0].avatar} alt="avatar" className="w-full h-full object-cover" />
-                            ) : (
-                              <span>{(rankAll[0].ens || rankAll[0].address).slice(2, 4).toUpperCase()}</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="truncate text-white font-semibold">{rankAll[0].ens || `${rankAll[0].address.slice(0,6)}...${rankAll[0].address.slice(-4)}`}</span>
-                            <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
-                          </div>
-                          <div className="mt-1 flex items-baseline gap-2">
-                            <span className={cn('text-lg font-bold', (rankAll[0].pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(rankAll[0].pnl24h||0)}</span>
-                            <span className={cn('text-xs', (rankAll[0].pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                              ({formatPct(rankAll[0].pnlPercentage24h || 0)})
-                            </span>
-                          </div>
-                          {/* Top indices chips */}
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {rankAll[0].tradingIndices.slice(0,3).map(idxId => {
-                              const m = allMockIndices.find(x => x.id === idxId)
-                              const label = m?.symbol || idxId.toUpperCase()
-                              return (
-                                <Link
-                                  key={idxId}
-                                  href={`/trading?index=${idxId}`}
-                                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
-                                  aria-label={`Trade ${label}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {label}
-                                </Link>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* 2 and 3 side-by-side */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                {rankAll.slice(1,3).map((t, i) => (
-                  <div key={t.id} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4 hover:border-slate-700 transition-colors">
-                    <button className="w-full text-left" onClick={() => onViewPortfolio(t)} aria-label={`Open ${t.ens || t.address} portfolio`}>
-                      <div className="flex items-center gap-3">
-                        {/* Avatar */}
-                        <div className="relative">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
-                            {t.avatar ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
-                            ) : (
-                              <span>{(t.ens || t.address).slice(2, 4).toUpperCase()}</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
-                            <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">{i === 0 ? '🥈' : '🥉'}</Badge>
-                          </div>
-                          <div className="mt-1 flex items-baseline gap-2">
-                            <span className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
-                            <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                              ({formatPct(t.pnlPercentage24h || 0)})
-                            </span>
-                          </div>
-                          {/* Top indices chips */}
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {t.tradingIndices.slice(0,3).map(idxId => {
-                              const m = allMockIndices.find(x => x.id === idxId)
-                              const label = m?.symbol || idxId.toUpperCase()
-                              return (
-                                <Link
-                                  key={idxId}
-                                  href={`/trading?index=${idxId}`}
-                                  className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
-                                  aria-label={`Trade ${label}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {label}
-                                </Link>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* Rich two-line rows from #4 */}
-          <div className="divide-y divide-slate-800">
-            {rankAll.slice(3, maxDisplay).map((t) => (
-              <div key={t.id} className="px-4 py-3">
-                {/* Line 1: rank, avatar, name, 24H $PnL + ROI */}
-                <div className="flex items-center gap-3">
-                  <div className="w-6 text-slate-500">{t.rank}</div>
+            <>
+              {/* Top 3 — Thick rows */}
+              <div className="divide-y divide-slate-800">
+                {rankAll.slice(0,3).map((t) => (
                   <button
-                    className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                    key={t.id}
+                    className="w-full text-left px-4 py-4 hover:bg-slate-900/50 transition-colors"
                     onClick={() => onViewPortfolio(t)}
                     aria-label={`Open ${t.ens || t.address} portfolio`}
                   >
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
-                      {t.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
-                      )}
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 text-slate-500 font-mono pt-1">{t.rank}</div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300 ring-1 ring-slate-700">
+                        {t.avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-white font-semibold text-[15px]">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                          {/* Medal badge for top 3 */}
+                          {t.rank === 1 && (
+                            <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
+                          )}
+                          {t.rank === 2 && (
+                            <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">🥈</Badge>
+                          )}
+                          {t.rank === 3 && (
+                            <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-600/30">🥉</Badge>
+                          )}
+                          {t.badges?.includes('🔥') && <span className="text-orange-400 text-xs">🔥</span>}
+                        </div>
+                        {/* Win/Followers moved to line 2 for consistency */}
+                      </div>
+                      <div className="text-right">
+                        <div className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</div>
+                        <div className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatPct(t.pnlPercentage24h||0)}</div>
+                      </div>
                     </div>
-                    <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                    <div className="mt-3 pl-9 flex items-center justify-between">
+                      <div className="flex gap-1 flex-wrap">
+                        {t.tradingIndices.slice(0,3).map(idxId => {
+                          const m = allMockIndices.find(x => x.id === idxId)
+                          const label = m?.symbol || idxId.toUpperCase()
+                          return (
+                            <Link
+                              key={idxId}
+                              href={`/trading?index=${idxId}`}
+                              className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                              aria-label={`Trade ${label}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {label}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-slate-300">
+                        <span>Win {Math.round(t.winRate)}%</span>
+                        <span>{t.followersCount?.toLocaleString() ?? 0} followers</span>
+                      </div>
+                    </div>
                   </button>
-                  <div className="ml-auto flex items-baseline gap-2">
-                    <span className={cn('text-sm font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
-                    <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                      ({formatPct(t.pnlPercentage24h||0)})
-                    </span>
-                  </div>
-                </div>
-                {/* Line 2: top indices chips + win/followers */}
-                <div className="mt-2 pl-9 flex items-center justify-between">
-                  <div className="flex flex-wrap gap-1">
-                    {t.tradingIndices.slice(0,2).map(idxId => {
-                      const m = allMockIndices.find(x => x.id === idxId)
-                      const label = m?.symbol || idxId.toUpperCase()
-                      return (
-                        <Link
-                          key={idxId}
-                          href={`/trading?index=${idxId}`}
-                          className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
-                          aria-label={`Trade ${label}`}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {label}
-                        </Link>
-                      )
-                    })}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-300">
-                    <span>Win {Math.round(t.winRate)}%</span>
-                    <span>{t.followersCount?.toLocaleString() ?? 0} followers</span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="flex items-center justify-between px-4 py-2">
-            <div className="text-xs text-slate-500">Ranking</div>
-            <Link
-              href="/traders"
-              className="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800 text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-              role="button"
-            >
-              View Leaderboard
-            </Link>
-          </div>
+              {/* Strong separator between top3 and the rest */}
+              <div className="h-px bg-slate-700/60" role="separator" aria-label="Top 3 separator" />
+              {/* Rows 4–7 — compact rich rows */}
+              <div className="divide-y divide-slate-800">
+                {rankAll.slice(3, 7).map((t, idx) => (
+                  <div key={t.id} className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 text-slate-500 font-mono">{t.rank}</div>
+                      <button
+                        className="flex items-center gap-3 group min-w-0 flex-1 text-left"
+                        onClick={() => onViewPortfolio(t)}
+                        aria-label={`Open ${t.ens || t.address} portfolio`}
+                      >
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
+                          {t.avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                      </button>
+                      <div className="ml-auto flex items-baseline gap-2">
+                        <span className={cn('text-sm font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
+                        <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                          ({formatPct(t.pnlPercentage24h||0)})
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-2 pl-9 flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {t.tradingIndices.slice(0,2).map(idxId => {
+                          const m = allMockIndices.find(x => x.id === idxId)
+                          const label = m?.symbol || idxId.toUpperCase()
+                          return (
+                            <Link
+                              key={idxId}
+                              href={`/trading?index=${idxId}`}
+                              className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                              aria-label={`Trade ${label}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {label}
+                            </Link>
+                          )
+                        })}
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-slate-300">
+                        <span>Win {Math.round(t.winRate)}%</span>
+                        <span>{t.followersCount?.toLocaleString() ?? 0} followers</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <>

@@ -125,7 +125,7 @@ export interface MarketStats {
 }
 
 // Filter and sorting types
-export type IndexFilter = 'all' | 'hot' | 'new' | 'gainers' | 'losers' | 'high-volume' | 'layer-1' | 'layer-2' | 'layer-3'
+export type IndexFilter = 'all' | 'favorites' | 'hot' | 'new' | 'gainers' | 'losers' | 'high-volume' | 'layer-1' | 'layer-2' | 'layer-3'
 export type IndexSort = 'volume' | 'change' | 'market-cap' | 'name' | 'created'
 export type SortOption = 'volume' | 'change' | 'price' | 'marketCap' | 'name'
 export type TraderFilter = 'all' | 'top-gainers' | 'high-winrate' | 'new-traders' | 'most-followed'

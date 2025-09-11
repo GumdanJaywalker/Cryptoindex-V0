@@ -141,9 +141,7 @@ export function CreatorEarnings() {
             </div>
           ))}
         </div>
-        <div className="px-4 py-3 text-xs text-slate-500">
-          We distribute creator fees to index creators and approved influencers only. No public referral program is shown in-app.
-        </div>
+        {/* Policy note removed to align with open referrals */}
       </div>
     </div>
   )

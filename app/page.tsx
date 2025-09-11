@@ -177,7 +177,11 @@ export default function Home() {
       
       {/* Main Content */}
       <div className="px-4 lg:px-6 lg:pr-4 py-8 pt-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(420px,560px)] gap-5 items-start">
+        <div className="grid grid-cols-1 
+          lg:grid-cols-[minmax(260px,300px)_minmax(600px,1fr)_minmax(380px,475px)] 
+          xl:grid-cols-[minmax(260px,320px)_minmax(720px,1fr)_minmax(380px,512px)] 
+          2xl:grid-cols-[minmax(280px,340px)_minmax(880px,1fr)_minmax(400px,548px)] 
+          gap-5 xl:gap-6 2xl:gap-8 items-start">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
           <div className="space-y-6 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-4 lg:border-r lg:border-slate-800">
