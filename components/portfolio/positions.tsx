@@ -88,15 +88,15 @@ function PositionCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className={`w-2 h-2 rounded-full ${
-            trade.type === 'long' ? 'bg-green-400' : 'bg-red-400'
+            trade.type === 'long' ? 'bg-green-300' : 'bg-red-300'
           }`} />
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-white font-semibold">{index.symbol}</span>
-              <span className={`text-xs px-2 py-1 rounded ${
+              <span className={`text-xs px-2 py-1 rounded border ${
                 trade.type === 'long' 
-                  ? 'bg-green-600/20 text-green-400' 
-                  : 'bg-red-600/20 text-red-400'
+                  ? 'border-slate-600 text-slate-300' 
+                  : 'border-slate-600 text-slate-300'
               }`}>
                 {trade.leverage}x {trade.type.toUpperCase()}
               </span>
@@ -109,14 +109,8 @@ function PositionCard({
         
         <div className="flex items-center space-x-2">
           {/* Risk Indicator */}
-          <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded ${
-            riskLevel === 'high' 
-              ? 'bg-red-600/20 text-red-400' 
-              : riskLevel === 'medium' 
-              ? 'bg-yellow-600/20 text-yellow-400' 
-              : 'bg-green-600/20 text-green-400'
-          }`}>
-            <AlertTriangle className="w-3 h-3" />
+          <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded bg-slate-800 text-slate-300`}>
+            <AlertTriangle className={`w-3 h-3 ${riskLevel==='high'?'text-red-300': riskLevel==='medium'?'text-yellow-300':'text-slate-400'}`} />
             <span>{riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk'}</span>
           </div>
           
@@ -148,7 +142,7 @@ function PositionCard({
         
         <div className="space-y-1">
           <div className="text-slate-400">Unrealized PnL</div>
-          <div className={`font-bold ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
+          <div className={`font-bold ${isProfit ? 'text-green-300' : 'text-red-300'}`}>
             {isProfit ? '+' : ''}${unrealizedPnL.toFixed(2)}
             <div className="text-xs">
               ({isProfit ? '+' : ''}{unrealizedPnLPercentage.toFixed(2)}%)
@@ -162,19 +156,11 @@ function PositionCard({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className={`flex items-center space-x-2 p-3 rounded-lg ${
-            riskLevel === 'high' 
-              ? 'bg-red-900/30 border border-red-500/30' 
-              : 'bg-yellow-900/30 border border-yellow-500/30'
-          }`}
+          className={`flex items-center space-x-2 p-3 rounded-lg bg-slate-900/40 border border-slate-700`}
         >
-          <AlertTriangle className={`w-4 h-4 ${
-            riskLevel === 'high' ? 'text-red-400' : 'text-yellow-400'
-          }`} />
+          <AlertTriangle className={`w-4 h-4 ${riskLevel === 'high' ? 'text-red-300' : 'text-yellow-300'}`} />
           <div className="text-sm">
-            <div className={`font-semibold ${
-              riskLevel === 'high' ? 'text-red-200' : 'text-yellow-200'
-            }`}>
+            <div className={`font-semibold text-slate-200`}>
               {riskLevel === 'high' ? 'Liquidation Risk!' : 'Approaching Liquidation'}
             </div>
             <div className="text-xs text-slate-400">
@@ -188,20 +174,20 @@ function PositionCard({
       {(trade.stopLoss || trade.takeProfit) && (
         <div className="grid grid-cols-2 gap-3 text-sm">
           {trade.stopLoss && (
-            <div className="flex items-center space-x-2 p-2 bg-red-600/10 rounded-lg border border-red-500/20">
-              <Shield className="w-4 h-4 text-red-400" />
+            <div className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg border border-slate-700">
+              <Shield className="w-4 h-4 text-slate-400" />
               <div>
-                <div className="text-red-400 text-xs">Stop Loss</div>
+                <div className="text-slate-400 text-xs">Stop Loss</div>
                 <div className="text-white font-semibold">${trade.stopLoss.toFixed(4)}</div>
               </div>
             </div>
           )}
           
           {trade.takeProfit && (
-            <div className="flex items-center space-x-2 p-2 bg-green-600/10 rounded-lg border border-green-500/20">
-              <Target className="w-4 h-4 text-green-400" />
+            <div className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg border border-slate-700">
+              <Target className="w-4 h-4 text-slate-400" />
               <div>
-                <div className="text-green-400 text-xs">Take Profit</div>
+                <div className="text-slate-400 text-xs">Take Profit</div>
                 <div className="text-white font-semibold">${trade.takeProfit.toFixed(4)}</div>
               </div>
             </div>
@@ -417,7 +403,7 @@ export function Positions({
                   ${totalExposure.toLocaleString()} exposure
                 </span>
               </div>
-              <div className={`font-semibold ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`font-semibold ${totalPnL >= 0 ? 'text-green-300' : 'text-red-300'}`}>
                 {totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)} PnL
               </div>
             </div>

@@ -7,16 +7,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+// Tabs removed: single view reflects user's tier automatically
 import { useToast } from '@/components/notifications/toast-system'
 import { cn } from '@/lib/utils'
 import { Users, Share2, Link as LinkIcon, Copy, Info, Shield, TrendingUp, HandCoins } from 'lucide-react'
 import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
-type UserType = 'influencer' | 'individual'
-
 export default function ReferralsPage() {
-  const [type, setType] = useState<UserType>('influencer')
   const { addToast } = useToast()
 
   // Mock profile + metrics
@@ -24,7 +21,7 @@ export default function ReferralsPage() {
     influencer: {
       tier: 'Partner 0',
       code: 'HYPER-PARTNER-000',
-      approved: true,
+      approved: false, // mock: not approved by default
     },
     individual: {
       tier: 'Individual 0',
@@ -41,6 +38,31 @@ export default function ReferralsPage() {
     lpFeeUSD: 986.40,
   }), [])
 
+  // Mock 14-day timeseries for charts/CSV
+  const series = useMemo(() => {
+    const days = 14
+    const today = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const data = Array.from({ length: days }, (_, i) => {
+      const d = new Date(today)
+      d.setDate(today.getDate() - (days - 1 - i))
+      const clicks = Math.floor(50 + Math.sin(i / 2) * 20 + Math.random() * 15)
+      const signups = Math.floor(clicks * (0.22 + Math.random() * 0.1))
+      const volume = Math.floor(50000 + clicks * (1000 + Math.random() * 500))
+      const creatorFee = volume * 0.0006
+      const lpFee = volume * 0.0005
+      return {
+        date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+        clicks,
+        signups,
+        volume,
+        creatorFee,
+        lpFee,
+      }
+    })
+    return data
+  }, [])
+
   const referralLink = (code: string) => `${globalThis?.location?.origin || 'https://app.hyperindex.dev'}/?ref=${encodeURIComponent(code)}`
 
   const handleCopy = async (text: string, label = 'Copied') => {
@@ -52,7 +74,8 @@ export default function ReferralsPage() {
     }
   }
 
-  const current = type === 'influencer' ? profile.influencer : profile.individual
+  // Auto-tier: show influencer tier if approved; otherwise show individual tier
+  const current = profile.influencer.approved ? profile.influencer : profile.individual
 
   const formatUSD = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
 
@@ -67,48 +90,44 @@ export default function ReferralsPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold">Referrals</h1>
-            <p className="text-slate-400 text-sm mt-1">Invite users and track attributed activity. Program is invite‑only.</p>
+            <p className="text-slate-400 text-sm mt-1">Invite users and track attributed activity.</p>
           </div>
-          <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">Policy: Approved creators only</Badge>
+          {/* Policy badge removed */}
         </div>
 
-        {/* Type switch */}
-        <Tabs value={type} onValueChange={(v) => setType(v as UserType)}>
-          <TabsList className="bg-slate-900 border border-slate-800">
-            <TabsTrigger value="influencer" className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs">
-              <Users className="w-3 h-3 mr-1" /> Influencer / KOLs
-            </TabsTrigger>
-            <TabsTrigger value="individual" className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs">
-              <Share2 className="w-3 h-3 mr-1" /> Individual
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="influencer" className="mt-4 space-y-6">
-            <ReferralBody
-              tierLabel={profile.influencer.tier}
-              code={profile.influencer.code}
-              approved={profile.influencer.approved}
-              referralLink={referralLink(profile.influencer.code)}
-              metrics={metrics}
-              onCopy={handleCopy}
-            />
-          </TabsContent>
-
-          <TabsContent value="individual" className="mt-4 space-y-6">
-            <ReferralBody
-              tierLabel={profile.individual.tier}
-              code={profile.individual.code}
-              approved={profile.individual.approved}
-              referralLink={referralLink(profile.individual.code)}
-              metrics={metrics}
-              onCopy={handleCopy}
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Single view reflects current tier; application entry if not influencer */}
+        <div className="mt-4 space-y-6">
+          <ReferralBody
+            tierLabel={current.tier}
+            code={current.code}
+            approved={profile.influencer.approved}
+            referralLink={referralLink(current.code)}
+            metrics={metrics}
+            series={series}
+            onCopy={handleCopy}
+          />
+        </div>
           </main>
         </div>
       </div>
     </div>
+  )
+}
+
+function SimpleLineChart({ data, color = '#98FCE4', height = 60 }: { data: number[]; color?: string; height?: number }) {
+  if (!data || data.length === 0) return null
+  const max = Math.max(...data)
+  const min = Math.min(...data)
+  const range = Math.max(1, max - min)
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * 100
+    const y = 100 - ((v - min) / range) * 100
+    return `${x},${y}`
+  }).join(' ')
+  return (
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ height }} className="w-full">
+      <polyline fill="none" stroke={color} strokeWidth="2" points={points} />
+    </svg>
   )
 }
 
@@ -118,6 +137,7 @@ function ReferralBody({
   approved,
   referralLink,
   metrics,
+  series,
   onCopy,
 }: {
   tierLabel: string
@@ -125,9 +145,27 @@ function ReferralBody({
   approved: boolean
   referralLink: string
   metrics: { clicks: number; signups: number; attributedVolume24h: number; creatorFeeUSD: number; lpFeeUSD: number }
+  series: Array<{ date: string; clicks: number; signups: number; volume: number; creatorFee: number; lpFee: number }>
   onCopy: (text: string, label?: string) => void
 }) {
   const formatUSD = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+  const clicksData = series.map(s => s.clicks)
+  const signupsData = series.map(s => s.signups)
+
+  const exportCSV = () => {
+    const header = ['date','clicks','signups','volume','creatorFeeUSD','lpFeeUSD']
+    const rows = series.map(s => [s.date, s.clicks, s.signups, s.volume, s.creatorFee.toFixed(2), s.lpFee.toFixed(2)])
+    const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'referrals-analytics.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="space-y-6">
@@ -138,12 +176,14 @@ function ReferralBody({
             <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">Your Tier</Badge>
             <div className="text-white font-semibold">{tierLabel}</div>
             <div className={cn('text-xs px-2 py-0.5 rounded border', approved ? 'text-green-400 border-green-400/30' : 'text-slate-400 border-slate-600')}>
-              {approved ? 'Approved' : 'Pending approval'}
+              {approved ? 'Influencer' : 'Individual'}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Shield className="w-4 h-4" /> Invite‑only program
-          </div>
+          {!approved && (
+            <Link href="/referrals/apply" className="text-xs px-3 py-1 rounded-md bg-brand text-black hover:bg-brand-hover">
+              Apply for Influencer Tier
+            </Link>
+          )}
         </CardContent>
       </Card>
 
@@ -175,10 +215,12 @@ function ReferralBody({
         <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Clicks</div>
           <div className="text-lg font-semibold">{metrics.clicks.toLocaleString()}</div>
+          <div className="mt-2"><SimpleLineChart data={clicksData} color="#7BC9FF" /></div>
         </CardContent></Card>
         <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Signups</div>
           <div className="text-lg font-semibold">{metrics.signups.toLocaleString()}</div>
+          <div className="mt-2"><SimpleLineChart data={signupsData} color="#98FCE4" /></div>
         </CardContent></Card>
         <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">24H Attributed Volume</div>
@@ -190,28 +232,14 @@ function ReferralBody({
         </CardContent></Card>
       </div>
 
-      {/* Earnings breakdown */}
-      <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
-        <div className="text-xs text-slate-400">Earnings Breakdown</div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-          <div className="p-3 rounded border border-slate-700 bg-slate-800/40 flex items-center justify-between">
-            <div className="text-slate-300">Creator Fee</div>
-            <div className="text-white font-medium">{formatUSD(metrics.creatorFeeUSD)}</div>
-          </div>
-          <div className="p-3 rounded border border-slate-700 bg-slate-800/40 flex items-center justify-between">
-            <div className="text-slate-300">LP Fee</div>
-            <div className="text-white font-medium">{formatUSD(metrics.lpFeeUSD)}</div>
-          </div>
-        </div>
-        <div className="text-xs text-slate-500 flex items-center gap-2">
-          <HandCoins className="w-3 h-3" /> Accruals are mock data; integrate spreadsheet/endpoint later.
-        </div>
-      </CardContent></Card>
-
-      {/* Policy note */}
-      <div className="text-xs text-slate-500">
-        This referral program is not public. Rewards are available only to approved creators and influencers.
+      {/* Export */}
+      <div className="flex justify-end">
+        <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={exportCSV}>
+          Export CSV
+        </Button>
       </div>
+
+      {/* Removed earnings breakdown and invite-only note */}
     </div>
   )
 }

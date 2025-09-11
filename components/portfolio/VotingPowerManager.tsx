@@ -120,7 +120,7 @@ export function VotingPowerManager() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Vote className="w-6 h-6 text-blue-400" />
+            <Vote className="w-6 h-6 text-slate-400" />
             Voting Power Management
           </h2>
           <p className="text-slate-400 mt-1">Optimize your governance participation and rewards</p>
@@ -142,13 +142,11 @@ export function VotingPowerManager() {
 
       {/* 투표권 요약 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Zap className="w-5 h-5 text-blue-400" />
-              <Badge variant="outline" className="text-blue-400 border-blue-400/30 text-xs">
-                Total
-              </Badge>
+              <Zap className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Total</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {votingData.totalVotingPower.toLocaleString()}
@@ -157,47 +155,37 @@ export function VotingPowerManager() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Target className="w-5 h-5 text-green-400" />
-              <Badge variant="outline" className="text-green-400 border-green-400/30 text-xs">
-                Available
-              </Badge>
+              <Target className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Available</Badge>
             </div>
-            <div className="text-2xl font-bold text-green-400 mb-1">
+            <div className="text-2xl font-bold text-white mb-1">
               {votingData.availableVotingPower.toLocaleString()}
             </div>
             <div className="text-sm text-slate-400">Ready to Use</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              <Badge variant="outline" className="text-yellow-400 border-yellow-400/30 text-xs">
-                This Week
-              </Badge>
+              <Trophy className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">This Week</Badge>
             </div>
-            <div className="text-2xl font-bold text-yellow-400 mb-1">
-              ${votingData.weeklyRewards}
-            </div>
+            <div className="text-2xl font-bold text-white mb-1">${votingData.weeklyRewards}</div>
             <div className="text-sm text-slate-400">Rewards Earned</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
+        <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
-              <Badge variant="outline" className="text-purple-400 border-purple-400/30 text-xs">
-                Success
-              </Badge>
+              <TrendingUp className="w-5 h-5 text-slate-400" />
+              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Success</Badge>
             </div>
-            <div className="text-2xl font-bold text-purple-400 mb-1">
-              {votingData.successRate}%
-            </div>
+            <div className="text-2xl font-bold text-white mb-1">{votingData.successRate}%</div>
             <div className="text-sm text-slate-400">Win Rate</div>
           </CardContent>
         </Card>
@@ -217,27 +205,27 @@ export function VotingPowerManager() {
             <Progress value={powerUtilization} className="h-3" />
             
             <div className="flex justify-between text-sm">
-              <span className="text-green-400">Available: {votingData.availableVotingPower.toLocaleString()}</span>
-              <span className="text-yellow-400">Locked: {votingData.lockedVotingPower.toLocaleString()}</span>
+              <span className="text-slate-300">Available: {votingData.availableVotingPower.toLocaleString()}</span>
+              <span className="text-slate-300">Locked: {votingData.lockedVotingPower.toLocaleString()}</span>
             </div>
           </div>
 
           {/* 수익 분해 */}
           <div className="mt-6 grid grid-cols-3 gap-4">
             <div className="text-center p-3 bg-slate-800/50 rounded-lg">
-              <div className="text-lg font-bold text-orange-400">
+              <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.battle}
               </div>
               <div className="text-xs text-slate-400">Battle Votes</div>
             </div>
             <div className="text-center p-3 bg-slate-800/50 rounded-lg">
-              <div className="text-lg font-bold text-purple-400">
+              <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.rebalancing}
               </div>
               <div className="text-xs text-slate-400">Rebalancing</div>
             </div>
             <div className="text-center p-3 bg-slate-800/50 rounded-lg">
-              <div className="text-lg font-bold text-blue-400">
+              <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.bonus}
               </div>
               <div className="text-xs text-slate-400">Bonus</div>
@@ -251,7 +239,7 @@ export function VotingPowerManager() {
         <Card className="bg-slate-900/50 border-slate-800">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
+              <BarChart3 className="w-5 h-5 text-slate-400" />
               Index Holdings & Voting Power
             </CardTitle>
           </CardHeader>

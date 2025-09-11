@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/table'
 
 import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
+import useTradingStore from '@/lib/store/trading-store'
 import { IndexRow } from './index-row'
 import { cn } from '@/lib/utils'
 import { staggerContainer, fadeInUp } from '@/lib/animations/micro-interactions'
@@ -55,6 +56,7 @@ const filterOptions: Array<{
   color?: string
 }> = [
   { key: 'all', label: 'All', icon: BarChart3, description: 'All available indices' },
+  { key: 'favorites', label: 'Favorites', icon: Star, description: 'Your starred indices' },
   { key: 'hot', label: 'Hot', icon: Flame, description: 'Trending and popular' },
   { key: 'new', label: 'New', icon: Star, description: 'Recently launched' },
   { key: 'gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Best performing 24h' },
@@ -92,6 +94,7 @@ export function TrendingIndices({
   const [mounted, setMounted] = useState(false)
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null)
   const [containerHeight, setContainerHeight] = useState(0)
+  const favorites = useTradingStore((s) => s.favorites)
 
   // Initialize client-side time to prevent hydration mismatch
   useEffect(() => {
@@ -125,6 +128,9 @@ export function TrendingIndices({
     // Only apply category filter if not 'all'
     if (selectedFilter !== 'all') {
       switch (selectedFilter) {
+        case 'favorites':
+          filtered = filtered.filter(index => favorites.includes(index.id))
+          break
         case 'hot':
           filtered = filtered.filter(index => index.isHot)
           break
@@ -179,8 +185,16 @@ export function TrendingIndices({
       return sortDirection === 'desc' ? bVal - aVal : aVal - bVal
     })
     
+    // Favorited-first ordering (except when using the dedicated Favorites filter)
+    if (selectedFilter !== 'favorites' && favorites && favorites.length) {
+      const favSet = new Set(favorites)
+      const favs = filtered.filter(i => favSet.has(i.id))
+      const rest = filtered.filter(i => !favSet.has(i.id))
+      filtered = [...favs, ...rest]
+    }
+    
     setFilteredIndices(filtered)
-  }, [indices, selectedFilter, sortBy, sortDirection, searchQuery])
+  }, [indices, selectedFilter, sortBy, sortDirection, searchQuery, favorites])
   // Measure container height for virtualization (robust on mount + resize)
   useEffect(() => {
     if (!containerEl) return
