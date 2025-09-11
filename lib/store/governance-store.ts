@@ -10,6 +10,7 @@ type GovernanceState = {
   error?: string
   load: () => Promise<void>
   getById: (id: string) => Proposal | undefined
+  applyVote: (id: string, choice: 'for' | 'against' | 'abstain', power: number) => void
 }
 
 export const useGovernanceStore = create<GovernanceState>((set, get) => ({
@@ -26,5 +27,16 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     }
   },
   getById: (id) => get().proposals.find((p) => p.id === id),
+  applyVote: (id, choice, power) => {
+    set(({ proposals }) => ({
+      proposals: proposals.map((p) => {
+        if (p.id !== id) return p
+        const t = { ...p.tally }
+        if (choice === 'for') t.forPower += power
+        else if (choice === 'against') t.againstPower += power
+        else t.abstainPower += power
+        return { ...p, tally: t }
+      })
+    }))
+  },
 }))
-

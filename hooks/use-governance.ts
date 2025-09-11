@@ -41,7 +41,7 @@ export function getActionInfo(p: Proposal, opts?: { isSigner?: boolean }): { lab
   switch (p.phase) {
     case 'active': {
       if (u && !u.eligible) return { label: 'Vote', disabled: true, reason: 'Not eligible at time‑weighted snapshot' }
-      return { label: 'Vote', disabled: true, reason: 'Voting UI not available in MVP' }
+      return { label: 'Vote', disabled: false, reason: 'Cast your vote' }
     }
     case 'queued':
     case 'timelocked': {

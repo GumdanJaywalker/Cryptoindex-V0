@@ -375,12 +375,12 @@ export function useSoundManager() {
 }
 
 // Higher-order component for adding sound effects to buttons
-export function withSoundEffects<T extends React.ComponentProps<any>>(
+export function withSoundEffects<T extends { onClick?: (e?: any) => any; onMouseEnter?: (e?: any) => any }>(
   Component: React.ComponentType<T>,
   soundType: SoundType = SoundType.BUTTON_CLICK
 ) {
   return function SoundEnhancedComponent(props: T) {
-    const { onClick, onMouseEnter, ...otherProps } = props
+    const { onClick, onMouseEnter, ...otherProps } = props as T & Record<string, any>
 
     const handleClick = (event: any) => {
       soundManager.play(soundType)
@@ -393,11 +393,12 @@ export function withSoundEffects<T extends React.ComponentProps<any>>(
     }
 
     return (
-      <Component
-        {...otherProps}
-        onClick={handleClick}
-        onMouseEnter={handleHover}
-      />
+      // Use createElement to avoid over-constraining generic T at call site
+      (React.createElement as any)(Component as any, {
+        ...(otherProps as any),
+        onClick: handleClick,
+        onMouseEnter: handleHover,
+      })
     )
   }
 }

@@ -179,13 +179,13 @@ export function useRenderCount(componentName: string) {
  * 객체의 깊은 비교를 위한 메모이제이션 훅
  */
 export function useDeepMemo<T>(factory: () => T, deps: readonly unknown[]): T {
-  const ref = useRef<{ deps: readonly unknown[]; value: T }>()
+  const ref = useRef<{ deps: readonly unknown[]; value: T } | null>(null)
   
   if (!ref.current || !areEqual(ref.current.deps, deps)) {
     ref.current = { deps, value: factory() }
   }
   
-  return ref.current.value
+  return ref.current!.value
 }
 
 function areEqual(a: readonly unknown[], b: readonly unknown[]): boolean {
@@ -216,7 +216,7 @@ export function useMountedState() {
  * 이전 값을 기억하는 훅
  */
 export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>()
+  const ref = useRef<T | undefined>(undefined)
   
   useEffect(() => {
     ref.current = value

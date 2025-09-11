@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/notifications/toast-system'
 import { cn } from '@/lib/utils'
 import { Users, Share2, Link as LinkIcon, Copy, Info, Shield, TrendingUp, HandCoins } from 'lucide-react'
+import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
 type UserType = 'influencer' | 'individual'
 
@@ -58,7 +59,10 @@ export default function ReferralsPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
-      <main className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+      <div className="px-4 lg:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] gap-5 items-start">
+          <div className="order-2 lg:order-1"><LeftSidebar /></div>
+          <main className="order-1 lg:order-2 max-w-6xl mx-auto w-full px-2 lg:px-0 space-y-6">
         {/* Title */}
         <div className="flex items-start justify-between">
           <div>
@@ -101,7 +105,9 @@ export default function ReferralsPage() {
             />
           </TabsContent>
         </Tabs>
-      </main>
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
@@ -209,4 +215,3 @@ function ReferralBody({
     </div>
   )
 }
-

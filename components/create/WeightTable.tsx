@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useToast, createSuccessToast } from '@/components/notifications/toast-system'
 
 function parseRaw(raw: string): Record<string, number> {
   const out: Record<string, number> = {}
@@ -44,6 +45,7 @@ export function WeightTable({
   const overCap = capPercent ? symbols.filter((s) => weights[s] > capPercent) : []
   const [okHint, setOkHint] = useState<null | string>(null)
   const okHintTimeoutRef = useRef<number | null>(null)
+  const { addToast } = useToast()
 
   const updateOne = (sym: string, w: number) => {
     const next = { ...weights, [sym]: Math.max(0, w) }
@@ -72,6 +74,7 @@ export function WeightTable({
     })
     onChange(formatRaw(next))
     setOkHint('All set ✓')
+    addToast(createSuccessToast('All set ✓', undefined, { duration: 1500 }))
     if (okHintTimeoutRef.current !== null) {
       clearTimeout(okHintTimeoutRef.current)
       okHintTimeoutRef.current = null
@@ -96,6 +99,7 @@ export function WeightTable({
     })
     onChange(formatRaw(next))
     setOkHint('All set ✓')
+    addToast(createSuccessToast('All set ✓', undefined, { duration: 1500 }))
     if (okHintTimeoutRef.current !== null) {
       clearTimeout(okHintTimeoutRef.current)
       okHintTimeoutRef.current = null

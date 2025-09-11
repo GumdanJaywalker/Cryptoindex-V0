@@ -136,3 +136,11 @@ export async function getProposals(): Promise<Proposal[]> {
     },
   ]
 }
+
+export type VoteChoice = 'for' | 'against' | 'abstain'
+
+export async function submitVote(proposalId: string, choice: VoteChoice, power?: number): Promise<{ ok: true }> {
+  // Simulate latency
+  await new Promise((r) => setTimeout(r, 500))
+  return { ok: true }
+}

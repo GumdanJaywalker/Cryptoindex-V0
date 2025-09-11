@@ -75,7 +75,6 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             <div className="text-xs text-slate-400 mb-1">{proposal.indexSymbol || '—'}</div>
             <div className="text-lg font-semibold text-white flex items-center gap-2">
               {proposal.title}
-              <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">Snapshot: Time‑Weighted</Badge>
             </div>
             {proposal.description && (
               <div className="text-sm text-slate-400 mt-1">{proposal.description}</div>
@@ -86,7 +85,10 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
               {proposal.phase}
             </Badge>
             {readyToQueue && (
-              <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">
+              <Badge
+                variant="outline"
+                className="text-xs text-green-400 border-green-400/30 px-3 py-[2px] whitespace-nowrap"
+              >
                 Queued soon
               </Badge>
             )}

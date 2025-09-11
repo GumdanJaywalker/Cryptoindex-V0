@@ -374,6 +374,23 @@ export function IndexBuilderWizard() {
             if (firstInvalidStep === null) firstInvalidStep = i
           }
         }
+        // Validation checklist booleans
+        const t = (v: string) => v.trim().length > 0
+        const basicsOk = {
+          name: t(data.basics.name) && data.basics.name.trim().length >= 3,
+          symbol: t(data.basics.symbol) && data.basics.symbol.trim().length >= 2,
+          category: t(data.basics.category),
+          description: t(data.basics.description),
+        }
+        const chainOk = {
+          chain: t(data.chain.chain),
+          settlementToken: t(data.chain.settlementToken),
+          feeToken: t(data.chain.feeToken),
+        }
+        const rulesOk = {
+          maxPerAsset: Number.isFinite(Number(data.rules.maxPerAsset)) && Number(data.rules.maxPerAsset) > 0 && Number(data.rules.maxPerAsset) <= 100,
+          minLiquidity: Number.isFinite(Number(data.rules.minLiquidity)) && Number(data.rules.minLiquidity) >= 0,
+        }
         const parseRaw = (raw: string) => raw
           .split(',')
           .map((p) => p.trim())
@@ -410,6 +427,50 @@ export function IndexBuilderWizard() {
           <Card className="bg-slate-900/50 border-slate-800">
             <CardContent className="p-6 space-y-4">
               <div className="text-slate-300">Review your index details before submitting for governance review.</div>
+
+              {/* Validation checklist summary */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded p-3">
+                <div className="text-xs text-slate-400 mb-2">Validation checklist</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="space-y-1">
+                    <div className={basicsOk.name ? 'text-green-400' : 'text-red-400'}>
+                      Name {basicsOk.name ? '✓' : '• required (≥3 chars)'}
+                    </div>
+                    <div className={basicsOk.symbol ? 'text-green-400' : 'text-red-400'}>
+                      Symbol {basicsOk.symbol ? '✓' : '• required (≥2 chars)'}
+                    </div>
+                    <div className={basicsOk.category ? 'text-green-400' : 'text-red-400'}>
+                      Category {basicsOk.category ? '✓' : '• required'}
+                    </div>
+                    <div className={basicsOk.description ? 'text-green-400' : 'text-red-400'}>
+                      Description {basicsOk.description ? '✓' : '• required'}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className={chainOk.chain ? 'text-green-400' : 'text-red-400'}>
+                      Chain {chainOk.chain ? '✓' : '• required'}
+                    </div>
+                    <div className={chainOk.settlementToken ? 'text-green-400' : 'text-red-400'}>
+                      Settlement token {chainOk.settlementToken ? '✓' : '• required'}
+                    </div>
+                    <div className={chainOk.feeToken ? 'text-green-400' : 'text-red-400'}>
+                      Fee currency {chainOk.feeToken ? '✓' : '• required'}
+                    </div>
+                    <div className={rulesOk.maxPerAsset ? 'text-green-400' : 'text-red-400'}>
+                      Max per asset {rulesOk.maxPerAsset ? '✓' : '• 0–100'}
+                    </div>
+                    <div className={rulesOk.minLiquidity ? 'text-green-400' : 'text-red-400'}>
+                      Min liquidity {rulesOk.minLiquidity ? '✓' : '• ≥ 0'}
+                    </div>
+                    <div className={items.length > 0 ? 'text-green-400' : 'text-red-400'}>
+                      Constituents {items.length > 0 ? '✓' : '• select ≥1'}
+                    </div>
+                    <div className={Math.abs(total - 100) < 0.01 ? 'text-green-400' : 'text-red-400'}>
+                      Weights total = 100% {Math.abs(total - 100) < 0.01 ? '✓' : `• now ${total.toFixed(2)}%`}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {errors.length > 0 && (
                 <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded p-3">

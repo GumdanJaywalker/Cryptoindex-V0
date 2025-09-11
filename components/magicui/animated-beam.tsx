@@ -6,9 +6,9 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 
 interface AnimatedBeamProps {
   className?: string;
-  containerRef: React.RefObject<HTMLElement>;
-  fromRef: React.RefObject<HTMLElement>;
-  toRef: React.RefObject<HTMLElement>;
+  containerRef: React.RefObject<HTMLElement | null>;
+  fromRef: React.RefObject<HTMLElement | null>;
+  toRef: React.RefObject<HTMLElement | null>;
   curvature?: number;
   reverse?: boolean;
   duration?: number;
@@ -106,7 +106,8 @@ export default function AnimatedBeam({
       >
         <motion.animate
           attributeName="stroke-dashoffset"
-          values={reverse ? ["0", "40"] : ["40", "0"]}
+          from={reverse ? "0" : "40"}
+          to={reverse ? "40" : "0"}
           dur={`${duration}s`}
           repeatCount="indefinite"
           begin={`${delay}s`}

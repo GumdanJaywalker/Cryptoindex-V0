@@ -15,6 +15,8 @@ import { useToast } from '@/components/notifications/toast-system'
 import { getActionInfo } from '@/hooks/use-governance'
 import { OPERATOR_ADDRESSES } from '@/lib/mock/operators'
 import { cn } from '@/lib/utils'
+import VoteDialog from '@/components/governance/VoteDialog'
+import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
 export default function ProposalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { proposals, load, getById, quorumReached, supportPercent, passReached, timeLeft } = useGovernance()
@@ -97,10 +99,14 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
   const action = p ? getActionInfo(p, { isSigner: isOperator }) : { label: 'View', disabled: true, reason: 'Loading…' }
 
   const loading = !p && proposals.length === 0
+  const [voteOpen, setVoteOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+      <div className="px-4 lg:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] gap-5 items-start">
+          <div className="order-2 lg:order-1"><LeftSidebar /></div>
+          <main className="order-1 lg:order-2 max-w-5xl mx-auto w-full px-2 lg:px-0 space-y-6">
         {!p ? (
           <Card className="bg-slate-900/50 border-slate-800">
             <CardContent className="p-6 flex items-center justify-between">
@@ -344,11 +350,14 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span onClick={() => addToast({ type: 'info', title: action.label, description: action.reason, duration: 5000 })}>
+                <span onClick={() => {
+                  if (p?.phase === 'active' && p?.user?.eligible) setVoteOpen(true)
+                  else addToast({ type: 'info', title: action.label, description: action.reason, duration: 5000 })
+                }}>
                   <Button
                     className={cn(action.label.startsWith('Vote') || action.label.startsWith('Sign') ? 'bg-brand text-black hover:bg-brand-hover' : '')}
                     variant={action.label === 'Execute' || action.label === 'View' ? 'outline' : 'default'}
-                    disabled={action.disabled}
+                    disabled={action.disabled && !(p?.phase === 'active' && p?.user?.eligible)}
                   >
                     {action.label}
                   </Button>
@@ -359,11 +368,16 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          {p && (
+            <VoteDialog open={voteOpen} onOpenChange={setVoteOpen} proposal={p} />
+          )}
           <Link href="/governance" className="text-slate-300 hover:text-white text-sm">Back to list</Link>
         </div>
         </>
         )}
-      </main>
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
