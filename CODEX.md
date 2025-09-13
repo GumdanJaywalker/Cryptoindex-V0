@@ -68,6 +68,39 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - PnL Card Generator
   - Branded period tabs, stepper, primary buttons, header icon/badge to mint; social share buttons unified to brand mint.
 
+## Session Summary — 2025-09-13
+- Trending
+  - 즐겨찾기(별) 토글/필터/우선정렬(favorites‑first) 추가, Trade 버튼 상시 노출, 배지/호버/그리드 정리
+- Top Traders (랜딩)
+  - 포디움 제거 → 1–3위 두꺼운 행, 4–7위 컴팩트 유지, 메달/구분선/Win·Followers 정렬, 우측 컬럼 ~5% 축소
+- Referrals
+  - 초대제 문구/정책 배지 제거, 단일 화면(자동 티어), /referrals/apply 신청 페이지, 14일 차트+CSV Export, 수익 분포는 Portfolio/Creator로 분리
+- Portfolio 톤/그래프
+  - 중립 톤 통일(AccountSummary/Analytics/Positions/Voting), Monthly Performance 그래프 수정(막대 20%, ±색), Overview에 Creator/LP 배지 추가
+- PnL Card Generator
+  - 기간 탭/버튼/스텝/헤더/배지/소셜 버튼 브랜드 민트화
+- Create
+  - 썸네일 이미지(업로드/URL) + 미리보기, Overview에 프리뷰 표시
+- Settings
+  - /settings 라우트 및 섹션 스켈레톤(Profile/Preferences/Notifications/Security/Connections/API Keys/Danger Zone) + 헤더 연결
+- Header
+  - Analytics 제거, API Docs 비활성(coming soon)
+- Governance
+  - FE 헬퍼 모듈(quorum/support/pass/timeLeft) 분리, BE 연동 플랜 문서화
+
+## Backlog — Next Tasks Snapshot (KOR)
+- Trending: 즐겨찾기 우선 토글 고도화, HOT/NEW 정렬 규칙(backend createdAt/heat score 반영), Graduation 배지+듀얼 진행률 툴팁
+- Top Traders: 컴팩트 행 개수 튜닝(예: 상위 10), 숫자 포맷 정리, (옵션) 즐겨찾기
+- Referrals: Auto‑tier 산식/상태, 신청 검증/진행, utm 소스 집계, 기간 스위처
+- Portfolio: Overview 마이크로카피/여백, Positions 칩 UX/카피, Analytics 범례·툴팁·스냅샷, Voting tips, CreatorEarnings 드릴다운/지급, Liquidity 탭+모달(백로그)
+- PnL Cards: 템플릿 대비/가독성, 내보내기 옵션(PNG 품질/세이프존), 갤러리 영속/퀵쉐어, 카피 프리셋
+- Governance: 목록/상세/스냅샷/탤리/타임락/멀티시그 연동, 에러/빈 상태, 헬퍼 테스트
+- Create: 액션 마이크로 피드백, 제출 스텁 토스트/에러, AssetPicker ‘Selected only’, 썸네일 검증 강화, (옵션) 대용량 가상화
+- QA/A11y/Perf: 키보드 내비, reduced‑motion, Lighthouse ≥90, aria/DialogTitle
+- Settings: 카피/검증, 비밀번호 강도, 설정 영속화(mock→API)
+- Docs/Analytics: API Docs 보류(헤더 비활성), Analytics 제거(필요 시 skeleton)
+- L3 가상 AMM+Graduation: 데이터 모델 확장, GraduationProgress 컴포넌트(InfoBar/Detail/Trending), 트레이딩 카피, 상태 타임라인 UI
+
 ## Dev Guidelines (FE)
 - Package manager: pnpm only. Use `pnpm install`, `pnpm dev`, `pnpm build`, `pnpm start`, `pnpm lint`.
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
@@ -214,6 +247,39 @@ Notes
   - Simplify `snapshotLabel` helpers and UI branches
   - Ensure eligibility/tooltips reference time‑weighted rules only
 
+### Governance — Backend Integration Plan (FE/BE 계약)
+- API contracts (권장)
+  - GET `/api/governance/proposals` → 목록 (요약 필드 포함)
+  - GET `/api/governance/proposals/:id` → 상세 (변경셋/타임라인 포함)
+  - GET `/api/governance/proposals/:id/tally`
+  - GET `/api/governance/proposals/:id/timelock`
+  - GET `/api/governance/proposals/:id/multisig`
+  - GET `/api/governance/proposals/:id/snapshot-power?address=0x...`
+- 필수 데이터(서버 권위)
+  - `phase`: `'active'|'queued'|'timelocked'|'awaiting-multisig'|'executed'|'defeated'|'canceled'` 등
+  - `endsAt`(epoch ms), `config { snapshot.method='time-weighted', quorumPercent, passThresholdPercent, timelockSeconds?, multisig? }`
+  - `tally { forPower, againstPower, abstainPower, totalSnapshotPower }`
+  - `timelock { eta? }`, `multisig { m, n, signed[] }`
+  - `user { eligible, votingPowerAtSnapshot }` (선택)
+- 선택(권장) 파생 필드(서버 계산 시 FE가 우선 사용)
+  - `quorumReached: boolean`
+  - `supportPercent: number` (표준 라운딩 적용)
+  - `passReached: boolean`
+  - `timeLeftMs: number` (남은 밀리초; FE에서 문자열 포맷)
+- FE 헬퍼 폴백 전략
+  - 위 파생 필드가 없을 경우 FE는 다음 헬퍼로 동일 계산 수행:
+    - `quorumReached(p)`: `(for+against+abstain)/totalSnapshotPower >= quorum%`
+    - `supportPercent(p)`: `for/(for+against)`
+    - `passReached(p)`: `supportPercent >= passThreshold%`
+    - `timeLeft(p)`: `endsAt-now` 포맷(d/h/m)
+  - 모든 경계 케이스 방어(분모 0→0, totalSnapshot=0→정족수 미달 등)
+- 표기 규칙(일관성)
+  - 퍼센트 라운딩: 소수 1자리 (예: 62.3%)
+  - 시간 표기: `1d 2h` / `3h 15m` / `12m`
+  - 스냅샷/카피: MVP는 `time-weighted`만 노출(다른 모드 UI/카피 제외)
+- 에러/빈 상태
+  - 목록/상세 모두 로딩/빈/에러 뷰 제공, 네트워크/권한 오류 메시지 통일
+
 ## Policy Update — Multisig (Operator‑Only, 4/4)
 - Execution is gated by operator signatures, not a public multisig threshold.
 - Exactly 4 of 4 operator signatures are required to execute rebalancing.
@@ -256,11 +322,58 @@ Notes
 - QA: Lighthouse 90+ for performance and accessibility; consistent microcopy (English, concise, neutral).
 
 - Trending
-  - Optional: explicit toggle for favorites-first; refine HOT/NEW sort rules (e.g., createdAt when backend available).
+  - Add toolbar toggle: Favorites‑first on/off
+  - Refine HOT/NEW sort rules (use createdAt/heat score when backend available)
 
 - Portfolio — Liquidity (Backlog)
   - Add Liquidity tab to Portfolio (my shares/APR/fees; Add/Remove forms; quote + risk note).
   - Provide Liquidity entry in index detail/trading via modal (quick add/remove).
+
+### L3 Virtual AMM + Graduation (New)
+- Launch Mode (L3 only)
+  - Trade on virtual AMM (bonding curve) at L3; no real AMM pool created initially.
+  - Disable LP actions until graduation; show “Launch (L3, bonding curve)” pill in IndexInfoBar.
+- Dual Progress (parallel)
+  - Liquidity goal: target amount for pool bootstrapping (e.g., $X to graduate).
+  - Sales goal: token sold vs bonding‑curve exit threshold.
+  - UI: “Graduation Progress” block with two progress bars + tooltips; surface in Index Detail, Trading InfoBar, and Trending row badge.
+- Graduation State
+  - When BOTH goals reached → trigger graduation path (L2 pool creation); switch index layer to L2.
+  - Status timeline: Launching → Recruiting Liquidity → Near Graduation → Graduated (L2).
+- Data/Mocks
+  - Extend MemeIndex with launch/graduation fields:
+    - `launch: { mode: 'virtual-amm', liquidityTargetUsd: number, liquidityRaisedUsd: number, salesExitThreshold: number, soldAmount: number, status: 'launching'|'recruiting'|'near-graduation'|'graduated' }`
+  - Mock updates in `lib/data/mock-indices.ts` for a subset of indices.
+- Trading Behavior (UI copy)
+  - Price source: bonding curve; display indicative slippage/impact; warn about virtual fills.
+  - After graduation, price/liq source flips to L2 pool.
+- Components (skeletons)
+  - `components/trading/GraduationProgress.tsx` (compact bar for InfoBar + full block for Detail)
+  - Integrate into `index-detail-modal` and `IndexInfoBar` (or equivalent)
+  - Trending row badge: “Graduation n%” with hover details
+
+### HOOATS, NAV/Price, and Risk (from Biz Doc)
+- HOOATS Routing Indicator
+  - Show when Hybrid router used (AMM fill vs Orderbook slice); tiny badges in Trade Panel
+  - Copy: “Route: AMM | OB | Mixed” with hover details (slippage/impact est.)
+- NAV vs Market Price (Primary/Secondary)
+  - Add NAV line to IndexInfoBar; highlight divergence and show “Arb opportunity” banner when thresholds exceeded
+  - Hook to mock arbitrage vault copy; later wire to vault status
+- Risk Scoring Badges
+  - Per-index risk badge (L1/L2 curated, L3 playground); tooltip with factors (top holders/dev/sniper/LP-burned/etc.)
+  - Detail page: simple table of components with score buckets (mock)
+- Data Model Extensions
+  - `MemeIndex`: `risk: { tier: 'L1'|'L2'|'L3', score?: number, factors?: string[] }`, `nav?: number`, `pricing: { source: 'bonding-curve'|'pool', route?: 'amm'|'ob'|'mixed' }`
+
+## Backlog — Settings / Docs / Analytics
+- Settings (in progress)
+  - Added: `app/settings` route with left-rail tabs
+  - Added sections (skeletons): Profile, Preferences, Notifications, Security, Connections, API Keys, Danger Zone
+  - Mock save toasts wired; refine copy/validation later
+- API Docs (on hold)
+  - Keep header item disabled; prepare skeleton later if scope confirmed
+- Analytics (removed from header for beta)
+  - If needed later: app/analytics + KPIs/Trends/Tables skeleton with mock data
 
 - Referrals Page
   - Single page with user‑type switch: Influencer/KOLs vs Individual.
@@ -271,6 +384,9 @@ Notes
   - Portfolio and Create flows: clearly separate “Creator Fee” (index token fees share) and “LP Fee” (liquidity pool trading fees).
   - Use mock data first; align with spreadsheet model.
   - Reference: HyperIndex-Revenue Expense Calculator.xlsx (local path).
+
+- Create — Builder Enhancements
+  - Add thumbnail image selector for index (upload or URL) with live preview and validation (size/type/ratio)
 
 ## Work Queue — Concrete Next Steps
 - Sidebar polish

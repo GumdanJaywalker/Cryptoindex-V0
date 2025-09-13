@@ -71,18 +71,16 @@ export function Header() {
               className="w-48 min-w-[12rem] overflow-hidden rounded-md border border-slate-700 bg-slate-900 p-1 text-white shadow-md z-50"
               sideOffset={4}
             >
-              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <FileText className="w-4 h-4 mr-3 text-blue-400" />
-                <span>API Docs</span>
-                <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />
+              <DropdownMenuItem disabled className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <FileText className="w-4 h-4 mr-3 text-slate-500" />
+                <span className="text-slate-400">API Docs (coming soon)</span>
               </DropdownMenuItem>
+              {/* Analytics removed for beta scope */}
               <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <BarChart3 className="w-4 h-4 mr-3 text-green-400" />
-                <span>Analytics</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <Settings className="w-4 h-4 mr-3 text-slate-400" />
-                <span>Settings</span>
+                <Link href="/settings" className="flex items-center w-full">
+                  <Settings className="w-4 h-4 mr-3 text-slate-400" />
+                  <span>Settings</span>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

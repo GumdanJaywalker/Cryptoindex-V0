@@ -43,6 +43,21 @@ export function IndexCreatorOverview() {
             <Badge variant="outline" className="text-blue-300 border-blue-400/30">L3-based</Badge>
           </div>
 
+          {data.basics.thumbnail && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start mt-2">
+              <div className="md:col-span-1">
+                <div className="text-xs text-slate-400 mb-1">Thumbnail</div>
+                <div className="w-full aspect-square rounded-lg border border-slate-800 bg-slate-900/50 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={data.basics.thumbnail} alt="index thumbnail" className="w-full h-full object-cover" />
+                </div>
+              </div>
+              <div className="md:col-span-2 text-xs text-slate-500">
+                썸네일은 인덱스 카드/리스트에 사용됩니다. 저작권·상표에 유의해 주세요.
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <div className="text-xs text-slate-400 mb-1">Chain / Settlement</div>
