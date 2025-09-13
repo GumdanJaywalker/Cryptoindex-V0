@@ -25,8 +25,27 @@ export default function ApplyInfluencerPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
   }
   const onSubmit = () => {
+    const emailOk = /[^\s@]+@[^\s@]+\.[^\s@]+/.test(form.email)
+    const numeric = (s: string) => Number(String(s).replace(/[^0-9.]/g, ''))
+    const followersNum = numeric(form.followers)
+    const avgViewsNum = numeric(form.avgViews)
+
     if (!form.name || !form.email) {
       addToast(createErrorToast('Missing fields', 'Name and Email are required'))
+      return
+    }
+    if (!emailOk) {
+      addToast(createErrorToast('Invalid email', 'Please enter a valid email address'))
+      return
+    }
+    // Require at least one social handle
+    if (!form.twitter && !form.youtube && !form.tiktok) {
+      addToast(createErrorToast('Missing socials', 'Provide at least one social handle or channel'))
+      return
+    }
+    // Basic eligibility hints
+    if (followersNum < 5000 && avgViewsNum < 5000) {
+      addToast(createErrorToast('Low reach', 'Followers or Avg. Views should be at least 5,000'))
       return
     }
     addToast(createSuccessToast('Application submitted', 'We will review and get back to you.'))
@@ -90,4 +109,3 @@ export default function ApplyInfluencerPage() {
     </div>
   )
 }
-

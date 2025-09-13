@@ -1,9 +1,11 @@
-'use client'
+"use client"
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useToast, createSuccessToast } from '@/components/notifications/toast-system'
-import { useState } from 'react'
+import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
+import { useEffect, useState } from 'react'
+import { SettingsStorage } from '@/lib/settings/storage'
+import { saveNotifications } from '@/lib/api/settings'
 
 export function NotificationsSection() {
   const { addToast } = useToast()
@@ -11,6 +13,11 @@ export function NotificationsSection() {
   const [governance, setGovernance] = useState(true)
   const [trades, setTrades] = useState(true)
   const [email, setEmail] = useState(false)
+
+  useEffect(() => {
+    const saved = SettingsStorage.getNotifications()
+    if (saved) { setPrice(saved.price); setGovernance(saved.governance); setTrades(saved.trades); setEmail(saved.email) }
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -28,7 +35,20 @@ export function NotificationsSection() {
           </label>
         ))}
         <div className="flex justify-end">
-          <Button className="bg-brand text-black hover:bg-brand-hover" onClick={()=> addToast(createSuccessToast('Saved', 'Notifications updated'))}>Save</Button>
+          <Button
+            className="bg-brand text-black hover:bg-brand-hover"
+            onClick={async ()=> {
+              try {
+                await saveNotifications({ price, governance, trades, email })
+                SettingsStorage.saveNotifications({ price, governance, trades, email })
+                addToast(createSuccessToast('Saved', 'Notifications updated'))
+              } catch (e: any) {
+                addToast(createErrorToast('Failed', e?.message || 'Please try again'))
+              }
+            }}
+          >
+            Save
+          </Button>
         </div>
       </CardContent></Card>
     </div>
@@ -36,4 +56,3 @@ export function NotificationsSection() {
 }
 
 export default NotificationsSection
-

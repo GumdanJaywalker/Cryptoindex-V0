@@ -17,6 +17,9 @@ export interface MemeIndex {
   name: string
   theme: 'dog' | 'ai' | 'political' | 'gaming' | 'frog' | 'space' | 'food' | 'diamond-hands' | 'moon' | 'ape'
   description: string
+  // Discovery/ordering metadata
+  createdAt?: number // ms epoch for NEW sorting
+  heatScore?: number // 0–100 popularity score for HOT sorting
   layerInfo?: LayerInfo
   currentPrice: number
   change24h: number
@@ -30,6 +33,12 @@ export interface MemeIndex {
   isHot?: boolean // 🔥 HOT badge
   isNew?: boolean // ✨ NEW badge (created within 24h)
   isMooning?: boolean // 🚀 MOONING badge (rapid price increase)
+  // Graduation (L3 launch → pool graduation) progress
+  graduation?: {
+    liquidityProgress: number // 0–100
+    salesProgress: number // 0–100
+    status: 'launching' | 'recruiting-liquidity' | 'near-graduation' | 'graduated'
+  }
   assets: Array<{
     symbol: string
     name: string

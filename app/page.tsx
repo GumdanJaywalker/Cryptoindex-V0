@@ -178,9 +178,9 @@ export default function Home() {
       {/* Main Content */}
       <div className="px-4 lg:px-6 lg:pr-4 py-8 pt-24">
         <div className="grid grid-cols-1 
-          lg:grid-cols-[minmax(260px,300px)_minmax(600px,1fr)_minmax(380px,475px)] 
-          xl:grid-cols-[minmax(260px,320px)_minmax(720px,1fr)_minmax(380px,512px)] 
-          2xl:grid-cols-[minmax(280px,340px)_minmax(880px,1fr)_minmax(400px,548px)] 
+          lg:grid-cols-[minmax(234px,270px)_minmax(660px,1fr)_minmax(380px,475px)] 
+          xl:grid-cols-[minmax(234px,288px)_minmax(792px,1fr)_minmax(380px,512px)] 
+          2xl:grid-cols-[minmax(252px,306px)_minmax(968px,1fr)_minmax(400px,548px)] 
           gap-5 xl:gap-6 2xl:gap-8 items-start">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}

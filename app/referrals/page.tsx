@@ -30,17 +30,9 @@ export default function ReferralsPage() {
     },
   }), [])
 
-  const metrics = useMemo(() => ({
-    clicks: 1287,
-    signups: 342,
-    attributedVolume24h: 1823400,
-    creatorFeeUSD: 1245.22,
-    lpFeeUSD: 986.40,
-  }), [])
-
-  // Mock 14-day timeseries for charts/CSV
-  const series = useMemo(() => {
-    const days = 14
+  // Mock 30-day timeseries (UTM breakdown removed per product decision)
+  const seriesFull = useMemo(() => {
+    const days = 30
     const today = new Date()
     const pad = (n: number) => String(n).padStart(2, '0')
     const data = Array.from({ length: days }, (_, i) => {
@@ -74,8 +66,26 @@ export default function ReferralsPage() {
     }
   }
 
-  // Auto-tier: show influencer tier if approved; otherwise show individual tier
-  const current = profile.influencer.approved ? profile.influencer : profile.individual
+  // Timeframe selection (UTM/metrics aggregate respect this)
+  const [timeframe, setTimeframe] = useState<'7d' | '14d' | '30d'>('14d')
+  const series = useMemo(() => {
+    const days = timeframe === '7d' ? 7 : timeframe === '14d' ? 14 : 30
+    return seriesFull.slice(-days)
+  }, [seriesFull, timeframe])
+
+  // Aggregated metrics for selected period
+  const agg = useMemo(() => {
+    const clicks = series.reduce((a, s) => a + s.clicks, 0)
+    const signups = series.reduce((a, s) => a + s.signups, 0)
+    const volume = series.reduce((a, s) => a + s.volume, 0)
+    const creatorFeeUSD = series.reduce((a, s) => a + s.creatorFee, 0)
+    const lpFeeUSD = series.reduce((a, s) => a + s.lpFee, 0)
+    return { clicks, signups, volume, creatorFeeUSD, lpFeeUSD }
+  }, [series])
+
+  // Auto-tier: influencer if approved OR eligible by recent performance
+  const eligible = agg.signups >= 300 && agg.volume >= 1_000_000
+  const current = profile.influencer.approved || eligible ? { ...profile.influencer, approved: true } : profile.individual
 
   const formatUSD = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
 
@@ -95,16 +105,39 @@ export default function ReferralsPage() {
           {/* Policy badge removed */}
         </div>
 
+        {/* Timeframe Switch */}
+        <div className="flex items-center gap-2">
+          {(['7d','14d','30d'] as const).map(tf => (
+            <Button
+              key={tf}
+              size="sm"
+              variant={timeframe === tf ? 'default' : 'ghost'}
+              className={cn('h-8 px-3 text-xs', timeframe === tf ? 'bg-brand hover:bg-brand-hover text-black' : 'text-slate-300 hover:text-white hover:bg-slate-800')}
+              onClick={() => setTimeframe(tf)}
+            >
+              {tf}
+            </Button>
+          ))}
+        </div>
+
         {/* Single view reflects current tier; application entry if not influencer */}
         <div className="mt-4 space-y-6">
           <ReferralBody
             tierLabel={current.tier}
             code={current.code}
-            approved={profile.influencer.approved}
+            approved={current === profile.influencer}
             referralLink={referralLink(current.code)}
-            metrics={metrics}
+            metrics={{
+              clicks: agg.clicks,
+              signups: agg.signups,
+              attributedVolume24h: agg.volume, // aggregated over period for mock
+              creatorFeeUSD: agg.creatorFeeUSD,
+              lpFeeUSD: agg.lpFeeUSD,
+            }}
             series={series}
             onCopy={handleCopy}
+            timeframe={timeframe}
+            eligible={eligible}
           />
         </div>
           </main>
@@ -139,6 +172,8 @@ function ReferralBody({
   metrics,
   series,
   onCopy,
+  timeframe,
+  eligible,
 }: {
   tierLabel: string
   code: string
@@ -147,14 +182,14 @@ function ReferralBody({
   metrics: { clicks: number; signups: number; attributedVolume24h: number; creatorFeeUSD: number; lpFeeUSD: number }
   series: Array<{ date: string; clicks: number; signups: number; volume: number; creatorFee: number; lpFee: number }>
   onCopy: (text: string, label?: string) => void
+  timeframe: '7d' | '14d' | '30d'
+  eligible: boolean
 }) {
   const formatUSD = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-  const clicksData = series.map(s => s.clicks)
-  const signupsData = series.map(s => s.signups)
 
   const exportCSV = () => {
-    const header = ['date','clicks','signups','volume','creatorFeeUSD','lpFeeUSD']
-    const rows = series.map(s => [s.date, s.clicks, s.signups, s.volume, s.creatorFee.toFixed(2), s.lpFee.toFixed(2)])
+    const header = ['date','volume','creatorFeeUSD','lpFeeUSD']
+    const rows = series.map(s => [s.date, s.volume, s.creatorFee.toFixed(2), s.lpFee.toFixed(2)])
     const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -178,6 +213,9 @@ function ReferralBody({
             <div className={cn('text-xs px-2 py-0.5 rounded border', approved ? 'text-green-400 border-green-400/30' : 'text-slate-400 border-slate-600')}>
               {approved ? 'Influencer' : 'Individual'}
             </div>
+            {!approved && eligible && (
+              <div className="text-xs px-2 py-0.5 rounded border border-brand/30 text-brand">Eligible</div>
+            )}
           </div>
           {!approved && (
             <Link href="/referrals/apply" className="text-xs px-3 py-1 rounded-md bg-brand text-black hover:bg-brand-hover">
@@ -210,18 +248,8 @@ function ReferralBody({
         </CardContent>
       </Card>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
-          <div className="text-xs text-slate-400 mb-1">Clicks</div>
-          <div className="text-lg font-semibold">{metrics.clicks.toLocaleString()}</div>
-          <div className="mt-2"><SimpleLineChart data={clicksData} color="#7BC9FF" /></div>
-        </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
-          <div className="text-xs text-slate-400 mb-1">Signups</div>
-          <div className="text-lg font-semibold">{metrics.signups.toLocaleString()}</div>
-          <div className="mt-2"><SimpleLineChart data={signupsData} color="#98FCE4" /></div>
-        </CardContent></Card>
+      {/* Metrics (aggregated for {timeframe}) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">24H Attributed Volume</div>
           <div className="text-lg font-semibold">{formatUSD(metrics.attributedVolume24h)}</div>
@@ -231,6 +259,8 @@ function ReferralBody({
           <div className="text-lg font-semibold">{formatUSD(metrics.creatorFeeUSD + metrics.lpFeeUSD)}</div>
         </CardContent></Card>
       </div>
+
+      {/* UTM Breakdown removed */}
 
       {/* Export */}
       <div className="flex justify-end">
