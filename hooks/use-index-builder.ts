@@ -8,6 +8,7 @@ type BuilderData = {
     symbol: string
     category: string
     description: string
+    thumbnail?: string // URL or DataURL
   }
   chain: {
     chain: string
@@ -24,7 +25,7 @@ type BuilderData = {
 }
 
 const defaultData: BuilderData = {
-  basics: { name: '', symbol: '', category: '', description: '' },
+  basics: { name: '', symbol: '', category: '', description: '', thumbnail: '' },
   chain: { chain: 'L3', settlementToken: 'USDC', feeToken: 'USDC' },
   constituents: { raw: '' },
   rules: { maxPerAsset: '35', minLiquidity: '1000000' },

@@ -183,6 +183,49 @@ export function IndexBuilderWizard() {
                 onChange={(e) => update({ basics: { ...data.basics, description: e.target.value } })}
               />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-sm text-slate-400">Thumbnail Image</label>
+                <Input
+                  placeholder="Image URL (https://...)"
+                  value={data.basics.thumbnail || ''}
+                  onChange={(e) => update({ basics: { ...data.basics, thumbnail: e.target.value } })}
+                />
+                <div className="text-xs text-slate-500">권장: 정사각형 또는 4:3, PNG/JPEG/SVG. 큰 파일은 로컬 저장소에 저장 시 느릴 수 있습니다.</div>
+                <div>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      if (!f) return
+                      const max = 2 * 1024 * 1024 // 2MB
+                      if (f.size > max) {
+                        alert('파일이 너무 큽니다 (2MB 이하 권장). URL 입력을 사용해 주세요.')
+                        return
+                      }
+                      const reader = new FileReader()
+                      reader.onload = () => {
+                        update({ basics: { ...data.basics, thumbnail: String(reader.result || '') } })
+                      }
+                      reader.readAsDataURL(f)
+                    }}
+                    className="block text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700"
+                  />
+                </div>
+              </div>
+              <div className="md:col-span-1">
+                <div className="text-sm text-slate-400 mb-2">Preview</div>
+                <div className="w-full aspect-square rounded-lg border border-slate-800 bg-slate-900/50 overflow-hidden flex items-center justify-center">
+                  {data.basics.thumbnail ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={data.basics.thumbnail} alt="thumbnail preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-xs text-slate-500">No thumbnail selected</div>
+                  )}
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
