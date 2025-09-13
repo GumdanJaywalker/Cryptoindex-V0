@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronDownIcon, SearchIcon, StarIcon } from 'lucide-react'
+import { ChevronDownIcon, SearchIcon, StarIcon, Droplets } from 'lucide-react'
 import NumberTicker from '@/components/magicui/number-ticker'
 import BorderBeam from '@/components/magicui/border-beam'
+import LiquidityModal from '@/components/trading/LiquidityModal'
+import GraduationProgress from '@/components/trading/GraduationProgress'
 
 const mockIndexes = [
   { symbol: 'DOG_INDEX', name: 'Doggy Index', isFavorite: true },
@@ -18,6 +20,16 @@ export function IndexInfoBar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [favorites, setFavorites] = useState(new Set(['DOG_INDEX', 'MEME_INDEX']))
+  const [liquidityOpen, setLiquidityOpen] = useState(false)
+  // Mock graduation data per selected index (since InfoBar is mock‑driven here)
+  const selectedGraduation = (() => {
+    const hash = Array.from(selectedIndex).reduce((a, c) => a + c.charCodeAt(0), 0)
+    const lp = (hash * 7) % 100
+    const sp = (hash * 13) % 100
+    const avg = (lp + sp) / 2
+    const status = avg >= 100 ? 'graduated' : avg >= 70 ? 'near-graduation' : avg >= 30 ? 'recruiting-liquidity' : 'launching'
+    return { liquidityProgress: lp, salesProgress: sp, status } as const
+  })()
 
   // Mock price data with dynamic updates for animations
   const [priceData, setPriceData] = useState({
@@ -98,6 +110,7 @@ export function IndexInfoBar() {
   }
 
   return (
+    <>
     <div className="h-12 flex items-center px-4 text-sm" style={{ background: 'var(--hl-bg-primary)', borderBottom: '1px solid var(--hl-border)' }}>
       {/* Index Selector with Border Beam */}
       <div className="relative index-dropdown">
@@ -344,6 +357,17 @@ export function IndexInfoBar() {
           </div>
           <div className="text-xs hl-text-secondary">Est. Gas</div>
         </div>
+        {/* Graduation (compact) + Provide Liquidity CTA */}
+        <GraduationProgress data={selectedGraduation} variant="compact" />
+        <div>
+          <button
+            onClick={() => setLiquidityOpen(true)}
+            className="px-3 py-1.5 rounded border border-brand/40 text-brand hover:bg-brand hover:text-black transition-colors flex items-center gap-1"
+          >
+            <Droplets className="h-3.5 w-3.5" />
+            <span className="text-sm font-medium">Provide Liquidity</span>
+          </button>
+        </div>
 
         <div className="flex items-center">
           <div className="w-2 h-2 bg-brand rounded-full mr-2 animate-pulse"></div>
@@ -356,5 +380,7 @@ export function IndexInfoBar() {
 
 
     </div>
+    <LiquidityModal open={liquidityOpen} onOpenChange={setLiquidityOpen} indexSymbol={selectedIndex} />
+    </>
   )
 }

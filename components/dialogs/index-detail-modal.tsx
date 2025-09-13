@@ -35,6 +35,7 @@ import {
   Shield,
   Activity
 } from "lucide-react";
+import GraduationProgress from "@/components/trading/GraduationProgress";
 
 interface IndexData {
   name: string;
@@ -150,6 +151,13 @@ export default function IndexDetailModal({
     // This would open the trading dialog
     console.log("Opening trading dialog...");
   };
+
+  // Mock graduation data for detail (replace with real index data when wired)
+  const graduation = {
+    liquidityProgress: 62,
+    salesProgress: 54,
+    status: 'recruiting-liquidity' as const,
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -285,6 +293,18 @@ export default function IndexDetailModal({
                   </div>
                 </EvervaultCard>
               </div>
+            </SlideIn>
+
+            {/* Graduation Progress (full) */}
+            <SlideIn direction="up" delay={0.18}>
+              <Card className="bg-cryptoindex-medium/20 border-cryptoindex-medium/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-cryptoindex-cream">Graduation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <GraduationProgress data={graduation} variant="full" />
+                </CardContent>
+              </Card>
             </SlideIn>
 
             {/* Token Composition with Orbiting Circles */}

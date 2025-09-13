@@ -9,6 +9,7 @@ import { PnLCardGenerator } from './PnLCardGenerator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreatorEarnings } from './CreatorEarnings'
 import { EarningsSummary } from './EarningsSummary'
+import { LiquidityPositions } from './LiquidityPositions'
 
 export function PortfolioLayout() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -21,7 +22,7 @@ export function PortfolioLayout() {
         
         {/* 메인 탭 */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 bg-slate-900 border border-slate-800">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 bg-slate-900 border border-slate-800">
             <TabsTrigger 
               value="overview" 
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
@@ -64,6 +65,13 @@ export function PortfolioLayout() {
               <span className="hidden sm:inline">Creator Earnings</span>
               <span className="sm:hidden">Earnings</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="liquidity"
+              className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Liquidity</span>
+              <span className="sm:hidden">LP</span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="mt-6">
@@ -94,6 +102,10 @@ export function PortfolioLayout() {
           
           <TabsContent value="creator-earnings" className="mt-6">
             <CreatorEarnings />
+          </TabsContent>
+
+          <TabsContent value="liquidity" className="mt-6">
+            <LiquidityPositions />
           </TabsContent>
         </Tabs>
       </div>

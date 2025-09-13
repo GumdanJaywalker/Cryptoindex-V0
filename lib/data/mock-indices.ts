@@ -469,11 +469,54 @@ export const additionalIndices: MemeIndex[] = [
   }
 ]
 
-// Combine all indices
+// Combine all indices and enrich with discovery/graduation metadata
 // Apply layer info to all indices
 const indicesWithLayers = assignLayersToIndices([...mockIndices, ...additionalIndices])
 
-export const allMockIndices = indicesWithLayers
+// Add createdAt/heatScore and graduation (for L3) deterministically
+export const allMockIndices = indicesWithLayers.map((idx, i) => {
+  const rng = new SeededRandom(5000 + i)
+  // If marked as NEW, keep within last 24h; else within last 120 days
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const maxWindow = 120 * dayMs
+  const createdAt = idx.isNew
+    ? now - Math.floor(rng.next() * dayMs)
+    : now - Math.floor(rng.next() * maxWindow)
+
+  // Heat score: base on isHot flag, 24h change and volume (rough mock)
+  const changeScore = Math.min(40, Math.max(0, Math.abs(idx.change24h)))
+  const volumeScore = Math.min(40, Math.log10(Math.max(1, idx.volume24h))) * 10 // ~0–40
+  const hotBoost = idx.isHot ? 20 : 0
+  const heatScore = Math.max(0, Math.min(100, Math.round(changeScore + volumeScore + hotBoost + rng.next() * 10 - 5)))
+
+  // Graduation for Layer-3 indices
+  let graduation: MemeIndex['graduation'] | undefined
+  if (idx.layerInfo?.layer === 'layer-3') {
+    const liquidity = Math.round(rng.next() * 100)
+    const sales = Math.round(rng.next() * 100)
+    const avg = (liquidity + sales) / 2
+    const status = avg >= 100
+      ? 'graduated'
+      : avg >= 70
+        ? 'near-graduation'
+        : avg >= 30
+          ? 'recruiting-liquidity'
+          : 'launching'
+    graduation = {
+      liquidityProgress: liquidity,
+      salesProgress: sales,
+      status
+    }
+  }
+
+  return {
+    ...idx,
+    createdAt,
+    heatScore,
+    graduation
+  }
+})
 
 // Mock Top Traders Data (30 traders)
 export const mockTopTraders: TopTrader[] = Array.from({ length: 80 }, (_, i) => {

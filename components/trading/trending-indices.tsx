@@ -96,24 +96,33 @@ export function TrendingIndices({
   const [containerHeight, setContainerHeight] = useState(0)
   const favorites = useTradingStore((s) => s.favorites)
   const [favoritesFirst, setFavoritesFirst] = useState(true)
+  const isFavoritesEmpty = selectedFilter === 'favorites' && (!favorites || favorites.length === 0)
 
   // Initialize client-side time to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
     setLastUpdated(new Date())
+    // Load favorites-first preference
+    try {
+      const stored = localStorage.getItem('trending:favoritesFirst')
+      if (stored === 'true' || stored === 'false') {
+        setFavoritesFirst(stored === 'true')
+      }
+    } catch {}
   }, [])
 
-  // Initialize filtered indices when component mounts
-  useEffect(() => {
-    if (indices.length > 0 && filteredIndices.length === 0) {
-      setFilteredIndices([...indices].sort((a, b) => a.name.localeCompare(b.name)))
-    }
-  }, [indices, filteredIndices.length])
+  // Removed initial "fill all" behavior to respect active filters (e.g., empty Favorites)
 
   // Simplified filter and sort - show all indices by default
   useEffect(() => {
     if (!indices.length) return
-    
+
+    // If Favorites filter is active but no favorites are set, show empty list
+    if (selectedFilter === 'favorites' && (!favorites || favorites.length === 0)) {
+      setFilteredIndices([])
+      return
+    }
+
     let filtered = [...indices]
     
     // Only apply search filter if there's actual search query
@@ -156,9 +165,20 @@ export function TrendingIndices({
       }
     }
     
-    // Simple sorting by name for consistency
+    // Sorting
     filtered.sort((a, b) => {
+      // Refined default sort for HOT/NEW filters
       if (sortBy === 'name') {
+        if (selectedFilter === 'hot') {
+          const ah = a.heatScore ?? (a.isHot ? 100 : 0)
+          const bh = b.heatScore ?? (b.isHot ? 100 : 0)
+          return bh - ah || a.name.localeCompare(b.name)
+        }
+        if (selectedFilter === 'new') {
+          const ac = a.createdAt ?? 0
+          const bc = b.createdAt ?? 0
+          return bc - ac || a.name.localeCompare(b.name)
+        }
         return sortDirection === 'asc' 
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name)
@@ -193,7 +213,7 @@ export function TrendingIndices({
       const rest = filtered.filter(i => !favSet.has(i.id))
       filtered = [...favs, ...rest]
     }
-    
+
     setFilteredIndices(filtered)
   }, [indices, selectedFilter, sortBy, sortDirection, searchQuery, favorites, favoritesFirst])
   // Measure container height for virtualization (robust on mount + resize)
@@ -231,6 +251,13 @@ export function TrendingIndices({
       setSortDirection('desc')
     }
   }
+
+  // Persist favorites-first toggle
+  useEffect(() => {
+    try {
+      localStorage.setItem('trending:favoritesFirst', String(favoritesFirst))
+    } catch {}
+  }, [favoritesFirst])
 
   // Simulate refresh action
   const handleRefresh = async () => {
@@ -438,35 +465,63 @@ export function TrendingIndices({
               <Card className="bg-slate-900/30 border-slate-800">
                 <CardContent className="p-8">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
-                      <Search className="w-6 h-6 text-slate-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        No indices found
-                      </h3>
-                      <p className="text-slate-400 text-sm mb-4">
-                        Try adjusting your search or filter criteria
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => setSearchQuery('')}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                        >
-                          Clear search
-                        </Button>
-                        <Button
-                          onClick={() => setSelectedFilter('all' as IndexFilter)}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                        >
-                          Show all
-                        </Button>
-                      </div>
-                    </div>
+                    {isFavoritesEmpty ? (
+                      <>
+                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                          <Star className="w-6 h-6 text-slate-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-2">
+                            No favorites yet
+                          </h3>
+                          <p className="text-slate-400 text-sm mb-4">
+                            Star indices to see them here. Click the star icon on any row.
+                          </p>
+                          <div className="flex gap-2 justify-center">
+                            <Button
+                              onClick={() => setSelectedFilter('all' as IndexFilter)}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              Browse indices
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                          <Search className="w-6 h-6 text-slate-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-2">
+                            No indices found
+                          </h3>
+                          <p className="text-slate-400 text-sm mb-4">
+                            Try adjusting your search or filter criteria
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => setSearchQuery('')}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              Clear search
+                            </Button>
+                            <Button
+                              onClick={() => setSelectedFilter('all' as IndexFilter)}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              Show all
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>

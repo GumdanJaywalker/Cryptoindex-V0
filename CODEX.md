@@ -106,10 +106,11 @@ Purpose: a lightweight, actionable handoff so we can resume work in seconds acro
 - Language: UI text, comments, identifiers in English; keep copy concise and neutral.
 - Communication (agents): When replying in Korean, always use polite/formal speech (존댓말). Avoid casual/informal tone.
 - Brand colors (updated)
-  - Primary (soft mint): `#98FCE4`
-  - Background/dark teal (near‑black): `#072723`
-  - Light mint‑gray (neutrals): `#D7EAE8`
-  - Use utilities defined in `app/globals.css` (`text-brand`, `bg-brand`, `border-brand`, `bg-brand-hover`, `bg-brand-gradient`). Keep the default dark theme; prefer subtle gradients and minimal glow.
+  - Primary — Soft mint: `#98FCE4` (연한 민트빛)
+  - Background — Dark teal/near‑black: `#072723` (진한 청록/네이비)
+  - Neutrals — Light mint‑gray: `#D7EAE8` (부드러운 회색빛 민트)
+  - Utilities: use `app/globals.css` classes — `text-brand`, `bg-brand`, `border-brand`, `bg-brand-hover`, `bg-brand-gradient`.
+  - Usage: brand for primary actions/labels; keep green/red only for PnL; maintain dark background tone.
 - UI style: Hyperliquid-like density; chart+orderbook+trading panel tri-column on desktop; reduce on tablet/mobile.
 - TypeScript: strict typing; client hooks/components use DOM timer types (no `NodeJS.Timeout`).
 - Imports/paths: use `@/*` alias; keep components colocated by feature.
@@ -302,8 +303,10 @@ Notes
      - GET `/api/governance/proposals/:id/snapshot-power?address=0x...`
      - GET `/api/governance/proposals/:id/timelock`
      - GET `/api/governance/proposals/:id/multisig`
-  2) Error/empty states
-     - Verify list/detail fallbacks with real endpoints
+  2) Tests (helpers)
+     - Add lightweight tests for `quorumReached/supportPercent/passReached/timeLeft`
+  3) Error/empty states
+     - Already implemented for mocks; verify again after wiring real endpoints
 - Integration prep
   - Define API contracts: snapshot power (time‑weighted), tallies, timelock, multisig signer set
   - Error/empty states: add fallbacks in list/detail when API errors or returns 0 items
@@ -314,20 +317,14 @@ Notes
 - Keep: AssetPicker virtual grid, global blacklist, 1% caps, hydration‑safe drafts
 
 ## Next Tasks (Queue)
-- CTA: add “Create Index” next to “Start Trading” in hero.
-- Sidebar: remove “Start Trading” button from Portfolio card.
-- Scroll/structure: make sidebar, indices, and top traders scrollable within their panels; add a single divider to visually separate sidebar.
-- Trending: add NEW/HOT badges, quick view + trade hover actions; minmax grid to avoid uneven gutters.
-- Top Traders (list): convert table rows to two‑line rich rows with index chips and 24H $PnL; keep ranking from #4.
-- QA: Lighthouse 90+ for performance and accessibility; consistent microcopy (English, concise, neutral).
-
-- Trending
-  - Add toolbar toggle: Favorites‑first on/off
-  - Refine HOT/NEW sort rules (use createdAt/heat score when backend available)
-
-- Portfolio — Liquidity (Backlog)
-  - Add Liquidity tab to Portfolio (my shares/APR/fees; Add/Remove forms; quote + risk note).
-  - Provide Liquidity entry in index detail/trading via modal (quick add/remove).
+- Trending: 즐겨찾기 우선 토글 고도화, HOT/NEW 정렬, Graduation 배지/듀얼 진행률
+- L3 가상 AMM+Graduation: 데이터 모델 확장, GraduationProgress 컴포넌트(InfoBar/Detail/Trending)
+- Referrals: Auto-tier 산식/상태, 신청 검증/진행, utm 집계/기간 스위치
+- Portfolio: Positions/Analytics/Voting/CreatorEarnings 정리, Liquidity 탭+모달(백로그)
+- Governance: 목록/상세/스냅샷/탤리/타임락/멀티시그 연동, 헬퍼 테스트
+- Create: 마이크로 피드백, 제출 스텁, AssetPicker ‘Selected only’, 썸네일 검증 강화
+- Settings: 카피/검증/영속화(mock→API)
+- QA/A11y/Perf: 키보드 내비, reduced‑motion, Lighthouse ≥90
 
 ### L3 Virtual AMM + Graduation (New)
 - Launch Mode (L3 only)
@@ -486,6 +483,28 @@ Notes
 - Add Create wizard route and scaffolding with validation and mock data.
 - Wire governance policy badges and state gates into cards and dashboard.
 - Keep tsconfig scoped and DOM-typed for new hooks/components.
+
+## Progress — Governance (this session)
+- Implemented
+  - Helpers: `quorumReached`, `supportPercent`, `passReached`, `timeLeft` (edge‑case safe)
+  - UI: Proposals list filters/sort/search; ProposalCard with quorum/support/time; vote summary; changes; action gating
+  - Detail page: metrics, vote breakdown, timelock ETA countdown (severity coloring), multisig 4/4 operator list (“You are signer” badge)
+  - States: loading/error/empty in list and detail; “Queued soon” badge when pass+quorum
+  - Mocks: added queued/executed samples to `lib/api/governance.ts` (pr_005/pr_006)
+- Pending
+  - Backend integration (all endpoints)
+  - Helper tests (light unit tests)
+- Frontend completion (feature scope, excluding backend/tests): ~70%
+
+## Tomorrow Tasks — Additions
+- Footer
+  - Add thin footer across pages with: Network Status (compact), Docs, Support, Terms, Privacy Policy links.
+  - Style: low visual weight, sticky at bottom when content is short.
+- Header
+  - Add Settings icon button left of Connect (opens `/settings`). Ensure ARIA labels.
+- Trading Page
+  - Default to Trades view for the lower pane.
+  - Hide/disable OrderBook in beta with an inline note: “OrderBook is not supported in beta.”
 
 ## Task Board
 - Task 1 — Timer typings in client code

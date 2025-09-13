@@ -263,6 +263,15 @@ const IndexRow = memo(function IndexRow({
               {index.isNew && (
                 <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-blue-400 border-blue-400/30">NEW</Badge>
               )}
+              {index.graduation && (
+                <Badge
+                  variant="outline"
+                  className="h-5 px-1.5 text-[10px] text-violet-400 border-violet-400/30"
+                  title={`Graduation — Liquidity ${index.graduation.liquidityProgress}% · Sales ${index.graduation.salesProgress}% · Status: ${index.graduation.status}`}
+                >
+                  {`Graduation ${Math.round((index.graduation.liquidityProgress + index.graduation.salesProgress) / 2)}%`}
+                </Badge>
+              )}
             </div>
             <div className="text-xs text-muted-foreground flex items-center gap-2">
               <span>{index.symbol}</span>

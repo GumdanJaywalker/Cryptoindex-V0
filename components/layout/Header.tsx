@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, FileText, BarChart3, Settings, ExternalLink } from 'lucide-react'
+import { NotificationsButton } from '@/components/notifications/NotificationsButton'
 // Logo served from public. Place your official backgroundless text logo at /public/logos/hyperindex-text.svg
 
 const navigation = [
@@ -86,8 +87,11 @@ export function Header() {
           </DropdownMenu>
         </nav>
 
-        {/* Wallet Connect (disabled in refactor) */}
-        <Button className="bg-brand text-black hover:bg-brand-hover">Connect</Button>
+        {/* Notifications + Wallet Connect */}
+        <div className="flex items-center gap-2">
+          <NotificationsButton />
+          <Button className="bg-brand text-black hover:bg-brand-hover">Connect</Button>
+        </div>
       </div>
     </header>
   )

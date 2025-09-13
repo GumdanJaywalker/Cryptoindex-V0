@@ -101,6 +101,7 @@ export default function RootLayout({
           <PrivyProvider>
             <PWAProvider>
               <ToastProvider>
+              <a href="#main-content" className="skip-link">Skip to content</a>
               {/* Network Status Indicator */}
               <NetworkStatus />
               
@@ -111,7 +112,7 @@ export default function RootLayout({
               <MobileStatusBar />
               
               {/* Main Content with proper mobile spacing */}
-              <main className="pb-16 md:pb-0 pt-0 md:pt-0">
+              <main id="main-content" className="pb-16 md:pb-0 pt-0 md:pt-0">
                 {children}
               </main>
               

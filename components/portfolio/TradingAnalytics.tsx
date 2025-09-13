@@ -110,7 +110,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Target className="w-6 h-6 text-purple-400" />
+            <Target className="w-6 h-6 text-brand" />
             Trading Analytics
           </h2>
           <p className="text-slate-400 mt-1">Comprehensive analysis of your trading performance</p>
@@ -125,7 +125,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
               onClick={() => setTimeframe(period)}
               className={`h-8 px-3 text-xs ${
                 timeframe === period
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                  ? 'bg-brand hover:bg-brand-hover text-black'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
