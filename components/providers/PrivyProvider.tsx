@@ -1,10 +1,18 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
+import { PrivyProvider as CorePrivyProvider } from '@privy-io/react-auth'
+import { privyConfig } from '@/lib/privy/config'
 
 interface Props { children: React.ReactNode }
 
-// No-op provider to avoid auth deps during component refactor
+// Wrap app with real Privy provider (falls back to pass-through if misconfigured)
 export function PrivyProvider({ children }: Props) {
-  return <>{children}</>;
+  const appId = (privyConfig as any)?.appId as string | undefined
+  if (!appId) return <>{children}</>
+  return (
+    <CorePrivyProvider appId={appId} config={privyConfig as any}>
+      {children}
+    </CorePrivyProvider>
+  )
 }

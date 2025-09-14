@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useLogin } from '@privy-io/react-auth'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BlurIn, AnimatedGradientText, SlideIn, Ripple, NumberTicker } from "@/components/magicui";
-import { CardSpotlight } from "@/components/ui/card-hover-effect";
 import { motion } from "motion/react";
 import { Wallet, Smartphone, Zap, CheckCircle, X } from "lucide-react";
 
@@ -24,7 +24,7 @@ const walletOptions: WalletOption[] = [
     id: "metamask",
     name: "MetaMask",
     icon: Wallet,
-    description: "Most popular wallet",
+    description: "Browser wallet (EVM)",
     badge: "Popular",
     isPopular: true,
   },
@@ -32,15 +32,22 @@ const walletOptions: WalletOption[] = [
     id: "walletconnect",
     name: "WalletConnect",
     icon: Smartphone,
-    description: "Mobile friendly",
+    description: "Mobile & multi‑wallet (EVM)",
     badge: "Mobile",
   },
   {
-    id: "phantom",
-    name: "Phantom",
+    id: "coinbase",
+    name: "Coinbase Wallet",
+    icon: Wallet,
+    description: "Extension & mobile (EVM)",
+    badge: "Ecosystem",
+  },
+  {
+    id: "privy",
+    name: "Privy Embedded",
     icon: Zap,
-    description: "Solana native",
-    badge: "Solana",
+    description: "Email/Passkey (embedded)",
+    badge: "Easy",
   },
 ];
 
@@ -55,33 +62,24 @@ export default function WalletConnectionDialog({
   open,
   onOpenChange,
 }: WalletConnectionDialogProps) {
+  const { login } = useLogin();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [connectionProgress, setConnectionProgress] = useState(0);
 
   const handleWalletSelect = async (walletId: string) => {
-    setSelectedWallet(walletId);
-    setConnectionStatus('connecting');
-    setConnectionProgress(0);
-
-    // Simulate connection process
-    const interval = setInterval(() => {
-      setConnectionProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setConnectionStatus('connected');
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
-    // Simulate connection delay
-    setTimeout(() => {
-      clearInterval(interval);
+    try {
+      setSelectedWallet(walletId);
+      setConnectionStatus('connecting');
+      // Defer to Privy's login modal/flow; programmatic provider selection can be wired later
+      await login();
       setConnectionStatus('connected');
       setConnectionProgress(100);
-    }, 2000);
+      onOpenChange?.(false);
+    } catch (e) {
+      setConnectionStatus('error');
+      setConnectionProgress(0);
+    }
   };
 
   const handleClose = () => {
@@ -182,16 +180,15 @@ export default function WalletConnectionDialog({
                   Connect Wallet
                 </AnimatedGradientText>
                 <p className="text-cryptoindex-warm">
-                  Choose a wallet to connect to CryptoIndex
+                  Choose a wallet to connect to HyperIndex
                 </p>
               </div>
               
               <div className="grid gap-4">
                 {walletOptions.map((wallet, index) => (
                   <SlideIn key={wallet.id} direction="up" delay={index * 0.1}>
-                    <CardSpotlight className="h-full">
-                      <Ripple className="w-full h-full">
-                        <Card 
+                    <Ripple className="w-full h-full">
+                      <Card 
                           className="cursor-pointer transition-all duration-200 hover:shadow-lg bg-cryptoindex-medium/20 border-cryptoindex-medium/30 hover:border-cryptoindex-highlight/50 h-full"
                           onClick={() => handleWalletSelect(wallet.id)}
                         >
@@ -265,7 +262,6 @@ export default function WalletConnectionDialog({
                           </CardContent>
                         </Card>
                       </Ripple>
-                    </CardSpotlight>
                   </SlideIn>
                 ))}
               </div>

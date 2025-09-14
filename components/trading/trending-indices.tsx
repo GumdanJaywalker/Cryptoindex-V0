@@ -289,9 +289,7 @@ export function TrendingIndices({
           <Link href="/create">
             <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">Create Index</Button>
           </Link>
-          <Link href="#indices-section">
-            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">View Indices</Button>
-          </Link>
+          {/* Removed View Indices button to simplify landing CTAs */}
         </div>
       </div>
 
