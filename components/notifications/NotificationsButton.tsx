@@ -33,8 +33,8 @@ export function NotificationsButton({ className }: NotificationsButtonProps) {
             <div className="text-xs text-slate-400">{n.desc}</div>
           </DropdownMenuItem>
         ))}
-        <DropdownMenuItem className="justify-center text-xs text-slate-300 hover:text-white">
-          View all
+        <DropdownMenuItem asChild className="justify-center text-xs text-slate-300 hover:text-white cursor-pointer">
+          <a href="/notifications">View all</a>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

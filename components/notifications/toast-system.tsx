@@ -15,6 +15,7 @@ export interface Toast {
   title: string;
   description?: string;
   duration?: number;
+  expiresAt?: number;
   action?: {
     label: string;
     onClick: () => void;
@@ -106,20 +107,20 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
   const icon = getToastIcon(toast.type);
 
   useEffect(() => {
-    if (toast.duration && toast.duration > 0) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev <= 0) {
-            onRemove(toast.id);
-            return 0;
-          }
-          return prev - (100 / ((toast.duration || 5000) / 100));
-        });
-      }, 100);
-
-      return () => clearInterval(interval);
+    if (toast.duration && toast.duration > 0 && toast.expiresAt) {
+      const tick = () => {
+        const now = Date.now();
+        const remaining = Math.max(0, toast.expiresAt! - now);
+        const pct = Math.max(0, Math.min(100, (remaining / toast.duration!) * 100));
+        setProgress(pct);
+        if (remaining > 0) {
+          requestAnimationFrame(tick);
+        }
+      };
+      const raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
     }
-  }, [toast.duration, toast.id, onRemove]);
+  }, [toast.duration, toast.expiresAt]);
 
   const handleClose = () => {
     onRemove(toast.id);
@@ -248,7 +249,8 @@ export function ToastProvider({ children }: ToastProviderProps) {
     const id = Date.now().toString();
     const newToast: Toast = {
       id,
-      duration: 5000,
+      duration: toast.duration ?? 5000,
+      expiresAt: toast.duration && toast.duration > 0 ? Date.now() + (toast.duration ?? 5000) : undefined,
       ...toast,
     };
     
@@ -262,6 +264,15 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const clearAllToasts = () => {
     setToasts([]);
   };
+
+  // Provider-managed auto-dismiss to avoid child->parent updates during renders
+  useEffect(() => {
+    if (toasts.length === 0) return;
+    const interval = setInterval(() => {
+      setToasts((prev) => prev.filter((t) => !t.expiresAt || t.expiresAt > Date.now()));
+    }, 200);
+    return () => clearInterval(interval);
+  }, [toasts.length]);
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast, clearAllToasts }}>
