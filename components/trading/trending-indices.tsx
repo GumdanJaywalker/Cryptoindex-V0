@@ -220,7 +220,7 @@ export function TrendingIndices({
     return () => ro.disconnect()
   }, [containerEl])
 
-  const ROW_HEIGHT = 56
+  const ROW_HEIGHT = 50
   const { visibleItems, totalHeight, onScroll } = useVirtualList(
     filteredIndices,
     ROW_HEIGHT,

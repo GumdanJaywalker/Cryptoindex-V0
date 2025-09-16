@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
 import { mockTopTraders, allMockIndices } from '@/lib/data/mock-indices'
+import TraderDetailsModal from '@/components/trading/trader-details-modal'
 import { cn } from '@/lib/utils'
 
 type Timeframe = '24h' | '7d' | '30d'
@@ -39,6 +40,8 @@ export default function TradersPage() {
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
   const pageSize = 30
+  const [traderModalOpen, setTraderModalOpen] = useState(false)
+  const [selectedTrader, setSelectedTrader] = useState<TopTrader | null>(null)
 
   useEffect(() => { setPage(1) }, [timeframe, filter, q])
 
@@ -120,15 +123,20 @@ export default function TradersPage() {
             {podium[0] && (
               <div className="flex justify-center">
                 <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5 hover:border-slate-700 transition-colors">
-                  <button className="w-full text-left" onClick={() => (window.location.href = `/portfolio?trader=${podium[0].id}`)} aria-label={`Open ${podium[0].ens || podium[0].address} portfolio`}>
+                  <button
+                    className="w-full text-left"
+                    onClick={() => { setSelectedTrader(podium[0]); setTraderModalOpen(true) }}
+                    aria-label={`Open ${podium[0].ens || podium[0].address} details`}
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300 ring-2 ring-brand/40">
-                        {podium[0].avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={podium[0].avatar} alt="avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <span>{(podium[0].ens || podium[0].address).slice(2,4).toUpperCase()}</span>
-                        )}
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 ring-2 ring-brand/40">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={podium[0].avatar || getAvatarUrl(podium[0].ens || podium[0].address || podium[0].id)}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -162,15 +170,20 @@ export default function TradersPage() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
               {podium.slice(1,3).map((t, i) => (
                 <div key={t.id} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4 hover:border-slate-700 transition-colors">
-                  <button className="w-full text-left" onClick={() => (window.location.href = `/portfolio?trader=${t.id}`)} aria-label={`Open ${t.ens || t.address} portfolio`}>
+                  <button
+                    className="w-full text-left"
+                    onClick={() => { setSelectedTrader(t); setTraderModalOpen(true) }}
+                    aria-label={`Open ${t.ens || t.address} details`}
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
-                        {t.avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
-                        )}
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={t.avatar || getAvatarUrl(t.ens || t.address || t.id)}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -217,16 +230,17 @@ export default function TradersPage() {
                     <div className="w-6 text-slate-500">{displayRank}</div>
                     <button
                       className="flex items-center gap-3 min-w-0 flex-1 text-left"
-                      onClick={()=> (window.location.href = `/portfolio?trader=${t.id}`)}
-                      aria-label={`Open ${t.ens || t.address} portfolio`}
+                      onClick={() => { setSelectedTrader(t); setTraderModalOpen(true) }}
+                      aria-label={`Open ${t.ens || t.address} details`}
                     >
-                      <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
-                        {t.avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
-                        )}
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={t.avatar || getAvatarUrl(t.ens || t.address || t.id)}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
                       </div>
                       <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
                     </button>
@@ -273,6 +287,11 @@ export default function TradersPage() {
         </div>
 
         <p className="text-xs text-slate-500">Past performance is not indicative of future results.</p>
+        <TraderDetailsModal
+          open={traderModalOpen}
+          onOpenChange={setTraderModalOpen}
+          trader={selectedTrader}
+        />
           </div>
         </div>
       </div>
