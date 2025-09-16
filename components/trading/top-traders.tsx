@@ -316,9 +316,6 @@ export function TopTraders({
       <div>
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           Top Traders
-          <Badge variant="outline" className="text-xs">
-            {isCompact ? traders.length : filteredTraders.length}
-          </Badge>
         </h2>
         <div className="mt-2 flex items-center gap-2">
           <Link

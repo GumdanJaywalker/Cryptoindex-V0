@@ -55,21 +55,21 @@ export function getLayerDisplayInfo(layer: string) {
   const layerConfig = {
     'layer-1': {
       name: 'Layer 1',
-      description: 'Institutional-Grade Indices',
+      description: 'Major Indices & Large Categorized Indices',
       color: 'blue',
       riskLevel: 'Low Risk',
       tradingType: 'HOOATS Trading'
     },
     'layer-2': {
       name: 'Layer 2', 
-      description: 'Mainstream Meme Indices',
+      description: 'Major MEME Themes, Segmented Categories & Layer 3 Graduated Indices',
       color: 'orange',
       riskLevel: 'Medium Risk',
       tradingType: 'HOOATS Trading'
     },
     'layer-3': {
       name: 'Layer 3',
-      description: 'Ultra-Volatile Launchpad',
+      description: "User Launched Indices & Partner DEX/Platforms' Real-Time Indices",
       color: 'red', 
       riskLevel: 'High Risk',
       tradingType: 'Direct Creation/Redemption'

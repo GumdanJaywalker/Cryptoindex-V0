@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import NetworkStatusWidget from '@/components/sidebar/NetworkStatusWidget'
+import { useMarketTrends } from '@/hooks/use-market-data'
 import { usePriceAlertsStore } from '@/lib/store/price-alerts'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
 
@@ -202,7 +203,7 @@ export default function Home() {
                   <span className="text-brand font-medium">16</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-sm">Top Gainer</span>
+                  <span className="text-slate-400 text-sm">Top Gainer 1H</span>
                   <span className="text-green-400 font-medium">+24.8%</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -213,23 +214,31 @@ export default function Home() {
             </div>
 
             {/* Top Movers Card - 브랜드 색상 단순화 */}
-            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">Top Movers</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-700 border border-transparent transition-colors">
-                  <span className="text-white text-sm">DOG_INDEX</span>
-                  <span className="text-green-400 font-semibold">+24.8%</span>
+            {(() => {
+              const trends1h = useMarketTrends('1h')
+              const movers = trends1h.data?.topGainers || []
+              return (
+                <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Top Gainers (1h)</h3>
+                  <div className="space-y-2">
+                    {trends1h.isLoading && (
+                      <div className="text-slate-400 text-sm">Loading…</div>
+                    )}
+                    {!trends1h.isLoading && movers.length === 0 && (
+                      <div className="text-slate-400 text-sm">No data</div>
+                    )}
+                    {movers.slice(0, 3).map((idx) => (
+                      <div key={idx.id} className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-700 border border-transparent transition-colors">
+                        <span className="text-white text-sm">{idx.symbol}</span>
+                        <span className={`font-semibold ${idx.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {idx.change24h >= 0 ? '+' : ''}{idx.change24h.toFixed(1)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-700 border border-transparent transition-colors">
-                  <span className="text-white text-sm">PEPE_INDEX</span>
-                  <span className="text-green-400 font-semibold">+18.2%</span>
-                </div>
-                <div className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-600 border border-transparent transition-colors">
-                  <span className="text-white text-sm">CAT_INDEX</span>
-                  <span className="text-red-400 font-semibold">-12.4%</span>
-                </div>
-              </div>
-            </div>
+              )
+            })()}
 
             {/* Mini Portfolio Card */}
             <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
