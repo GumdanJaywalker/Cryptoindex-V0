@@ -8,6 +8,13 @@ body {
   scrollbar-gutter: stable both-edges;
 }
 
+/* Compact density mode: reduce rem scale on large screens (applied per-page via html class) */
+@media (min-width: 1024px) {
+  html.density-compact {
+    font-size: 14px; /* ~12.5% smaller than 16px */
+  }
+}
+
 /* Skip link for keyboard users */
 .skip-link {
   position: absolute;

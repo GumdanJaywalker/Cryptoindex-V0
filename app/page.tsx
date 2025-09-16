@@ -20,7 +20,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import NetworkStatusWidget from '@/components/sidebar/NetworkStatusWidget'
 import { useMarketTrends } from '@/hooks/use-market-data'
 import { usePriceAlertsStore } from '@/lib/store/price-alerts'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
@@ -28,6 +27,7 @@ import { useToast, createSuccessToast, createErrorToast } from '@/components/not
 // Import mock data and types
 import { allMockIndices, mockTopTraders, mockMarketStats } from '@/lib/data/mock-indices'
 import { MemeIndex, TopTrader, TraderFilter } from '@/lib/types/index-trading'
+import TraderDetailsModal from '@/components/trading/trader-details-modal'
 import { cn } from '@/lib/utils'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import { Header } from '@/components/layout/Header'
@@ -100,12 +100,19 @@ export default function Home() {
   const router = useRouter()
   const [selectedIndex, setSelectedIndex] = useState<MemeIndex | null>(null)
   const [addAlertOpen, setAddAlertOpen] = useState(false)
+  const [traderModalOpen, setTraderModalOpen] = useState(false)
+  const [selectedTrader, setSelectedTrader] = useState<TopTrader | null>(null)
   const [alertSymbol, setAlertSymbol] = useState('DOG_INDEX')
   const [alertCondition, setAlertCondition] = useState<'above' | 'below'>('above')
   const [alertPrice, setAlertPrice] = useState('1.00')
   const { alerts, addAlert, removeAlert, toggleActive } = usePriceAlertsStore()
   const { addToast } = useToast()
-  
+  // Apply compact density for landing (scales header + footer too)
+  useEffect(() => {
+    document.documentElement.classList.add('density-compact')
+    return () => document.documentElement.classList.remove('density-compact')
+  }, [])
+
   // Memoized data processing - increased to show more cards
   const topIndices = useMemo(() => 
     allMockIndices.slice(0, 16), 
@@ -132,9 +139,9 @@ export default function Home() {
   }, [])
   
   const handleViewPortfolio = useCallback((trader: TopTrader) => {
-    // Navigate to trader's portfolio page
-    console.log('View portfolio:', trader)
-    window.location.href = `/portfolio?trader=${trader.id}`
+    // Open trader details modal from Top Traders
+    setSelectedTrader(trader)
+    setTraderModalOpen(true)
   }, [])
 
   const handleQuickTrade = useCallback((type: 'buy' | 'sell') => {
@@ -177,60 +184,59 @@ export default function Home() {
       <Header />
       
       {/* Main Content */}
-      <div className="px-4 lg:px-6 lg:pr-4 py-8 pt-24">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[2.5vw] pt-0">
         <div className="grid grid-cols-1 
-          lg:grid-cols-[minmax(234px,270px)_minmax(660px,1fr)_minmax(380px,475px)] 
-          xl:grid-cols-[minmax(234px,288px)_minmax(792px,1fr)_minmax(380px,512px)] 
-          2xl:grid-cols-[minmax(252px,306px)_minmax(968px,1fr)_minmax(400px,548px)] 
-          gap-5 xl:gap-6 2xl:gap-8 items-start">
+          lg:grid-cols-[minmax(220px,26vw)_minmax(56vw,1fr)_minmax(22vw,28vw)] 
+          xl:grid-cols-[minmax(220px,24vw)_minmax(58vw,1fr)_minmax(22vw,28vw)] 
+          2xl:grid-cols-[minmax(220px,22vw)_minmax(60vw,1fr)_minmax(22vw,28vw)] 
+          gap-4 xl:gap-5 2xl:gap-6 items-start">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
-          <div className="space-y-6 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-4 lg:border-r lg:border-slate-800">
+          <div className="space-y-4 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-[1.2vw] lg:ml-[-1.8vw] lg:border-r lg:border-slate-800">
 
-            {/* Network Status (mock) */}
-            <NetworkStatusWidget />
+            {/* Network Status moved to sticky footer */}
 
             {/* Market Stats Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">Market Overview</h3>
-              <div className="space-y-3">
+            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-[1rem] md:p-[0.9rem]">
+              <h3 className="text-base md:text-sm font-semibold text-white mb-2">Market Overview</h3>
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-sm">Total Volume 24H</span>
-                  <span className="text-white font-medium">$12.4M</span>
+                  <span className="text-slate-400 text-xs">Total Volume 24H</span>
+                  <span className="text-white font-medium text-sm">$12.4M</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-sm">Active Indices</span>
-                  <span className="text-brand font-medium">16</span>
+                  <span className="text-slate-400 text-xs">Active Indices</span>
+                  <span className="text-brand font-medium text-sm">16</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-sm">Top Gainer 1H</span>
-                  <span className="text-green-400 font-medium">+24.8%</span>
+                  <span className="text-slate-400 text-xs">Top Gainer 1H</span>
+                  <span className="text-green-400 font-medium text-sm">+24.8%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-sm">Total TVL</span>
-                  <span className="text-white font-medium">$2.8B</span>
+                  <span className="text-slate-400 text-xs">Total TVL</span>
+                  <span className="text-white font-medium text-sm">$2.8B</span>
                 </div>
               </div>
             </div>
 
-            {/* Top Movers Card - 브랜드 색상 단순화 */}
+            {/* Top Gainers (1h) — hide on smaller laptops to fit above fold */}
             {(() => {
               const trends1h = useMarketTrends('1h')
               const movers = trends1h.data?.topGainers || []
               return (
-                <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-                  <h3 className="text-lg font-semibold text-white mb-3">Top Gainers (1h)</h3>
-                  <div className="space-y-2">
+                <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-3 hidden xl:block">
+                  <h3 className="text-base font-semibold text-white mb-2">Top Gainers (1h)</h3>
+                  <div className="space-y-1.5">
                     {trends1h.isLoading && (
-                      <div className="text-slate-400 text-sm">Loading…</div>
+                      <div className="text-slate-400 text-xs">Loading…</div>
                     )}
                     {!trends1h.isLoading && movers.length === 0 && (
-                      <div className="text-slate-400 text-sm">No data</div>
+                      <div className="text-slate-400 text-xs">No data</div>
                     )}
                     {movers.slice(0, 3).map((idx) => (
                       <div key={idx.id} className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-700 border border-transparent transition-colors">
-                        <span className="text-white text-sm">{idx.symbol}</span>
-                        <span className={`font-semibold ${idx.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <span className="text-white text-xs">{idx.symbol}</span>
+                        <span className={`text-xs font-semibold ${idx.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                           {idx.change24h >= 0 ? '+' : ''}{idx.change24h.toFixed(1)}%
                         </span>
                       </div>
@@ -241,59 +247,35 @@ export default function Home() {
             })()}
 
             {/* Mini Portfolio Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-3">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-white">Portfolio</h3>
-                <Link href="/portfolio" className="text-brand text-xs hover:text-brand/80 transition-colors">
+                <h3 className="text-base md:text-sm font-semibold text-white">Portfolio</h3>
+                <Link href="/portfolio" className="text-brand text-[11px] hover:text-brand/80 transition-colors">
                   View All
                 </Link>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-sm">Total Value</span>
-                  <span className="text-white font-semibold">$8,492.50</span>
+                  <span className="text-slate-400 text-xs">Total Value</span>
+                  <span className="text-white font-semibold text-sm">$8,492.50</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-sm">Today's P&L</span>
-                  <span className="text-green-400 font-semibold">+$342.18</span>
+                  <span className="text-slate-400 text-xs">Today's P&L</span>
+                  <span className="text-green-400 font-semibold text-sm">+$342.18</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-sm">Total Return</span>
-                  <span className="text-green-400 font-semibold">+12.4%</span>
+                  <span className="text-slate-400 text-xs">Total Return</span>
+                  <span className="text-green-400 font-semibold text-sm">+12.4%</span>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-slate-700">
-                  <span className="text-slate-400 text-sm">Active Positions</span>
-                  <span className="text-brand font-semibold">3</span>
+                  <span className="text-slate-400 text-xs">Active Positions</span>
+                  <span className="text-brand font-semibold text-sm">3</span>
                 </div>
                 {/* Removed sidebar Start Trading button for cleaner layout */}
               </div>
             </div>
 
-            {/* Recent Activity Card - 브랜드 색상 단순화 */}
-            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
-                <div className="w-2 h-2 bg-brand rounded-full animate-pulse"></div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">DOG_INDEX</span>
-                  <span className="text-green-400 font-medium">+12.4%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">CAT_INDEX</span>
-                  <span className="text-red-400 font-medium">-3.2%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">PEPE_INDEX</span>
-                  <span className="text-green-400 font-medium">+8.7%</span>
-                </div>
-                <div className="flex items-center justify-between pt-1 border-t border-slate-700/50">
-                  <span className="text-slate-400">New Position</span>
-                  <span className="text-brand font-medium text-xs">2m ago</span>
-                </div>
-              </div>
-            </div>
+            {/* Recent Activity removed to save space (moved out of sidebar scope) */}
 
             {/* Price Alerts Card */}
             <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
@@ -405,7 +387,7 @@ export default function Home() {
           </div>
           
           {/* Right Side - Top Traders (Second on mobile) */}
-          <div className="space-y-6 order-3 lg:order-3 -mt-[2%]">
+          <div className="space-y-4 order-3 lg:order-3 lg:-ml-[1.5vw]">
             {/* Enhanced Top Traders Component */}
             <TopTraders 
               traders={mockTopTraders}
@@ -414,6 +396,7 @@ export default function Home() {
               maxDisplay={7}
               variant="compact"
               initialTimeframe="7d"
+              className="scale-[0.9] origin-top-right"
             />
             
           </div>
@@ -426,6 +409,13 @@ export default function Home() {
         selectedIndex={selectedIndex?.symbol || 'MEME'}
         position="bottom-right"
         autoHide={true}
+      />
+
+      {/* Trader details modal */}
+      <TraderDetailsModal
+        open={traderModalOpen}
+        onOpenChange={setTraderModalOpen}
+        trader={selectedTrader}
       />
     </div>
   )

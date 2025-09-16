@@ -232,7 +232,7 @@ const IndexRow = memo(function IndexRow({
   return (
     <TableRow 
       className={cn(
-        "group h-14 border-b border-border/50 hover:bg-muted/30 focus-within:bg-muted/30 transition-colors duration-200 cursor-pointer",
+        "group h-12 border-b border-border/50 hover:bg-muted/30 focus-within:bg-muted/30 transition-colors duration-200 cursor-pointer",
         // Removed ring to avoid thin lines on click
         isHovered && "bg-muted/40",
         className
@@ -242,15 +242,15 @@ const IndexRow = memo(function IndexRow({
       onClick={handleRowClick}
     >
       {/* Name & Thumbnail */}
-      <TableCell className="w-[300px]">
+      <TableCell className="w-[280px]">
         <div className="flex items-center gap-3">
           {/* 썸네일 이미지 */}
-          <div className={cn("w-10 h-10 rounded-lg overflow-hidden flex-shrink-0", thumbnail.gradient)}>
+          <div className={cn("w-9 h-9 rounded-lg overflow-hidden flex-shrink-0", thumbnail.gradient)}>
             <Image
               src={thumbnail.url}
               alt={index.name}
-              width={40}
-              height={40}
+              width={36}
+              height={36}
               className="w-full h-full object-cover"
               loading="lazy"
               decoding="async"
@@ -258,7 +258,7 @@ const IndexRow = memo(function IndexRow({
             />
           </div>
           <div className="min-w-0">
-            <div className="font-medium text-sm truncate text-white flex items-center gap-2">
+            <div className="font-medium text-[13px] truncate text-white flex items-center gap-2">
               <span className="truncate">{index.name}</span>
               {index.isHot && (
                 <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-orange-400 border-orange-400/30">HOT</Badge>
@@ -276,7 +276,7 @@ const IndexRow = memo(function IndexRow({
                 </Badge>
               )}
             </div>
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-2">
               <span>{index.symbol}</span>
               <RowBadges index={index} />
             </div>
@@ -285,8 +285,8 @@ const IndexRow = memo(function IndexRow({
       </TableCell>
 
       {/* Chart */}
-      <TableCell className="w-[120px]">
-        <div className="w-20 h-8">
+      <TableCell className="w-[110px]">
+        <div className="w-18 h-7">
           <CompactSparkline 
             data={index.sparklineData || []} 
             className="w-full h-full"
@@ -296,7 +296,7 @@ const IndexRow = memo(function IndexRow({
       </TableCell>
 
       {/* Price */}
-      <TableCell className="w-[100px] text-right">
+      <TableCell className="w-[92px] text-right">
         <RowAnimatedPrice 
           price={index.currentPrice} 
           change={index.change24h}
@@ -304,9 +304,9 @@ const IndexRow = memo(function IndexRow({
       </TableCell>
 
       {/* 24h Change */}
-      <TableCell className="w-[100px] text-right">
+      <TableCell className="w-[92px] text-right">
         <div className={cn(
-          "text-sm font-medium",
+          "text-xs font-medium",
           isPositive ? "text-green-500" : "text-red-500"
         )}>
           {isPositive ? '+' : ''}{index.change24h.toFixed(2)}%
@@ -314,27 +314,27 @@ const IndexRow = memo(function IndexRow({
       </TableCell>
 
       {/* Volume */}
-      <TableCell className="w-[120px] text-right">
-        <div className="text-sm font-mono">
+      <TableCell className="w-[110px] text-right">
+        <div className="text-xs font-mono">
           ${(index.volume24h / 1000000).toFixed(1)}M
         </div>
       </TableCell>
 
       {/* Market Cap */}
-      <TableCell className="w-[120px] text-right">
-        <div className="text-sm font-mono">
+      <TableCell className="w-[110px] text-right">
+        <div className="text-xs font-mono">
           ${(index.marketCap / 1000000).toFixed(1)}M
         </div>
       </TableCell>
 
       {/* Actions: Favorites + Trade */}
-      <TableCell className="w-[160px] text-center">
+      <TableCell className="w-[150px] text-center">
         <div className="flex items-center justify-center gap-2">
           <Button
             size="icon"
             variant="outline"
             className={cn(
-              "h-7 w-7 border-slate-700 hover:bg-slate-800",
+              "h-6 w-6 border-slate-700 hover:bg-slate-800",
               isFavorite && "border-brand/40 bg-brand/10"
             )}
             onClick={(e) => {
@@ -346,7 +346,7 @@ const IndexRow = memo(function IndexRow({
           >
             <Star
               className={cn(
-                "w-4 h-4",
+                "w-3.5 h-3.5",
                 isFavorite ? "text-brand fill-current" : "text-slate-400"
               )}
             />
@@ -355,7 +355,7 @@ const IndexRow = memo(function IndexRow({
             <Button
               size="sm"
               variant="outline"
-              className="h-7 px-3 text-xs font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 ease-out shadow-sm hover:shadow-lg motion-reduce:transition-none"
+              className="h-6 px-2.5 text-[11px] font-medium border-brand text-brand hover:bg-brand hover:text-black transition-all duration-200 ease-out shadow-sm hover:shadow-lg motion-reduce:transition-none"
               onClick={(e) => {
                 e.stopPropagation()
                 handleQuickTrade('buy')

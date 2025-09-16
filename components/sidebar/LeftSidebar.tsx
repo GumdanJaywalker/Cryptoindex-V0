@@ -1,6 +1,5 @@
 'use client'
 
-import NetworkStatusWidget from '@/components/sidebar/NetworkStatusWidget'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,8 +21,7 @@ export function LeftSidebar() {
 
   return (
     <div className="space-y-6 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-4 lg:border-r lg:border-slate-800">
-      {/* Network Status */}
-      <NetworkStatusWidget />
+      {/* Network status moved to sticky footer */}
 
       {/* Market Stats Card (mock) */}
       <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
@@ -93,31 +91,7 @@ export function LeftSidebar() {
         </div>
       </div>
 
-      {/* Recent Activity Card (mock) */}
-      <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
-          <div className="w-2 h-2 bg-brand rounded-full animate-pulse"></div>
-        </div>
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400">DOG_INDEX</span>
-            <span className="text-green-400 font-medium">+12.4%</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400">CAT_INDEX</span>
-            <span className="text-red-400 font-medium">-3.2%</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400">PEPE_INDEX</span>
-            <span className="text-green-400 font-medium">+8.7%</span>
-          </div>
-          <div className="flex items-center justify-between pt-1 border-t border-slate-700/50">
-            <span className="text-slate-400">New Position</span>
-            <span className="text-brand font-medium text-xs">2m ago</span>
-          </div>
-        </div>
-      </div>
+      {/* Recent Activity removed to save space */}
 
       {/* Price Alerts Card */}
       <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
@@ -215,4 +189,3 @@ export function LeftSidebar() {
 }
 
 export default LeftSidebar
-

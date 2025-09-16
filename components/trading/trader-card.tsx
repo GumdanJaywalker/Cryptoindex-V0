@@ -114,35 +114,6 @@ function PnLSparkline({
 
 // 순위 배지 컴포넌트
 function RankBadge({ rank, className }: { rank: number, className?: string }) {
-  if (rank <= 3) {
-    const medals = ['🥇', '🥈', '🥉']
-    const colors = [
-      'from-yellow-500 to-orange-500',
-      'from-gray-400 to-gray-500', 
-      'from-amber-600 to-yellow-700'
-    ]
-    
-    return (
-      <div className={cn(
-        `w-8 h-8 bg-gradient-to-br ${colors[rank - 1]} rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg`,
-        className
-      )}>
-        {medals[rank - 1]}
-      </div>
-    )
-  }
-  
-  if (rank <= 10) {
-    return (
-      <div className={cn(
-        "w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg",
-        className
-      )}>
-        #{rank}
-      </div>
-    )
-  }
-  
   return (
     <div className={cn(
       "w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white",
@@ -232,21 +203,23 @@ export function TraderCard({
         style={{ transformStyle: "preserve-3d" }}
       >
         <Card className="bg-slate-900/50 border-slate-800 hover:border-slate-600/50 transition-all duration-300 backdrop-blur-sm shadow-md hover:shadow-xl hover:shadow-brand/10">
-          <CardContent className="p-3">
+          <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <RankBadge rank={trader.rank} />
+                <div className="scale-90 origin-left">
+                  <RankBadge rank={trader.rank} />
+                </div>
                 <div>
-                  <div className="text-xs font-medium text-white">
+                  <div className="text-[11px] font-medium text-white">
                     {formatAddress(trader.address, trader.ens)}
                   </div>
-                  <div className="text-xs text-slate-400">{trader.followersCount} followers</div>
+                  <div className="text-[10px] text-slate-400">{trader.followersCount} followers</div>
                 </div>
               </div>
               
               <div className="text-right">
                 <div className={cn(
-                  "text-xs font-semibold",
+                  "text-[11px] font-semibold",
                   isPositivePnL ? "text-green-400" : "text-red-400"
                 )}>
                   <AnimatedNumber 
@@ -255,7 +228,7 @@ export function TraderCard({
                     duration={800}
                   />
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="text-[10px] text-slate-400">
                   <AnimatedNumber 
                     value={trader.winRate}
                     decimals={1}

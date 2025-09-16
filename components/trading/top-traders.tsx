@@ -314,13 +314,13 @@ export function TopTraders({
       )}
       {/* Header with Stats */}
       <div>
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           Top Traders
         </h2>
         <div className="mt-2 flex items-center gap-2">
           <Link
             href="/traders"
-            className="inline-flex items-center justify-center h-9 px-3 rounded-md bg-brand text-black hover:bg-brand-hover text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="inline-flex items-center justify-center h-8 px-2.5 rounded-md bg-brand text-black hover:bg-brand-hover text-xs font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             role="button"
           >
             View Leaderboard
@@ -434,7 +434,7 @@ export function TopTraders({
                     </div>
                     <div className="mt-3 pl-9 flex items-center justify-between">
                       <div className="flex gap-1 flex-wrap">
-                        {t.tradingIndices.slice(0,3).map(idxId => {
+                        {t.tradingIndices.slice(0,2).map(idxId => {
                           const m = allMockIndices.find(x => x.id === idxId)
                           const label = m?.symbol || idxId.toUpperCase()
                           return (
@@ -592,7 +592,7 @@ export function TopTraders({
         {filteredTraders.length > 0 ? (
           <motion.div 
             key="traders-list"
-            className="space-y-3"
+            className="space-y-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -620,14 +620,21 @@ export function TopTraders({
                 )}
                 {!isCompact && <NewTraderHighlight trader={trader} />}
                 
-                <TraderCard 
-                  trader={trader} 
-                  onViewPortfolio={onViewPortfolio}
-                  onViewProfile={onViewProfile}
-                  timeframe={selectedTimeframe}
-                  showPnLChart={!expandedView}
-                  variant={expandedView ? "detailed" : "default"}
-                />
+                <div
+                  onClick={isCompact ? () => onViewPortfolio(trader) : undefined}
+                  role={isCompact ? 'button' : undefined}
+                  tabIndex={isCompact ? 0 : undefined}
+                  className={isCompact ? 'cursor-pointer' : undefined}
+                >
+                  <TraderCard 
+                    trader={trader} 
+                    onViewPortfolio={onViewPortfolio}
+                    onViewProfile={onViewProfile}
+                    timeframe={selectedTimeframe}
+                    showPnLChart={!expandedView}
+                    variant={expandedView ? "detailed" : "default"}
+                  />
+                </div>
               </motion.div>
             ))}
           </motion.div>

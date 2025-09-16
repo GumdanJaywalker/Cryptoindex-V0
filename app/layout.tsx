@@ -6,6 +6,7 @@ import { MobileNav, MobileHeader, MobileStatusBar } from '@/components/mobile/mo
 import { PWAProvider } from '@/lib/pwa/pwa-provider'
 import { ToastProvider } from '@/components/notifications/toast-system'
 import { PWAInstallPrompt, NetworkStatus } from '@/components/pwa/install-prompt'
+import StickyFooter from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'HyperIndex - Meme Coin Index Trading Platform',
@@ -112,7 +113,7 @@ export default function RootLayout({
               <MobileStatusBar />
               
               {/* Main Content with proper mobile spacing */}
-              <main id="main-content" className="pb-16 md:pb-0 pt-0 md:pt-0">
+              <main id="main-content" className="pb-16 md:pb-9 pt-16 md:pt-20">
                 {children}
               </main>
               
@@ -121,6 +122,9 @@ export default function RootLayout({
               
               {/* PWA Install Prompt */}
               <PWAInstallPrompt />
+
+              {/* Sticky Footer (desktop and up) */}
+              <StickyFooter />
               </ToastProvider>
             </PWAProvider>
           </PrivyProvider>
