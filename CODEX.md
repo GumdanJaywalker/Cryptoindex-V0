@@ -505,6 +505,45 @@ Notes
 - Trading Page
   - Default to Trades view for the lower pane.
   - Hide/disable OrderBook in beta with an inline note: “OrderBook is not supported in beta.”
+- Trending — Timeframe Controls (Backlog for discussion)
+  - Consider short-term intervals aligned with meme volatility: 1m, 5m, 10m, 30m, 1h
+  - Keep main bar minimal; move advanced filters to a side sheet; ensure a11y for icon-only controls
+
+## Session Recap — UI/UX Changes (Today)
+- Header
+  - Removed “More” dropdown; added Settings icon button next to Notifications (left of Connect).
+  - Connect now uses Privy default login flow via WalletConnectButton (no custom modal).
+- Notifications
+  - Added `/notifications` page with list, mark read/unread/all, clear-all; dropdown “View all” links to it.
+- Landing/Trending
+  - Removed “View Indices” CTA (kept Start Trading / Create Index).
+  - Favorites always shown first within any filtered result (toggle removed).
+  - Layer tooltip copy updated:
+    - L1: “Major Indices & Large Categorized Indices”
+    - L2: “Major MEME Themes, Segmented Categories & Layer 3 Graduated Indices”
+    - L3: “User Launched Indices & Partner DEX/Platforms' Real-Time Indices”
+- Sidebar
+  - “Top Gainers (1h)” card (from useMarketTrends('1h')); shows top 3.
+  - Market Overview copy: “Top Gainer 1H”.
+- Top Traders
+  - Removed count badge from the header.
+- Settings
+  - Layout: card height fixed (60vh), left menu centered, width reduced ~20%.
+  - Preferences: remove Theme/Language pickers; Currency options = USD, USDC, USDT, HYPE, BTC.
+  - Removed Connections tab; Settings icon added to header.
+- A11y/Perf
+  - Reduced‑motion media query; skip‑to‑content; Notifications button aria labels.
+
+## Backlog / Pending
+- Governance
+  - Backend integration for list/detail/tally/snapshot-power/timelock/multisig
+  - Helper unit tests for quorum/support/pass/timeLeft
+- Footer (planned)
+  - Thin footer with compact Network Status + Docs/Support/Terms/Privacy links
+- Trading
+  - Default lower pane to Trades; OrderBook hidden with beta note
+- Trending (timeframe discussion)
+  - Replace current 24h/7d patterns with short intervals (1m/5m/10m/30m/1h); keep bar minimal, move advanced filters into sheet
 
 ## Task Board
 - Task 1 — Timer typings in client code

@@ -33,6 +33,7 @@ import {
   Shield
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
+import { getLayerDisplayInfo } from '@/lib/utils/layer-utils'
 // Quick View modal removed from row actions in favor of favorites
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
@@ -150,10 +151,12 @@ function LayerBadge({ layerInfo }: { layerInfo?: any }) {
   
   const Icon = config.icon
   
+  const display = getLayerDisplayInfo(layerInfo.layer)
+
   return (
     <div 
       className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border ${config.color}`}
-      title={`${layerInfo.category} - ${layerInfo.riskLevel} risk`}
+      title={display?.description || `${layerInfo.category} - ${layerInfo.riskLevel} risk`}
     >
       <Icon className="w-3 h-3" />
       <span className="font-medium">{config.label}</span>

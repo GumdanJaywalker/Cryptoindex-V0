@@ -95,20 +95,12 @@ export function TrendingIndices({
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null)
   const [containerHeight, setContainerHeight] = useState(0)
   const favorites = useTradingStore((s) => s.favorites)
-  const [favoritesFirst, setFavoritesFirst] = useState(true)
   const isFavoritesEmpty = selectedFilter === 'favorites' && (!favorites || favorites.length === 0)
 
   // Initialize client-side time to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
     setLastUpdated(new Date())
-    // Load favorites-first preference
-    try {
-      const stored = localStorage.getItem('trending:favoritesFirst')
-      if (stored === 'true' || stored === 'false') {
-        setFavoritesFirst(stored === 'true')
-      }
-    } catch {}
   }, [])
 
   // Removed initial "fill all" behavior to respect active filters (e.g., empty Favorites)
@@ -206,8 +198,8 @@ export function TrendingIndices({
       return sortDirection === 'desc' ? bVal - aVal : aVal - bVal
     })
     
-    // Favorited-first ordering (toggleable; except when using the dedicated Favorites filter)
-    if (favoritesFirst && selectedFilter !== 'favorites' && favorites && favorites.length) {
+    // Favorites-first ordering within the current filtered set
+    if (selectedFilter !== 'favorites' && favorites && favorites.length) {
       const favSet = new Set(favorites)
       const favs = filtered.filter(i => favSet.has(i.id))
       const rest = filtered.filter(i => !favSet.has(i.id))
@@ -215,7 +207,7 @@ export function TrendingIndices({
     }
 
     setFilteredIndices(filtered)
-  }, [indices, selectedFilter, sortBy, sortDirection, searchQuery, favorites, favoritesFirst])
+  }, [indices, selectedFilter, sortBy, sortDirection, searchQuery, favorites])
   // Measure container height for virtualization (robust on mount + resize)
   useEffect(() => {
     if (!containerEl) return
@@ -252,12 +244,7 @@ export function TrendingIndices({
     }
   }
 
-  // Persist favorites-first toggle
-  useEffect(() => {
-    try {
-      localStorage.setItem('trending:favoritesFirst', String(favoritesFirst))
-    } catch {}
-  }, [favoritesFirst])
+  // Favorites-first ordering is automatic; no manual toggle persisted
 
   // Simulate refresh action
   const handleRefresh = async () => {
@@ -356,24 +343,6 @@ export function TrendingIndices({
             )}
           </Button>
         ))}
-          {/* Favorites-first toggle */}
-          <div className="ml-2 pl-2 border-l border-slate-800 hidden sm:flex items-center">
-            <Button
-              size="sm"
-              variant={favoritesFirst ? 'default' : 'ghost'}
-              className={cn(
-                "text-xs h-6 px-2",
-                favoritesFirst
-                  ? "bg-brand text-black hover:bg-brand-hover"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              )}
-              onClick={() => setFavoritesFirst(v => !v)}
-              title="Toggle favorites-first ordering"
-            >
-              <Star className="w-3 h-3 mr-1" />
-              Fav first
-            </Button>
-          </div>
         </div>
       </div>
 

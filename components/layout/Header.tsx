@@ -5,14 +5,8 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 // Temporarily disable wallet UI to stabilize build
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, FileText, BarChart3, Settings, ExternalLink } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { NotificationsButton } from '@/components/notifications/NotificationsButton'
 import { WalletConnectButton } from '@/components/wallet/WalletConnectButton'
 // Logo served from public. Place your official backgroundless text logo at /public/logos/hyperindex-text.svg
@@ -61,36 +55,19 @@ export function Header() {
               {item.name}
             </Link>
           ))}
-          
-          {/* More 드롭다운 메뉴 */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3 text-slate-300 hover:text-blue-400 hover:bg-slate-800">
-              More
-              <ChevronDown className="w-4 h-4 ml-1" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="w-48 min-w-[12rem] overflow-hidden rounded-md border border-slate-700 bg-slate-900 p-1 text-white shadow-md z-50"
-              sideOffset={4}
-            >
-              <DropdownMenuItem disabled className="relative flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <FileText className="w-4 h-4 mr-3 text-slate-500" />
-                <span className="text-slate-400">API Docs (coming soon)</span>
-              </DropdownMenuItem>
-              {/* Analytics removed for beta scope */}
-              <DropdownMenuItem className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-800 focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                <Link href="/settings" className="flex items-center w-full">
-                  <Settings className="w-4 h-4 mr-3 text-slate-400" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </nav>
 
-        {/* Notifications + Wallet Connect */}
+        {/* Notifications + Settings + Wallet Connect */}
         <div className="flex items-center gap-2">
           <NotificationsButton />
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            className="inline-flex items-center justify-center rounded-md border border-slate-700 px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-800"
+            title="Settings"
+          >
+            <Settings className="w-4.5 h-4.5" />
+          </Link>
           <WalletConnectButton />
         </div>
       </div>
