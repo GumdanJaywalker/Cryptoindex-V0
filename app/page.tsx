@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
@@ -107,12 +107,6 @@ export default function Home() {
   const [alertPrice, setAlertPrice] = useState('1.00')
   const { alerts, addAlert, removeAlert, toggleActive } = usePriceAlertsStore()
   const { addToast } = useToast()
-  // Apply compact density for landing (scales header + footer too)
-  useEffect(() => {
-    document.documentElement.classList.add('density-compact')
-    return () => document.documentElement.classList.remove('density-compact')
-  }, [])
-
   // Memoized data processing - increased to show more cards
   const topIndices = useMemo(() => 
     allMockIndices.slice(0, 16), 
@@ -184,15 +178,15 @@ export default function Home() {
       <Header />
       
       {/* Main Content */}
-      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] -mt-4">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] pt-[1.5vw] pb-4 lg:pb-0 lg:h-[calc(100vh-4rem)] -mt-4 lg:overflow-hidden">
         <div className="grid grid-cols-1 
           lg:grid-cols-[minmax(220px,26vw)_minmax(52vw,1fr)_minmax(22vw,28vw)] 
           xl:grid-cols-[minmax(220px,24vw)_minmax(54vw,1fr)_minmax(22vw,28vw)] 
           2xl:grid-cols-[minmax(220px,22vw)_minmax(60vw,1fr)_minmax(22vw,28vw)] 
-          gap-1 xl:gap-2 2xl:gap-3 items-start">
+          gap-1 xl:gap-2 2xl:gap-3 items-start lg:items-stretch lg:h-full">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
-          <div className="space-y-4 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
+          <div className="order-2 lg:order-1 flex flex-col gap-4 lg:h-full lg:justify-center lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
 
             {/* Network Status moved to sticky footer */}
 

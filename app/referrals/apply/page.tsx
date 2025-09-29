@@ -54,7 +54,7 @@ export default function ApplyInfluencerPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
-      <div className="px-4 lg:px-6 py-8 max-w-3xl mx-auto">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] max-w-3xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Apply for Influencer Tier</h1>
           <p className="text-slate-400 text-sm mt-1">If your promotional reach is significant, apply to be reviewed for Influencer tier.</p>

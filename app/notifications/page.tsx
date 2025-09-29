@@ -59,7 +59,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
-      <div className="px-4 lg:px-6 py-8 max-w-4xl mx-auto">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-slate-300" />
@@ -112,4 +112,3 @@ export default function NotificationsPage() {
     </div>
   )
 }
-
