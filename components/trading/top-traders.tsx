@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { 
   Trophy,
   TrendingUp,
@@ -154,6 +155,7 @@ export function TopTraders({
   const [mounted, setMounted] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [expandedView, setExpandedView] = useState(false)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     setMounted(true)
@@ -183,6 +185,17 @@ export function TopTraders({
       default:
         // 'all' - no additional filtering
         break
+    }
+
+    // Apply text search
+    const q = search.trim().toLowerCase()
+    if (q) {
+      filtered = filtered.filter((t) => {
+        const ens = t.ens?.toLowerCase() || ''
+        const addr = t.address?.toLowerCase() || ''
+        const id = t.id?.toLowerCase() || ''
+        return ens.includes(q) || addr.includes(q) || id.includes(q)
+      })
     }
     
     // Apply sorting
@@ -220,7 +233,7 @@ export function TopTraders({
     filtered = filtered.slice(0, expandedView ? maxDisplay : Math.min(maxDisplay, 20))
     
     setFilteredTraders(filtered)
-  }, [traders, selectedFilter, sortBy, sortDirection, selectedTimeframe, expandedView, maxDisplay])
+  }, [traders, selectedFilter, sortBy, sortDirection, selectedTimeframe, expandedView, maxDisplay, search])
 
   // Handle sort option change
   const handleSort = (newSortBy: TraderSort) => {
@@ -338,6 +351,15 @@ export function TopTraders({
             )} />
             Refresh
           </Button>
+          <div className="ml-auto w-full sm:w-64">
+            <Input
+              placeholder="Search traders..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500"
+              aria-label="Search traders"
+            />
+          </div>
         </div>
         {/* Removed last updated to declutter header */}
       </div>
