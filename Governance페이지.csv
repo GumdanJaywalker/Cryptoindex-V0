@@ -1,0 +1,28 @@
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
+LeftSidebar,,,,,왼쪽 사이드바 (공통 컴포넌트),X
+GovernanceLayout,,,,,거버넌스 페이지 메인 레이아웃,X
+,GovernanceDashboard,,,,거버넌스 대시보드,X
+,,Voting Power Display,,,현재 투표권 보유량 표시,X
+,,Active Proposals Count,,,활성 제안 개수,X
+,,Participation Stats,,,참여 통계,X
+,ProposalsSection,,,,제안 섹션,X
+,,Governance Proposals List,,,거버넌스 제안 목록,X
+,,,Individual Proposal Cards,,개별 제안 카드,X
+,,,,Proposal Title,제안 제목,X
+,,,,Proposal Description,제안 설명,X
+,,,,Voting Options,투표 옵션 (찬성/반대),X
+,,,,Vote Count,투표 수,X
+,,,,Deadline,마감일,X
+,,,Voting Interface,,투표 인터페이스,X
+,,,,Vote Button,투표 버튼,X
+,,,,Vote Confirmation,투표 확인 모달,X
+,,Index Rebalancing Battles,,,인덱스 리밸런싱 배틀,X
+,,,Battle Cards,,배틀 카드들,X
+,,,,DOG vs Chinese Rapping Dog,DOG vs Chinese Rapping Dog 배틀,X
+,,,,Piano Cat vs Grumpy Cat,Piano Cat vs Grumpy Cat 배틀,X
+,,,,Other Battle Pairs,기타 배틀 페어들,X
+,,,Voting Mechanics,,투표 메커니즘,X
+,,,,Battle Vote Button,배틀 투표 버튼,X
+,,,,Current Vote Count,현재 투표 수,X
+,,,,Battle Progress,배틀 진행상황,X

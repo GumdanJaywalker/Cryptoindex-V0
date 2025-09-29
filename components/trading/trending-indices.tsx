@@ -273,8 +273,8 @@ export function TrendingIndices({
           <Link href="/trading">
             <Button className="bg-brand text-black hover:bg-brand-hover">Start Trading</Button>
           </Link>
-          <Link href="/create">
-            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">Create Index</Button>
+          <Link href="/launch">
+            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">Launch Index</Button>
           </Link>
           {/* Removed View Indices button to simplify landing CTAs */}
         </div>

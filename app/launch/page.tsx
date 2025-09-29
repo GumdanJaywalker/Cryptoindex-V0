@@ -2,10 +2,10 @@
 
 import { Header } from '@/components/layout/Header'
 import LeftSidebar from '@/components/sidebar/LeftSidebar'
-import { IndexBuilderWizard } from '@/components/create/IndexBuilderWizard'
-import { IndexCreatorOverview } from '@/components/create/IndexCreatorOverview'
+import { IndexBuilderWizard } from '@/components/launch/IndexBuilderWizard'
+import { IndexCreatorOverview } from '@/components/launch/IndexCreatorOverview'
 
-export default function CreateIndexPage() {
+export default function LaunchIndexPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />

@@ -15,7 +15,7 @@ const navigation = [
   { name: 'Trading', href: '/trading' },
   { name: 'Traders', href: '/traders' },
   { name: 'Governance', href: '/governance' },
-  { name: 'Create', href: '/create' },
+  { name: 'Launch', href: '/launch' },
   { name: 'Portfolio', href: '/portfolio' },
   { name: 'Referrals', href: '/referrals' },
 ]

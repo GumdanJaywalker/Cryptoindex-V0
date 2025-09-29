@@ -1,0 +1,58 @@
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
+LeftSidebar,,,,,왼쪽 사이드바 (공통 컴포넌트),X
+IndexBuilderWizard,,,,,인덱스 생성 마법사 (메인 컴포넌트),X
+,Step Navigation,,,,단계별 네비게이션,X
+,,Step 1: Basics,,,기본 정보 단계,X
+,,Step 2: Chain/Settlement,,,체인/정산 설정 단계,X
+,,Step 3: Rules,,,규칙 설정 단계,X
+,,Step 4: Constituents,,,구성 요소 선택 단계,X
+,,Step 5: Simulation,,,시뮬레이션 단계,X
+,,Step 6: Review,,,검토 단계,X
+,Basics Step,,,,기본 정보 입력 단계,X
+,,Name Input,,,인덱스 이름 입력,X
+,,Symbol Input,,,인덱스 심볼 입력,X
+,,Description Input,,,인덱스 설명 입력,X
+,,Category Select,,,카테고리 선택,X
+,,Icon Upload,,,아이콘 업로드,X
+,Chain/Settlement Step,,,,체인 및 정산 설정,X
+,,Chain Selection,,,체인 선택 (L3 고정),X
+,,Settlement Token,,,정산 토큰 선택 (USDC/USDT),X
+,,Fee Currency,,,수수료 통화 설정,X
+,Rules Step,,,,규칙 설정 단계,X
+,,Weight Caps,,,가중치 상한선 설정,X
+,,Min Liquidity Threshold,,,최소 유동성 임계값,X
+,,Inclusion Filters,,,포함 필터 설정,X
+,Constituents Step,,,,구성 요소 선택 단계,X
+,,AssetPicker,,,자산 선택기,X
+,,,Search Function,,검색 기능,X
+,,,Asset List,,자산 목록,X
+,,,Liquidity Info,,유동성 정보,X
+,,,Price Info,,가격 정보,X
+,,,Selection Counter,,선택된 자산 카운터,X
+,,WeightTable,,,가중치 테이블,X
+,,,Weight Input,,가중치 입력 (1% 단위),X
+,,,Normalize Button,,정규화 버튼,X
+,,,Distribute Equally,,균등 분배 버튼,X
+,,,Remove Asset,,자산 제거 버튼,X
+,Simulation Step,,,,시뮬레이션 단계,X
+,,Backtest Preview,,,백테스트 미리보기,X
+,,Slippage Check,,,슬리피지 검사,X
+,,Gas Estimate,,,가스비 추정,X
+,,Liquidity Check,,,유동성 검사,X
+,Review Step,,,,최종 검토 단계,X
+,,Summary Display,,,요약 정보 표시,X
+,,Error List,,,오류 목록,X
+,,Edit Buttons,,,편집 버튼들,X
+,,Submit Button,,,제출 버튼,X
+IndexCreatorOverview,,,,,인덱스 크리에이터 개요,X
+,Creator Guidelines,,,,크리에이터 가이드라인,X
+,,Best Practices,,,모범 사례,X
+,,Success Tips,,,성공 팁,X
+,Fee Structure,,,,수수료 구조,X
+,,Creation Fees,,,생성 수수료,X
+,,Management Fees,,,관리 수수료,X
+,,Performance Fees,,,성과 수수료,X
+,Success Examples,,,,성공 사례,X
+,,Featured Creators,,,주요 크리에이터,X
+,,Popular Indices,,,인기 인덱스,X

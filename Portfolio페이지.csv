@@ -1,0 +1,42 @@
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
+LeftSidebar,,,,,왼쪽 사이드바 (데스크톱에서 좌측 고정),X
+,Market Overview,,,,시장 전체 현황 카드,X
+,,Total Volume 24H,,,24시간 총 거래량,X
+,,Active Indices,,,활성 인덱스 개수,X
+,,Top Gainer,,,최고 상승 인덱스,O
+,,Total TVL,,,전체 예치 자산,X
+,Top Movers,,,,상위 변동 인덱스 목록,X
+,,Index_1,,,인덱스 1의 변동률,X
+,,Index_2,,,인덱스 2의 변동률,X
+,,Index_3,,,인덱스 3의 변동률,X
+,Mini Portfolio,,,,포트폴리오 요약 카드,X
+,,Total Value,,,총 자산 가치,X
+,,Today's P&L,,,오늘의 손익,X
+,,Total Return,,,총 수익률,X
+,,Active Positions,,,활성 포지션 수,X
+,Price Alerts,,,,가격 알림 설정 카드,X
+,,Alert Items,,,설정된 알림 목록,X
+,,Add Alert,,,새 알림 추가 버튼,X
+PortfolioLayout,,,,,포트폴리오 메인 레이아웃,X
+,AccountSummary,,,,계정 요약 정보,X
+,,Total Value Display,,,총 자산 가치 표시,X
+,,P&L Summary,,,손익 요약,X
+,,Performance Metrics,,,성과 지표,X
+,Portfolio Tabs,,,,포트폴리오 탭 시스템,X
+,,Overview Tab,,,포트폴리오 개요 탭,X
+,,,EarningsSummary,,수익 요약,X
+,,,PositionsSection (compact),,포지션 요약 (간략형),X
+,,,TradingAnalytics (compact),,거래 분석 (간략형),X
+,,Positions Tab,,,포지션 상세 탭,X
+,,,PositionsSection (full),,포지션 상세 정보,X
+,,Analytics Tab,,,분석 탭,X
+,,,TradingAnalytics (full),,거래 분석 상세,X
+,,Voting Power Tab,,,투표권 관리 탭,X
+,,,VotingPowerManager,,투표권 관리 도구,X
+,,PnL Cards Tab,,,손익 카드 탭,X
+,,,PnLCardGenerator,,손익 카드 생성기,X
+,,Creator Earnings Tab,,,크리에이터 수익 탭,X
+,,,CreatorEarnings,,크리에이터 수익 정보,X
+,,Liquidity Tab,,,유동성 탭,X
+,,,LiquidityPositions,,유동성 포지션,X
