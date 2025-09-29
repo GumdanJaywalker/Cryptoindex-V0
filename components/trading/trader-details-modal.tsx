@@ -140,7 +140,6 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
             <CardContent className="p-3">
               <div className="text-xs text-slate-400">Followers</div>
               <div className="text-sm font-semibold text-white">{trader.followersCount.toLocaleString()}</div>
-              <div className="text-[11px] text-slate-400">Copy-ready: {trader.copyTradeData ? 'Yes' : 'No'}</div>
             </CardContent>
           </Card>
         </div>
@@ -164,31 +163,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
           </div>
         </div>
 
-        {/* Copy trade card if available */}
-        {trader.copyTradeData && (
-          <Card className="bg-slate-900/40 border-slate-800 mt-3">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-white">Copy Trading</div>
-                <Badge variant="outline" className="text-xs border-slate-700 text-slate-300">
-                  Fee {trader.copyTradeData.fee}%
-                </Badge>
-              </div>
-              <div className="mt-2 grid grid-cols-3 gap-3 text-xs text-slate-300">
-                <div>Min: ${trader.copyTradeData.minimumAmount.toLocaleString()}</div>
-                <div>
-                  Followers: {trader.copyTradeData.currentFollowers}/{trader.copyTradeData.maxFollowers}
-                </div>
-                <div>Risk: medium</div>
-              </div>
-              <div className="mt-3 flex justify-end">
-                <Button size="sm" className="bg-brand text-black hover:bg-brand-hover h-8">
-                  Start Copy
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Copy trading UI disabled for now */}
 
         {/* Footer actions */}
         <div className="mt-4 flex justify-end gap-2">
@@ -198,7 +173,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
           <Button
             className="bg-brand text-black hover:bg-brand-hover"
             onClick={() => {
-              window.location.href = `/portfolio?trader=${trader.id}`
+              window.location.href = `/traders/${trader.id}`
             }}
           >
             View Portfolio
