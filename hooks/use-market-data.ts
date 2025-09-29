@@ -258,7 +258,7 @@ export function useIndexDetails(indexId: string, options?: {
         beta: Math.random() * 1.5 + 0.5
       }
     },
-    enabled: options?.enabled ?? !!indexId && !!selectedIndex,
+    enabled: options?.enabled ?? (!!indexId && !!selectedIndex),
     staleTime: 5 * 60 * 1000, // 5분간 fresh
   })
 }
@@ -291,7 +291,7 @@ export function useTraderDetails(traderId: string, options?: {
         riskLevel: ['Conservative', 'Moderate', 'Aggressive'][Math.floor(Math.random() * 3)]
       }
     },
-    enabled: options?.enabled ?? !!traderId && !!selectedTrader,
+    enabled: options?.enabled ?? (!!traderId && !!selectedTrader),
     staleTime: 10 * 60 * 1000, // 10분간 fresh
   })
 }
