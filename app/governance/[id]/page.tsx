@@ -17,6 +17,7 @@ import { OPERATOR_ADDRESSES } from '@/lib/mock/operators'
 import { cn } from '@/lib/utils'
 import VoteDialog from '@/components/governance/VoteDialog'
 import LeftSidebar from '@/components/sidebar/LeftSidebar'
+import { Header } from '@/components/layout/Header'
 
 export default function ProposalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { proposals, load, getById, quorumReached, supportPercent, passReached, timeLeft } = useGovernance()
@@ -103,9 +104,10 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <div className="px-4 lg:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] gap-5 items-start">
-          <div className="order-2 lg:order-1"><LeftSidebar /></div>
+      <Header />
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(220px,26vw)_minmax(52vw,1fr)] gap-3 xl:gap-4 2xl:gap-6 items-start lg:items-stretch">
+          <div className="order-2 lg:order-1 lg:self-stretch"><LeftSidebar /></div>
           <main className="order-1 lg:order-2 max-w-5xl mx-auto w-full px-2 lg:px-0 space-y-6">
         {!p ? (
           <Card className="bg-slate-900/50 border-slate-800">

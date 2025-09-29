@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
-import { useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 // Temporarily disable wallet UI to stabilize build
 import { Button } from '@/components/ui/button'
@@ -25,9 +24,16 @@ export function Header() {
   // Prefer the official static logo; avoid unnecessary fallbacks to prevent confusion
   const logoSrc = '/hyperindex-text.svg'
 
+  useEffect(() => {
+    document.documentElement.classList.add('density-compact')
+    return () => {
+      document.documentElement.classList.remove('density-compact')
+    }
+  }, [])
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
-      <div className="flex h-16 items-center justify-between px-6">
+      <div className="flex h-16 items-center justify-between px-[4vw] lg:px-[3vw]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <div className="h-[45px] w-[180px] overflow-hidden flex items-center">

@@ -84,9 +84,9 @@ export default function TradersPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
-      <div className="px-4 lg:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] gap-5 items-start">
-          <div className="order-2 lg:order-1"><LeftSidebar /></div>
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(220px,26vw)_minmax(52vw,1fr)] gap-3 xl:gap-4 2xl:gap-6 items-start lg:items-stretch">
+          <div className="order-2 lg:order-1 lg:self-stretch"><LeftSidebar /></div>
           <div className="order-1 lg:order-2 max-w-6xl mx-auto w-full space-y-6 px-2 lg:px-0">
         {/* Title */}
         <div className="flex items-center justify-between">

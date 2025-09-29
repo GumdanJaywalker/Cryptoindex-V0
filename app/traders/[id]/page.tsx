@@ -10,10 +10,9 @@ export default function TraderPortfolioPage({ params }: { params: { id: string }
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
-      <div className="px-4 lg:px-6 py-8 max-w-6xl mx-auto">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] max-w-6xl mx-auto">
         <TraderPortfolioPublic traderId={traderId} />
       </div>
     </div>
   )
 }
-

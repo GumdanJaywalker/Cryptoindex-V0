@@ -20,7 +20,7 @@ export function LeftSidebar() {
   const { addToast } = useToast()
 
   return (
-    <div className="space-y-6 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-4 lg:border-r lg:border-slate-800">
+    <div className="flex flex-col gap-4 lg:min-h-[calc(100vh-6rem)] lg:justify-center lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
       {/* Network status moved to sticky footer */}
 
       {/* Market Stats Card (mock) */}
