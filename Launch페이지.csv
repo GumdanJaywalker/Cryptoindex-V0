@@ -1,58 +1,190 @@
-﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
-Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
-LeftSidebar,,,,,왼쪽 사이드바 (공통 컴포넌트),X
-IndexBuilderWizard,,,,,인덱스 생성 마법사 (메인 컴포넌트),X
-,Step Navigation,,,,단계별 네비게이션,X
-,,Step 1: Basics,,,기본 정보 단계,X
-,,Step 2: Chain/Settlement,,,체인/정산 설정 단계,X
-,,Step 3: Rules,,,규칙 설정 단계,X
-,,Step 4: Constituents,,,구성 요소 선택 단계,X
-,,Step 5: Simulation,,,시뮬레이션 단계,X
-,,Step 6: Review,,,검토 단계,X
-,Basics Step,,,,기본 정보 입력 단계,X
-,,Name Input,,,인덱스 이름 입력,X
-,,Symbol Input,,,인덱스 심볼 입력,X
-,,Description Input,,,인덱스 설명 입력,X
-,,Category Select,,,카테고리 선택,X
-,,Icon Upload,,,아이콘 업로드,X
-,Chain/Settlement Step,,,,체인 및 정산 설정,X
-,,Chain Selection,,,체인 선택 (L3 고정),X
-,,Settlement Token,,,정산 토큰 선택 (USDC/USDT),X
-,,Fee Currency,,,수수료 통화 설정,X
-,Rules Step,,,,규칙 설정 단계,X
-,,Weight Caps,,,가중치 상한선 설정,X
-,,Min Liquidity Threshold,,,최소 유동성 임계값,X
-,,Inclusion Filters,,,포함 필터 설정,X
-,Constituents Step,,,,구성 요소 선택 단계,X
-,,AssetPicker,,,자산 선택기,X
-,,,Search Function,,검색 기능,X
-,,,Asset List,,자산 목록,X
-,,,Liquidity Info,,유동성 정보,X
-,,,Price Info,,가격 정보,X
-,,,Selection Counter,,선택된 자산 카운터,X
-,,WeightTable,,,가중치 테이블,X
-,,,Weight Input,,가중치 입력 (1% 단위),X
-,,,Normalize Button,,정규화 버튼,X
-,,,Distribute Equally,,균등 분배 버튼,X
-,,,Remove Asset,,자산 제거 버튼,X
-,Simulation Step,,,,시뮬레이션 단계,X
-,,Backtest Preview,,,백테스트 미리보기,X
-,,Slippage Check,,,슬리피지 검사,X
-,,Gas Estimate,,,가스비 추정,X
-,,Liquidity Check,,,유동성 검사,X
-,Review Step,,,,최종 검토 단계,X
-,,Summary Display,,,요약 정보 표시,X
-,,Error List,,,오류 목록,X
-,,Edit Buttons,,,편집 버튼들,X
-,,Submit Button,,,제출 버튼,X
-IndexCreatorOverview,,,,,인덱스 크리에이터 개요,X
-,Creator Guidelines,,,,크리에이터 가이드라인,X
-,,Best Practices,,,모범 사례,X
-,,Success Tips,,,성공 팁,X
-,Fee Structure,,,,수수료 구조,X
-,,Creation Fees,,,생성 수수료,X
-,,Management Fees,,,관리 수수료,X
-,,Performance Fees,,,성과 수수료,X
-,Success Examples,,,,성공 사례,X
-,,Featured Creators,,,주요 크리에이터,X
-,,Popular Indices,,,인기 인덱스,X
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성,수정 이유 및 세부사항
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X,
+,Navigation,,,,Trading/Traders/Governance/Launch/Portfolio/Referrals 링크,X,
+,Notifications,,,,알림 버튼 (종 모양 아이콘),X,
+,Settings,,,,설정 페이지 링크 (톱니바퀴 아이콘),X,
+,Wallet Connect,,,,지갑 연결 버튼,X,
+LeftSidebar,,,,,왼쪽 사이드바 (공통 컴포넌트),X,
+,Market Overview Card,,,,시장 전체 현황 카드,X,
+,Top Movers Card,,,,상위 변동 인덱스 카드,X,
+,Mini Portfolio Card,,,,포트폴리오 요약 카드,X,
+,Recent Activity Card,,,,최근 활동 카드,X,
+,Price Alerts Card,,,,가격 알림 설정 카드,X,
+Launch Page Layout,,,,,인덱스 런치 페이지 메인 레이아웃,X,
+,Page Header,,,,페이지 상단 헤더,X,
+,,Page Title,,,Launch Your Index 제목,X,
+,,Page Description,,,인덱스 생성 프로세스 설명,X,
+,,Progress Indicator,,,전체 진행률 표시,X,
+IndexBuilderWizard,,,,,인덱스 생성 마법사 (메인 컴포넌트),X,
+,Wizard Container,,,,마법사 컨테이너,X,
+,,Step Navigation,,,단계별 네비게이션 바,X,
+,,,Step 1 Button,,기본 정보 단계 버튼,X,
+,,,Step 2 Button,,체인/정산 설정 단계 버튼,X,
+,,,Step 3 Button,,규칙 설정 단계 버튼,X,
+,,,Step 4 Button,,구성 요소 선택 단계 버튼,X,
+,,,Step 5 Button,,시뮬레이션 단계 버튼,X,
+,,,Step 6 Button,,검토 단계 버튼,X,
+,,,Navigation Controls,,이전/다음 버튼,X,
+,,Step Content Area,,,각 단계별 컨텐츠 영역,X,
+,Step 1: Basics,,,,기본 정보 입력 단계,X,
+,,Form Container,,,기본 정보 입력 폼,X,
+,,,Index Name Input,,인덱스 이름 입력 필드,X,
+,,,,Name Validation,이름 중복 검사 및 유효성 검증,X,
+,,,,Character Limit,문자 수 제한 표시,X,
+,,,Index Symbol Input,,인덱스 심볼 입력 필드,X,
+,,,,Symbol Validation,심볼 중복 검사 및 형식 검증,X,
+,,,,Auto-generate Option,이름 기반 자동 생성 옵션,X,
+,,,Description Input,,인덱스 설명 입력 (텍스트에어리어),X,
+,,,,Rich Text Editor,리치 텍스트 에디터 옵션,X,
+,,,,Character Count,글자 수 카운터,X,
+,,,Category Select,,카테고리 선택 드롭다운,X,
+,,,,Category Options,Meme/DeFi/Gaming/AI/etc 옵션,X,
+,,,,Custom Category,커스텀 카테고리 입력,X,
+,,,Icon Upload,,아이콘 업로드 섹션,X,
+,,,,Upload Area,드래그앤드롭 업로드 영역,X,
+,,,,File Preview,업로드된 파일 미리보기,X,
+,,,,Requirements,파일 요구사항 안내,X,
+,Step 2: Chain/Settlement,,,,체인 및 정산 설정 단계,X,
+,,Blockchain Settings,,,블록체인 설정 섹션,X,
+,,,Chain Selection,,체인 선택 (Hyper L3 고정),X,
+,,,,Chain Info,선택된 체인 정보 표시,X,
+,,,,Network Details,네트워크 세부사항,X,
+,,,Settlement Token,,정산 토큰 선택,X,
+,,,,Token Options,USDC/USDT 옵션,X,
+,,,,Token Details,선택된 토큰 상세 정보,X,
+,,,Fee Structure,,수수료 구조 설정,X,
+,,,,Management Fee,관리 수수료 설정,X,
+,,,,Performance Fee,성과 수수료 설정,X,
+,,,,Fee Preview,수수료 미리보기,X,
+,Step 3: Rules,,,,규칙 설정 단계,X,
+,,Index Rules Configuration,,,인덱스 규칙 설정,X,
+,,,Weight Constraints,,가중치 제약 조건,X,
+,,,,Max Weight Cap,최대 가중치 상한선,X,
+,,,,Min Weight Floor,최소 가중치 하한선,X,
+,,,,Weight Distribution,가중치 분배 방식,X,
+,,,Liquidity Requirements,,유동성 요구사항,X,
+,,,,Min Daily Volume,최소 일일 거래량,X,
+,,,,Min Market Cap,최소 시가총액,X,
+,,,,Liquidity Threshold,유동성 임계값,X,
+,,,Inclusion Filters,,포함 필터 설정,X,
+,,,,Age Requirements,토큰 최소 연령,X,
+,,,,Exchange Listings,거래소 상장 요구사항,X,
+,,,,Blacklist Rules,블랙리스트 규칙,X,
+,,,Rebalancing Settings,,리밸런싱 설정,X,
+,,,,Rebalance Frequency,리밸런싱 주기,X,
+,,,,Rebalance Triggers,리밸런싱 트리거,X,
+,,,,Deviation Thresholds,편차 임계값,X,
+,Step 4: Constituents,,,,구성 요소 선택 단계,X,
+,,Asset Selection Interface,,,자산 선택 인터페이스,X,
+,,,AssetPicker Component,,자산 선택기 컴포넌트,X,
+,,,,Search & Filter Section,검색 및 필터 섹션,X,
+,,,,,Search Input,자산 검색 입력,X,
+,,,,,Category Filters,카테고리 필터,X,
+,,,,,Sort Options,정렬 옵션 (Price/Volume/Market Cap),X,
+,,,,Available Assets List,선택 가능한 자산 목록,X,
+,,,,,Asset Cards,개별 자산 카드,X,
+,,,,,,Asset Icon,자산 아이콘,X,
+,,,,,,Asset Name,자산 이름,X,
+,,,,,,Asset Symbol,자산 심볼,X,
+,,,,,,Market Data,시장 데이터 (가격/볼륨),X,
+,,,,,,Liquidity Indicator,유동성 지표,X,
+,,,,,,Add Button,추가 버튼,X,
+,,,,Selection Summary,선택 요약,X,
+,,,,,Selected Count,선택된 자산 수,X,
+,,,,,Total Value,총 가치,X,
+,,,,,Diversity Score,다양성 점수,X,
+,,,WeightTable Component,,가중치 테이블 컴포넌트,X,
+,,,,Table Header,테이블 헤더,X,
+,,,,,Asset Column,자산 컬럼,X,
+,,,,,Weight Column,가중치 컬럼,X,
+,,,,,Value Column,가치 컬럼,X,
+,,,,,Actions Column,액션 컬럼,X,
+,,,,Weight Rows,가중치 행들,X,
+,,,,,Asset Info,자산 정보,X,
+,,,,,Weight Input,가중치 입력 (1% 단위),X,
+,,,,,Weight Slider,가중치 슬라이더,X,
+,,,,,Calculated Value,계산된 가치,X,
+,,,,,Remove Button,제거 버튼,X,
+,,,,Weight Controls,가중치 제어,X,
+,,,,,Normalize Button,정규화 버튼 (총합 100%),X,
+,,,,,Equal Distribution,균등 분배 버튼,X,
+,,,,,Reset Weights,가중치 초기화,X,
+,,,,Weight Validation,가중치 검증,X,
+,,,,,Total Weight Display,총 가중치 표시,X,
+,,,,,Validation Messages,검증 메시지,X,
+,Step 5: Simulation,,,,시뮬레이션 단계,X,
+,,Simulation Dashboard,,,시뮬레이션 대시보드,X,
+,,,Backtest Section,,백테스트 섹션,X,
+,,,,Time Period Selector,백테스트 기간 선택,X,
+,,,,Performance Chart,성과 차트,X,
+,,,,Benchmark Comparison,벤치마크 비교,X,
+,,,,Key Metrics,주요 지표 (ROI/Sharpe/Volatility),X,
+,,,Risk Analysis,,리스크 분석,X,
+,,,,Volatility Metrics,변동성 지표,X,
+,,,,Correlation Matrix,상관관계 매트릭스,X,
+,,,,Drawdown Analysis,드로다운 분석,X,
+,,,Cost Analysis,,비용 분석,X,
+,,,,Slippage Estimate,슬리피지 추정,X,
+,,,,Gas Fee Calculation,가스비 계산,X,
+,,,,Transaction Costs,거래 비용,X,
+,,,Liquidity Assessment,,유동성 평가,X,
+,,,,Liquidity Score,유동성 점수,X,
+,,,,Market Impact,시장 영향도,X,
+,,,,Execution Risk,실행 리스크,X,
+,Step 6: Review,,,,최종 검토 단계,X,
+,,Review Summary,,,검토 요약,X,
+,,,Index Overview,,인덱스 개요,X,
+,,,,Basic Information,기본 정보 요약,X,
+,,,,Asset Composition,자산 구성,X,
+,,,,Rules Summary,규칙 요약,X,
+,,,Validation Results,,검증 결과,X,
+,,,,Validation Checklist,검증 체크리스트,X,
+,,,,Error List,오류 목록,X,
+,,,,Warning List,경고 목록,X,
+,,,Cost Breakdown,,비용 분석,X,
+,,,,Creation Costs,생성 비용,X,
+,,,,Ongoing Fees,지속 비용,X,
+,,,,Estimated Returns,예상 수익,X,
+,,,Final Actions,,최종 액션,X,
+,,,,Edit Buttons,각 단계 편집 버튼,X,
+,,,,Terms Agreement,약관 동의,X,
+,,,,Submit Button,제출 버튼,X,
+,,,,Save Draft,임시 저장,X,
+IndexCreatorOverview,,,,,인덱스 크리에이터 개요 (사이드바),X,
+,Getting Started Guide,,,시작 가이드,X,
+,,Creator Guidelines,,크리에이터 가이드라인,X,
+,,,Best Practices List,모범 사례 목록,X,
+,,,Success Tips,성공 팁,X,
+,,,Common Mistakes,흔한 실수들,X,
+,,Tutorial Videos,,튜토리얼 비디오,X,
+,,,Step-by-step Guide,단계별 가이드,X,
+,,,Advanced Features,고급 기능 설명,X,
+,Economics & Fees,,,경제학 및 수수료,X,
+,,Fee Structure,,수수료 구조,X,
+,,,Creation Fees,생성 수수료 안내,X,
+,,,Management Fees,관리 수수료 설명,X,
+,,,Performance Fees,성과 수수료 구조,X,
+,,Revenue Sharing,,수익 분배,X,
+,,,Creator Rewards,크리에이터 리워드,X,
+,,,Fee Calculator,수수료 계산기,X,
+,Success Stories,,,성공 사례,X,
+,,Featured Creators,,주요 크리에이터,X,
+,,,Creator Profiles,크리에이터 프로필,X,
+,,,Success Metrics,성공 지표,X,
+,,Popular Indices,,인기 인덱스,X,
+,,,Index Showcase,인덱스 쇼케이스,X,
+,,,Performance Data,성과 데이터,X,
+,Support & Resources,,,지원 및 리소스,X,
+,,Documentation Links,,문서 링크,X,
+,,Community Forum,,커뮤니티 포럼,X,
+,,Technical Support,,기술 지원,X,
+Mobile Responsive,,,,모바일 반응형 대응,X,
+,Mobile Wizard,,,,모바일 마법사,X,
+,,Collapsed Navigation,축약된 네비게이션,X,
+,,Swipeable Steps,스와이프 가능한 단계,X,
+,,Touch Optimized,터치 최적화,X,
+,,Bottom Sheet Actions,하단 시트 액션,X,
+,Mobile Asset Picker,,,,모바일 자산 선택기,X,
+,,Search Overlay,검색 오버레이,X,
+,,Filter Bottom Sheet,필터 하단 시트,X,
+,,Touch-friendly Tables,터치 친화적 테이블,X

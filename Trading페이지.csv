@@ -1,27 +1,119 @@
-﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
-Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
-,Navigation,,,,Trading/Traders/Governance/Launch/Portfolio/Referrals 링크,X
-,Notifications,,,,알림 버튼 (종 모양 아이콘),X
-,Settings,,,,설정 페이지 링크 (톱니바퀴 아이콘),X
-,Wallet Connect,,,,지갑 연결 버튼,X
-TradingLayout,,,,,거래 페이지의 메인 레이아웃 컴포넌트,X
-,IndexInfoBar,,,,선택된 인덱스 정보 표시 (가격/변동률/볼륨 등),X
-,Main Trading Area,,,,차트와 호가창이 있는 메인 영역 (화면의 80%),X
-,,Chart + OrderBook Section,,,차트와 호가창 섹션 (높이 75vh),X
-,,,ChartArea,,가격 차트 영역 (폭 68.75%),X
-,,,OrderBookTrades,,호가창과 최근 거래 영역 (폭 31.25%),X
-,,TradingBottomTabs,,,하단 탭 영역 (높이 50vh),X
-,,,Positions Tab,,현재 보유 포지션 표시,X
-,,,Orders Tab,,주문 내역 표시,X
-,,,Trade History Tab,,거래 이력 표시,X
-,,,Community Feed Tab,,커뮤니티 피드 표시,X
-,Right Trading Panel,,,,거래 패널 (화면의 20%),X
-,,TradingPanel,,,매수/매도 거래 패널,X
-,,,Buy/Sell Toggle,,매수/매도 전환 버튼,O
-,,,Order Type Selector,,주문 타입 선택 (Market/Limit),X
-,,,Amount Input,,거래 금액 입력,X
-,,,Execute Button,,거래 실행 버튼,O
-,,PresetPanel,,,빠른 거래 프리셋 패널,X
-,,,Quick Trade Presets,,미리 설정된 거래 금액 버튼들,X
-,,WhaleAlert,,,고액 거래 알림 패널,X
-,,,Large Trade Notifications,,큰 거래량 거래 알림 표시,X
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성,수정 이유 및 세부사항
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X,
+,Navigation,,,,Trading/Traders/Governance/Launch/Portfolio/Referrals 링크,X,
+,Notifications,,,,알림 버튼 (종 모양 아이콘),X,
+,Settings,,,,설정 페이지 링크 (톱니바퀴 아이콘),X,
+,Wallet Connect,,,,지갑 연결 버튼,X,
+LeftSidebar,,,,,왼쪽 사이드바 (공통 컴포넌트로 거래 페이지에서도 활용),X,
+,Market Overview Card,,,,시장 전체 현황 카드,X,
+,,Total Volume 24H,,,24시간 총 거래대금,X,
+,,Active Indices,,,활성 인덱스 개수,X,
+,,Top Gainer,,,가장 높은 수익률 인덱스,X,
+,,Total TVL,,,전체 예치 자산,X,
+,Top Movers Card,,,,상위 변동 인덱스 카드,X,
+,,Index Items,,,변동률 표시 인덱스 목록 (3개),X,
+,Mini Portfolio Card,,,,포트폴리오 요약 카드,X,
+,,View All Link,,,포트폴리오 페이지로 이동,X,
+,,Total Value,,,사용자 현재 총자산,X,
+,,Today's P&L,,,사용자 금일 손익,X,
+,,Total Return,,,총 수익률,X,
+,,Active Positions,,,사용자 포지션 개수,X,
+,Recent Activity Card,,,,최근 활동 카드,X,
+,,Activity Items,,,최근 거래 및 포지션 활동,X,
+,Price Alerts Card,,,,가격 알림 설정 카드,X,
+,,Alerts List,,,설정된 알림 목록,X,
+,,Add Alert Button,,,새 알림 추가 버튼,X,
+,,,Alert Dialog,,새 알림 설정 다이얼로그,X,
+,,,,Symbol Input,심볼 입력 필드,X,
+,,,,Condition Select,조건 선택 (위/아래),X,
+,,,,Price Input,목표 가격 입력,X,
+TradingLayout,,,,,거래 페이지의 메인 레이아웃 컴포넌트 (3분할 구조),X,
+,IndexInfoBar,,,,선택된 인덱스 정보 표시 바 (상단 고정),X,
+,,Index Name Display,,,선택된 인덱스 이름,X,
+,,Price Information,,,현재 가격 및 24시간 변동률,X,
+,,Volume Data,,,24시간 거래량 및 TVL,X,
+,,More Info Button,,,상세 정보 모달 열기 버튼,X,
+,Main Trading Area,,,,차트와 호가창이 있는 메인 영역 (화면의 약 65%),X,
+,,Chart + OrderBook Section,,,차트와 호가창 상단 섹션 (높이 75vh),X,
+,,,ChartArea,,가격 차트 영역 (TradingView 차트),X,
+,,,,Chart Controls,차트 시간대 및 설정 컨트롤,X,
+,,,,Price Chart,실제 가격 차트 표시,X,
+,,,,Volume Chart,거래량 차트 표시,X,
+,,,OrderBookTrades,,호가창과 최근 거래 영역,X,
+,,,,Order Book Tab,호가창 탭,X,
+,,,,,Buy Orders,매수 호가 목록,X,
+,,,,,Current Price,현재 가격 표시,X,
+,,,,,Sell Orders,매도 호가 목록,X,
+,,,,,Spread Info,매수/매도 스프레드 정보,X,
+,,,,Recent Trades Tab,최근 거래 탭,X,
+,,,,,Trade Items,실시간 거래 내역 리스트,X,
+,,,,,Price Column,거래 가격,X,
+,,,,,Size Column,거래 크기,X,
+,,,,,Time Column,거래 시간,X,
+,,TradingBottomTabs,,,하단 탭 시스템 (높이 50vh),X,
+,,,Chart Tab,,차트 전체화면 탭,X,
+,,,Indices Tab,,인덱스 목록 탭,X,
+,,,,Index Cards,거래 가능한 인덱스 카드 목록,X,
+,,,,,Index Name,인덱스 이름,X,
+,,,,,Current Price,현재 가격,X,
+,,,,,24h Change,24시간 변동률,X,
+,,,,,Quick Trade Button,빠른 거래 버튼,X,
+,,,Positions Tab,,현재 보유 포지션 표시,X,
+,,,,Position Items,개별 포지션 정보,X,
+,,,,,Symbol,포지션 심볼,X,
+,,,,,Size,포지션 크기,X,
+,,,,,Entry Price,진입 가격,X,
+,,,,,Current Price,현재 가격,X,
+,,,,,PnL,손익,X,
+,,,,,Close Button,포지션 종료 버튼,X,
+,,,Orders Tab,,주문 내역 표시,X,
+,,,,Open Orders,미체결 주문,X,
+,,,,,Order Type,주문 타입,X,
+,,,,,Price,주문 가격,X,
+,,,,,Size,주문 크기,X,
+,,,,,Cancel Button,주문 취소 버튼,X,
+,,,,Order History,주문 히스토리,X,
+,,,Trade History Tab,,거래 이력 표시,X,
+,,,,Completed Trades,완료된 거래 목록,X,
+,,,Community Feed Tab,,커뮤니티 피드 표시,X,
+,,,,User Posts,사용자 게시글,X,
+,,,,Trade Alerts,거래 알림,X,
+,,,,Market Sentiment,시장 심리 표시,X,
+,Right Trading Panel,,,,우측 거래 패널 (화면의 약 35%),X,
+,,TradingPanel,,,매수/매도 거래 패널,X,
+,,,Buy/Sell Tabs,,매수/매도 탭 전환,O,Buy 버튼 텍스트 가독성 문제 - 브랜드 색상 배경에서 텍스트가 잘 안 보임
+,,,Order Type Selector,,주문 타입 선택 (Market/Limit/Stop),X,
+,,,Amount Section,,거래 수량 입력 섹션,X,
+,,,,Amount Input,거래 수량 입력 필드,X,
+,,,,Percentage Buttons,25%/50%/75%/100% 빠른 선택,X,
+,,,Price Section,,가격 입력 섹션 (지정가 주문시),X,
+,,,,Price Input,거래 가격 입력 필드,X,
+,,,,Market Price Button,현재 시장가 적용 버튼,X,
+,,,Balance Display,,사용 가능 잔고 표시,X,
+,,,Total Calculation,,총 거래 금액 계산 표시,X,
+,,,Execute Button,,거래 실행 버튼,O,Buy/Sell 버튼 색상 대비 개선 필요 - 현재 텍스트가 잘 안 보임
+,,,Slippage Warning,,슬리피지 경고 표시,X,
+,,PresetPanel,,,빠른 거래 프리셋 패널,X,
+,,,Quick Amount Buttons,,미리 설정된 거래 금액 버튼들 ($10/$50/$100/$500),X,
+,,,Favorite Pairs,,즐겨찾기 거래 페어,X,
+,,AccountPanel,,,계정 정보 패널,X,
+,,,Balance Summary,,잔고 요약,X,
+,,,,Available Balance,사용 가능 잔고,X,
+,,,,In Orders,주문 중인 금액,X,
+,,,,Total Balance,총 잔고,X,
+,,,Recent Activity,,최근 거래 활동 요약,X,
+,,WhaleAlert,,,고액 거래 알림 패널,X,
+,,,Large Trade Notifications,,큰 거래량 거래 실시간 알림,X,
+,,,Whale Activity Feed,,고래 거래 활동 피드,X,
+Mobile Responsive,,,,모바일 반응형 대응,X,
+,Mobile Layout,,,,모바일 전용 레이아웃,X,
+,,Collapsible Sidebar,,,접을 수 있는 사이드바,X,
+,,Bottom Tab Navigation,,,하단 탭 네비게이션,X,
+,,,Chart Tab,,차트 탭,X,
+,,,Trade Tab,,거래 탭,X,
+,,,Orders Tab,,주문 탭,X,
+,,,Portfolio Tab,,포트폴리오 탭,X,
+,,,More Tab,,더보기 탭,X,
+,,Floating Action Button,,,플로팅 거래 버튼,X,
+,,Swipe Gestures,,,스와이프 제스처 지원,X,
+,,Touch Optimized,,,터치 최적화된 버튼 크기,X

@@ -184,15 +184,15 @@ export default function Home() {
       <Header />
       
       {/* Main Content */}
-      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[2.5vw] pt-0">
+      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] -mt-4">
         <div className="grid grid-cols-1 
-          lg:grid-cols-[minmax(220px,26vw)_minmax(56vw,1fr)_minmax(22vw,28vw)] 
-          xl:grid-cols-[minmax(220px,24vw)_minmax(58vw,1fr)_minmax(22vw,28vw)] 
+          lg:grid-cols-[minmax(220px,26vw)_minmax(52vw,1fr)_minmax(22vw,28vw)] 
+          xl:grid-cols-[minmax(220px,24vw)_minmax(54vw,1fr)_minmax(22vw,28vw)] 
           2xl:grid-cols-[minmax(220px,22vw)_minmax(60vw,1fr)_minmax(22vw,28vw)] 
-          gap-4 xl:gap-5 2xl:gap-6 items-start">
+          gap-1 xl:gap-2 2xl:gap-3 items-start">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
-          <div className="space-y-4 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-[1.2vw] lg:ml-[-1.8vw] lg:border-r lg:border-slate-800">
+          <div className="space-y-4 order-2 lg:order-1 max-h-[calc(100vh-8rem)] overflow-auto overscroll-contain scrollbar-thin lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
 
             {/* Network Status moved to sticky footer */}
 
@@ -387,7 +387,7 @@ export default function Home() {
           </div>
           
           {/* Right Side - Top Traders (Second on mobile) */}
-          <div className="space-y-4 order-3 lg:order-3 lg:-ml-[1.5vw]">
+          <div className="space-y-4 order-3 lg:order-3 lg:-ml-[2vw]">
             {/* Enhanced Top Traders Component */}
             <TopTraders 
               traders={mockTopTraders}

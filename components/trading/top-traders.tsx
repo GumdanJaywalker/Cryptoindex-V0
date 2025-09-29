@@ -22,12 +22,21 @@ import {
   Target,
   Zap,
   Eye,
-  ChevronDown
+  ChevronDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
 import { allMockIndices } from '@/lib/data/mock-indices'
 import { TraderCard } from './trader-card'
 import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface TopTradersProps {
   traders: TopTrader[]
@@ -235,16 +244,11 @@ export function TopTraders({
     setFilteredTraders(filtered)
   }, [traders, selectedFilter, sortBy, sortDirection, selectedTimeframe, expandedView, maxDisplay, search])
 
-  // Handle sort option change
-  const handleSort = (newSortBy: TraderSort) => {
-    if (sortBy === newSortBy) {
-      // Toggle direction if same sort option
-      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')
-    } else {
-      // Set new sort option with appropriate default direction
-      setSortBy(newSortBy)
-      setSortDirection(newSortBy === 'rank' ? 'asc' : 'desc')
-    }
+  // Handle sort option change with default direction
+  const handleSortChange = (newSortBy: TraderSort) => {
+    setSortBy(newSortBy)
+    // Set appropriate default direction for new sort option
+    setSortDirection(newSortBy === 'rank' ? 'asc' : 'desc')
   }
 
   // Simulate refresh action
@@ -336,7 +340,7 @@ export function TopTraders({
             className="inline-flex items-center justify-center h-8 px-2.5 rounded-md bg-brand text-black hover:bg-brand-hover text-xs font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             role="button"
           >
-            View Leaderboard
+            Leaderboard
           </Link>
           <Button
             onClick={handleRefresh}
@@ -571,40 +575,38 @@ export function TopTraders({
           </div>
           
           {/* Sort Options */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <ArrowUpDown className="w-3 h-3" />
-              Sort by:
-            </div>
-            {sortOptions.map(({ key, label, description }) => (
-              <Button
-                key={key}
-                size="sm"
-                variant="ghost"
-                className={cn(
-                  "text-xs h-7 px-2 transition-all duration-200",
-                  sortBy === key 
-                    ? "text-brand bg-brand/10" 
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                )}
-                onClick={() => handleSort(key)}
-                title={description}
-              >
-                {label}
-                {sortBy === key && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="ml-1"
+          <div className="flex items-center gap-2">
+            {/* Sort Direction Toggle */}
+            <Button
+              onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
+              title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
+            >
+              {sortDirection === 'desc' ? 
+                <ArrowDown className="w-3 h-3" /> : 
+                <ArrowUp className="w-3 h-3" />
+              }
+            </Button>
+
+            {/* Sort By Dropdown */}
+            <Select value={sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="h-7 w-24 text-xs border-slate-700 bg-slate-800/50 text-slate-300">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {sortOptions.map(({ key, label, description }) => (
+                  <SelectItem 
+                    key={key} 
+                    value={key}
+                    className="text-xs text-slate-300 focus:bg-slate-700 focus:text-white"
                   >
-                    {sortDirection === 'desc' ? 
-                      <TrendingDown className="w-3 h-3" /> : 
-                      <TrendingUp className="w-3 h-3" />
-                    }
-                  </motion.div>
-                )}
-              </Button>
-            ))}
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}
