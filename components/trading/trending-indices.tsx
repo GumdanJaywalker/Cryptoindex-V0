@@ -21,7 +21,9 @@ import {
   Search,
   Building2,
   Crown,
-  Zap
+  Zap,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { 
@@ -37,6 +39,13 @@ import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
 import useTradingStore from '@/lib/store/trading-store'
 import { IndexRow } from './index-row'
 import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { staggerContainer, fadeInUp } from '@/lib/animations/micro-interactions'
 import { useVirtualList } from '@/lib/hooks/use-performance'
 
@@ -232,16 +241,11 @@ export function TrendingIndices({
   const topSpacer = startIndex * ROW_HEIGHT
   const bottomSpacer = Math.max(0, filteredIndices.length - endIndex - 1) * ROW_HEIGHT
 
-  // Handle sort option change
-  const handleSort = (newSortBy: SortOption) => {
-    if (sortBy === newSortBy) {
-      // Toggle direction if same sort option
-      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')
-    } else {
-      // Set new sort option with default desc direction
-      setSortBy(newSortBy)
-      setSortDirection('desc')
-    }
+  // Handle sort option change with default direction
+  const handleSortChange = (newSortBy: SortOption) => {
+    setSortBy(newSortBy)
+    // Set appropriate default direction for new sort option
+    setSortDirection('desc')
   }
 
   // Favorites-first ordering is automatic; no manual toggle persisted
@@ -308,41 +312,38 @@ export function TrendingIndices({
         </div>
 
         {/* Sort Options */}
-        <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1 text-xs text-slate-400">
-            <ArrowUpDown className="w-3 h-3" />
-            Sort:
-          </div>
-          {sortOptions.map(({ key, label, description }) => (
-            <Button
-              key={key}
-              size="sm"
-              variant="ghost"
-              className={cn(
-                "text-xs h-6 px-2 transition-all duration-200",
-                sortBy === key 
-                  ? "text-brand bg-brand/10" 
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              )}
-              onClick={() => handleSort(key)}
-              title={description}
-            >
-              {label}
-              {sortBy === key && (
-                <motion.div
-                  key={`sort-indicator-${key}`}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                className="ml-1"
-              >
-                {sortDirection === 'desc' ? 
-                  <TrendingDown className="w-3 h-3" /> : 
-                  <TrendingUp className="w-3 h-3" />
-                }
-              </motion.div>
-            )}
+        <div className="flex items-center gap-2">
+          {/* Sort Direction Toggle */}
+          <Button
+            onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
+            title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
+          >
+            {sortDirection === 'desc' ? 
+              <ArrowDown className="w-3 h-3" /> : 
+              <ArrowUp className="w-3 h-3" />
+            }
           </Button>
-        ))}
+
+          {/* Sort By Dropdown */}
+          <Select value={sortBy} onValueChange={(value: SortOption) => handleSortChange(value)}>
+            <SelectTrigger className="h-6 w-20 text-xs border-slate-700 bg-slate-800/50 text-slate-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              {sortOptions.map(({ key, label, description }) => (
+                <SelectItem 
+                  key={key} 
+                  value={key}
+                  className="text-xs text-slate-300 focus:bg-slate-700 focus:text-white"
+                >
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
