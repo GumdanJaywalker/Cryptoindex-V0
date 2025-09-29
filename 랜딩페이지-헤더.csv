@@ -1,0 +1,23 @@
+﻿계층1,계층2,계층3,계층4,계층6,설명,수정 필요성
+Header,Navigation,,,,사이트 내 주요 페이지로 가는 링크들,
+,,Trading,,,거래 페이지로 이동,X
+,,Traders,,,traders 페이지로 이동,X
+,,Governance,,,거버넌스 투표 페이지로 이동,X
+,,Create,,,인덱스 만들기 페이지로 이동,X
+,,Portfolio,,,포트폴리오 페이지로 이동,X
+,,Referrals,,,레퍼럴 페이지로 이동,X
+,Settings,,,,"지금은 내비게이션의 more에 속해있고, notifications 왼쪽에 톱니바퀴 아이콘으로 위치 조정할 예정",O
+,,Settings Page,,,설정 페이지로 이동,X
+,Notifications,,,,"알림 볼수있는창, 종모양 아이콘으로 구현",
+,,알림 내용,,,,X
+,,view all,,,클릭시 알림 페이지로 이동,X
+,,,Notifications Page,,"아직 페이지 구현안함, 설정페이지 안에 통합 or 별도 페이지 생성 고려",O
+,Connect Wallet,,,,지갑 연결하는 버튼. 클릭 시 모달 표시,
+,,Modal,,,,O
+,,,,,"Privy 로그인창 띄워줌, Zusk logo라고 되어있는데 이건 Privy 사이트에서 우리 로고 집어넣어서 바꿔야할듯. 외부 컴포넌트라 건들거 없어서 생략",O
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,
+,,,,,,

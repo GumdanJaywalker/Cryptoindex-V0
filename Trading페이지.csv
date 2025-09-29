@@ -1,0 +1,27 @@
+﻿계층1,계층2,계층3,계층4,계층5,설명,수정 필요성
+Header,,,,,모든 페이지에서 공통으로 사용되는 헤더 컴포넌트,X
+,Navigation,,,,Trading/Traders/Governance/Launch/Portfolio/Referrals 링크,X
+,Notifications,,,,알림 버튼 (종 모양 아이콘),X
+,Settings,,,,설정 페이지 링크 (톱니바퀴 아이콘),X
+,Wallet Connect,,,,지갑 연결 버튼,X
+TradingLayout,,,,,거래 페이지의 메인 레이아웃 컴포넌트,X
+,IndexInfoBar,,,,선택된 인덱스 정보 표시 (가격/변동률/볼륨 등),X
+,Main Trading Area,,,,차트와 호가창이 있는 메인 영역 (화면의 80%),X
+,,Chart + OrderBook Section,,,차트와 호가창 섹션 (높이 75vh),X
+,,,ChartArea,,가격 차트 영역 (폭 68.75%),X
+,,,OrderBookTrades,,호가창과 최근 거래 영역 (폭 31.25%),X
+,,TradingBottomTabs,,,하단 탭 영역 (높이 50vh),X
+,,,Positions Tab,,현재 보유 포지션 표시,X
+,,,Orders Tab,,주문 내역 표시,X
+,,,Trade History Tab,,거래 이력 표시,X
+,,,Community Feed Tab,,커뮤니티 피드 표시,X
+,Right Trading Panel,,,,거래 패널 (화면의 20%),X
+,,TradingPanel,,,매수/매도 거래 패널,X
+,,,Buy/Sell Toggle,,매수/매도 전환 버튼,O
+,,,Order Type Selector,,주문 타입 선택 (Market/Limit),X
+,,,Amount Input,,거래 금액 입력,X
+,,,Execute Button,,거래 실행 버튼,O
+,,PresetPanel,,,빠른 거래 프리셋 패널,X
+,,,Quick Trade Presets,,미리 설정된 거래 금액 버튼들,X
+,,WhaleAlert,,,고액 거래 알림 패널,X
+,,,Large Trade Notifications,,큰 거래량 거래 알림 표시,X

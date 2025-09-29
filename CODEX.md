@@ -145,8 +145,8 @@ Policy notes (from business plan):
 - Multisig M-of-N required for sensitive execution (e.g., rebalancing), then on-chain execution and audit trail.
 - Optional shielded voting (Shutter/commit-reveal) to reduce early herding.
 
-## Create Page — Index Builder (User-Created Index)
-- Route: `app/create/page.tsx` (Create Index). Wizard-style flow with autosave.
+## Launch Page — Index Builder (User-Created Index)
+- Route: `app/launch/page.tsx` (Launch Index). Wizard-style flow with autosave.
 - Steps (UI):
   1) Basics: name, symbol, description, category, icon.
   2) Chain/Settlement: chain fixed to L3, settlement token, fee currency.
@@ -155,12 +155,12 @@ Policy notes (from business plan):
   5) Simulation: backtest summary, slippage/liquidity checks, gas/bridging estimate.
   6) Review & Submit: summary, risk warnings, submit for governance.
 - Components:
-  - `components/create/IndexBuilderWizard.tsx`: orchestrates steps.
-  - `components/create/AssetPicker.tsx`: multi-chain asset selector with liquidity/price info.
-  - `components/create/WeightTable.tsx`: weights with validation, sum=100%, caps.
-  - `components/create/RuleEditor.tsx`: rebalancing rules and constraints.
-  - `components/create/BacktestPreview.tsx`: simple mock charts first; pluggable data source later.
-  - `components/create/DeployPanel.tsx`: shows deployment plan, fees, confirmations.
+  - `components/launch/IndexBuilderWizard.tsx`: orchestrates steps.
+  - `components/launch/AssetPicker.tsx`: multi-chain asset selector with liquidity/price info.
+  - `components/launch/WeightTable.tsx`: weights with validation, sum=100%, caps.
+  - `components/launch/RuleEditor.tsx`: rebalancing rules and constraints.
+  - `components/launch/BacktestPreview.tsx`: simple mock charts first; pluggable data source later.
+  - `components/launch/DeployPanel.tsx`: shows deployment plan, fees, confirmations.
 - Hooks/APIs:
   - `hooks/use-index-builder.ts`: local state with schema validation (zod), autosave to localStorage.
   - `lib/api/indexes.ts` (stubs): resolve assets, quote mint/redeem, simulate rebalance; later connect to onchain/AP.
@@ -177,9 +177,9 @@ MVP scope (frontend-only):
 - No onchain deploy or chain messaging in FE.
 - Provide JSON export of index spec and a "Request Governance Review" action only.
 
-## Create — Progress Snapshot
+## Launch — Progress Snapshot
 - Completed:
-  - Route `/create` + header link
+  - Route `/launch` + header link
   - Wizard steps and per-step validation with blocked navigation on errors
   - Autosave UX: “Saving…” → “Saved 1m ago” (relative time + tooltip)
   - Basics: category select with “Other” custom input
@@ -465,12 +465,12 @@ Notes
 - Governance:
   - Current: mock UI, no snapshot/quorum/timelock/multisig/commit-reveal.
   - Action: implement plan above; reframe or remove winner-takes-all “Battle”.
-- Create Page:
-  - Current: no `/create` route or builder components.
-  - Action: add Create wizard (steps/components/hooks), link from header/nav.
+- Launch Page:
+  - Current: no `/launch` route or builder components.
+  - Action: add Launch wizard (steps/components/hooks), link from header/nav.
 - Token Creation/Redemption (AP):
   - Current: not represented in UI.
-  - Action: add stubs in `lib/api/indexes.ts`, surface quotes in Create wizard (mock first).
+  - Action: add stubs in `lib/api/indexes.ts`, surface quotes in Launch wizard (mock first).
 - Multi-chain & Messaging:
   - Current: not surfaced; wallet integration (Privy) exists.
   - Action: add chain selector and chain-specific asset catalogs in builder; plan LayerZero integration behind API.
