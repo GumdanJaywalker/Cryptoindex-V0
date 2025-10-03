@@ -32,22 +32,22 @@ export function TradingLayout() {
       {/* 메인 거래 영역 */}
       <div className="flex min-h-[calc(100vh-64px)]">
         {/* 좌측+중간 영역 (80%) */}
-        <div className="w-[80%] flex flex-col bg-background">
+        <div className="w-[80%] flex flex-col bg-background overflow-hidden">
           {/* 상단: 차트 + 오더북 */}
-          <div className="flex h-[75vh]">
+          <div className="flex h-[calc(100vh-64px-50vh)] min-h-0">
             {/* 차트 영역 (68.75% of 80%) */}
-            <div className="w-[68.75%] border-r border-border bg-background">
+            <div className="w-[68.75%] border-r border-border bg-background overflow-auto">
               <ChartArea />
             </div>
 
             {/* 오더북 영역 (31.25% of 80%) */}
-            <div className="w-[31.25%] bg-background">
+            <div className="w-[31.25%] bg-background overflow-auto">
               <OrderBookTrades />
             </div>
           </div>
 
           {/* 하단: Bottom Tabs - 명확한 경계선과 함께 */}
-          <div className="min-h-[50vh] border-t-2 border-slate-700 bg-background">
+          <div className="h-[50vh] border-t-2 border-slate-700 bg-background overflow-auto">
             <TradingBottomTabs />
           </div>
         </div>
