@@ -94,8 +94,8 @@ export function TrendingIndices({
   className 
 }: TrendingIndicesProps) {
   const [selectedFilter, setSelectedFilter] = useState<IndexFilter>('all')
-  const [sortBy, setSortBy] = useState<SortOption>('name') // Changed to name for consistent sorting
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [sortBy, setSortBy] = useState<SortOption>('marketCap')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredIndices, setFilteredIndices] = useState<MemeIndex[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -241,11 +241,13 @@ export function TrendingIndices({
   const topSpacer = startIndex * ROW_HEIGHT
   const bottomSpacer = Math.max(0, filteredIndices.length - endIndex - 1) * ROW_HEIGHT
 
-  // Handle sort option change with default direction
-  const handleSortChange = (newSortBy: SortOption) => {
-    setSortBy(newSortBy)
-    // Set appropriate default direction for new sort option
-    setSortDirection('desc')
+  const handleHeaderClick = (column: SortOption) => {
+    if (sortBy === column) {
+      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')
+    } else {
+      setSortBy(column)
+      setSortDirection('desc')
+    }
   }
 
   // Favorites-first ordering is automatic; no manual toggle persisted
@@ -311,40 +313,7 @@ export function TrendingIndices({
           ))}
         </div>
 
-        {/* Sort Options */}
-        <div className="flex items-center gap-2">
-          {/* Sort Direction Toggle */}
-          <Button
-            onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
-            title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
-          >
-            {sortDirection === 'desc' ? 
-              <ArrowDown className="w-3 h-3" /> : 
-              <ArrowUp className="w-3 h-3" />
-            }
-          </Button>
 
-          {/* Sort By Dropdown */}
-          <Select value={sortBy} onValueChange={(value: SortOption) => handleSortChange(value)}>
-            <SelectTrigger className="h-6 w-20 text-xs border-slate-700 bg-slate-800/50 text-slate-300">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
-              {sortOptions.map(({ key, label, description }) => (
-                <SelectItem 
-                  key={key} 
-                  value={key}
-                  className="text-xs text-slate-300 focus:bg-slate-700 focus:text-white"
-                >
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       {/* Results Info */}
@@ -386,12 +355,62 @@ export function TrendingIndices({
               <Table containerClassName="relative w-full overflow-visible">
                 <TableHeader>
                   <TableRow className="sticky top-0 z-20 bg-slate-900/80 hover:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
-                    <TableHead className="w-[300px] text-xs text-slate-400 font-medium">Name</TableHead>
+                    <TableHead 
+                      className="w-[300px] text-xs text-slate-400 font-medium cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleHeaderClick('name')}
+                    >
+                      <div className="flex items-center gap-1">
+                        Name
+                        {sortBy === 'name' && (
+                          sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="w-[120px] text-xs text-slate-400 font-medium">Chart</TableHead>
-                    <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">Price</TableHead>
-                    <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-right">24h%</TableHead>
-                    <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">Volume</TableHead>
-                    <TableHead className="w-[120px] text-xs text-slate-400 font-medium text-right">MCap</TableHead>
+                    <TableHead 
+                      className="w-[100px] text-xs text-slate-400 font-medium text-right cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleHeaderClick('price')}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        Price
+                        {sortBy === 'price' && (
+                          sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="w-[100px] text-xs text-slate-400 font-medium text-right cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleHeaderClick('change')}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        24h%
+                        {sortBy === 'change' && (
+                          sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="w-[120px] text-xs text-slate-400 font-medium text-right cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleHeaderClick('volume')}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        Volume
+                        {sortBy === 'volume' && (
+                          sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="w-[120px] text-xs text-slate-400 font-medium text-right cursor-pointer hover:text-white transition-colors"
+                      onClick={() => handleHeaderClick('marketCap')}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        MCap
+                        {sortBy === 'marketCap' && (
+                          sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />
+                        )}
+                      </div>
+                    </TableHead>
                     <TableHead className="w-[100px] text-xs text-slate-400 font-medium text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
