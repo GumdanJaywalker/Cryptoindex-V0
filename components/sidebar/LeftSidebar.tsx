@@ -40,8 +40,8 @@ export function LeftSidebar() {
             <span className="text-brand font-medium">16</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-400 text-sm">Top Gainer</span>
-            <span className="text-green-400 font-medium">+24.8%</span>
+            <span className="text-slate-400 text-sm">Market 24h P&L</span>
+            <span className="text-green-400 font-medium">+$1.2M</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-slate-400 text-sm">Total TVL</span>

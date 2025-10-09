@@ -53,5 +53,6 @@
     "context7",
     "filesystem",
     "@magicuidesign/mcp"
-  ]
+  ],
+  "enableAllProjectMcpServers": true
 }
