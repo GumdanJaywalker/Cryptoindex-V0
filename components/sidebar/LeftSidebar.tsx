@@ -10,14 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState } from 'react'
 import { usePriceAlertsStore } from '@/lib/store/price-alerts'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
+import { AllIndicesModal } from '@/components/modals/AllIndicesModal'
+import useTradingStore from '@/lib/store/trading-store'
 
 export function LeftSidebar() {
   const [addAlertOpen, setAddAlertOpen] = useState(false)
   const [alertSymbol, setAlertSymbol] = useState('DOG_INDEX')
   const [alertCondition, setAlertCondition] = useState<'above' | 'below'>('above')
   const [alertPrice, setAlertPrice] = useState('1.00')
+  const [allIndicesOpen, setAllIndicesOpen] = useState(false)
   const { alerts, addAlert, removeAlert, toggleActive } = usePriceAlertsStore()
   const { addToast } = useToast()
+  const { memeIndices, setSelectedIndex } = useTradingStore()
 
   return (
     <div className="flex flex-col gap-4 lg:min-h-[calc(100vh-6rem)] lg:justify-center lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
@@ -46,9 +50,17 @@ export function LeftSidebar() {
         </div>
       </div>
 
-      {/* Top Movers Card (mock) */}
-      <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Top Movers</h3>
+      {/* Top Gainers Card */}
+      <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-white">Top Gainers (1h)</h3>
+          <button 
+            onClick={() => setAllIndicesOpen(true)}
+            className="text-brand text-xs hover:text-brand/80 transition-colors"
+          >
+            View All
+          </button>
+        </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between p-2 rounded-lg border border-transparent hover:border-slate-700 hover:bg-slate-800/30 transition-colors">
             <span className="text-white text-sm">DOG_INDEX</span>
@@ -184,6 +196,15 @@ export function LeftSidebar() {
           </Dialog>
         </div>
       </div>
+
+      {/* All Indices Modal */}
+      <AllIndicesModal
+        open={allIndicesOpen}
+        onOpenChange={setAllIndicesOpen}
+        indices={memeIndices}
+        initialFilter="gainers"
+        onIndexSelect={setSelectedIndex}
+      />
     </div>
   )
 }

@@ -11,8 +11,18 @@ const nextConfig = {
   },
   // 개발 서버 최적화
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'motion',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      'recharts'
+    ],
   },
+  // 성능 최적화
+  swcMinify: true,
   // Cross-Origin-Opener-Policy 헤더 설정
   async headers() {
     return [

@@ -24,8 +24,15 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
+# Create .next directory with proper permissions
+RUN mkdir -p .next && chown -R node:node .next
+
 # Expose port
 EXPOSE 3000
 
-# Start development server
-CMD ["pnpm", "run", "dev"]
+# Set environment variables for better performance
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Start development server with optimized settings
+CMD ["pnpm", "run", "dev:light"]
