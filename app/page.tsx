@@ -1,36 +1,16 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { motion } from 'motion/react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { 
-  ArrowRight, 
-  ExternalLink,
-  TrendingUp,
-  BarChart3,
-  Layers,
-  CircleDollarSign
-} from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useMarketTrends } from '@/hooks/use-market-data'
-import { usePriceAlertsStore } from '@/lib/store/price-alerts'
-import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
 
 // Import mock data and types
 import { allMockIndices, mockTopTraders, mockMarketStats } from '@/lib/data/mock-indices'
-import { MemeIndex, TopTrader, TraderFilter } from '@/lib/types/index-trading'
+import { MemeIndex, TopTrader } from '@/lib/types/index-trading'
 import TraderDetailsModal from '@/components/trading/trader-details-modal'
-import { cn } from '@/lib/utils'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import { Header } from '@/components/layout/Header'
+import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
 // Dynamic imports for performance optimization - load after scroll
 const TrendingIndices = dynamic(() => import('@/components/trading/trending-indices'), {
@@ -63,68 +43,12 @@ const SmartFloatingTradeButton = dynamic(() => import('@/components/mobile/float
   ssr: false
 })
 
-// Simple sparkline component using SVG
-function Sparkline({ data, className }: { data: number[], className?: string }) {
-  if (!data || data.length === 0) return null
-  
-  const max = Math.max(...data)
-  const min = Math.min(...data)
-  const range = max - min
-  
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * 100
-    const y = range === 0 ? 50 : 100 - ((value - min) / range) * 100
-    return `${x},${y}`
-  }).join(' ')
-  
-  const isPositive = data[data.length - 1] > data[0]
-  
-  return (
-    <svg className={cn("w-full h-8", className)} viewBox="0 0 100 100" preserveAspectRatio="none">
-      <polyline
-        fill="none"
-        stroke={isPositive ? "#10b981" : "#ef4444"}
-        strokeWidth="2"
-        points={points}
-      />
-    </svg>
-  )
-}
-
-// Legacy IndexCard component - now using enhanced version from components/trading/index-card.tsx
-
-// Legacy TraderCard has been replaced with new TraderCard component
-
 // Main Landing Page Component
 export default function Home() {
   const router = useRouter()
   const [selectedIndex, setSelectedIndex] = useState<MemeIndex | null>(null)
-  const [addAlertOpen, setAddAlertOpen] = useState(false)
   const [traderModalOpen, setTraderModalOpen] = useState(false)
   const [selectedTrader, setSelectedTrader] = useState<TopTrader | null>(null)
-  const [alertSymbol, setAlertSymbol] = useState('DOG_INDEX')
-  const [alertCondition, setAlertCondition] = useState<'above' | 'below'>('above')
-  const [alertPrice, setAlertPrice] = useState('1.00')
-  const { alerts, addAlert, removeAlert, toggleActive } = usePriceAlertsStore()
-  const { addToast } = useToast()
-  // Memoized data processing - increased to show more cards
-  const topIndices = useMemo(() => 
-    allMockIndices.slice(0, 16), 
-    []
-  )
-  
-  const topGainers = useMemo(() => 
-    allMockIndices
-      .filter(index => index.change24h > 0)
-      .sort((a, b) => b.change24h - a.change24h)
-      .slice(0, 3), 
-    [allMockIndices]
-  )
-  
-  const marketCapFormatted = useMemo(() => 
-    `$${(mockMarketStats.totalMarketCap / 1e9).toFixed(1)}B`,
-    [mockMarketStats.totalMarketCap]
-  )
   
   const handleIndexSelect = useCallback((index: MemeIndex) => {
     setSelectedIndex(index)
@@ -186,182 +110,8 @@ export default function Home() {
           gap-1 xl:gap-2 2xl:gap-3 items-start lg:items-stretch lg:h-full">
           
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
-          <div className="order-2 lg:order-1 flex flex-col gap-4 lg:h-full lg:justify-center lg:pr-[1vw] lg:ml-[-1.5vw] lg:border-r lg:border-slate-800">
-
-            {/* Network Status moved to sticky footer */}
-
-            {/* Market Stats Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-[1rem] md:p-[0.9rem]">
-              <h3 className="text-base md:text-sm font-semibold text-white mb-2">Market Overview</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-xs">Total Volume 24H</span>
-                  <span className="text-white font-medium text-sm">$12.4M</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-xs">Active Indices</span>
-                  <span className="text-brand font-medium text-sm">16</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-xs">Top Gainer 1H</span>
-                  <span className="text-green-400 font-medium text-sm">+24.8%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-xs">Total TVL</span>
-                  <span className="text-white font-medium text-sm">$2.8B</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Top Gainers (1h) — hide on smaller laptops to fit above fold */}
-            {(() => {
-              const trends1h = useMarketTrends('1h')
-              const movers = trends1h.data?.topGainers || []
-              return (
-                <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-3 hidden xl:block">
-                  <h3 className="text-base font-semibold text-white mb-2">Top Gainers (1h)</h3>
-                  <div className="space-y-1.5">
-                    {trends1h.isLoading && (
-                      <div className="text-slate-400 text-xs">Loading…</div>
-                    )}
-                    {!trends1h.isLoading && movers.length === 0 && (
-                      <div className="text-slate-400 text-xs">No data</div>
-                    )}
-                    {movers.slice(0, 3).map((idx) => (
-                      <div key={idx.id} className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-800/30 hover:border-slate-700 border border-transparent transition-colors">
-                        <span className="text-white text-xs">{idx.symbol}</span>
-                        <span className={`text-xs font-semibold ${idx.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {idx.change24h >= 0 ? '+' : ''}{idx.change24h.toFixed(1)}%
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* Mini Portfolio Card */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-3">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-base md:text-sm font-semibold text-white">Portfolio</h3>
-                <Link href="/portfolio" className="text-brand text-[11px] hover:text-brand/80 transition-colors">
-                  View All
-                </Link>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs">Total Value</span>
-                  <span className="text-white font-semibold text-sm">$8,492.50</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs">Today's P&L</span>
-                  <span className="text-green-400 font-semibold text-sm">+$342.18</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-xs">Total Return</span>
-                  <span className="text-green-400 font-semibold text-sm">+12.4%</span>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-700">
-                  <span className="text-slate-400 text-xs">Active Positions</span>
-                  <span className="text-brand font-semibold text-sm">3</span>
-                </div>
-                {/* Removed sidebar Start Trading button for cleaner layout */}
-              </div>
-            </div>
-
-            {/* Recent Activity removed to save space (moved out of sidebar scope) */}
-
-            {/* Price Alerts Card */}
-            <div className="bg-slate-900/30 rounded-xl border border-slate-700 p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">Price Alerts</h3>
-              <div className="space-y-2 text-sm">
-                {alerts.length === 0 ? (
-                  <div className="text-slate-400 text-xs">No alerts yet. Create your first alert.</div>
-                ) : (
-                  alerts.slice(0, 6).map((a) => (
-                    <div key={a.id} className="flex items-center justify-between p-2 bg-slate-800/20 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{a.symbol}</span>
-                        <span className="text-slate-400">{a.condition === 'above' ? 'above' : 'below'}</span>
-                        <span className="text-brand font-medium">${a.price.toLocaleString()}</span>
-                        {!a.active && <span className="text-[10px] text-slate-400">(paused)</span>}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="text-xs px-2 py-1 rounded border border-slate-600 text-slate-300 hover:bg-slate-800"
-                          onClick={() => toggleActive(a.id)}
-                        >
-                          {a.active ? 'Pause' : 'Resume'}
-                        </button>
-                        <button
-                          className="text-xs px-2 py-1 rounded border border-red-500/40 text-red-300 hover:bg-red-500/10"
-                          onClick={() => removeAlert(a.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-                <Dialog open={addAlertOpen} onOpenChange={setAddAlertOpen}>
-                  <DialogTrigger asChild>
-                    <button className="w-full px-3 py-2 text-xs text-brand border border-brand/30 rounded-lg hover:bg-brand/10 transition-colors">
-                      + Add Alert
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-950 border-slate-800 text-white">
-                    <DialogHeader>
-                      <DialogTitle>Add Price Alert</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                          <Label className="text-slate-300 text-xs">Symbol</Label>
-                          <Input value={alertSymbol} onChange={(e) => setAlertSymbol(e.target.value.toUpperCase())} />
-                        </div>
-                        <div>
-                          <Label className="text-slate-300 text-xs">Condition</Label>
-                          <Select value={alertCondition} onValueChange={(v) => setAlertCondition(v as any)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="above">Above</SelectItem>
-                              <SelectItem value="below">Below</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-slate-300 text-xs">Price (USD)</Label>
-                          <Input value={alertPrice} onChange={(e) => setAlertPrice(e.target.value)} />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setAddAlertOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button
-                          className="bg-brand text-black hover:bg-brand-hover"
-                          onClick={() => {
-                            const sym = alertSymbol.trim().toUpperCase()
-                            const priceNum = Number(alertPrice)
-                            if (!sym || !Number.isFinite(priceNum) || priceNum <= 0) {
-                              addToast(createErrorToast('Invalid alert', 'Enter a valid symbol and price'))
-                              return
-                            }
-                            const saved = addAlert({ symbol: sym, condition: alertCondition, price: priceNum })
-                            addToast(createSuccessToast('Alert added', `${saved.symbol} ${saved.condition} $${saved.price}`))
-                            setAddAlertOpen(false)
-                          }}
-                        >
-                          Save Alert
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
+          <div className="order-2 lg:order-1">
+            <LeftSidebar />
           </div>
           
           {/* Center - Trending Indices (First on mobile) */}
