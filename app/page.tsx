@@ -102,13 +102,13 @@ export default function Home() {
       <Header />
       
       {/* Main Content */}
-      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] pt-[1.5vw] pb-4 lg:pb-0 lg:h-[calc(100vh-4rem)] -mt-4 lg:overflow-hidden">
-        <div className="grid grid-cols-1 
-          lg:grid-cols-[minmax(220px,26vw)_minmax(52vw,1fr)_minmax(22vw,28vw)] 
-          xl:grid-cols-[minmax(220px,24vw)_minmax(54vw,1fr)_minmax(22vw,28vw)] 
-          2xl:grid-cols-[minmax(220px,22vw)_minmax(60vw,1fr)_minmax(22vw,28vw)] 
-          gap-1 xl:gap-2 2xl:gap-3 items-start lg:items-stretch lg:h-full">
-          
+      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0 lg:h-[calc(100vh-4rem)] -mt-4 lg:overflow-hidden">
+        <div className="grid grid-cols-1
+          lg:grid-cols-[260px_1fr_320px]
+          xl:grid-cols-[280px_1fr_340px]
+          2xl:grid-cols-[300px_1fr_360px]
+          gap-3 items-start lg:items-stretch lg:h-full">
+
           {/* Left Sidebar - Stats & Quick Access (Hidden on mobile, shows after main content) */}
           <div className="order-2 lg:order-1">
             <LeftSidebar />
@@ -131,18 +131,17 @@ export default function Home() {
           </div>
           
           {/* Right Side - Top Traders (Second on mobile) */}
-          <div className="space-y-4 order-3 lg:order-3 lg:-ml-[2vw]">
+          <div className="space-y-4 order-3 lg:order-3">
             {/* Enhanced Top Traders Component */}
-            <TopTraders 
+            <TopTraders
               traders={mockTopTraders}
               onViewPortfolio={handleViewPortfolio}
               showFilters={false}
               maxDisplay={7}
               variant="compact"
               initialTimeframe="7d"
-              className="scale-[0.9] origin-top-right"
             />
-            
+
           </div>
         </div>
       </div>

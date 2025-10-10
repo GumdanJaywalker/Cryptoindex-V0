@@ -7,9 +7,9 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  TrendingUp,
+  TrendingDown,
   ArrowUpDown,
   Filter,
   Flame,
@@ -23,7 +23,8 @@ import {
   Crown,
   Zap,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Swords
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { 
@@ -68,6 +69,7 @@ const filterOptions: Array<{
   { key: 'favorites', label: 'Favorites', icon: Star, description: 'Your starred indices' },
   { key: 'hot', label: 'Hot', icon: Flame, description: 'Trending and popular' },
   { key: 'new', label: 'New', icon: Star, description: 'Recently launched' },
+  { key: 'vs-battles', label: 'VS Battles', icon: Swords, description: 'Active rebalancing battles', color: 'text-purple-400 border-purple-400' },
   { key: 'gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Best performing 24h' },
   { key: 'losers', label: 'Top Losers', icon: TrendingDown, description: 'Worst performing 24h' },
   { key: 'high-volume', label: 'High Volume', icon: Activity, description: 'Most active trading' },
@@ -147,6 +149,9 @@ export function TrendingIndices({
           break
         case 'new':
           filtered = filtered.filter(index => index.isNew)
+          break
+        case 'vs-battles':
+          filtered = filtered.filter(index => index.hasBattle)
           break
         case 'gainers':
           filtered = filtered.filter(index => index.change24h > 0)

@@ -23,9 +23,9 @@ const TradingBottomTabs = dynamic(
 
 export function TradingLayout() {
   return (
-    <div className="min-h-screen bg-background text-foreground pt-16">
+    <div className="min-h-screen bg-background text-foreground">
       {/* 최상단 바 (Full Width) - 인덱스 정보 헤더 */}
-      <div className="w-full border-b border-border sticky top-16 z-10 bg-background">
+      <div className="w-full border-b border-border sticky top-0 z-10 bg-background">
         <IndexInfoBar />
       </div>
 

@@ -1,6 +1,6 @@
 # CLAUDE.md - HyperIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-09-01
+> 📅 **마지막 업데이트**: 2025-10-10
 
 이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
 
@@ -179,9 +179,19 @@ export function Component({ ...props }: ComponentProps) {
 - **콘솔 로그**: 개발용 로그도 영어로 작성
 - **국제 사용자 대상**: 글로벌 서비스를 위한 영어 우선 정책
 
-## 📊 현재 진행 상황 (2025-09-01)
+## 📊 현재 진행 상황 (2025-10-10)
 
-### ✅ 최근 완료된 작업 (9월 1일)
+### ✅ 최근 완료된 작업 (10월 10일)
+- **Trading 페이지 레이아웃 개선 완료**:
+  - Header 하단 여백 제거: TradingLayout의 `pt-16` 제거로 헤더와 컨텐츠 사이 공백 제거
+  - IndexInfoBar sticky 위치 조정: `top-16` → `top-0`으로 변경하여 자연스러운 sticky 효과
+
+- **AllIndicesModal 데이터 로딩 문제 해결**:
+  - LeftSidebar의 "View All" 버튼 클릭 시 데이터 미표시 문제 해결
+  - `indices={memeIndices}` → `indices={allMockIndices}`로 변경하여 올바른 데이터 전달
+  - 필터 로직 수정: `index.trending` → `index.isHot`, `index.layer` → `index.layerInfo?.layer` 등 속성명 통일
+
+### ✅ 이전 완료된 작업 (9월 1일)
 - **Portfolio 페이지 대폭 개선 완료**: 
   - PC 웹 최적화: `max-w-7xl mx-auto` 적용으로 적절한 최대 너비 설정
   - 브랜드 색상 완전 통일: 모든 탭과 아이콘을 #8BD6FF 브랜드 색상으로 변경
