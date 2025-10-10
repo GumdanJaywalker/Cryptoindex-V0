@@ -101,7 +101,7 @@ export function AllIndicesModal({
         case 'favorites':
           return index.isFavorite
         case 'hot':
-          return index.trending
+          return index.isHot
         case 'new':
           return index.isNew
         case 'gainers':
@@ -111,11 +111,11 @@ export function AllIndicesModal({
         case 'high-volume':
           return (index.volume24h || 0) > 1000000
         case 'layer-1':
-          return index.layer === 1
+          return index.layerInfo?.layer === 'layer-1'
         case 'layer-2':
-          return index.layer === 2
+          return index.layerInfo?.layer === 'layer-2'
         case 'layer-3':
-          return index.layer === 3
+          return index.layerInfo?.layer === 'layer-3'
         default:
           return true
       }

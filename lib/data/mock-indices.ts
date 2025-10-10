@@ -68,6 +68,7 @@ export const mockIndices: MemeIndex[] = [
     holders: 12847,
     topTraders: ['trader-1', 'trader-3', 'trader-7'],
     isHot: true,
+    hasBattle: true,
     assets: [
       { symbol: 'DOGE', name: 'Dogecoin', allocation: 35.2, price: 0.082, change24h: 12.4 },
       { symbol: 'SHIB', name: 'Shiba Inu', allocation: 28.7, price: 0.0000087, change24h: 18.9 },
@@ -146,6 +147,7 @@ export const mockIndices: MemeIndex[] = [
     holders: 9834,
     topTraders: ['trader-6', 'trader-11', 'trader-15'],
     isNew: true,
+    hasBattle: true,
     assets: [
       { symbol: 'AXS', name: 'Axie Infinity', allocation: 28.9, price: 7.89, change24h: 9.8 },
       { symbol: 'SAND', name: 'The Sandbox', allocation: 24.7, price: 0.456, change24h: 14.2 },

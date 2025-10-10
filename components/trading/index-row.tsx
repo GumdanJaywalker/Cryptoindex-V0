@@ -4,6 +4,12 @@ import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { 
   Table,
   TableBody,
@@ -165,25 +171,12 @@ function LayerBadge({ layerInfo }: { layerInfo?: any }) {
   )
 }
 
-// Row badges - more compact
+// Row badges - more compact (Layer badges removed)
 function RowBadges({ index }: { index: MemeIndex }) {
   return (
     <div className="flex items-center gap-1">
-      {/* Layer Badge */}
-      <LayerBadge layerInfo={index.layerInfo} />
-      {/* Only show dynamic performance hint; HOT/NEW already shown as text badges near name */}
-      <AnimatePresence>
-        {index.isMooning && (
-          <motion.div
-            key={`${index.id}-mooning`}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.05, type: "spring" }}
-          >
-            <TrendingUp className="w-3 h-3 text-green-500" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Layer Badge removed */}
+      {/* Trend arrows removed - no isMooning indicator */}
     </div>
   )
 }
@@ -257,29 +250,71 @@ const IndexRow = memo(function IndexRow({
               unoptimized
             />
           </div>
-          <div className="min-w-0">
-            <div className="font-medium text-[13px] truncate text-white flex items-center gap-2">
-              <span className="truncate">{index.name}</span>
-              {index.isHot && (
-                <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-orange-400 border-orange-400/30">HOT</Badge>
-              )}
-              {index.isNew && (
-                <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-blue-400 border-blue-400/30">NEW</Badge>
-              )}
-              {index.graduation && (
-                <Badge
-                  variant="outline"
-                  className="h-5 px-1.5 text-[10px] text-violet-400 border-violet-400/30"
-                  title={`Graduation — Liquidity ${index.graduation.liquidityProgress}% · Sales ${index.graduation.salesProgress}% · Status: ${index.graduation.status}`}
-                >
-                  {`Graduation ${Math.round((index.graduation.liquidityProgress + index.graduation.salesProgress) / 2)}%`}
-                </Badge>
-              )}
-            </div>
-            <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-              <span>{index.symbol}</span>
-              <RowBadges index={index} />
-            </div>
+          <div className="min-w-0 flex-1">
+            {/* L3 Graduation tooltip wraps ticker and name */}
+            {index.graduation ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="cursor-help">
+                      {/* Ticker on top (large) */}
+                      <div className="font-bold text-[15px] text-white flex items-center gap-2">
+                        <span>{index.symbol}</span>
+                        {/* VS Badge on the right side for battles */}
+                        {index.hasBattle && (
+                          <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-purple-400 border-purple-400/30">VS</Badge>
+                        )}
+                        {/* HOT/NEW badges on the right side */}
+                        {index.isHot && (
+                          <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-orange-400 border-orange-400/30">HOT</Badge>
+                        )}
+                        {index.isNew && (
+                          <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-blue-400 border-blue-400/30">NEW</Badge>
+                        )}
+                      </div>
+                      {/* Index name below (truncatable) */}
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        {index.name}
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-900 border-slate-700 text-white p-2">
+                    <div className="text-xs space-y-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-slate-400">Liquidity:</span>
+                        <span className="font-medium text-violet-400">{index.graduation.liquidityProgress}%</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-slate-400">Sales:</span>
+                        <span className="font-medium text-violet-400">{index.graduation.salesProgress}%</span>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <>
+                {/* Ticker on top (large) */}
+                <div className="font-bold text-[15px] text-white flex items-center gap-2">
+                  <span>{index.symbol}</span>
+                  {/* VS Badge on the right side for battles */}
+                  {index.hasBattle && (
+                    <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-purple-400 border-purple-400/30">VS</Badge>
+                  )}
+                  {/* HOT/NEW badges on the right side */}
+                  {index.isHot && (
+                    <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-orange-400 border-orange-400/30">HOT</Badge>
+                  )}
+                  {index.isNew && (
+                    <Badge variant="outline" className="h-5 px-1.5 text-[10px] text-blue-400 border-blue-400/30">NEW</Badge>
+                  )}
+                </div>
+                {/* Index name below (truncatable) */}
+                <div className="text-[11px] text-muted-foreground truncate">
+                  {index.name}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </TableCell>
