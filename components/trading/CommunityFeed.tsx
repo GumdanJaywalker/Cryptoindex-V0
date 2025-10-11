@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  MessageSquare, 
-  Users, 
-  Waves, 
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import {
+  MessageSquare,
+  Users,
+  Waves,
   Trophy,
-  TrendingUp, 
+  TrendingUp,
   TrendingDown,
   Eye,
   AlertTriangle,
@@ -107,6 +108,7 @@ const mockPnlLeaderboard = [
 
 export function CommunityFeed() {
   const [activeTab, setActiveTab] = useState('feed')
+  const { formatBalance, formatPrice, formatPnL, formatVolume } = useCurrency()
 
   const getBadgeColor = (badge: string) => {
     switch (badge) {
@@ -225,7 +227,7 @@ export function CommunityFeed() {
                   <div className="mt-1 space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-400">{holder.percentage}%</span>
-                      <span className="text-white">${holder.value.toLocaleString()}</span>
+                      <span className="text-white">{formatBalance(holder.value)}</span>
                     </div>
                     <Progress value={holder.percentage} className="h-1" />
                   </div>
@@ -273,8 +275,8 @@ export function CommunityFeed() {
                   
                   <div className="text-xs text-slate-300">
                     <div className="flex justify-between">
-                      <span>${alert.amount.toLocaleString()} {alert.asset}</span>
-                      <span>@ ${alert.price}</span>
+                      <span>{formatBalance(alert.amount)} {alert.asset}</span>
+                      <span>@ {formatPrice(alert.price)}</span>
                     </div>
                     <div className="text-slate-500 mt-1 font-mono">
                       {alert.address}
@@ -317,7 +319,7 @@ export function CommunityFeed() {
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
                       <span className="text-slate-400">PnL:</span>
-                      <span className="text-green-400 ml-1">+${trader.pnl.toLocaleString()}</span>
+                      <span className="text-green-400 ml-1">+{formatBalance(trader.pnl)}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">Trades:</span>

@@ -2,10 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-
-function formatUsd(v: number) {
-  return `$${v.toLocaleString()}`
-}
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 // Lightweight mock summary for overview badges
 function useMockEarningsSummary() {
@@ -17,13 +14,14 @@ function useMockEarningsSummary() {
 
 export function EarningsSummary() {
   const { creatorTotal, lpTotal } = useMockEarningsSummary()
+  const { formatBalance } = useCurrency()
   return (
     <div className="flex flex-wrap gap-2">
       <Badge variant="outline" className="text-slate-200 border-slate-600">
-        Creator Fees: <span className="ml-1 font-semibold text-white">{formatUsd(creatorTotal)}</span>
+        Creator Fees: <span className="ml-1 font-semibold text-white">{formatBalance(creatorTotal)}</span>
       </Badge>
       <Badge variant="outline" className="text-slate-200 border-slate-600">
-        LP Fees: <span className="ml-1 font-semibold text-white">{formatUsd(lpTotal)}</span>
+        LP Fees: <span className="ml-1 font-semibold text-white">{formatBalance(lpTotal)}</span>
       </Badge>
     </div>
   )

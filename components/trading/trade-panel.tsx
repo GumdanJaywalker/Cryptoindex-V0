@@ -7,6 +7,7 @@ import { X, TrendingUp, TrendingDown, Zap, Settings, Info, AlertTriangle } from 
 import { MemeIndex } from '@/lib/types/index-trading'
 import { useTradingActions } from '@/lib/store/trading-store'
 import { useWallet } from '@/hooks/use-wallet'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface TradePanelProps {
   index: MemeIndex | null
@@ -43,6 +44,7 @@ export function TradePanel({
   
   const { canTrade, tradeExecution, balances } = useWallet()
   const { setTradePanelOpen } = useTradingActions()
+  const { formatPrice, formatBalance, formatFee, currency } = useCurrency()
 
   // 계산된 값들
   const currentPrice = index?.currentPrice || 0
@@ -192,9 +194,9 @@ export function TradePanel({
             {/* Amount Input */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-slate-300">Amount (USDC)</label>
+                <label className="text-sm font-medium text-slate-300">Amount ({currency})</label>
                 <div className="text-xs text-slate-500">
-                  Balance: ${availableBalance.toLocaleString()}
+                  Balance: {formatBalance(availableBalance)}
                 </div>
               </div>
               
@@ -212,7 +214,7 @@ export function TradePanel({
                   step="1"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
-                  USDC
+                  {currency}
                 </div>
               </div>
 
@@ -224,7 +226,7 @@ export function TradePanel({
                     onClick={() => handleAmountChange(quickAmount)}
                     className="flex-1 py-2 px-3 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors"
                   >
-                    ${quickAmount.toLocaleString()}
+                    {formatBalance(quickAmount)}
                   </button>
                 ))}
               </div>
@@ -234,7 +236,7 @@ export function TradePanel({
                 onClick={() => handleAmountChange(Math.floor(availableBalance * 0.95))}
                 className="w-full py-2 text-xs font-medium text-brand hover:text-brand/80 transition-colors"
               >
-                Use 95% of balance (${Math.floor(availableBalance * 0.95).toLocaleString()})
+                Use 95% of balance ({formatBalance(Math.floor(availableBalance * 0.95))})
               </button>
             </div>
 
@@ -302,7 +304,7 @@ export function TradePanel({
                         value={limitPrice || ''}
                         onChange={(e) => setLimitPrice(Number(e.target.value))}
                         className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors"
-                        placeholder={`Current: $${currentPrice.toFixed(4)}`}
+                        placeholder={`Current: ${formatPrice(currentPrice)}`}
                         step="0.0001"
                       />
                     </div>
@@ -339,30 +341,30 @@ export function TradePanel({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Position Size</span>
-                    <span className="text-white font-medium">${amount.toLocaleString()}</span>
+                    <span className="text-white font-medium">{formatBalance(amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Total Value</span>
-                    <span className="text-white font-medium">${totalValue.toLocaleString()}</span>
+                    <span className="text-white font-medium">{formatBalance(totalValue)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Estimated Fees</span>
-                    <span className="text-white font-medium">${estimatedFees.toFixed(2)}</span>
+                    <span className="text-white font-medium">{formatFee(estimatedFees)}</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Entry Price</span>
-                    <span className="text-white font-medium">${currentPrice.toFixed(4)}</span>
+                    <span className="text-white font-medium">{formatPrice(currentPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Liquidation</span>
-                    <span className="text-red-400 font-medium">${liquidationPrice.toFixed(4)}</span>
+                    <span className="text-red-400 font-medium">{formatPrice(liquidationPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Max Loss</span>
-                    <span className="text-red-400 font-medium">${maxLoss.toFixed(2)}</span>
+                    <span className="text-red-400 font-medium">{formatBalance(maxLoss)}</span>
                   </div>
                 </div>
               </div>
@@ -397,7 +399,7 @@ export function TradePanel({
           <div className="sticky bottom-0 p-6 bg-slate-900 border-t border-slate-700">
             {hasInsufficientBalance ? (
               <div className="text-center text-red-400 text-sm mb-4">
-                Insufficient balance. You need ${amount.toLocaleString()} USDC.
+                Insufficient balance. You need {formatBalance(amount)}.
               </div>
             ) : null}
             

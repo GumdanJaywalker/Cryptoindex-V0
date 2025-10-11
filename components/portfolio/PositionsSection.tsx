@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,10 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
   Target,
   Settings,
   Plus,
@@ -23,6 +23,7 @@ import {
   X,
   BarChart3
 } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface PositionsSectionProps {
   compact?: boolean
@@ -89,6 +90,7 @@ const positions = [
 
 export function PositionsSection({ compact = false }: PositionsSectionProps) {
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null)
+  const { formatPrice, formatBalance, formatPnL } = useCurrency()
 
   const totalUnrealizedPnL = positions.reduce((sum, pos) => sum + pos.pnl, 0)
   const totalMargin = positions.reduce((sum, pos) => sum + pos.margin, 0)
@@ -113,15 +115,15 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
               <BarChart3 className="w-5 h-5 text-brand" />
               Active Positions
             </CardTitle>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`${
-                totalUnrealizedPnL >= 0 
-                  ? 'text-green-400 border-green-400/30' 
+                totalUnrealizedPnL >= 0
+                  ? 'text-green-400 border-green-400/30'
                   : 'text-red-400 border-red-400/30'
               }`}
             >
-              {totalUnrealizedPnL >= 0 ? '+' : ''}${totalUnrealizedPnL.toLocaleString()}
+              {formatPnL(totalUnrealizedPnL).text}
             </Badge>
           </div>
         </CardHeader>
@@ -142,7 +144,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                   <div className={`font-semibold ${
                     position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {position.pnl >= 0 ? '+' : ''}${position.pnl.toLocaleString()}
+                    {formatPnL(position.pnl).text}
                   </div>
                   <div className="text-xs text-slate-400">
                     {position.pnl >= 0 ? '+' : ''}{position.pnlPercent}%
@@ -172,15 +174,15 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
         </div>
         
         <div className="flex items-center gap-3">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`${
-              totalUnrealizedPnL >= 0 
-                ? 'text-green-400 border-green-400/30' 
+              totalUnrealizedPnL >= 0
+                ? 'text-green-400 border-green-400/30'
                 : 'text-red-400 border-red-400/30'
             }`}
           >
-            Total P&L: {totalUnrealizedPnL >= 0 ? '+' : ''}${totalUnrealizedPnL.toLocaleString()}
+            Total P&L: {formatPnL(totalUnrealizedPnL).text}
           </Badge>
           <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
             <Settings className="w-4 h-4 mr-2" />
@@ -232,8 +234,8 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="text-sm text-white">${position.entryPrice.toFixed(3)}</div>
-                        <div className="text-xs text-slate-400">${position.markPrice.toFixed(3)}</div>
+                        <div className="text-sm text-white">{formatPrice(position.entryPrice)}</div>
+                        <div className="text-xs text-slate-400">{formatPrice(position.markPrice)}</div>
                       </div>
                     </TableCell>
                     
@@ -242,7 +244,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                         <div className={`text-sm font-semibold ${
                           position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
                         }`}>
-                          {position.pnl >= 0 ? '+' : ''}${position.pnl.toLocaleString()}
+                          {formatPnL(position.pnl).text}
                         </div>
                         <div className={`text-xs ${
                           position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
@@ -254,13 +256,13 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     
                     <TableCell>
                       <div className="text-sm text-white">
-                        ${position.margin.toLocaleString()}
+                        {formatBalance(position.margin)}
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="text-sm text-white">
-                        ${position.liquidationPrice.toFixed(3)}
+                        {formatPrice(position.liquidationPrice)}
                       </div>
                     </TableCell>
                     
@@ -333,16 +335,16 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
             <div className={`text-2xl font-bold mb-1 ${
               totalUnrealizedPnL >= 0 ? 'text-green-400' : 'text-red-400'
             }`}>
-              {totalUnrealizedPnL >= 0 ? '+' : ''}${totalUnrealizedPnL.toLocaleString()}
+              {formatPnL(totalUnrealizedPnL).text}
             </div>
             <div className="text-sm text-slate-400">Unrealized P&L</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-white mb-1">
-              ${totalMargin.toLocaleString()}
+              {formatBalance(totalMargin)}
             </div>
             <div className="text-sm text-slate-400">Total Margin</div>
           </CardContent>

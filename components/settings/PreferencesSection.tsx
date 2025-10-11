@@ -7,12 +7,15 @@ import { useEffect, useState } from 'react'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
 import { SettingsStorage } from '@/lib/settings/storage'
 import { savePreferences } from '@/lib/api/settings'
+import { useCurrencyStore } from '@/lib/store/currency-store'
+import type { Currency } from '@/lib/types/currency'
 
 export function PreferencesSection() {
   const { addToast } = useToast()
+  const { currency: storeCurrency, setCurrency: setStoreCurrency } = useCurrencyStore()
   const [theme, setTheme] = useState('dark')
   const [lang, setLang] = useState('en')
-  const [currency, setCurrency] = useState('USD')
+  const [currency, setCurrency] = useState<Currency>(storeCurrency)
   const [timefmt, setTimefmt] = useState('24h')
   const [saving, setSaving] = useState(false)
 
@@ -21,10 +24,14 @@ export function PreferencesSection() {
     if (saved) {
       setTheme(saved.theme)
       setLang(saved.lang)
-      setCurrency(saved.currency)
+      // Use currency from store if available, otherwise from saved preferences
+      setCurrency((saved.currency as Currency) || storeCurrency)
       setTimefmt(saved.timefmt)
+    } else {
+      // Set default to HYPE if no saved preferences
+      setCurrency('HYPE')
     }
-  }, [])
+  }, [storeCurrency])
 
   return (
     <div className="space-y-4">
@@ -33,13 +40,13 @@ export function PreferencesSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <div className="text-xs text-slate-400 mb-1">Currency</div>
-            <Select value={currency} onValueChange={setCurrency}>
+            <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
               <SelectTrigger className="bg-slate-900 border-slate-700"><SelectValue placeholder="Currency" /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="HYPE">HYPE (Default)</SelectItem>
                 <SelectItem value="USD">USD</SelectItem>
                 <SelectItem value="USDC">USDC</SelectItem>
                 <SelectItem value="USDT">USDT</SelectItem>
-                <SelectItem value="HYPE">HYPE</SelectItem>
                 <SelectItem value="BTC">BTC</SelectItem>
               </SelectContent>
             </Select>
@@ -62,6 +69,9 @@ export function PreferencesSection() {
             onClick={async ()=> {
               try {
                 setSaving(true)
+                // Update currency store
+                setStoreCurrency(currency)
+                // Save to backend and localStorage
                 await savePreferences({ theme, lang, currency, timefmt })
                 SettingsStorage.savePreferences({ theme, lang, currency, timefmt })
                 addToast(createSuccessToast('Saved', 'Preferences updated'))

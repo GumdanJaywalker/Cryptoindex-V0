@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { ChevronDownIcon, SearchIcon, StarIcon, Droplets } from 'lucide-react'
 import NumberTicker from '@/components/magicui/number-ticker'
+import { CurrencyNumberTicker } from '@/components/ui/currency-number-ticker'
 import BorderBeam from '@/components/magicui/border-beam'
 import LiquidityModal from '@/components/trading/LiquidityModal'
 import GraduationProgress from '@/components/trading/GraduationProgress'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 const mockIndexes = [
   { symbol: 'DOG_INDEX', name: 'Doggy Index', isFavorite: true },
@@ -16,6 +18,7 @@ const mockIndexes = [
 ]
 
 export function IndexInfoBar() {
+  const { formatPrice, formatVolume, formatGas, currency } = useCurrency()
   const [selectedIndex, setSelectedIndex] = useState('DOG_INDEX')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -224,9 +227,8 @@ export function IndexInfoBar() {
       <div className="ml-6 flex items-center space-x-6">
         <div>
           <div className="text-sm font-medium text-white">
-            <NumberTicker 
-              value={priceData.currentPrice} 
-              prefix="$" 
+            <CurrencyNumberTicker
+              value={priceData.currentPrice}
               decimalPlaces={4}
               className="font-mono"
             />
@@ -249,21 +251,19 @@ export function IndexInfoBar() {
         
         <div>
           <div className="text-sm font-medium text-white">
-            <NumberTicker 
-              value={priceData.high24h} 
-              prefix="$" 
+            <CurrencyNumberTicker
+              value={priceData.high24h}
               decimalPlaces={4}
               className="font-mono"
             />
           </div>
           <div className="text-xs hl-text-secondary">24h High</div>
         </div>
-        
+
         <div>
           <div className="text-sm font-medium text-white">
-            <NumberTicker 
-              value={priceData.low24h} 
-              prefix="$" 
+            <CurrencyNumberTicker
+              value={priceData.low24h}
               decimalPlaces={4}
               className="font-mono"
             />
@@ -273,23 +273,21 @@ export function IndexInfoBar() {
         
         <div>
           <div className="text-sm font-medium text-white">
-            <NumberTicker 
-              value={priceData.volume24h / 1000000} 
-              prefix="$" 
-              suffix="M"
+            <CurrencyNumberTicker
+              value={priceData.volume24h}
+              compact={true}
               decimalPlaces={2}
               className="font-mono"
             />
           </div>
           <div className="text-xs hl-text-secondary">24h Volume</div>
         </div>
-        
+
         <div>
           <div className="text-sm font-medium text-white">
-            <NumberTicker 
-              value={priceData.openInterest / 1000000} 
-              prefix="$" 
-              suffix="M"
+            <CurrencyNumberTicker
+              value={priceData.openInterest}
+              compact={true}
               decimalPlaces={2}
               className="font-mono"
             />
@@ -351,8 +349,8 @@ export function IndexInfoBar() {
             {(() => {
               const ethPerGas = gasInfo.gasPriceGwei / 1e9
               const ethCost = ethPerGas * gasInfo.gasLimit
-              const usdCost = ethCost * gasInfo.ethUsd
-              return `$${usdCost.toFixed(2)}`
+              const hypeCost = ethCost * 0.5 // Mock conversion to HYPE
+              return formatGas(hypeCost)
             })()}
           </div>
           <div className="text-xs hl-text-secondary">Est. Gas</div>

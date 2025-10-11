@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
 import { useWallet } from '@/hooks/use-wallet'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -65,6 +66,7 @@ export function ConfirmModal({
   const [hasReadWarning, setHasReadWarning] = useState(false)
   const [acceptedRisks, setAcceptedRisks] = useState(false)
   const { balances, tradeExecution } = useWallet()
+  const { formatPrice, formatBalance, currency } = useCurrency()
 
   // 거래 영향도 계산
   const tradeImpact = useMemo((): TradeImpact | null => {
@@ -253,30 +255,30 @@ export function ConfirmModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Position Size</span>
-                    <span className="text-white font-medium">${tradeData.amount.toLocaleString()}</span>
+                    <span className="text-white font-medium">{formatBalance(tradeData.amount)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Total Value</span>
-                    <span className="text-white font-medium">${tradeImpact.totalValue.toLocaleString()}</span>
+                    <span className="text-white font-medium">{formatBalance(tradeImpact.totalValue)}</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Entry Price</span>
-                    <span className="text-white font-medium">${tradeData.index.currentPrice.toFixed(4)}</span>
+                    <span className="text-white font-medium">{formatPrice(tradeData.index.currentPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Break Even</span>
-                    <span className="text-white font-medium">${tradeImpact.breakEvenPrice.toFixed(4)}</span>
+                    <span className="text-white font-medium">{formatPrice(tradeImpact.breakEvenPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Liquidation</span>
-                    <span className="text-red-400 font-medium">${tradeImpact.liquidationPrice.toFixed(4)}</span>
+                    <span className="text-red-400 font-medium">{formatPrice(tradeImpact.liquidationPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Estimated Fees</span>
-                    <span className="text-white font-medium">${tradeImpact.estimatedFees.toFixed(2)}</span>
+                    <span className="text-white font-medium">{formatBalance(tradeImpact.estimatedFees)}</span>
                   </div>
                 </div>
               </div>
@@ -349,17 +351,17 @@ export function ConfirmModal({
                 <div className="bg-green-900/20 border border-green-500/20 rounded-lg p-3">
                   <div className="text-xs text-green-400 mb-1">Potential Gain</div>
                   <div className="text-lg font-bold text-green-400">
-                    +${tradeImpact.potentialGain24h.toFixed(2)}
+                    +{formatBalance(tradeImpact.potentialGain24h)}
                   </div>
                   <div className="text-xs text-green-300">
                     +{((tradeImpact.potentialGain24h / tradeData.amount) * 100).toFixed(1)}%
                   </div>
                 </div>
-                
+
                 <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-3">
                   <div className="text-xs text-red-400 mb-1">Potential Loss</div>
                   <div className="text-lg font-bold text-red-400">
-                    -${tradeImpact.potentialLoss24h.toFixed(2)}
+                    -{formatBalance(tradeImpact.potentialLoss24h)}
                   </div>
                   <div className="text-xs text-red-300">
                     -{((tradeImpact.potentialLoss24h / tradeData.amount) * 100).toFixed(1)}%

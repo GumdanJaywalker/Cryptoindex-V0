@@ -21,6 +21,7 @@ import { Trade, MemeIndex } from '@/lib/types/index-trading'
 import { usePositionManagement } from '@/hooks/use-wallet'
 import { useTradingStore } from '@/lib/store/trading-store'
 import { allMockIndices } from '@/lib/data/mock-indices'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface PositionsProps {
   className?: string
@@ -40,19 +41,20 @@ interface PositionCardProps {
 }
 
 // 개별 포지션 카드 컴포넌트
-function PositionCard({ 
-  trade, 
-  index, 
-  onClose, 
+function PositionCard({
+  trade,
+  index,
+  onClose,
   onPartialClose,
   onSetStopLoss,
   onSetTakeProfit,
-  isClosing 
+  isClosing
 }: PositionCardProps) {
   const [showActions, setShowActions] = useState(false)
   const [stopLossPrice, setStopLossPrice] = useState<string>('')
   const [takeProfitPrice, setTakeProfitPrice] = useState<string>('')
   const [partialClosePercentage, setPartialClosePercentage] = useState(25)
+  const { formatBalance } = useCurrency()
 
   // 현재 가격과 PnL 계산
   const currentPrice = index.currentPrice
@@ -127,7 +129,7 @@ function PositionCard({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div className="space-y-1">
           <div className="text-slate-400">Size</div>
-          <div className="text-white font-semibold">${trade.amount.toLocaleString()}</div>
+          <div className="text-white font-semibold">{formatBalance(trade.amount)}</div>
         </div>
         
         <div className="space-y-1">
@@ -400,7 +402,7 @@ export function Positions({
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-4 h-4 text-slate-400" />
                 <span className="text-slate-400">
-                  ${totalExposure.toLocaleString()} exposure
+                  {formatBalance(totalExposure)} exposure
                 </span>
               </div>
               <div className={`font-semibold ${totalPnL >= 0 ? 'text-green-300' : 'text-red-300'}`}>

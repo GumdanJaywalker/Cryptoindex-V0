@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Clock, Settings, Zap, TrendingUp, TrendingDown, Target, Timer, Shield, AlertTriangle, ArrowDown } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 const orderTypes = ['Market', 'Limit', 'Stop Market', 'Stop Limit', 'OCO', 'TWAP', 'Scale', 'Iceberg', 'Trailing Stop']
 const leverageOptions = [1, 2, 5, 10, 20, 50]
@@ -16,6 +17,7 @@ const marginModes = ['Cross Margin', 'Isolated Margin']
 const timeInForceOptions = ['GTC', 'IOC', 'FOK']
 
 export function TradingPanel() {
+  const { formatPrice, formatFee, formatBalance, currency } = useCurrency()
   const [side, setSide] = useState<'Buy' | 'Sell'>('Buy')
   const [orderType, setOrderType] = useState('Market')
   const [leverage, setLeverage] = useState(10)
@@ -218,7 +220,7 @@ export function TradingPanel() {
         {/* Price */}
         {orderType !== 'Market' && (
           <div>
-            <label className="block text-xs text-muted-foreground mb-2">Price (USDC)</label>
+            <label className="block text-xs text-muted-foreground mb-2">Price ({currency})</label>
             <Input
               value={price}
               onChange={(e) => setPrice(e.target.value)}
@@ -396,11 +398,11 @@ export function TradingPanel() {
         <div className="bg-card rounded-lg p-3 space-y-2 text-xs border border-border">
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Est. Fill Price:</span>
-            <span className="text-card-foreground font-medium">${price}</span>
+            <span className="text-card-foreground font-medium">{formatPrice(parseFloat(price) || 0)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Est. Fee (Maker/Taker):</span>
-            <span className="text-card-foreground">$0.12 / $0.18</span>
+            <span className="text-card-foreground">{formatFee(0.12)} / {formatFee(0.18)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Slippage:</span>
@@ -408,11 +410,11 @@ export function TradingPanel() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Liq. Price:</span>
-            <span className="text-amber-400 font-medium">$1.1234</span>
+            <span className="text-amber-400 font-medium">{formatPrice(1.1234)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Required Margin:</span>
-            <span className="text-card-foreground font-medium">$123.45</span>
+            <span className="text-card-foreground font-medium">{formatBalance(123.45)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Margin Usage:</span>
@@ -420,20 +422,20 @@ export function TradingPanel() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Max Loss/Gain:</span>
-            <span className="text-card-foreground">-$500 / +$1,250</span>
+            <span className="text-card-foreground">-{formatBalance(500)} / +{formatBalance(1250)}</span>
           </div>
-          
+
           {takeProfitEnabled && (
             <div className="flex justify-between items-center text-emerald-400">
               <span>Take Profit:</span>
-              <span className="font-medium">${takeProfit}</span>
+              <span className="font-medium">{formatPrice(parseFloat(takeProfit) || 0)}</span>
             </div>
           )}
-          
+
           {stopLossEnabled && (
             <div className="flex justify-between items-center text-red-400">
               <span>Stop Loss:</span>
-              <span className="font-medium">${stopLoss}</span>
+              <span className="font-medium">{formatPrice(parseFloat(stopLoss) || 0)}</span>
             </div>
           )}
         </div>

@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { assetsCatalog, type AssetMeta } from '@/lib/mock/assets'
 import { globalBlacklist } from '@/lib/mock/blacklist'
 import { useToast, createSuccessToast } from '@/components/notifications/toast-system'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 type Asset = AssetMeta
 
@@ -194,6 +195,7 @@ useEffect(() => {
   const total = Object.values(selected).reduce((s, v) => s + (Number.isFinite(v) ? v : 0), 0)
   const totalOk = Math.abs(total - 100) < 0.01
   const { addToast } = useToast()
+  const { formatBalance } = useCurrency()
 
   return (
     <div className="space-y-4">
@@ -221,7 +223,7 @@ useEffect(() => {
         </Select>
         <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
           <Switch checked={hideLowLiquidity} onCheckedChange={(v) => setHideLowLiquidity(!!v)} />
-          <span className="text-xs text-slate-300">Hide low liq (&lt; ${minLiquidity.toLocaleString()})</span>
+          <span className="text-xs text-slate-300">Hide low liq (&lt; {formatBalance(minLiquidity)})</span>
         </div>
         <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
           <Switch checked={excludeBlacklisted} onCheckedChange={(v) => setExcludeBlacklisted(!!v)} />

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -332,6 +333,7 @@ const mockOrderHistory = [
 ];
 
 export function TradingBottomTabs() {
+  const { formatPrice, formatBalance, formatPnL, formatVolume, currency } = useCurrency()
   const [activeTab, setActiveTab] = useState('positions')
 
   // 서버와 클라이언트에서 동일한 값 사용
@@ -341,7 +343,7 @@ export function TradingBottomTabs() {
   const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0;
 
   return (
-    <div className="min-h-[50vh] bg-background">
+    <div className="bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-5 bg-secondary border-b border-slate-700 rounded-none w-full">
           <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-brand">
@@ -424,14 +426,14 @@ export function TradingBottomTabs() {
 
                           {/* Entry Price */}
                           <div className="text-center">
-                            <div className="text-white font-medium">${position.entryPrice.toFixed(3)}</div>
+                            <div className="text-white font-medium">{formatPrice(position.entryPrice)}</div>
                           </div>
 
                           {/* Mark Price */}
                           <div className="text-center">
-                            <div className="text-white font-medium">${position.currentPrice.toFixed(3)}</div>
+                            <div className="text-white font-medium">{formatPrice(position.currentPrice)}</div>
                             <div className={`text-xs ${
-                              position.currentPrice > position.entryPrice 
+                              position.currentPrice > position.entryPrice
                                 ? (position.side === 'Buy' ? 'text-green-400' : 'text-red-400')
                                 : (position.side === 'Buy' ? 'text-red-400' : 'text-green-400')
                             }`}>
@@ -441,10 +443,8 @@ export function TradingBottomTabs() {
 
                           {/* P&L */}
                           <div className="text-center">
-                            <div className={`font-semibold ${
-                              position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
-                            }`}>
-                              {position.pnl >= 0 ? '+' : ''}${position.pnl.toFixed(2)}
+                            <div className={`font-semibold ${formatPnL(position.pnl).colorClass}`}>
+                              {formatPnL(position.pnl).text}
                             </div>
                             <div className={`text-xs ${
                               position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
@@ -455,12 +455,12 @@ export function TradingBottomTabs() {
 
                           {/* Margin */}
                           <div className="text-center">
-                            <div className="text-white font-medium">${position.margin.toFixed(0)}</div>
+                            <div className="text-white font-medium">{formatBalance(position.margin)}</div>
                           </div>
 
                           {/* Liquidation Price */}
                           <div className="text-center">
-                            <div className="text-white font-medium">${position.liquidationPrice.toFixed(3)}</div>
+                            <div className="text-white font-medium">{formatPrice(position.liquidationPrice)}</div>
                             <div className="text-xs text-slate-400">
                               {position.currentPrice !== 0 ? (Math.abs((position.liquidationPrice - position.currentPrice) / position.currentPrice) * 100).toFixed(1) : '0.0'}%
                             </div>
@@ -606,11 +606,11 @@ export function TradingBottomTabs() {
                         </div>
                         
                         <div className="text-right">
-                          <div className="text-sm font-semibold text-green-400">
-                            +${position.pnl.toFixed(2)} ({position.pnlPercent}%)
+                          <div className={`text-sm font-semibold ${formatPnL(position.pnl).colorClass}`}>
+                            {formatPnL(position.pnl).text} ({position.pnlPercent}%)
                           </div>
                           <div className="text-xs text-slate-400">
-                            Size: {position.size} • Entry: ${position.entryPrice}
+                            Size: {position.size} • Entry: {formatPrice(position.entryPrice)}
                           </div>
                         </div>
                       </div>
@@ -659,10 +659,10 @@ export function TradingBottomTabs() {
                         </div>
                         <div className="text-right">
                           <div className="text-sm text-white font-medium">
-                            {asset.asset === 'USDC' ? `${asset.total.toLocaleString()}` : asset.total.toFixed(1)}
+                            {asset.asset === 'USDC' ? formatBalance(asset.total) : asset.total.toFixed(1)}
                           </div>
                           <div className="text-xs text-slate-400">
-                            Available: {asset.asset === 'USDC' ? `${asset.balance.toLocaleString()}` : asset.balance.toFixed(1)}
+                            Available: {asset.asset === 'USDC' ? formatBalance(asset.balance) : asset.balance.toFixed(1)}
                           </div>
                         </div>
                       </div>
@@ -701,7 +701,7 @@ export function TradingBottomTabs() {
                         
                         <div className="text-right">
                           <div className="text-sm text-white">
-                            {order.size} @ ${order.price}
+                            {order.size} @ {formatPrice(order.price)}
                           </div>
                           <div className="text-xs text-slate-400">
                             {order.time} • {order.status}
@@ -797,13 +797,13 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2">
                           <div className="text-slate-400">Requested Price</div>
                           <div className="text-white font-medium">
-                            {order.requestedPrice ? `$${order.requestedPrice}` : 'Market'}
+                            {order.requestedPrice ? formatPrice(order.requestedPrice) : 'Market'}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2">
                           <div className="text-slate-400">Filled Price</div>
                           <div className="text-white font-medium">
-                            {order.filledPrice > 0 ? `$${order.filledPrice}` : '-'}
+                            {order.filledPrice > 0 ? formatPrice(order.filledPrice) : '-'}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2">
@@ -819,7 +819,7 @@ export function TradingBottomTabs() {
                           <div className="text-white font-medium">
                             {order.status === 'Filled' ? (
                               <div className="flex items-center gap-1">
-                                <span>${order.fee}</span>
+                                <span>{formatBalance(order.fee)}</span>
                                 <Badge variant="outline" className={`text-xs ${
                                   order.feeType === 'maker' ? 'text-blue-400 border-blue-400/30' : 'text-purple-400 border-purple-400/30'
                                 }`}>
@@ -929,13 +929,13 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2">
                           <div className="text-xs text-slate-400">Mid Price</div>
                           <div className="text-sm font-semibold text-white">
-                            ${mockMarketData.orderBookDepth.spreadInfo.midPrice}
+                            {formatPrice(mockMarketData.orderBookDepth.spreadInfo.midPrice)}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2">
                           <div className="text-xs text-slate-400">5L Depth</div>
                           <div className="text-sm font-semibold text-white">
-                            ${(mockMarketData.orderBookDepth.depthAnalysis.bid5Depth / 1000).toFixed(0)}K
+                            {formatVolume(mockMarketData.orderBookDepth.depthAnalysis.bid5Depth)}
                           </div>
                           <div className="text-xs text-slate-400">Bid side</div>
                         </div>
@@ -967,19 +967,19 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">24h Volume</div>
                           <div className="text-sm font-semibold text-white">
-                            ${(mockMarketData.volumeAnalysis.volumeStats.total24h / 1e6).toFixed(1)}M
+                            {formatVolume(mockMarketData.volumeAnalysis.volumeStats.total24h)}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Buy Volume</div>
                           <div className="text-sm font-semibold text-green-400">
-                            ${(mockMarketData.volumeAnalysis.volumeStats.buyVolume / 1e6).toFixed(1)}M
+                            {formatVolume(mockMarketData.volumeAnalysis.volumeStats.buyVolume)}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Sell Volume</div>
                           <div className="text-sm font-semibold text-red-400">
-                            ${(mockMarketData.volumeAnalysis.volumeStats.sellVolume / 1e6).toFixed(1)}M
+                            {formatVolume(mockMarketData.volumeAnalysis.volumeStats.sellVolume)}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
@@ -995,13 +995,13 @@ export function TradingBottomTabs() {
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Avg Size</div>
                           <div className="text-sm font-semibold text-white">
-                            ${mockMarketData.volumeAnalysis.volumeStats.avgTradeSize.toLocaleString()}
+                            {formatBalance(mockMarketData.volumeAnalysis.volumeStats.avgTradeSize)}
                           </div>
                         </div>
                         <div className="bg-slate-900/50 rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Median</div>
                           <div className="text-sm font-semibold text-white">
-                            ${mockMarketData.volumeAnalysis.volumeStats.medianTradeSize.toLocaleString()}
+                            {formatBalance(mockMarketData.volumeAnalysis.volumeStats.medianTradeSize)}
                           </div>
                         </div>
                       </div>
@@ -1018,7 +1018,7 @@ export function TradingBottomTabs() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-white">
-                                  ${(hour.volume / 1e6).toFixed(1)}M
+                                  {formatVolume(hour.volume)}
                                 </span>
                                 <Badge 
                                   variant="outline" 
@@ -1418,8 +1418,8 @@ export function TradingBottomTabs() {
                                 {order.side.toUpperCase()}
                               </Badge>
                               <div>
-                                <div className="text-sm text-white font-medium">${order.size.toLocaleString()}</div>
-                                <div className="text-xs text-slate-400">@ ${order.price}</div>
+                                <div className="text-sm text-white font-medium">{formatBalance(order.size)}</div>
+                                <div className="text-xs text-slate-400">@ {formatPrice(order.price)}</div>
                               </div>
                             </div>
                             <div className="text-right">
@@ -1455,7 +1455,7 @@ export function TradingBottomTabs() {
                                 {tx.type}
                               </Badge>
                               <div>
-                                <div className="text-sm text-white font-medium">${tx.amount.toLocaleString()}</div>
+                                <div className="text-sm text-white font-medium">{formatBalance(tx.amount)}</div>
                                 <div className="text-xs text-slate-400 font-mono">{tx.wallet}</div>
                               </div>
                             </div>
