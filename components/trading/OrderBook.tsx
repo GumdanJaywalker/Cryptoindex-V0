@@ -4,18 +4,19 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  Settings, 
-  Eye, 
-  AlertTriangle, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  Settings,
+  Eye,
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
   Activity,
   BarChart3,
   Layers,
   Zap,
   Target
 } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 const mockAsks = [
   { price: 1.2578, size: 987.3, total: 22456.7, isMyOrder: false, isLarge: false },
@@ -45,6 +46,7 @@ const mockWhaleAlerts = [
 ]
 
 export function OrderBook() {
+  const { formatPrice, currency } = useCurrency()
   const [grouping, setGrouping] = useState('0.01')
   const [showMyOrders, setShowMyOrders] = useState(true)
   const [showWhaleAlerts, setShowWhaleAlerts] = useState(true)
@@ -95,7 +97,7 @@ export function OrderBook() {
       {/* Settings Bar */}
       <div className="h-6 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-3 text-xs">
         <div className="flex items-center gap-2 text-slate-400">
-          <span>Mid: <span className="text-white font-mono">${midPrice}</span></span>
+          <span>Mid: <span className="text-white font-mono">{formatPrice(parseFloat(midPrice))}</span></span>
           <Badge variant="outline" className="text-xs px-1 py-0 h-4">
             {grouping}
           </Badge>
@@ -108,7 +110,7 @@ export function OrderBook() {
 
       {/* Column Headers */}
       <div className="h-6 bg-slate-900 border-b border-slate-800 flex items-center px-3 text-xs text-slate-400">
-        <div className="flex-1">Price (USDC)</div>
+        <div className="flex-1">Price ({currency})</div>
         <div className="flex-1 text-right">Size</div>
         <div className="flex-1 text-right">Total</div>
         <div className="w-8"></div>
@@ -164,11 +166,11 @@ export function OrderBook() {
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-green-400" />
-              <span className="text-slate-300">${mockBids[0].price.toFixed(4)}</span>
+              <span className="text-slate-300">{formatPrice(mockBids[0].price)}</span>
             </div>
             <div className="flex items-center gap-1">
               <TrendingDown className="w-3 h-3 text-red-400" />
-              <span className="text-slate-300">${mockAsks[mockAsks.length - 1].price.toFixed(4)}</span>
+              <span className="text-slate-300">{formatPrice(mockAsks[mockAsks.length - 1].price)}</span>
             </div>
           </div>
         </div>

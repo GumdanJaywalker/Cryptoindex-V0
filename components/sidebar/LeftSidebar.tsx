@@ -17,8 +17,10 @@ import { AllIndicesModal } from '@/components/modals/AllIndicesModal'
 import useTradingStore from '@/lib/store/trading-store'
 import { cn } from '@/lib/utils'
 import { allMockIndices } from '@/lib/data/mock-indices'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 export function LeftSidebar() {
+  const { formatBalance, formatVolume } = useCurrency()
   const [addAlertOpen, setAddAlertOpen] = useState(false)
   const [comboboxOpen, setComboboxOpen] = useState(false)
   const [alertSymbol, setAlertSymbol] = useState('')
@@ -44,7 +46,7 @@ export function LeftSidebar() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-slate-400 text-xs">Total Volume 24H</span>
-              <span className="text-white text-xs font-medium">$12.4M</span>
+              <span className="text-white text-xs font-medium">{formatVolume(12400000)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-400 text-xs">Active Indices</span>
@@ -52,11 +54,11 @@ export function LeftSidebar() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-400 text-xs">Market 24h P&L</span>
-              <span className="text-green-400 text-xs font-medium">+$1.2M</span>
+              <span className="text-green-400 text-xs font-medium">+{formatVolume(1200000)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-400 text-xs">Total TVL</span>
-              <span className="text-white text-xs font-medium">$2.8B</span>
+              <span className="text-white text-xs font-medium">{formatVolume(2800000000)}</span>
             </div>
           </div>
         </div>
@@ -97,19 +99,19 @@ export function LeftSidebar() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-xs">Total Value</span>
-              <span className="text-white text-xs font-semibold">$8,492.50</span>
+              <span className="text-white text-xs font-semibold">{formatBalance(8492.50)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-xs">Today's P&L</span>
               <div className="text-right">
-                <div className="text-green-400 text-xs font-semibold">+$342.18</div>
+                <div className="text-green-400 text-xs font-semibold">+{formatBalance(342.18)}</div>
                 <div className="text-green-400 text-[10px]">+4.2%</div>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-xs">All-Time P&L</span>
               <div className="text-right">
-                <div className="text-green-400 text-xs font-semibold">+$1,042.50</div>
+                <div className="text-green-400 text-xs font-semibold">+{formatBalance(1042.50)}</div>
                 <div className="text-green-400 text-[10px]">+14.0%</div>
               </div>
             </div>

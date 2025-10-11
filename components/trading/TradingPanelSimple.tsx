@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendingUp, TrendingDown, Info, AlertTriangle, Clock, Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import NumberTicker from '@/components/magicui/number-ticker'
+import { CurrencyNumberTicker } from '@/components/ui/currency-number-ticker'
 import { MagicCard } from '@/components/magicui/magic-card'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 // Removed shimmer for order buttons (solid style preferred)
 
 export function TradingPanel() {
@@ -23,6 +24,8 @@ export function TradingPanel() {
   const [buyStopPrice, setBuyStopPrice] = useState('')
   const [sellStopPrice, setSellStopPrice] = useState('')
   const [mounted, setMounted] = useState(false)
+
+  const { formatPrice, formatBalance, currency } = useCurrency()
   
   // Dynamic price data for NumberTicker animations
   const [currentPrice, setCurrentPrice] = useState(1.2345)
@@ -200,12 +203,11 @@ export function TradingPanel() {
             {/* Price Fields - Dynamic based on order type */}
             {buyOrderType === 'market' && (
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Market Price (USD)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Market Price ({currency})</label>
                 <div className="relative">
                   <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed font-mono">
-                    <NumberTicker 
-                      value={currentPrice} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={currentPrice}
                       decimalPlaces={4}
                       className="font-mono"
                     /> (Live)
@@ -219,15 +221,15 @@ export function TradingPanel() {
 
             {buyOrderType === 'limit' && (
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Limit Price (USD)</label>
-                <Input 
+                <label className="text-xs text-muted-foreground mb-1 block">Limit Price ({currency})</label>
+                <Input
                   value={buyLimitPrice}
                   onChange={(e) => setBuyLimitPrice(e.target.value)}
-                  placeholder={`Current: ${currentPrice.toFixed(4)}`}
+                  placeholder={`Current: ${formatPrice(currentPrice)}`}
                   className="bg-muted border-border text-foreground"
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  Market: <NumberTicker value={currentPrice} prefix="$" decimalPlaces={4} className="font-mono" /> | Diff: {buyLimitPrice ? ((Number(buyLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
+                  Market: <CurrencyNumberTicker value={currentPrice} decimalPlaces={4} className="font-mono" /> | Diff: {buyLimitPrice ? ((Number(buyLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
                 </div>
               </div>
             )}
@@ -235,11 +237,11 @@ export function TradingPanel() {
             {buyOrderType === 'stop-loss' && (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Trigger Price (USD)</label>
-                  <Input 
+                  <label className="text-xs text-muted-foreground mb-1 block">Trigger Price ({currency})</label>
+                  <Input
                     value={buyStopPrice}
                     onChange={(e) => setBuyStopPrice(e.target.value)}
-                    placeholder={`Below ${currentPrice.toFixed(4)}`}
+                    placeholder={`Below ${formatPrice(currentPrice)}`}
                     className="bg-muted border-border text-foreground"
                   />
                   <div className="text-xs text-red-400 mt-1">
@@ -289,9 +291,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-card-foreground font-mono">
-                    <NumberTicker 
-                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).subtotal : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).subtotal : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -299,9 +300,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Trading Fee (0.1%)</span>
                   <span className="text-card-foreground font-mono">
-                    <NumberTicker 
-                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).fee : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).fee : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -309,9 +309,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
                   <span className="text-muted-foreground">Total Cost</span>
                   <span className="text-emerald-400 font-mono">
-                    <NumberTicker 
-                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).total : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={buyQuantity ? calculateBuyAmount(Number(buyQuantity)).total : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -350,12 +349,11 @@ export function TradingPanel() {
             {/* Price Fields - Dynamic based on order type */}
             {sellOrderType === 'market' && (
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Market Price (USD)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Market Price ({currency})</label>
                 <div className="relative">
                   <div className="flex items-center h-10 px-3 py-2 text-sm border border-border rounded-md bg-muted text-foreground cursor-not-allowed font-mono">
-                    <NumberTicker 
-                      value={currentPrice} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={currentPrice}
                       decimalPlaces={4}
                       className="font-mono"
                     /> (Live)
@@ -369,15 +367,15 @@ export function TradingPanel() {
 
             {sellOrderType === 'limit' && (
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Limit Price (USD)</label>
-                <Input 
+                <label className="text-xs text-muted-foreground mb-1 block">Limit Price ({currency})</label>
+                <Input
                   value={sellLimitPrice}
                   onChange={(e) => setSellLimitPrice(e.target.value)}
-                  placeholder={`Current: ${currentPrice.toFixed(4)}`}
+                  placeholder={`Current: ${formatPrice(currentPrice)}`}
                   className="bg-muted border-border text-foreground"
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  Market: <NumberTicker value={currentPrice} prefix="$" decimalPlaces={4} className="font-mono" /> | Diff: {sellLimitPrice ? ((Number(sellLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
+                  Market: <CurrencyNumberTicker value={currentPrice} decimalPlaces={4} className="font-mono" /> | Diff: {sellLimitPrice ? ((Number(sellLimitPrice) - currentPrice) / currentPrice * 100).toFixed(2) : '0.00'}%
                 </div>
               </div>
             )}
@@ -385,11 +383,11 @@ export function TradingPanel() {
             {sellOrderType === 'stop-loss' && (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Trigger Price (USD)</label>
-                  <Input 
+                  <label className="text-xs text-muted-foreground mb-1 block">Trigger Price ({currency})</label>
+                  <Input
                     value={sellStopPrice}
                     onChange={(e) => setSellStopPrice(e.target.value)}
-                    placeholder={`Below ${currentPrice.toFixed(4)}`}
+                    placeholder={`Below ${formatPrice(currentPrice)}`}
                     className="bg-muted border-border text-foreground"
                   />
                   <div className="text-xs text-red-400 mt-1">
@@ -439,9 +437,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-card-foreground font-mono">
-                    <NumberTicker 
-                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).subtotal : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).subtotal : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -449,9 +446,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Trading Fee (0.1%)</span>
                   <span className="text-card-foreground font-mono">
-                    <NumberTicker 
-                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).fee : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).fee : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -459,9 +455,8 @@ export function TradingPanel() {
                 <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
                   <span className="text-muted-foreground">Net Proceeds</span>
                   <span className="text-red-400 font-mono">
-                    <NumberTicker 
-                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).total : 0} 
-                      prefix="$" 
+                    <CurrencyNumberTicker
+                      value={sellQuantity ? calculateSellAmount(Number(sellQuantity)).total : 0}
                       decimalPlaces={2}
                     />
                   </span>
@@ -485,9 +480,8 @@ export function TradingPanel() {
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Cash Balance</span>
             <span className="text-foreground font-mono">
-              <NumberTicker 
-                value={availableBalance} 
-                prefix="$" 
+              <CurrencyNumberTicker
+                value={availableBalance}
                 decimalPlaces={2}
               />
             </span>
@@ -495,9 +489,9 @@ export function TradingPanel() {
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">DOG Holdings</span>
             <span className="text-foreground font-mono">
-              <NumberTicker 
-                value={dogHoldings} 
-                suffix=" DOG" 
+              <CurrencyNumberTicker
+                value={dogHoldings}
+                suffix=" DOG"
                 decimalPlaces={4}
               />
             </span>
@@ -505,9 +499,8 @@ export function TradingPanel() {
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Holdings Value</span>
             <span className="text-foreground font-mono">
-              <NumberTicker 
-                value={dogHoldings * currentPrice} 
-                prefix="$" 
+              <CurrencyNumberTicker
+                value={dogHoldings * currentPrice}
                 decimalPlaces={2}
               />
             </span>
@@ -515,9 +508,8 @@ export function TradingPanel() {
           <div className="flex justify-between text-xs font-medium border-t border-border pt-2">
             <span className="text-muted-foreground">Total Portfolio</span>
             <span className="text-emerald-400 font-mono">
-              <NumberTicker 
-                value={availableBalance + (dogHoldings * currentPrice)} 
-                prefix="$" 
+              <CurrencyNumberTicker
+                value={availableBalance + (dogHoldings * currentPrice)}
                 decimalPlaces={2}
               />
             </span>

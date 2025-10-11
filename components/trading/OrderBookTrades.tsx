@@ -53,7 +53,7 @@ export function OrderBookTrades() {
   const [activeTab, setActiveTab] = useState<'orderbook' | 'trades'>('orderbook')
 
   return (
-    <div className="bg-slate-950">
+    <div className="bg-slate-950 h-full flex flex-col">
       {/* Tab Header */}
       <div className="flex border-b border-slate-700 bg-slate-900">
         <button
@@ -78,8 +78,8 @@ export function OrderBookTrades() {
         </button>
       </div>
 
-      {/* Content */}
-      <div className="h-[75vh] bg-slate-950">
+      {/* Content - fill remaining space between IndexInfoBar and BottomTabs */}
+      <div className="flex-1 bg-slate-950 min-h-0">
         {activeTab === 'orderbook' ? (
           <OrderBookContent />
         ) : (

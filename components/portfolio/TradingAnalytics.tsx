@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Target, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
   Calendar,
   Trophy,
   AlertTriangle,
@@ -16,6 +16,7 @@ import {
   PieChart,
   Activity
 } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface TradingAnalyticsProps {
   compact?: boolean
@@ -54,6 +55,7 @@ const analyticsData = {
 
 export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
   const [timeframe, setTimeframe] = useState('all')
+  const { formatBalance, formatPnL } = useCurrency()
 
   if (compact) {
     return (
@@ -82,15 +84,15 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-400">Monthly P&L</span>
-                <span className="text-green-300">+${analyticsData.totalPnL.toLocaleString()}</span>
+                <span className="text-green-300">{formatPnL(analyticsData.totalPnL).text}</span>
               </div>
               <Progress value={75} className="h-2" />
             </div>
-            
+
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-400">Max Drawdown</span>
-                <span className="text-red-300">${analyticsData.maxDrawdown.toLocaleString()}</span>
+                <span className="text-red-300">{formatBalance(Math.abs(analyticsData.maxDrawdown))}</span>
               </div>
               <Progress value={28} className="h-2" />
             </div>
@@ -255,7 +257,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
                     <div className={`text-sm font-semibold ${
                       index.pnl >= 0 ? 'text-green-300' : 'text-red-300'
                     }`}>
-                      {index.pnl >= 0 ? '+' : ''}${index.pnl.toLocaleString()}
+                      {formatPnL(index.pnl).text}
                     </div>
                   </div>
                   
@@ -289,7 +291,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center">
                     <div className="text-xs text-slate-400 mb-2">
-                      {month.pnl >= 0 ? '+' : ''}${month.pnl.toLocaleString()}
+                      {formatPnL(month.pnl).text}
                     </div>
                     <div className="w-full h-32 flex items-end">
                       <div

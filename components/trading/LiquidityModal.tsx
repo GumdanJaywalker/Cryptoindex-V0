@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast, createSuccessToast, createErrorToast } from "@/components/notifications/toast-system"
+import { useCurrency } from "@/lib/hooks/useCurrency"
 
 interface LiquidityModalProps {
   open: boolean
@@ -15,6 +16,7 @@ interface LiquidityModalProps {
 
 export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityModalProps) {
   const { addToast } = useToast()
+  const { formatBalance, formatFee, formatGas, currency } = useCurrency()
   const [mode, setMode] = useState<"add" | "remove">("add")
   const [amount, setAmount] = useState<string>("")
   const [slippage, setSlippage] = useState<string>("0.50")
@@ -46,7 +48,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
       addToast(
         createSuccessToast(
           mode === "add" ? "Liquidity added" : "Liquidity removed",
-          `${indexSymbol} · $${est.usd.toLocaleString()} · ~${est.shares.toFixed(4)} shares`
+          `${indexSymbol} · ${formatBalance(est.usd)} · ~${est.shares.toFixed(4)} shares`
         )
       )
       onOpenChange(false)
@@ -88,7 +90,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
 
           {/* Amount */}
           <div className="grid grid-cols-1 gap-2">
-            <Label className="text-slate-300 text-xs">Amount (USD)</Label>
+            <Label className="text-slate-300 text-xs">Amount ({currency})</Label>
             <Input
               inputMode="decimal"
               value={amount}
@@ -121,11 +123,11 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
             </div>
             <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
               <div className="text-slate-400">Fees</div>
-              <div className="text-white font-mono">${est.fees.toFixed(2)}</div>
+              <div className="text-white font-mono">{formatFee(est.fees)}</div>
             </div>
             <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
               <div className="text-slate-400">Est. Gas</div>
-              <div className="text-white font-mono">${est.gas.toFixed(2)}</div>
+              <div className="text-white font-mono">{formatGas(est.gas)}</div>
             </div>
           </div>
 

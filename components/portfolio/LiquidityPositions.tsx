@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Info } from "lucide-react"
 import LiquidityModal from "@/components/trading/LiquidityModal"
+import { useCurrency } from "@/lib/hooks/useCurrency"
 
 type Position = {
   indexSymbol: string
@@ -24,6 +25,7 @@ const mockPositions: Position[] = [
 export function LiquidityPositions() {
   const [open, setOpen] = useState(false)
   const [activeSymbol, setActiveSymbol] = useState<string>('DOG_INDEX')
+  const { formatBalance } = useCurrency()
 
   const totalDeposited = mockPositions.reduce((a, p) => a + p.depositedUSD, 0)
   const totalValue = mockPositions.reduce((a, p) => a + p.currentValueUSD, 0)
@@ -40,11 +42,11 @@ export function LiquidityPositions() {
         <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 text-sm">
           <div>
             <div className="text-slate-400">Deposited</div>
-            <div className="text-white font-semibold">${totalDeposited.toLocaleString()}</div>
+            <div className="text-white font-semibold">{formatBalance(totalDeposited)}</div>
           </div>
           <div>
             <div className="text-slate-400">Current Value</div>
-            <div className="text-white font-semibold">${totalValue.toLocaleString()}</div>
+            <div className="text-white font-semibold">{formatBalance(totalValue)}</div>
           </div>
           <div>
             <div className="text-slate-400">Accrued Fees</div>
@@ -95,10 +97,10 @@ export function LiquidityPositions() {
             <div key={p.indexSymbol} className="grid grid-cols-7 px-4 py-3 text-sm border-b border-slate-800/50">
               <div className="font-medium text-white">{p.indexSymbol}</div>
               <div className="text-right font-mono">{p.shares.toFixed(4)}</div>
-              <div className="text-right">${p.depositedUSD.toLocaleString()}</div>
-              <div className="text-right">${p.currentValueUSD.toLocaleString()}</div>
+              <div className="text-right">{formatBalance(p.depositedUSD)}</div>
+              <div className="text-right">{formatBalance(p.currentValueUSD)}</div>
               <div className="text-right text-green-400">{p.apr.toFixed(1)}%</div>
-              <div className="text-right">${p.feesAccruedUSD.toFixed(2)}</div>
+              <div className="text-right">{formatBalance(p.feesAccruedUSD)}</div>
               <div className="text-center">
                 <Button
                   size="sm"

@@ -23,6 +23,7 @@ import {
   Instagram,
   Facebook
 } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 const cardTemplates = [
   {
@@ -89,6 +90,7 @@ export function PnLCardGenerator() {
   const [showMetrics, setShowMetrics] = useState(['pnl', 'percentage', 'trades', 'winRate'])
   const [opacity, setOpacity] = useState([85])
   const [cardSize, setCardSize] = useState('square') // square, wide, story
+  const { formatBalance } = useCurrency()
 
   const currentData = mockPnLData[selectedTimeframe as keyof typeof mockPnLData]
 
@@ -128,7 +130,7 @@ export function PnLCardGenerator() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-xl font-bold text-green-400">
-                      +${currentData.pnl.toLocaleString()}
+                      +{formatBalance(currentData.pnl)}
                     </div>
                     <div className="text-xs text-slate-400">Total P&L</div>
                   </div>
@@ -282,7 +284,7 @@ export function PnLCardGenerator() {
                     <div className="space-y-3">
                       <div className="text-center">
                         <div className="text-3xl font-bold mb-1">
-                          +${currentData.pnl.toLocaleString()}
+                          +{formatBalance(currentData.pnl)}
                         </div>
                         <div className="text-lg">
                           +{currentData.percentage}% Return

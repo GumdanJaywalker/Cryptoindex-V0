@@ -9,12 +9,14 @@ import type { Proposal } from '@/lib/types/governance'
 import { submitVote, type VoteChoice } from '@/lib/api/governance'
 import { useGovernanceStore } from '@/lib/store/governance-store'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 export function VoteDialog({ open, onOpenChange, proposal }: { open: boolean; onOpenChange: (v: boolean) => void; proposal: Proposal }) {
   const [choice, setChoice] = useState<VoteChoice>('for')
   const [submitting, setSubmitting] = useState(false)
   const applyVote = useGovernanceStore((s) => s.applyVote)
   const { addToast } = useToast()
+  const { formatBalance } = useCurrency()
 
   const power = proposal.user?.votingPowerAtSnapshot || 0
 
@@ -24,7 +26,7 @@ export function VoteDialog({ open, onOpenChange, proposal }: { open: boolean; on
     try {
       await submitVote(proposal.id, choice, power)
       applyVote(proposal.id, choice, power)
-      addToast(createSuccessToast('Vote submitted', `${choice.toUpperCase()} with power ${power.toLocaleString()}`))
+      addToast(createSuccessToast('Vote submitted', `${choice.toUpperCase()} with power ${formatBalance(power)}`))
       onOpenChange(false)
     } catch (e: any) {
       addToast(createErrorToast('Vote failed', e?.message || 'Please try again'))
@@ -40,7 +42,7 @@ export function VoteDialog({ open, onOpenChange, proposal }: { open: boolean; on
           <DialogTitle>Cast your vote</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="text-xs text-slate-400">Voting power at snapshot: {power.toLocaleString()}</div>
+          <div className="text-xs text-slate-400">Voting power at snapshot: {formatBalance(power)}</div>
           <RadioGroup value={choice} onValueChange={(v) => setChoice(v as VoteChoice)} className="space-y-2">
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="for" id="vote-for" />

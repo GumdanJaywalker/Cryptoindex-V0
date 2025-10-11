@@ -1,6 +1,9 @@
 'use client'
 
+import { useCurrency } from '@/lib/hooks/useCurrency'
+
 export function AccountPanel() {
+  const { formatBalance } = useCurrency()
   return (
     <div className="h-full flex flex-col" style={{ background: 'var(--hl-bg-primary)' }}>
       <div className="flex-1 p-4 space-y-4">
@@ -24,23 +27,23 @@ export function AccountPanel() {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="hl-text-secondary">Spot</span>
-            <span className="hl-text-primary">$0.00</span>
+            <span className="hl-text-primary">{formatBalance(0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Perps</span>
-            <span className="hl-text-primary">$0.00</span>
+            <span className="hl-text-primary">{formatBalance(0)}</span>
           </div>
         </div>
-        
+
         <div className="pt-3 space-y-2 text-sm" style={{ borderTop: '1px solid var(--hl-border)' }}>
           <div className="hl-text-primary font-medium">Perps Overview</div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Balance</span>
-            <span className="hl-text-primary">$0.00</span>
+            <span className="hl-text-primary">{formatBalance(0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Unrealized PNL</span>
-            <span className="hl-text-primary">$0.00</span>
+            <span className="hl-text-primary">{formatBalance(0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Cross Margin Ratio</span>
@@ -48,7 +51,7 @@ export function AccountPanel() {
           </div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Maintenance Margin</span>
-            <span className="hl-text-primary">$0.00</span>
+            <span className="hl-text-primary">{formatBalance(0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="hl-text-secondary">Cross Account Leverage</span>

@@ -30,13 +30,13 @@ export function TradingLayout() {
       </div>
 
       {/* 메인 거래 영역 */}
-      <div className="flex min-h-[calc(100vh-64px)]">
+      <div className="flex">
         {/* 좌측+중간 영역 (80%) */}
-        <div className="w-[80%] flex flex-col bg-background overflow-hidden">
-          {/* 상단: 차트 + 오더북 */}
-          <div className="flex h-[calc(100vh-64px-50vh)] min-h-0">
+        <div className="w-[80%] flex flex-col bg-background">
+          {/* 상단: 차트 + 오더북 - 고정 높이 */}
+          <div className="flex h-[60vh] min-h-0">
             {/* 차트 영역 (68.75% of 80%) */}
-            <div className="w-[68.75%] border-r border-border bg-background overflow-auto">
+            <div className="w-[68.75%] border-r border-border bg-background overflow-hidden">
               <ChartArea />
             </div>
 
@@ -46,14 +46,14 @@ export function TradingLayout() {
             </div>
           </div>
 
-          {/* 하단: Bottom Tabs - 명확한 경계선과 함께 */}
-          <div className="h-[50vh] border-t-2 border-slate-700 bg-background overflow-auto">
+          {/* 하단: Bottom Tabs - 자동 높이, 페이지 스크롤 */}
+          <div className="border-t-2 border-slate-700 bg-background">
             <TradingBottomTabs />
           </div>
         </div>
 
         {/* 우측 거래창 영역 (20%) */}
-        <div className="w-[20%] min-h-[calc(100vh-64px)] flex flex-col border-l border-border bg-background">
+        <div className="w-[20%] min-h-[calc(100vh-64px)] flex flex-col border-l border-border bg-background px-3">
           {/* Trading Panel - 자연스러운 크기 */}
           <div className="flex-shrink-0">
             <TradingPanel />
@@ -65,7 +65,7 @@ export function TradingLayout() {
           </div>
 
           {/* Whale Alert - 고정 높이로 독립적인 섹션 */}
-          <div className="mt-3 pt-3 px-3 border-t border-muted-foreground/20 flex-shrink-0">
+          <div className="mt-3 pt-3 border-t border-muted-foreground/20 flex-shrink-0">
             <WhaleAlert />
           </div>
 

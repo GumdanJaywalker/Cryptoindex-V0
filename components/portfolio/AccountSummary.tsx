@@ -3,12 +3,13 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Zap, 
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Zap,
   Target,
   AlertTriangle,
   Shield,
@@ -31,6 +32,7 @@ const accountData = {
 }
 
 export function AccountSummary() {
+  const { formatBalance, formatPnL, currency } = useCurrency()
   const marginUtilization = (accountData.marginUsed / accountData.totalEquity) * 100
 
   return (
@@ -65,11 +67,11 @@ export function AccountSummary() {
             <div className="flex items-center justify-between mb-2">
               <Wallet className="w-5 h-5 text-slate-400" />
               <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">
-                USDC
+                {currency}
               </Badge>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-white mb-1">
-              ${accountData.totalEquity.toLocaleString()}
+              {formatBalance(accountData.totalEquity)}
             </div>
             <div className="text-sm text-slate-200">
               Total Equity
@@ -86,10 +88,8 @@ export function AccountSummary() {
                 24h
               </Badge>
             </div>
-            <div className={`text-xl sm:text-2xl font-bold mb-1 ${
-              accountData.dailyPnL >= 0 ? 'text-green-300' : 'text-red-300'
-            }`}>
-              {accountData.dailyPnL >= 0 ? '+' : ''}${accountData.dailyPnL.toLocaleString()}
+            <div className={`text-xl sm:text-2xl font-bold mb-1 ${formatPnL(accountData.dailyPnL).colorClass}`}>
+              {formatPnL(accountData.dailyPnL).text}
             </div>
             <div className="text-sm text-slate-200">
               Daily P&L
@@ -106,8 +106,8 @@ export function AccountSummary() {
                 Open
               </Badge>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-white mb-1">
-              +${accountData.unrealizedPnL.toLocaleString()}
+            <div className={`text-xl sm:text-2xl font-bold mb-1 ${formatPnL(accountData.unrealizedPnL).colorClass}`}>
+              {formatPnL(accountData.unrealizedPnL).text}
             </div>
             <div className="text-sm text-slate-200">
               Unrealized P&L
@@ -125,7 +125,7 @@ export function AccountSummary() {
               </Badge>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-white mb-1">
-              ${accountData.marginUsed.toLocaleString()}
+              {formatBalance(accountData.marginUsed)}
             </div>
             <div className="text-sm text-slate-200">
               Margin Used
@@ -140,41 +140,39 @@ export function AccountSummary() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="text-center">
               <div className="text-lg sm:text-xl font-bold text-white">
-                ${accountData.availableBalance.toLocaleString()}
+                {formatBalance(accountData.availableBalance)}
               </div>
               <div className="text-xs text-slate-400 mt-1">Available Balance</div>
             </div>
-            
+
             <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-green-300">
-                +${accountData.realizedPnL.toLocaleString()}
+              <div className={`text-lg sm:text-xl font-bold ${formatPnL(accountData.realizedPnL).colorClass}`}>
+                {formatPnL(accountData.realizedPnL).text}
               </div>
               <div className="text-xs text-slate-400 mt-1">Realized P&L</div>
             </div>
-            
+
             <div className="text-center">
-              <div className={`text-lg sm:text-xl font-bold ${
-                accountData.weeklyPnL >= 0 ? 'text-green-300' : 'text-red-300'
-              }`}>
-                {accountData.weeklyPnL >= 0 ? '+' : ''}${accountData.weeklyPnL.toLocaleString()}
+              <div className={`text-lg sm:text-xl font-bold ${formatPnL(accountData.weeklyPnL).colorClass}`}>
+                {formatPnL(accountData.weeklyPnL).text}
               </div>
               <div className="text-xs text-slate-400 mt-1">Weekly P&L</div>
             </div>
-            
+
             <div className="text-center">
-              <div className="text-lg sm:text-xl font-bold text-green-300">
-                +${accountData.monthlyPnL.toLocaleString()}
+              <div className={`text-lg sm:text-xl font-bold ${formatPnL(accountData.monthlyPnL).colorClass}`}>
+                {formatPnL(accountData.monthlyPnL).text}
               </div>
               <div className="text-xs text-slate-400 mt-1">Monthly P&L</div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-lg sm:text-xl font-bold text-white">
                 {accountData.totalTrades}
               </div>
               <div className="text-xs text-slate-400 mt-1">Total Trades</div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-lg sm:text-xl font-bold text-slate-200">{accountData.winRate}%</div>
               <div className="text-xs text-slate-400 mt-1">Win Rate</div>
