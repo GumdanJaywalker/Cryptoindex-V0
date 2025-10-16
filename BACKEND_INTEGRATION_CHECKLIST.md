@@ -38,6 +38,13 @@ Notifications = { price: boolean; governance: boolean; trades: boolean; email: b
 - 실제 HTTP 엔드포인트 URL 정의 필요
 - 에러 처리 로직 추가 필요
 - 응답 타입 확장 필요 (현재 `{ ok: true }`만 반환)
+- **2FA 관련 함수 추가 필요:**
+  - `get2FAStatus()` → `GET /api/user/2fa`
+  - `enable2FA(secretKey, verificationCode)` → `POST /api/user/2fa/enable`
+  - `disable2FA(verificationCode)` → `POST /api/user/2fa/disable`
+- **DangerZone 관련 함수 추가 필요:**
+  - `revokeAllSessions()` → `POST /api/user/sessions/revoke-all`
+  - `disableDataCollection()` → `POST /api/user/data-collection/disable`
 
 #### `lib/api/search.ts` - ⚠️ MOCK 상태
 **함수:**
@@ -553,7 +560,8 @@ export const marketQueryKeys = {
 29. `components/settings/ProfileSection.tsx` - saveProfile 호출
 30. `components/settings/PreferencesSection.tsx` - savePreferences 호출
 31. `components/settings/NotificationsSection.tsx` - saveNotifications 호출
-32. `components/settings/SecuritySection.tsx` - updatePassword 호출
+32. `components/settings/SecuritySection.tsx` - updatePassword, 2FA 활성화/비활성화 호출
+33. `components/settings/DangerZone.tsx` - 모든 세션 무효화, 데이터 수집 중단 호출
 
 ---
 
@@ -624,11 +632,16 @@ export const marketQueryKeys = {
 7. `POST /api/trades` - 오프라인 거래 동기화
 8. `POST /api/portfolio/sync` - 포트폴리오 동기화
 9. `GET /api/prices/all` - 전체 가격 데이터 (Service Worker 캐시용)
+10. `GET /api/user/2fa` - 2FA 상태 조회
+11. `POST /api/user/2fa/enable` - 2FA 활성화
+12. `POST /api/user/2fa/disable` - 2FA 비활성화
+13. `POST /api/user/sessions/revoke-all` - 모든 세션 무효화
+14. `POST /api/user/data-collection/disable` - 데이터 수집 중단
 
 ### ⚠️ Mock 함수로만 존재 (실제 엔드포인트 없음)
-10. `/api/search/indexes?q={query}` - 인덱스 검색 (lib/api/search.ts 주석에만 존재)
-11. 설정 저장 API들 (lib/api/settings.ts - 모두 mock)
-12. 거버넌스 API들 (lib/api/governance.ts - 모두 mock)
+15. `/api/search/indexes?q={query}` - 인덱스 검색 (lib/api/search.ts 주석에만 존재)
+16. 설정 저장 API들 (lib/api/settings.ts - 모두 mock, 2FA 포함)
+17. 거버넌스 API들 (lib/api/governance.ts - 모두 mock)
 
 ### 🔄 실시간 데이터 (미구현 - WebSocket 필요)
 - 가격 업데이트

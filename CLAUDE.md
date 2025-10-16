@@ -1,6 +1,6 @@
 # CLAUDE.md - HyperIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-10-10
+> 📅 **마지막 업데이트**: 2025-10-14
 
 이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
 
@@ -68,6 +68,8 @@ pnpm run dev
 /components
   /layout                     # 레이아웃 컴포넌트
     Header.tsx                # 메인 네비게이션
+  /sidebar                    # 사이드바 컴포넌트
+    LeftSidebar.tsx           # 통합 왼쪽 사이드바 (모든 페이지 공통)
   /trading                    # 거래 관련 컴포넌트
     IndexInfoBar.tsx          # 인덱스 정보 바
     ChartArea.tsx             # 차트 영역
@@ -179,9 +181,25 @@ export function Component({ ...props }: ComponentProps) {
 - **콘솔 로그**: 개발용 로그도 영어로 작성
 - **국제 사용자 대상**: 글로벌 서비스를 위한 영어 우선 정책
 
-## 📊 현재 진행 상황 (2025-10-10)
+## 📊 현재 진행 상황 (2025-10-14)
 
-### ✅ 최근 완료된 작업 (10월 10일)
+### ✅ 최근 완료된 작업 (10월 14일)
+- **전체 사이드바 시스템 통일 완료**:
+  - `components/ui/sidebar.tsx` (shadcn 기본 사이드바) 제거
+  - 모든 페이지에서 `components/sidebar/LeftSidebar.tsx` 사용으로 통일
+  - 랜딩 페이지 기준 사이드바로 전체 페이지 일관성 확보
+
+- **전체 페이지 레이아웃 통일 완료**:
+  - **왼쪽 여백 최소화**: `px-4 lg:px-4`로 변경 (기존 `px-[4vw] lg:px-[3vw]`에서 대폭 감소)
+  - **사이드바 고정 너비**:
+    - lg: 260px (기존 가변 너비 26vw → 고정)
+    - xl: 280px
+    - 2xl: 300px
+  - **2컬럼 그리드 레이아웃**: 사이드바 + 메인 컨텐츠로 단순화
+  - **적용된 페이지**: Traders, Launch, Referrals, Governance, Governance Detail, Portfolio
+  - 모든 페이지가 랜딩과 동일한 좁은 여백 및 레이아웃 사용
+
+### ✅ 이전 완료된 작업 (10월 10일)
 - **Trading 페이지 레이아웃 개선 완료**:
   - Header 하단 여백 제거: TradingLayout의 `pt-16` 제거로 헤더와 컨텐츠 사이 공백 제거
   - IndexInfoBar sticky 위치 조정: `top-16` → `top-0`으로 변경하여 자연스러운 sticky 효과

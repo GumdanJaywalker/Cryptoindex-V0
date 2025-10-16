@@ -20,10 +20,10 @@ export function DangerZone() {
         </div>
         <div className="flex items-center justify-between p-3 rounded-lg border border-slate-700 bg-slate-900">
           <div>
-            <div className="text-slate-200 text-sm">Delete account (mock)</div>
-            <div className="text-xs text-slate-500">Irreversible. Removes your data from this device.</div>
+            <div className="text-slate-200 text-sm">Disable account data collection</div>
+            <div className="text-xs text-slate-500">Prevent the site from collecting and storing your activity data.</div>
           </div>
-          <Button className="bg-red-600 hover:bg-red-700" onClick={()=> addToast(createErrorToast('Not available', 'Account deletion will be handled by support'))}>Delete</Button>
+          <Button className="bg-red-600 hover:bg-red-700" onClick={()=> addToast(createSuccessToast('Data collection disabled', 'Your activity will no longer be tracked'))}>Disable</Button>
         </div>
       </CardContent></Card>
     </div>
