@@ -29,7 +29,7 @@
 4. `POST /api/auth/sync-user` - Privy → Supabase 동기화
 5. `POST /api/auth/logout` - 로그아웃
 
-### 🔴 반드시 구현 필요 (33개)
+### 🔴 반드시 구현 필요 (38개)
 
 #### Trading (10개)
 - [ ] `GET /api/indices` - 인덱스 목록
@@ -67,10 +67,15 @@
 - [ ] `GET /api/assets` - 사용 가능한 자산 목록
 - [ ] `GET /api/assets/:symbol` - 자산 상세
 
-#### Settings (3개)
+#### Settings (8개)
 - [ ] `GET /api/user/settings` - 설정 조회
 - [ ] `PUT /api/user/settings` - 설정 저장
 - [ ] `POST /api/user/password` - 비밀번호 변경
+- [ ] `GET /api/user/2fa` - 2FA 상태 조회
+- [ ] `POST /api/user/2fa/enable` - 2FA 활성화
+- [ ] `POST /api/user/2fa/disable` - 2FA 비활성화
+- [ ] `POST /api/user/sessions/revoke-all` - 모든 세션 무효화
+- [ ] `POST /api/user/data-collection/disable` - 데이터 수집 중단
 
 #### 기타 (2개)
 - [ ] `GET /api/search/indexes` - 인덱스 검색
@@ -1181,9 +1186,175 @@ GET /api/user/settings
 
 ---
 
+### API 29: `GET /api/user/2fa` - 2FA 상태 조회
+
+**Request:**
+```
+GET /api/user/2fa
+```
+
+**Headers:** Authorization 필요
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "enabled": true,
+    "created_at": 1704067200000
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**사용 컴포넌트:** `SecuritySection`
+
+---
+
+### API 30: `POST /api/user/2fa/enable` - 2FA 활성화
+
+**Request:**
+```json
+{
+  "secret_key": "JBSWY3DPEHPK3PXP",
+  "verification_code": "123456"
+}
+```
+
+**Headers:** Authorization 필요
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "enabled": true,
+    "backup_codes": [
+      "ABCD-EFGH-IJKL",
+      "MNOP-QRST-UVWX",
+      "YZAB-CDEF-GHIJ",
+      "KLMN-OPQR-STUV",
+      "WXYZ-1234-5678",
+      "9012-3456-7890"
+    ]
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**사용 컴포넌트:** `SecuritySection`
+
+**프론트 함수:** `handleEnable2FA()` in SecuritySection
+
+**현재 상태:** mock (프론트 상태만 업데이트)
+
+**데이터 생성:**
+- TOTP 라이브러리 사용 (예: speakeasy, otplib)
+- Secret key 생성 및 저장 (암호화 권장)
+- 백업 코드 생성 (랜덤 12자리 x 6개)
+
+---
+
+### API 31: `POST /api/user/2fa/disable` - 2FA 비활성화
+
+**Request:**
+```json
+{
+  "verification_code": "123456"
+}
+```
+
+**Headers:** Authorization 필요
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "enabled": false
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**사용 컴포넌트:** `SecuritySection`
+
+**프론트 함수:** `handleDisable2FA()` in SecuritySection
+
+**현재 상태:** mock (프론트 상태만 업데이트)
+
+---
+
+### API 37: `POST /api/user/sessions/revoke-all` - 모든 세션 무효화
+
+**Request:**
+```json
+{}
+```
+
+**Headers:** Authorization 필요
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "revoked_count": 5
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**사용 컴포넌트:** `DangerZone`
+
+**프론트 함수:** Sign out all 버튼 클릭 핸들러
+
+**현재 상태:** mock (토스트만 표시)
+
+**데이터 생성:**
+- sessions 테이블에서 현재 사용자의 모든 세션 삭제 또는 만료 처리
+- Redis 세션 캐시가 있다면 함께 삭제
+
+---
+
+### API 38: `POST /api/user/data-collection/disable` - 데이터 수집 중단
+
+**Request:**
+```json
+{}
+```
+
+**Headers:** Authorization 필요
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "data_collection_enabled": false,
+    "disabled_at": 1704153600000
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**사용 컴포넌트:** `DangerZone`
+
+**프론트 함수:** Disable 버튼 클릭 핸들러
+
+**현재 상태:** mock (토스트만 표시)
+
+**설명:**
+- Privy 인증 기반이므로 "계정 삭제"가 아닌 "데이터 수집 중단"
+- 사용자 활동 추적, 분석 데이터 수집을 중단
+- users 테이블의 `data_collection_enabled` 플래그 false로 설정
+- 실제 계정은 유지되지만 행동 데이터는 더 이상 저장하지 않음
+
+---
+
 ## 6. 검색 & 알림
 
-### API 29: `GET /api/search/indexes` - 인덱스 검색
+### API 32: `GET /api/search/indexes` - 인덱스 검색
 
 **Request:**
 ```
@@ -1218,7 +1389,7 @@ GET /api/search/indexes?q=pepe
 
 ---
 
-### API 30: `GET /api/user/notifications` - 알림 목록
+### API 33: `GET /api/user/notifications` - 알림 목록
 
 **Request:**
 ```
@@ -1256,7 +1427,7 @@ GET /api/user/notifications?category=trade&unread=true
 
 ---
 
-### API 31: `POST /api/user/notifications/:id/read` - 알림 읽음
+### API 34: `POST /api/user/notifications/:id/read` - 알림 읽음
 
 **Response:**
 ```json
@@ -1272,7 +1443,7 @@ GET /api/user/notifications?category=trade&unread=true
 
 ---
 
-### API 32: `GET /api/system/exchange-rates` - 환율
+### API 35: `GET /api/system/exchange-rates` - 환율
 
 **Request:**
 ```
@@ -1299,7 +1470,7 @@ GET /api/system/exchange-rates
 
 ---
 
-### API 33: `GET /api/market/trends` - 마켓 트렌드 (선택)
+### API 36: `GET /api/market/trends` - 마켓 트렌드 (선택)
 
 **Request:**
 ```
