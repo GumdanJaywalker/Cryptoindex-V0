@@ -48,6 +48,8 @@ export function PreferencesSection() {
                 <SelectItem value="USDC">USDC</SelectItem>
                 <SelectItem value="USDT">USDT</SelectItem>
                 <SelectItem value="BTC">BTC</SelectItem>
+                <SelectItem value="HIIN">$HIIN (Index Token)</SelectItem>
+                <SelectItem value="HIDE">$HIDE (DEX Token)</SelectItem>
               </SelectContent>
             </Select>
           </div>

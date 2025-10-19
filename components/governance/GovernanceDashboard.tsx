@@ -209,8 +209,9 @@ export function GovernanceDashboard() {
                 This Week
               </Badge>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              ${userVotingStats.weeklyEarnings}
+            <div className="text-2xl font-bold text-white mb-1 flex items-baseline gap-1">
+              <span>{userVotingStats.weeklyEarnings.toLocaleString()}</span>
+              <span className="text-brand text-lg">$HIDE</span>
             </div>
             <div className="text-sm text-slate-400">
               Voting Rewards

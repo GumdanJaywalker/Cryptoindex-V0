@@ -51,6 +51,10 @@ export function convertCurrency(
         return amount * exchangeRates.HYPE_USDT
       case 'BTC':
         return amount * exchangeRates.HYPE_BTC
+      case 'HIIN':
+        return amount * exchangeRates.HYPE_HIIN
+      case 'HIDE':
+        return amount * exchangeRates.HYPE_HIDE
       default:
         return amount
     }
@@ -67,6 +71,10 @@ export function convertCurrency(
         return amount / exchangeRates.HYPE_USDT
       case 'BTC':
         return amount / exchangeRates.HYPE_BTC
+      case 'HIIN':
+        return amount / exchangeRates.HYPE_HIIN
+      case 'HIDE':
+        return amount / exchangeRates.HYPE_HIDE
       default:
         return amount
     }
@@ -92,6 +100,10 @@ function getCurrencyDisplay(currency: Currency): { prefix: string; suffix: strin
       return { prefix: '', suffix: ' USDT' }
     case 'BTC':
       return { prefix: '', suffix: ' BTC' }
+    case 'HIIN':
+      return { prefix: '', suffix: ' $HIIN' }
+    case 'HIDE':
+      return { prefix: '', suffix: ' $HIDE' }
     default:
       return { prefix: '', suffix: '' }
   }

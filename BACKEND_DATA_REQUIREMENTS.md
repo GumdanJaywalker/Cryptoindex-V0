@@ -970,12 +970,206 @@ GET /api/proposals?phase=active&index_symbol=PEPE_ECOSYSTEM
 
 ## 4. Launch 페이지
 
-### 사용 컴포넌트
-`IndexBuilderWizard`, `AssetPicker`, `WeightTable`, `IndexCreatorOverview`
+### 📋 최근 업데이트 (2025-10-19)
+**HLH_hack 프로젝트에서 Launch 페이지 통합 완료**
+- 새 컴포넌트: `ConfirmLaunchModal`, `LaunchSuccessModal`, `Dropdown`
+- 페이지 완전 재작성: `app/launch/page.tsx`
+- 현재 상태: **Mock 데이터로 완전 동작** ✅
+- 백엔드: HLH_hack/backend 파일들을 복사하여 통합 예정
+
+### 🔧 HLH_hack Backend 통합 가이드
+
+**HLH_hack 백엔드 구조**:
+```
+HLH_hack/backend/src/
+├── routes/
+│   ├── assets.ts          # GET /api/launch/assets
+│   ├── baskets.ts         # POST /api/launch/basket-calculate
+│   ├── positions.ts       # Launch position management
+│   └── ...
+├── middlewares/           # Auth, error handling
+├── utils/                 # Helper functions
+├── cache/                 # Caching service
+└── types/                 # Type definitions
+```
+
+**통합 방법**:
+1. HLH_hack/backend/src/routes/ 파일들을 Cryptoindex-Backend/src/routes/launch/로 복사
+2. middlewares, utils, cache, types 폴더도 함께 복사
+3. server.ts에 라우트 등록: `app.use('/api/launch/*', launchRoutes)`
+4. 프론트엔드 Mock 데이터를 실제 API 호출로 변경
+
+자세한 통합 가이드는 `HANDOVER.md` 및 `BACKEND_INTEGRATION_CHECKLIST.md` 참조
 
 ---
 
-### API 23: `POST /api/index-specs` - 인덱스 스펙 제출
+### 사용 컴포넌트
+`app/launch/page.tsx`, `ConfirmLaunchModal`, `LaunchSuccessModal`, `Dropdown`
+
+**이전 컴포넌트** (더 이상 사용 안 함):
+~~`IndexBuilderWizard`, `AssetPicker`, `WeightTable`, `IndexCreatorOverview`~~
+
+---
+
+### API 23: `GET /api/launch/assets` - 자산 목록 (HLH_hack)
+
+**HLH_hack 원본 엔드포인트**: `GET /v1/assets`
+**Cryptoindex 통합 후**: `GET /api/launch/assets`
+
+**Request:**
+```
+GET /api/launch/assets?q=BTC
+```
+
+**Response:**
+```json
+[
+  {
+    "symbol": "BTC",
+    "name": "Bitcoin",
+    "marketType": "perp"
+  },
+  {
+    "symbol": "ETH",
+    "name": "Ethereum",
+    "marketType": "perp"
+  }
+]
+```
+
+**사용 위치**: `app/launch/page.tsx` (lines 70-76, Mock 데이터)
+
+**현재 Mock 데이터**:
+```typescript
+const [assets, setAssets] = useState<Asset[]>([
+  { symbol: "BTC", name: "Bitcoin", marketType: "perp" },
+  { symbol: "ETH", name: "Ethereum", marketType: "perp" },
+  { symbol: "SOL", name: "Solana", marketType: "perp" },
+  { symbol: "DOGE", name: "Dogecoin", marketType: "perp" },
+  { symbol: "PEPE", name: "Pepe", marketType: "perp" },
+]);
+```
+
+**백엔드 통합 후 코드**:
+```typescript
+useEffect(() => {
+  fetch('/api/launch/assets')
+    .then(res => res.json())
+    .then(data => setAssets(data))
+    .catch(err => console.error('Failed to load assets:', err));
+}, []);
+```
+
+**HLH_hack Backend 구현**: `HLH_hack/backend/src/routes/assets.ts`
+
+---
+
+### API 24: `POST /api/launch/basket-calculate` - 포트폴리오 차트 계산 (HLH_hack)
+
+**HLH_hack 원본 엔드포인트**: `POST /v1/basket-calculate`
+**Cryptoindex 통합 후**: `POST /api/launch/basket-calculate`
+
+**Request:**
+```json
+{
+  "interval": "1d",
+  "assets": [
+    {
+      "symbol": "BTC",
+      "weight": 0.5,
+      "position": "long",
+      "leverage": 1
+    },
+    {
+      "symbol": "ETH",
+      "weight": 0.5,
+      "position": "long",
+      "leverage": 1
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "date": "2024-01-01",
+      "value": 100.0,
+      "nav": 100.0
+    },
+    {
+      "date": "2024-01-02",
+      "value": 102.5,
+      "nav": 102.5
+    }
+  ]
+}
+```
+
+**사용 위치**: `app/launch/page.tsx` (lines 230-242, Mock 데이터 생성)
+
+**현재 Mock 데이터**:
+```typescript
+useEffect(() => {
+  if (selected.length === 0) {
+    setPreviewData(null);
+    return;
+  }
+  const data = Array.from({ length: 30 }, (_, i) => ({
+    date: `${i + 1}`,
+    value: 100 + Math.random() * 20 - 10,
+  }));
+  setPreviewData(data);
+}, [selected, period]);
+```
+
+**HLH_hack Backend 구현**: `HLH_hack/backend/src/routes/baskets.ts`
+
+---
+
+### API 25 (NEW): `POST /api/launch/create-index` - 인덱스 생성 (선택적)
+
+**Request:**
+```json
+{
+  "name": "My Custom Index",
+  "ticker": "MYIDX",
+  "description": "Description text",
+  "socialLink": "https://twitter.com/myindex",
+  "assets": [
+    {
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "side": "long",
+      "leverage": 1,
+      "allocationPct": 50.0
+    }
+  ],
+  "totalAmount": 1000.0,
+  "feeAmount": 0.1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "indexId": "idx_1234567890",
+  "status": "pending"
+}
+```
+
+**사용 위치**: `app/launch/page.tsx` (ConfirmLaunchModal onConfirm)
+
+**현재 상태**: localStorage에 Mock 저장만 수행
+
+**HLH_hack Backend**: 구현 여부 확인 필요 (positions.ts에 있을 가능성)
+
+---
+
+### API 26 (구 API 23): `POST /api/index-specs` - 인덱스 스펙 제출
 
 **Request:**
 ```json

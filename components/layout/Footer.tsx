@@ -73,7 +73,7 @@ export function StickyFooter({ className }: { className?: string }) {
 
         {/* Right group */}
         <nav className="flex items-center gap-3 text-xs text-slate-400">
-          <Link href="#" className="hover:text-slate-200">Docs</Link>
+          <Link href="/docs" className="hover:text-slate-200">Docs</Link>
           <span className="text-slate-600">/</span>
           <Link href="#" className="hover:text-slate-200">Support</Link>
           <span className="text-slate-600">/</span>
