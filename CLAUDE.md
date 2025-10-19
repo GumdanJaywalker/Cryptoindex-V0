@@ -1,6 +1,7 @@
 # CLAUDE.md - HyperIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-10-14
+> 📅 **마지막 업데이트**: 2025-10-19
+> 🔄 **자동 업데이트**: 실제 프로젝트 구조 반영
 
 이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
 
@@ -56,35 +57,53 @@ pnpm run dev
 # http://localhost:3000/trading (거래 페이지)
 ```
 
-## 📁 프로젝트 구조
+## 📁 프로젝트 구조 (2025-10-19 업데이트)
 
 ```
-/app                          # Next.js App Router
-  /trading                    # 🔥 메인 거래 페이지
-  /governance                 # 거버넌스 투표 페이지
-  /portfolio                  # 포트폴리오 관리
+/app                          # Next.js App Router (13개 메인 페이지)
+  page.tsx                    # 🏠 메인 랜딩 페이지
+  /trading                    # 💹 거래 페이지 (메인 기능)
+  /launch                     # 🚀 인덱스 생성/런칭 페이지
+  /portfolio                  # 💼 포트폴리오 관리
+  /governance                 # 🗳️ 거버넌스 투표 목록
+  /governance/[id]            # 🗳️ 거버넌스 상세 페이지
+  /traders                    # 👥 트레이더 목록
+  /traders/[id]               # 👤 트레이더 프로필
+  /referrals                  # 💸 레퍼럴 프로그램
+  /referrals/apply            # 📝 레퍼럴 신청
+  /settings                   # ⚙️ 사용자 설정
+  /notifications              # 🔔 알림 센터
+  /dashboard                  # 📊 대시보드
   layout.tsx                  # 공통 레이아웃
 
-/components
-  /layout                     # 레이아웃 컴포넌트
-    Header.tsx                # 메인 네비게이션
-  /sidebar                    # 사이드바 컴포넌트
-    LeftSidebar.tsx           # 통합 왼쪽 사이드바 (모든 페이지 공통)
-  /trading                    # 거래 관련 컴포넌트
-    IndexInfoBar.tsx          # 인덱스 정보 바
-    ChartArea.tsx             # 차트 영역
-    OrderBook.tsx             # 호가창
-    TradingPanel.tsx          # 거래 패널
-    RecentTrades.tsx          # 최근 거래
-    CommunityFeed.tsx         # 커뮤니티 피드
-  /ui                         # shadcn/ui 컴포넌트 (50+)
-  /magicui                    # MagicUI 효과들
+/components                   # 총 300+ 개 컴포넌트
+  /auth                       # 인증 (Privy)
+  /demo                       # 데모 쇼케이스
+  /dialogs                    # 다이얼로그/모달 (5개)
+  /governance                 # 거버넌스 (7개)
+  /launch                     # ⭐ 인덱스 생성 (4개 파일)
+  /layout                     # 레이아웃 (Header, Footer)
+  /modals                     # ⭐ 모달 (AllIndicesModal)
+  /mobile                     # ⭐ 모바일 최적화 (3개)
+  /notifications              # ⭐ 알림 시스템 (5개)
+  /portfolio                  # 포트폴리오 (11개)
+  /providers                  # 프로바이더 (2개)
+  /pwa                        # ⭐ PWA 설치 프롬프트
+  /settings                   # ⭐ 설정 섹션 (7개)
+  /sidebar                    # ⭐ 통합 사이드바 (2개)
+  /trading                    # 거래 관련 (26개 파일)
+  /wallet                     # 지갑 연동 (9개)
+  /ui                         # shadcn/ui + Aceternity (120+ 컴포넌트)
+  /magicui                    # MagicUI 효과 (14개)
+  theme-provider.tsx          # 테마 프로바이더
+  cards-demo-*.tsx            # 데모 카드들
 
 /lib
   utils.ts                    # 유틸리티 함수
+  /auth                       # Privy 인증 로직
+  /supabase                   # Supabase 클라이언트
 
-/styles
-  globals.css                 # TailwindCSS + 커스텀 스타일
+/app/globals.css              # TailwindCSS + 브랜드 색상
 ```
 
 ## 🎨 디자인 가이드라인
@@ -181,7 +200,7 @@ export function Component({ ...props }: ComponentProps) {
 - **콘솔 로그**: 개발용 로그도 영어로 작성
 - **국제 사용자 대상**: 글로벌 서비스를 위한 영어 우선 정책
 
-## 📊 현재 진행 상황 (2025-10-14)
+## 📊 현재 진행 상황 (2025-10-19 업데이트)
 
 ### ✅ 최근 완료된 작업 (10월 14일)
 - **전체 사이드바 시스템 통일 완료**:
@@ -250,13 +269,32 @@ export function Component({ ...props }: ComponentProps) {
 - **브랜드 색상 기반**: #8BD6FF 계열의 은은한 효과
 - **성능 최적화**: 부드럽고 자연스러운 애니메이션
 
-### 📈 완료된 주요 기능들
-- **3컬럼 레이아웃**: 사이드바 + 인덱스 목록 + Top Traders
-- **검색 기능**: 사이드바 상단 인덱스 검색창
-- **실시간 데이터 표시**: Top Movers, Recent Activity 등
-- **Index Rebalancing Battles**: 인덱스 내부 밈 경쟁 투표 시스템
-- **브랜드 컬러 시스템**: #8BD6FF 기반 통일된 디자인
-- **Portfolio 페이지 완전 리뉴얼**: PC 최적화, 브랜드 색상 통일, Buy/Sell 용어 적용
+### 📈 완료된 주요 기능들 (총 13개 페이지)
+
+#### 🔥 핵심 페이지
+1. **Landing Page** (/) - 메인 랜딩
+2. **Trading Page** (/trading) - 거래 페이지 (26개 컴포넌트)
+3. **Launch Page** (/launch) - 인덱스 생성 마법사 (4개 컴포넌트)
+4. **Portfolio Page** (/portfolio) - 포트폴리오 관리 (11개 컴포넌트)
+5. **Governance Page** (/governance) - 거버넌스 투표 (7개 컴포넌트)
+6. **Governance Detail** (/governance/[id]) - 투표 상세
+
+#### 🟡 보조 페이지
+7. **Traders Page** (/traders) - 트레이더 목록
+8. **Trader Profile** (/traders/[id]) - 트레이더 프로필
+9. **Referrals Page** (/referrals) - 레퍼럴 프로그램
+10. **Referral Apply** (/referrals/apply) - 레퍼럴 신청
+11. **Settings Page** (/settings) - 사용자 설정 (7개 섹션)
+12. **Notifications Page** (/notifications) - 알림 센터 (5개 컴포넌트)
+13. **Dashboard Page** (/dashboard) - 대시보드
+
+#### 🎨 완료된 시스템
+- **통합 사이드바**: LeftSidebar (모든 페이지 공통)
+- **모바일 최적화**: 플로팅 버튼, 바텀시트, 모바일 네비게이션
+- **PWA 지원**: 설치 프롬프트 구현
+- **200+ UI 컴포넌트**: shadcn/ui + Aceternity UI + Magic UI
+- **브랜드 색상 시스템**: #98FCE4 기반 통일된 디자인
+- **완전한 TypeScript**: 100% 타입 안전성
 
 ## 🎨 새로운 개발 방식
 
@@ -279,9 +317,16 @@ export function Component({ ...props }: ComponentProps) {
 
 ## 🚀 현재 기술 스택 상태
 - **Frontend**: Next.js 15.2.4 + React 19 + TypeScript ✅
-- **UI Libraries**: Radix UI + shadcn/ui + MagicUI + Aceternity UI ✅
-- **Styling**: TailwindCSS + 브랜드 색상 시스템 ✅
+- **UI Libraries**:
+  - shadcn/ui (120+ 컴포넌트) ✅
+  - Aceternity UI (80+ 애니메이션) ✅
+  - Magic UI (14개 효과) ✅
+- **Styling**: TailwindCSS + 브랜드 색상 시스템 (#98FCE4) ✅
 - **Animation**: Framer Motion + 커스텀 애니메이션 ✅
+- **Authentication**: Privy 완전 통합 ✅
+- **Wallet**: 멀티 지갑 지원 + 네트워크 전환 ✅
+- **State Management**: React Context + Zustand ✅
+- **PWA**: 설치 프롬프트 구현 ✅
 - **Mock Data**: 18개 인덱스 데이터 + 30명 탑 트레이더 ✅
 
 ## 📋 중요 참고사항

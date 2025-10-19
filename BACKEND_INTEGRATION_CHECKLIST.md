@@ -652,3 +652,508 @@ export const marketQueryKeys = {
 ---
 
 **마지막 업데이트:** 전역 검색 완료 + 환경변수/API 엔드포인트 목록 (Grep + 상세 분석 32개 파일)
+
+---
+
+## 🚀 Launch 페이지 백엔드 통합 가이드 (2025-10-19 추가)
+
+### 📋 배경
+- Launch 페이지는 HLH_hack 프로젝트에서 이식됨 (2025-10-19)
+- 프론트엔드는 완전히 작동하며 Mock 데이터로 테스트 가능
+- 백엔드 개발자가 Launch 기능을 제외했으므로 HLH_hack 백엔드 파일을 통합해야 함
+
+### 🗂️ HLH_hack 백엔드 구조
+
+**위치:** `/Users/kimhyeon/Desktop/PROJECTS/HLH_hack/backend/src/`
+
+```
+backend/src/
+├── routes/
+│   ├── assets.ts         # GET /v1/assets - 거래 가능 자산 목록
+│   ├── baskets.ts        # POST /v1/basket-calculate - 포트폴리오 차트 계산
+│   └── positions.ts      # POST /v1/positions/create-index - 인덱스 생성 실행
+│
+├── middlewares/
+│   ├── auth.ts           # 인증 미들웨어
+│   └── errorHandler.ts   # 에러 핸들링
+│
+├── utils/
+│   ├── cryptoUtils.ts    # 암호화 유틸리티
+│   └── validation.ts     # 입력 검증
+│
+├── cache/
+│   └── assetsCache.ts    # 자산 목록 캐싱 로직
+│
+├── types/
+│   └── index.ts          # TypeScript 타입 정의
+│
+└── index.ts              # Express 앱 진입점
+```
+
+---
+
+### 🔧 통합 옵션
+
+#### ✅ **옵션 A (권장): HLH_hack 백엔드 파일 복사 후 통합**
+
+**장점:**
+- 검증된 로직 활용
+- 빠른 구현
+- HLH_hack과 동일한 API 구조 유지
+
+**단점:**
+- 코드 중복 발생 가능
+- Cryptoindex 백엔드 구조와 다를 수 있음
+
+**통합 단계:**
+
+1. **백엔드 파일 복사**
+   ```bash
+   # HLH_hack 백엔드 디렉토리에서
+   cd /Users/kimhyeon/Desktop/PROJECTS/HLH_hack/backend/src
+
+   # Cryptoindex 백엔드로 복사
+   cp -r routes/ /Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/backend/src/routes/launch/
+   cp -r middlewares/ /Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/backend/src/middlewares/
+   cp -r utils/ /Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/backend/src/utils/launch/
+   cp -r cache/ /Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/backend/src/cache/
+   cp -r types/ /Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/backend/src/types/launch/
+   ```
+
+2. **라우트 경로 수정**
+
+   **HLH_hack 원본:**
+   - `GET /v1/assets`
+   - `POST /v1/basket-calculate`
+   - `POST /v1/positions/create-index`
+
+   **Cryptoindex 변경:**
+   - `GET /api/launch/assets`
+   - `POST /api/launch/basket-calculate`
+   - `POST /api/launch/create-index`
+
+3. **프론트엔드 Mock 제거 및 API 연결**
+
+   **파일:** `app/launch/page.tsx`
+
+   **변경 전 (Mock):**
+   ```typescript
+   // Mock assets
+   const [assets, setAssets] = useState<Asset[]>([
+     { symbol: "BTC", name: "Bitcoin", marketType: "perp" },
+     { symbol: "ETH", name: "Ethereum", marketType: "perp" },
+     // ...
+   ]);
+
+   // Mock preview data
+   useEffect(() => {
+     if (selected.length === 0) {
+       setPreviewData(null);
+       return;
+     }
+     const data = Array.from({ length: 30 }, (_, i) => ({
+       date: `${i + 1}`,
+       value: 100 + Math.random() * 20 - 10,
+     }));
+     setPreviewData(data);
+   }, [selected, period]);
+   ```
+
+   **변경 후 (실제 API):**
+   ```typescript
+   // 1. API 23 사용 - 자산 목록 로드
+   useEffect(() => {
+     fetch('/api/launch/assets')
+       .then(res => res.json())
+       .then(data => setAssets(data.assets))
+       .catch(err => console.error('Failed to load assets:', err));
+   }, []);
+
+   // 2. API 24 사용 - 포트폴리오 차트 계산
+   useEffect(() => {
+     if (selected.length === 0) {
+       setPreviewData(null);
+       return;
+     }
+
+     const payload = {
+       selectedAssets: selected.map(s => ({
+         symbol: s.symbol,
+         allocation: composition.allocations[s.symbol] || 0,
+         side: composition.sides[s.symbol] || 'long'
+       })),
+       period: period
+     };
+
+     fetch('/api/launch/basket-calculate', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(payload)
+     })
+       .then(res => res.json())
+       .then(data => setPreviewData(data.chartData))
+       .catch(err => console.error('Failed to calculate preview:', err));
+   }, [selected, composition, period]);
+   ```
+
+4. **ConfirmLaunchModal API 25 연결**
+
+   **파일:** `components/launch/ConfirmLaunchModal.tsx`
+
+   **변경:**
+   ```typescript
+   const handleConfirm = async () => {
+     setLoading(true);
+     try {
+       const payload = {
+         name: basics.name,
+         ticker: basics.ticker,
+         description: basics.description,
+         category: basics.category,
+         selectedAssets: selectedAssets.map(s => ({
+           symbol: s.symbol,
+           allocation: composition.allocations[s.symbol],
+           side: composition.sides[s.symbol],
+           leverage: composition.leverages[s.symbol] || 1
+         }))
+       };
+
+       const response = await fetch('/api/launch/create-index', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         credentials: 'include', // Privy auth
+         body: JSON.stringify(payload)
+       });
+
+       const result = await response.json();
+
+       if (!response.ok || !result.success) {
+         throw new Error(result.error || 'Failed to create index');
+       }
+
+       // Success
+       onSuccess?.();
+       onClose();
+     } catch (error) {
+       console.error('Launch error:', error);
+       alert(`Failed to launch index: ${error.message}`);
+     } finally {
+       setLoading(false);
+     }
+   };
+   ```
+
+5. **환경변수 확인**
+
+   **HLH_hack 백엔드가 사용하는 환경변수:**
+   - `HYPERLIQUID_API_URL` - Hyperliquid API 엔드포인트
+   - `HYPERLIQUID_WALLET_ADDRESS` - 지갑 주소
+   - `HYPERLIQUID_PRIVATE_KEY` - 프라이빗 키
+
+   **Cryptoindex `.env.local`에 추가:**
+   ```bash
+   # Launch 기능 백엔드 (HLH_hack)
+   HYPERLIQUID_API_URL=https://api.hyperliquid.xyz
+   HYPERLIQUID_WALLET_ADDRESS=0x...
+   HYPERLIQUID_PRIVATE_KEY=...
+   ```
+
+6. **테스트**
+
+   ```bash
+   # 백엔드 실행
+   cd backend
+   npm run dev
+
+   # 프론트엔드 실행
+   cd ..
+   pnpm run dev
+
+   # 테스트 순서:
+   # 1. http://localhost:3000/launch 접속
+   # 2. 자산 목록이 실제 API에서 로드되는지 확인 (Network 탭)
+   # 3. 자산 선택 → 포트폴리오 차트가 실시간 계산되는지 확인
+   # 4. Launch 버튼 → 인덱스 생성 성공 확인
+   # 5. LaunchSuccessModal 표시 → Portfolio 페이지로 이동
+   ```
+
+---
+
+#### ⚠️ **옵션 B (비권장): 처음부터 새로 구현**
+
+**장점:**
+- Cryptoindex 백엔드 아키텍처와 완벽히 통합
+- 깔끔한 코드베이스
+
+**단점:**
+- 시간 소모 큼
+- 재검증 필요
+- HLH_hack의 검증된 로직 활용 불가
+
+**권장하지 않는 이유:** 이미 작동하는 코드를 다시 작성하는 것은 비효율적
+
+---
+
+### 📝 API 엔드포인트 상세 명세
+
+#### API 23: `GET /api/launch/assets` - 거래 가능 자산 목록
+
+**HLH_hack 원본:** `GET /v1/assets`
+**Cryptoindex 통합 후:** `GET /api/launch/assets`
+
+**응답 예시:**
+```json
+{
+  "success": true,
+  "assets": [
+    {
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "marketType": "perp",
+      "price": 43250.50,
+      "volume24h": 1234567890,
+      "change24h": 2.5
+    },
+    {
+      "symbol": "ETH",
+      "name": "Ethereum",
+      "marketType": "perp",
+      "price": 2280.30,
+      "volume24h": 987654321,
+      "change24h": -1.2
+    }
+    // ... 더 많은 자산
+  ]
+}
+```
+
+**프론트엔드 사용:**
+```typescript
+// app/launch/page.tsx 초기화 시
+useEffect(() => {
+  fetch('/api/launch/assets')
+    .then(res => res.json())
+    .then(data => setAssets(data.assets))
+    .catch(err => console.error('Failed to load assets:', err));
+}, []);
+```
+
+---
+
+#### API 24: `POST /api/launch/basket-calculate` - 포트폴리오 차트 계산
+
+**HLH_hack 원본:** `POST /v1/basket-calculate`
+**Cryptoindex 통합 후:** `POST /api/launch/basket-calculate`
+
+**요청 예시:**
+```json
+{
+  "selectedAssets": [
+    { "symbol": "BTC", "allocation": 50, "side": "long" },
+    { "symbol": "ETH", "allocation": 30, "side": "long" },
+    { "symbol": "SOL", "allocation": 20, "side": "short" }
+  ],
+  "period": "30d"
+}
+```
+
+**응답 예시:**
+```json
+{
+  "success": true,
+  "chartData": [
+    { "date": "2025-01-01", "value": 100 },
+    { "date": "2025-01-02", "value": 102.5 },
+    { "date": "2025-01-03", "value": 98.3 },
+    // ... 30일치 데이터
+  ],
+  "stats": {
+    "totalReturn": 5.2,
+    "volatility": 12.3,
+    "sharpeRatio": 1.8
+  }
+}
+```
+
+**프론트엔드 사용:**
+```typescript
+// app/launch/page.tsx - 자산 선택 변경 시
+useEffect(() => {
+  if (selected.length === 0) {
+    setPreviewData(null);
+    return;
+  }
+
+  const payload = {
+    selectedAssets: selected.map(s => ({
+      symbol: s.symbol,
+      allocation: composition.allocations[s.symbol] || 0,
+      side: composition.sides[s.symbol] || 'long'
+    })),
+    period: period
+  };
+
+  fetch('/api/launch/basket-calculate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => setPreviewData(data.chartData))
+    .catch(err => console.error('Failed to calculate preview:', err));
+}, [selected, composition, period]);
+```
+
+---
+
+#### API 25: `POST /api/launch/create-index` - 인덱스 생성 실행 (신규)
+
+**HLH_hack 원본:** `POST /v1/positions/create-index`
+**Cryptoindex 통합 후:** `POST /api/launch/create-index`
+
+**요청 예시:**
+```json
+{
+  "name": "Meme Coin Index",
+  "ticker": "MEME",
+  "description": "Top performing meme coins basket",
+  "category": "Meme",
+  "selectedAssets": [
+    { "symbol": "DOGE", "allocation": 40, "side": "long", "leverage": 1 },
+    { "symbol": "SHIB", "allocation": 30, "side": "long", "leverage": 1 },
+    { "symbol": "PEPE", "allocation": 30, "side": "long", "leverage": 1 }
+  ]
+}
+```
+
+**응답 예시:**
+```json
+{
+  "success": true,
+  "indexId": "meme-index-123",
+  "transactionHash": "0xabc123...",
+  "message": "Index created successfully"
+}
+```
+
+**에러 응답:**
+```json
+{
+  "success": false,
+  "error": "Insufficient balance",
+  "code": "INSUFFICIENT_BALANCE"
+}
+```
+
+**프론트엔드 사용:**
+```typescript
+// components/launch/ConfirmLaunchModal.tsx - Launch 버튼 클릭 시
+const handleConfirm = async () => {
+  setLoading(true);
+  try {
+    const payload = {
+      name: basics.name,
+      ticker: basics.ticker,
+      description: basics.description,
+      category: basics.category,
+      selectedAssets: selectedAssets.map(s => ({
+        symbol: s.symbol,
+        allocation: composition.allocations[s.symbol],
+        side: composition.sides[s.symbol],
+        leverage: composition.leverages[s.symbol] || 1
+      }))
+    };
+
+    const response = await fetch('/api/launch/create-index', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to create index');
+    }
+
+    onSuccess?.();
+    onClose();
+  } catch (error) {
+    console.error('Launch error:', error);
+    alert(`Failed to launch index: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+---
+
+### ✅ 통합 체크리스트
+
+#### 백엔드 통합
+- [ ] HLH_hack 백엔드 파일 복사 (`routes/`, `middlewares/`, `utils/`, `cache/`, `types/`)
+- [ ] 라우트 경로 수정 (`/v1/*` → `/api/launch/*`)
+- [ ] 환경변수 추가 (`HYPERLIQUID_API_URL`, `HYPERLIQUID_WALLET_ADDRESS`, `HYPERLIQUID_PRIVATE_KEY`)
+- [ ] Privy 인증 미들웨어 적용 (`requirePrivyAuth`)
+- [ ] API 23, 24, 25 엔드포인트 테스트
+
+#### 프론트엔드 통합
+- [ ] `app/launch/page.tsx` - Mock 자산 목록 제거, API 23 연결
+- [ ] `app/launch/page.tsx` - Mock 차트 데이터 제거, API 24 연결
+- [ ] `components/launch/ConfirmLaunchModal.tsx` - API 25 연결
+- [ ] 에러 핸들링 추가 (네트워크 실패, 인증 오류 등)
+- [ ] 로딩 상태 UI 개선 (Spinner, Skeleton)
+
+#### 테스트
+- [ ] 자산 목록 로드 테스트
+- [ ] 포트폴리오 차트 실시간 계산 테스트
+- [ ] 인덱스 생성 성공 시나리오 테스트
+- [ ] 인덱스 생성 실패 시나리오 테스트 (잔액 부족, 네트워크 오류)
+- [ ] 인증 미들웨어 동작 확인 (로그인 안 한 사용자 차단)
+
+#### 문서화
+- [x] HANDOVER.md 업데이트
+- [x] BACKEND_DATA_REQUIREMENTS.md 업데이트
+- [x] BACKEND_INTEGRATION_CHECKLIST.md 업데이트 (현재 파일)
+
+---
+
+### 🎯 통합 우선순위
+
+#### 🔴 High Priority
+1. **API 23 통합** - 자산 목록 로드 (가장 기본적인 기능)
+2. **API 24 통합** - 포트폴리오 차트 계산 (사용자 경험 핵심)
+3. **API 25 통합** - 인덱스 생성 (최종 목표)
+
+#### 🟡 Medium Priority
+4. **에러 핸들링 개선** - 사용자 친화적 에러 메시지
+5. **로딩 상태 UI** - 사용자 피드백 개선
+
+#### 🟢 Low Priority
+6. **성능 최적화** - 캐싱, debounce 등
+7. **추가 기능** - 인덱스 편집, 삭제 등
+
+---
+
+### 🚨 주의사항
+
+1. **환경변수 보안**
+   - `HYPERLIQUID_PRIVATE_KEY`는 절대 커밋하지 말 것
+   - `.env.local`은 `.gitignore`에 포함되어야 함
+
+2. **인증 필수**
+   - Launch 기능은 반드시 Privy 인증 필요
+   - `requirePrivyAuth` 미들웨어 적용 확인
+
+3. **Mock 데이터 제거**
+   - 프론트엔드에서 Mock 데이터를 완전히 제거해야 혼란 방지
+
+4. **API 버전 관리**
+   - HLH_hack은 `/v1/*` 사용
+   - Cryptoindex는 `/api/launch/*` 사용으로 통일
+
+---
+
+**최종 업데이트:** Launch 페이지 백엔드 통합 가이드 추가 (2025-10-19)
