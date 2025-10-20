@@ -13,7 +13,7 @@ import { searchIndexes, type IndexSearchResult } from '@/lib/api/search'
 
 const navigation = [
   { name: 'Trading', href: '/trading' },
-  { name: 'Traders', href: '/traders' },
+  { name: 'Leaderboard', href: '/leaderboard' },
   { name: 'Governance', href: '/governance' },
   { name: 'Launch', href: '/launch' },
   { name: 'Portfolio', href: '/portfolio' },
@@ -28,7 +28,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   // Prefer the official static logo; avoid unnecessary fallbacks to prevent confusion
-  const logoSrc = '/hyperindex-text.svg'
+  const logoSrc = '/10.svg'
 
   useEffect(() => {
     document.documentElement.classList.add('density-compact')
@@ -80,8 +80,8 @@ export function Header() {
       <div className="flex h-16 items-center px-[4vw] lg:px-[3vw]">
         {/* Logo */}
         <div className="flex-1">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-[45px] w-[180px] overflow-hidden flex items-center">
+          <Link href="/" className="flex items-center">
+            <div className="h-[90px] w-[360px] overflow-visible flex items-center -ml-[150px] mt-[20px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={logoSrc}

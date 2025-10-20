@@ -336,7 +336,7 @@ export function TopTraders({
         </h2>
         <div className="mt-2 flex items-center gap-2">
           <Link
-            href="/traders"
+            href="/leaderboard"
             className="inline-flex items-center justify-center h-8 px-2.5 rounded-md bg-brand text-black hover:bg-brand-hover text-xs font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             role="button"
           >
