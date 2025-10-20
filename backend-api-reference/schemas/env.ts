@@ -1,6 +1,6 @@
-import { z } from './common.js';
-import { zAddress } from './common.js';
-import { zodIssues } from './common.js';
+import { z } from './common';
+import { zAddress } from './common';
+import { zodIssues } from './common';
 
 const EnvSchema = z
   .object({

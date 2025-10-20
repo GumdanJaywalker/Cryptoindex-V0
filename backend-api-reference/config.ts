@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { loadEnv } from './schemas/env.js';
+import { loadEnv } from './schemas/env';
 
 const loaded = loadEnv();
 

@@ -1,13 +1,13 @@
-import { AppError } from '../utils/httpError.js';
-import { CoreWriter } from '../corewriter/writer.js';
-import { encLimitOrder } from '../corewriter/actions.js';
-import { humanPxToRaw, humanSzToRaw, rawPxToHuman, rawSzToHuman, roundQtyToStep } from '../corewriter/scales.js';
-import { swr } from '../precompile/swr.js';
-import { readOraclePx, readPerpPosition } from '../precompile/readers.js';
-import { getWallet } from './walletRegistry.js';
-import { resolveInstrument } from './meta.js';
-import { config } from '../config.js';
-import { provider } from './onchain.js';
+import { AppError } from '../utils/httpError';
+import { CoreWriter } from '../corewriter/writer';
+import { encLimitOrder } from '../corewriter/actions';
+import { humanPxToRaw, humanSzToRaw, rawPxToHuman, rawSzToHuman, roundQtyToStep } from '../corewriter/scales';
+import { swr } from '../precompile/swr';
+import { readOraclePx, readPerpPosition } from '../precompile/readers';
+import { getWallet } from './walletRegistry';
+import { resolveInstrument } from './meta';
+import { config } from '../config';
+import { provider } from './onchain';
 
 export async function precheckOpen(indexId: string, params: {
   symbol: string;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '../utils/httpError.js';
+import { AppError } from '../utils/httpError';
 
 const DEMO_BEARER_TOKEN = process.env.DEMO_BEARER_TOKEN || 'hyperindex-demo-token-2024';
 const AUTH_MODE = process.env.AUTH_MODE || 'bearer';

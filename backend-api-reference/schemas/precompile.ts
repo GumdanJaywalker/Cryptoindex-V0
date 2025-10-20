@@ -1,5 +1,5 @@
-import { z } from './common.js';
-import { zAddress, zUIntStr } from './common.js';
+import { z } from './common';
+import { zAddress, zUIntStr } from './common';
 
 export const BasketPositionSchema = z.object({
   symbol: z.string(),

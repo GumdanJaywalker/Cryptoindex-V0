@@ -1,7 +1,7 @@
 import { Contract, providers, utils } from 'ethers';
-import { config } from '../config.js';
-import { ERC20_ABI } from '../abi/erc20.js';
-import { PAYMENT_ROUTER_ABI } from '../abi/paymentRouter.js';
+import { config } from '../config';
+import { ERC20_ABI } from '../abi/erc20';
+import { PAYMENT_ROUTER_ABI } from '../abi/paymentRouter';
 
 export const provider = new providers.JsonRpcProvider(config.chain.rpcUrl, config.chain.chainId);
 

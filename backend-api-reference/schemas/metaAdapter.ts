@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AppError } from '../utils/httpError.js';
+import { AppError } from '../utils/httpError';
 
 // 개별 자산 정보 스키마 (실제 HyperLiquid 응답에 맞춤)
 const AssetMetaSchema = z.object({

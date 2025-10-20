@@ -1,16 +1,16 @@
 import { Router } from 'express';
-import { getCandles } from '../services/hypercore.js';
-import { calcBasketFromCandles } from '../services/basket.js';
-import { resolvePresetRange } from '../utils/candlePresets.js';
-import type { Position } from '../types/domain.js';
-import { AppError } from '../utils/httpError.js';
+import { getCandles } from '../services/hypercore';
+import { calcBasketFromCandles } from '../services/basket';
+import { resolvePresetRange } from '../utils/candlePresets';
+import type { Position } from '../types/domain';
+import { AppError } from '../utils/httpError';
 import {
   BasketCalculateRequestSchema,
   BasketCalculateResponseSchema,
   validateBody,
   sendValidated,
-} from '../schemas/http.js';
-import type { BasketCalculateRequest } from '../schemas/http.js';
+} from '../schemas/http';
+import type { BasketCalculateRequest } from '../schemas/http';
 
 const basketsRouter = Router();
 

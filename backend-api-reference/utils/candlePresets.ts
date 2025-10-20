@@ -1,4 +1,4 @@
-import { AppError } from './httpError.js';
+import { AppError } from './httpError';
 
 export type CandleInterval = '5m' | '1h' | '1d' | '7d';
 

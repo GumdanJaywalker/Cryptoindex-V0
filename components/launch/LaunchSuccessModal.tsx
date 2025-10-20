@@ -1,10 +1,11 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface LaunchSuccessModalProps {
   open: boolean;
@@ -49,6 +50,9 @@ export default function LaunchSuccessModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md bg-slate-900/95 backdrop-blur-md border-slate-700">
+        <VisuallyHidden>
+          <DialogTitle>Index Launch Success</DialogTitle>
+        </VisuallyHidden>
         <div className="text-center py-4">
           {/* Success Icon */}
           <div className="mb-6">

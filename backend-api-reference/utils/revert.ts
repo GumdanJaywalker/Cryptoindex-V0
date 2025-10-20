@@ -1,4 +1,4 @@
-import { provider } from '../services/onchain.js';
+import { provider } from '../services/onchain';
 import { ethers } from 'ethers';
 
 export async function tryGetRevertReason(txHash: string): Promise<string | null> {

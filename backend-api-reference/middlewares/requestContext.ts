@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import pinoHttp from 'pino-http';
 import { randomUUID } from 'crypto';
-import { logger } from '../infra/logger.js';
+import { logger } from '../infra/logger';
 
 const requestIdHeader = 'x-request-id';
 const traceIdHeader = 'x-trace-id';
