@@ -6,7 +6,7 @@ import LeftSidebar from "@/components/sidebar/LeftSidebar";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import ConfirmLaunchModal from "@/components/launch/ConfirmLaunchModal";
 import LaunchSuccessModal from "@/components/launch/LaunchSuccessModal";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -246,17 +246,11 @@ export default function LaunchIndexPage() {
     <div className="min-h-screen bg-slate-950 text-white pt-16">
       <Header />
       <div className="px-4 lg:px-4 pt-4 pb-24">
-        <div
-          className="grid grid-cols-1
-          lg:grid-cols-[260px_1fr]
-          xl:grid-cols-[280px_1fr]
-          2xl:grid-cols-[300px_1fr]
-          gap-3 items-start lg:items-stretch"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr] 2xl:grid-cols-[300px_1fr] gap-3 items-start lg:items-stretch">
           <div className="order-2 lg:order-1">
             <LeftSidebar />
           </div>
-          <main className="order-1 lg:order-2 max-w-7xl mx-auto w-full space-y-6">
+          <main className="order-1 lg:order-2 w-full space-y-6 max-w-7xl mx-auto px-2">
             {/* Header */}
             <section className="pb-6 border-b border-slate-700">
               <div className="flex items-start justify-between mb-4">
@@ -647,185 +641,191 @@ export default function LaunchIndexPage() {
                 </Card>
               </div>
             </div>
+
+            {/* Launch Summary */}
+            <Card className="bg-slate-900/50 border-slate-800">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  {/* Left: Cost Info */}
+                  <div className="flex gap-8 text-sm">
+                    <div>
+                      <div className="text-slate-400 text-xs mb-1">Total Cost</div>
+                      <div className="text-white font-medium">{totalCost.toFixed(2)} HYPE</div>
+                    </div>
+                    <div>
+                      <div className="text-slate-400 text-xs mb-1">Fee</div>
+                      <div className="flex items-center gap-1 font-medium">
+                        <span className="text-white">{feeAmt.toFixed(2)}</span>
+                        <span className="text-brand">$HIIN</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-slate-400 text-xs mb-1">HYPE Balance</div>
+                      <div className="text-white font-medium">0.00 HYPE</div>
+                    </div>
+                  </div>
+
+                  {/* Right: Action Buttons */}
+                  <div className="flex gap-3 w-full md:w-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 md:flex-none border-slate-700 text-slate-400 hover:bg-slate-800"
+                    >
+                      Inline Swap
+                    </Button>
+                    <Button
+                      onClick={() => setShowLaunchModal(true)}
+                      disabled={selected.length === 0}
+                      size="sm"
+                      className="flex-1 md:flex-none bg-brand text-slate-950 font-medium hover:bg-brand/90 disabled:bg-brand/50"
+                    >
+                      Launch
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Active Layer-3 Launches */}
+            <section className="pt-8">
+            <div className="mb-6">
+              <h3 className="text-white font-bold text-xl mb-2">Active Layer-3 Launches</h3>
+              <p className="text-slate-400 text-sm">Indices currently in bonding curve phase</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Example Active Launch 1 */}
+              <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="text-white font-bold text-lg mb-1">DOGE Leaders</div>
+                      <div className="text-slate-400 text-xs">3 assets · Long 2x</div>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-full bg-brand/20 text-brand font-medium">Bonding</span>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="text-white">$32.4K / $50K</span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div className="bg-brand h-full rounded-full" style={{ width: '65%' }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <div className="text-slate-400 mb-1">Current Price</div>
+                        <div className="text-white font-medium">$0.00032</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-400 mb-1">Time Left</div>
+                        <div className="text-white font-medium">18d 5h</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full bg-brand/20 text-brand hover:bg-brand/30 border border-brand/30"
+                  >
+                    View Launch
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Example Active Launch 2 */}
+              <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="text-white font-bold text-lg mb-1">Cat Memes 5x</div>
+                      <div className="text-slate-400 text-xs">4 assets · Long 5x</div>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-full bg-brand/20 text-brand font-medium">Bonding</span>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="text-white">$41.2K / $50K</span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div className="bg-brand h-full rounded-full" style={{ width: '82%' }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <div className="text-slate-400 mb-1">Current Price</div>
+                        <div className="text-white font-medium">$0.00041</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-400 mb-1">Time Left</div>
+                        <div className="text-white font-medium">12d 3h</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full bg-brand/20 text-brand hover:bg-brand/30 border border-brand/30"
+                  >
+                    View Launch
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Example Active Launch 3 */}
+              <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="text-white font-bold text-lg mb-1">AI Agents</div>
+                      <div className="text-slate-400 text-xs">5 assets · Long 3x</div>
+                    </div>
+                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-400/20 text-yellow-400 font-medium">Funding</span>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="text-white">$156K / $200K</span>
+                      </div>
+                      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div className="bg-yellow-400 h-full rounded-full" style={{ width: '78%' }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <div className="text-slate-400 mb-1">Fixed Price</div>
+                        <div className="text-white font-medium">$0.00050</div>
+                      </div>
+                      <div>
+                        <div className="text-slate-400 mb-1">Time Left</div>
+                        <div className="text-white font-medium">4d 18h</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 border border-yellow-400/30"
+                  >
+                    View Launch
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
           </main>
-        </div>
-      </div>
-
-      {/* Active Layer-3 Launches */}
-      <div className="max-w-7xl mx-auto px-6 pb-24 pt-8">
-        <div className="mb-6">
-          <h3 className="text-white font-bold text-xl mb-2">Active Layer-3 Launches</h3>
-          <p className="text-slate-400 text-sm">Indices currently in bonding curve phase</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Example Active Launch 1 */}
-          <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="text-white font-bold text-lg mb-1">DOGE Leaders</div>
-                  <div className="text-slate-400 text-xs">3 assets · Long 2x</div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-brand/20 text-brand font-medium">Bonding</span>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-400">Progress</span>
-                    <span className="text-white">$32.4K / $50K</span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                    <div className="bg-brand h-full rounded-full" style={{ width: '65%' }} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <div className="text-slate-400 mb-1">Current Price</div>
-                    <div className="text-white font-medium">$0.00032</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-400 mb-1">Time Left</div>
-                    <div className="text-white font-medium">18d 5h</div>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-brand/20 text-brand hover:bg-brand/30 border border-brand/30"
-              >
-                View Launch
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Example Active Launch 2 */}
-          <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="text-white font-bold text-lg mb-1">Cat Memes 5x</div>
-                  <div className="text-slate-400 text-xs">4 assets · Long 5x</div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-brand/20 text-brand font-medium">Bonding</span>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-400">Progress</span>
-                    <span className="text-white">$41.2K / $50K</span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                    <div className="bg-brand h-full rounded-full" style={{ width: '82%' }} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <div className="text-slate-400 mb-1">Current Price</div>
-                    <div className="text-white font-medium">$0.00041</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-400 mb-1">Time Left</div>
-                    <div className="text-white font-medium">12d 3h</div>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-brand/20 text-brand hover:bg-brand/30 border border-brand/30"
-              >
-                View Launch
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Example Active Launch 3 */}
-          <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/30 transition-colors">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="text-white font-bold text-lg mb-1">AI Agents</div>
-                  <div className="text-slate-400 text-xs">5 assets · Long 3x</div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-yellow-400/20 text-yellow-400 font-medium">Funding</span>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-400">Progress</span>
-                    <span className="text-white">$156K / $200K</span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                    <div className="bg-yellow-400 h-full rounded-full" style={{ width: '78%' }} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <div className="text-slate-400 mb-1">Fixed Price</div>
-                    <div className="text-white font-medium">$0.00050</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-400 mb-1">Time Left</div>
-                    <div className="text-white font-medium">4d 18h</div>
-                  </div>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="w-full bg-yellow-400/20 text-yellow-400 hover:bg-yellow-400/30 border border-yellow-400/30"
-              >
-                View Launch
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Sticky Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-700 z-40">
-        <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between text-sm">
-          <div className="flex gap-8 text-white">
-            <div>
-              <div className="text-slate-400 text-xs">Total Cost</div>
-              <div>{totalCost.toFixed(2)} HYPE</div>
-            </div>
-            <div>
-              <div className="text-slate-400 text-xs">Fee</div>
-              <div className="flex items-center gap-1">
-                <span>{feeAmt.toFixed(2)}</span>
-                <span className="text-brand">$HIIN</span>
-              </div>
-            </div>
-            <div>
-              <div className="text-slate-400 text-xs">HYPE Balance</div>
-              <div>0.00 HYPE</div>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-slate-700 text-slate-400 hover:bg-slate-800"
-            >
-              Inline Swap
-            </Button>
-            <Button
-              onClick={() => setShowLaunchModal(true)}
-              disabled={selected.length === 0}
-              className="bg-brand text-slate-950 font-medium hover:bg-brand/90 disabled:bg-brand/50"
-            >
-              Launch
-            </Button>
-          </div>
         </div>
       </div>
 
