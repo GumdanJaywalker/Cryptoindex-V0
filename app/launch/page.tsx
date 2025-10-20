@@ -67,14 +67,34 @@ export default function LaunchIndexPage() {
   const [description, setDescription] = useState("");
   const [socialLink, setSocialLink] = useState("");
 
-  // Mock assets (replace with real API later)
-  const [assets, setAssets] = useState<Asset[]>([
-    { symbol: "BTC", name: "Bitcoin", marketType: "perp" },
-    { symbol: "ETH", name: "Ethereum", marketType: "perp" },
-    { symbol: "SOL", name: "Solana", marketType: "perp" },
-    { symbol: "DOGE", name: "Dogecoin", marketType: "perp" },
-    { symbol: "PEPE", name: "Pepe", marketType: "perp" },
-  ]);
+  // Fetch assets from API
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [assetsLoading, setAssetsLoading] = useState(true);
+
+  // Load assets on mount
+  useEffect(() => {
+    async function loadAssets() {
+      try {
+        const response = await fetch('/api/launch/assets');
+        if (!response.ok) throw new Error('Failed to fetch assets');
+        const data = await response.json();
+        setAssets(data);
+      } catch (error) {
+        console.error('Failed to load assets:', error);
+        // Fallback to mock data on error
+        setAssets([
+          { symbol: "BTC", name: "Bitcoin", marketType: "perp" },
+          { symbol: "ETH", name: "Ethereum", marketType: "perp" },
+          { symbol: "SOL", name: "Solana", marketType: "perp" },
+          { symbol: "DOGE", name: "Dogecoin", marketType: "perp" },
+          { symbol: "PEPE", name: "Pepe", marketType: "perp" },
+        ]);
+      } finally {
+        setAssetsLoading(false);
+      }
+    }
+    loadAssets();
+  }, []);
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<SelectedAsset[]>([]);
