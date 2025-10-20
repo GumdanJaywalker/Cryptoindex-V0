@@ -15,6 +15,77 @@
 - **Status**: Implementation plan finalized, ready to begin PHASE 1
 - **Strategy**: Build core functionality first, polish/animations last
 
+### 📦 **Backend API Reference**: HLH_hack backend copied to project ✅
+- **Location**: `/backend-api-reference/` folder (now in git repository)
+- **Contents**: Launch API routes, types, utils, middlewares, .env, package.json
+- **Status**: Ready for future backend integration
+
+---
+
+## 🔧 BACKEND API REFERENCE (Oct 19, New)
+
+### 📁 Location & Structure
+
+The HLH_hack backend code has been copied into the project for version control and future integration:
+
+```
+backend-api-reference/
+├── routes/
+│   ├── assets.ts          # GET /api/launch/assets
+│   ├── baskets.ts         # POST /api/launch/basket-calculate
+│   └── positions.ts       # Launch position management
+├── types/                 # Type definitions
+├── utils/                 # Helper functions
+├── middlewares/          # Auth, error handling
+├── .env                  # Environment variables (INCLUDED)
+├── package.json          # Backend dependencies
+├── .gitignore            # Only ignores node_modules
+└── README.md             # Integration guide
+```
+
+### 🎯 Purpose
+
+This folder serves as:
+1. **Reference Code**: All Launch API implementation details
+2. **Version Control**: Backend code now tracked in git
+3. **Easy Integration**: Copy files when backend is ready
+4. **Team Collaboration**: Everyone can see backend structure
+
+### 🚀 Quick Integration
+
+When ready to implement backend:
+
+```bash
+# Copy API routes to your backend
+cp backend-api-reference/routes/* your-backend/src/routes/launch/
+
+# Copy supporting files
+cp -r backend-api-reference/{types,utils,middlewares} your-backend/src/
+
+# Install dependencies
+cd your-backend && npm install
+
+# Update frontend to use real API
+# See backend-api-reference/README.md for details
+```
+
+### ✅ What's Included
+
+- ✅ All Launch API routes (assets, baskets, positions)
+- ✅ Complete type definitions
+- ✅ Utility functions
+- ✅ Middleware (auth, error handling)
+- ✅ Environment variables (.env file)
+- ✅ Package dependencies (package.json)
+- ✅ Comprehensive README with integration guide
+
+### 📝 Important Notes
+
+- **Frontend Still Uses Mock Data**: No changes to Launch page functionality
+- **.env File Included**: All environment variables copied (normally excluded from git)
+- **Ready for Backend Team**: Can start implementing server when ready
+- **No External Dependencies**: Everything needed is in the project
+
 ---
 
 ## 🆕 DISCOVER PAGE - IMPLEMENTATION PLAN (Oct 19, New)
