@@ -7,88 +7,23 @@ import { Badge } from '@/components/ui/badge'
 import { Rocket, TrendingUp, Clock, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import IndexDetailsModal, { IndexDetails } from './IndexDetailsModal'
-
-type LaunchedIndex = {
-  id: string
-  name: string
-  symbol: string
-  description: string
-  socialLink: string
-  assets: Array<{
-    symbol: string
-    name: string
-    side: 'long' | 'short'
-    leverage: number
-    allocation: number
-  }>
-  totalInvestment: number
-  fee: number
-  launchedAt: string
-  status: 'bonding' | 'funding' | 'lp' | 'graduated'
-}
+import IndexDetailsModal from './IndexDetailsModal'
+import { getStatusColor, getStatusLabel, formatRelativeTime } from '@/lib/utils/indexStatus'
+import { IndexData } from '@/lib/types/index'
+import { LaunchedIndexesStorage } from '@/lib/storage/launchedIndexes'
 
 export function LaunchedIndexes() {
-  const [launchedIndexes, setLaunchedIndexes] = useState<LaunchedIndex[]>([])
-  const [selectedIndex, setSelectedIndex] = useState<IndexDetails | null>(null)
+  const [launchedIndexes, setLaunchedIndexes] = useState<IndexData[]>([])
+  const [selectedIndex, setSelectedIndex] = useState<IndexData | null>(null)
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    // Load launched indexes from localStorage
-    const stored = localStorage.getItem('launched-indexes')
-    if (stored) {
-      try {
-        const indexes = JSON.parse(stored)
-        setLaunchedIndexes(indexes)
-      } catch (error) {
-        console.error('Failed to parse launched indexes:', error)
-      }
-    }
+    // Load launched indexes from localStorage using storage service
+    const indexes = LaunchedIndexesStorage.get()
+    setLaunchedIndexes(indexes)
   }, [])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'bonding':
-        return 'bg-brand/20 text-brand border-brand/30'
-      case 'funding':
-        return 'bg-yellow-400/20 text-yellow-400 border-yellow-400/30'
-      case 'lp':
-        return 'bg-purple-400/20 text-purple-400 border-purple-400/30'
-      case 'graduated':
-        return 'bg-green-400/20 text-green-400 border-green-400/30'
-      default:
-        return 'bg-slate-700/20 text-slate-400 border-slate-700/30'
-    }
-  }
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'bonding':
-        return 'Bonding Curve'
-      case 'funding':
-        return 'Funding Round'
-      case 'lp':
-        return 'LP Round'
-      case 'graduated':
-        return 'Graduated'
-      default:
-        return status
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffMins = Math.floor(diffMs / (1000 * 60))
-
-    if (diffDays > 0) return `${diffDays}d ago`
-    if (diffHours > 0) return `${diffHours}h ago`
-    if (diffMins > 0) return `${diffMins}m ago`
-    return 'Just now'
-  }
+  // Utility functions moved to @/lib/utils/indexStatus
 
   if (launchedIndexes.length === 0) {
     return (
@@ -173,7 +108,7 @@ export function LaunchedIndexes() {
                       <Clock className="w-3 h-3" />
                       Launched
                     </div>
-                    <div className="text-white font-medium">{formatDate(index.launchedAt)}</div>
+                    <div className="text-white font-medium">{formatRelativeTime(index.launchedAt)}</div>
                   </div>
                 </div>
 

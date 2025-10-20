@@ -1,7 +1,7 @@
 # CLAUDE.md - HyperIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-10-19
-> 🔄 **자동 업데이트**: 실제 프로젝트 구조 반영
+> 📅 **마지막 업데이트**: 2025-10-20
+> 🔄 **자동 업데이트**: doc-updater agent로 실제 프로젝트 구조 스캔 및 반영
 
 이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
 
@@ -57,51 +57,79 @@ pnpm run dev
 # http://localhost:3000/trading (거래 페이지)
 ```
 
-## 📁 프로젝트 구조 (2025-10-19 업데이트)
+## 📁 프로젝트 구조 (2025-10-20 업데이트 - doc-updater로 스캔됨)
 
 ```
-/app                          # Next.js App Router (13개 메인 페이지)
+/app                          # Next.js App Router (17개 페이지: 14 메인 + 3 테스트)
   page.tsx                    # 🏠 메인 랜딩 페이지
   /trading                    # 💹 거래 페이지 (메인 기능)
-  /launch                     # 🚀 인덱스 생성/런칭 페이지
+  /launch                     # 🚀 인덱스 생성/런칭 페이지 (915 lines - 매우 복잡)
+  /discover                   # 🔍 인덱스 발견 페이지 (NEW - 209 lines)
   /portfolio                  # 💼 포트폴리오 관리
   /governance                 # 🗳️ 거버넌스 투표 목록
   /governance/[id]            # 🗳️ 거버넌스 상세 페이지
-  /traders                    # 👥 트레이더 목록
-  /traders/[id]               # 👤 트레이더 프로필
+  /leaderboard                # 🏆 트레이더 리더보드 (replaces /traders)
+  /leaderboard/[id]           # 👤 트레이더 프로필 상세
   /referrals                  # 💸 레퍼럴 프로그램
   /referrals/apply            # 📝 레퍼럴 신청
   /settings                   # ⚙️ 사용자 설정
   /notifications              # 🔔 알림 센터
   /dashboard                  # 📊 대시보드
+  /privy-login                # 🔐 Auth 테스트 페이지
+  /test-network-display       # 🧪 Network 테스트 페이지
+  /test-utils                 # 🧪 Utils 테스트 페이지
   layout.tsx                  # 공통 레이아웃
 
-/components                   # 총 300+ 개 컴포넌트
-  /auth                       # 인증 (Privy)
-  /demo                       # 데모 쇼케이스
-  /dialogs                    # 다이얼로그/모달 (5개)
-  /governance                 # 거버넌스 (7개)
-  /launch                     # ⭐ 인덱스 생성 (4개 파일)
-  /layout                     # 레이아웃 (Header, Footer)
-  /modals                     # ⭐ 모달 (AllIndicesModal)
-  /mobile                     # ⭐ 모바일 최적화 (3개)
-  /notifications              # ⭐ 알림 시스템 (5개)
-  /portfolio                  # 포트폴리오 (11개)
-  /providers                  # 프로바이더 (2개)
-  /pwa                        # ⭐ PWA 설치 프롬프트
-  /settings                   # ⭐ 설정 섹션 (7개)
-  /sidebar                    # ⭐ 통합 사이드바 (2개)
-  /trading                    # 거래 관련 (26개 파일)
-  /wallet                     # 지갑 연동 (9개)
-  /ui                         # shadcn/ui + Aceternity (120+ 컴포넌트)
-  /magicui                    # MagicUI 효과 (14개)
+/components                   # 총 243개 컴포넌트 (19개 카테고리)
+  /ui                         # shadcn/ui + Aceternity (124 컴포넌트)
+  /trading                    # 거래 인터페이스 (27 파일)
+  /magicui                    # MagicUI 효과 (15 파일)
+  /wallet                     # 지갑 연동 (15 파일 - 중복 포함)
+  /portfolio                  # 포트폴리오 관리 (13 파일)
+  /launch                     # ⭐ 인덱스 생성 (7 파일)
+  /governance                 # 거버넌스 (7 파일)
+  /settings                   # ⭐ 설정 섹션 (7 파일)
+  /dialogs                    # 다이얼로그/모달 (5 파일)
+  /notifications              # ⭐ 알림 시스템 (5 파일)
+  /mobile                     # ⭐ 모바일 최적화 (3 파일)
+  /sidebar                    # ⭐ 통합 사이드바 (2 파일)
+  /layout                     # 레이아웃 (Header, Footer - 2 파일)
+  /providers                  # 프로바이더 (2 파일)
+  /discover                   # 🆕 발견 페이지 (1 파일 - layer-tabs)
+  /pwa                        # ⭐ PWA 설치 프롬프트 (1 파일)
+  /modals                     # ⭐ 모달 (AllIndicesModal - 1 파일)
+  /auth                       # 인증 Privy (1 파일)
+  /demo                       # 데모 쇼케이스 (1 파일)
   theme-provider.tsx          # 테마 프로바이더
   cards-demo-*.tsx            # 데모 카드들
 
-/lib
-  utils.ts                    # 유틸리티 함수
-  /auth                       # Privy 인증 로직
-  /supabase                   # Supabase 클라이언트
+/lib                          # 38개 유틸리티/로직 파일
+  /store                      # Zustand 스토어 (5 파일)
+    - trading-store, governance-store, notifications-store
+    - currency-store, price-alerts (NEW)
+  /types                      # TypeScript 타입 (5 파일)
+    - governance, notifications, index-trading
+    - currency, discover (NEW)
+  /utils                      # 유틸 함수 (4 파일)
+    - utils.ts, currency.ts, layer-utils.ts, avatar.ts
+  /api                        # API 통합 (3 파일: governance, search, settings)
+  /mock                       # Mock 데이터 (3 파일: assets, blacklist, operators)
+  /privy                      # Privy 인증 설정 (2 파일)
+  /supabase                   # Supabase 클라이언트 (2 파일)
+  /hooks                      # 공유 훅 (2 파일: performance, currency)
+  /animations                 # 애니메이션 유틸 (2 파일: page-transitions, micro-interactions)
+  /pwa                        # PWA 유틸리티 (2 파일: sw-register, pwa-provider)
+  /auth                       # 인증 로직 (1 파일: privy-jwt)
+  /data                       # Mock 인덱스 데이터 (1 파일)
+  /sound                      # 🆕 사운드 효과 (1 파일)
+  /settings                   # 설정 저장소 (1 파일)
+  /governance                 # 거버넌스 헬퍼 (1 파일)
+  /middleware                 # 인증 미들웨어 (1 파일)
+  /providers                  # Query 프로바이더 (1 파일)
+
+/hooks                        # 6개 커스텀 훅
+  - use-gestures, use-governance, use-index-builder
+  - use-market-data, use-realtime, use-wallet
 
 /app/globals.css              # TailwindCSS + 브랜드 색상
 ```

@@ -13,6 +13,7 @@ import { searchIndexes, type IndexSearchResult } from '@/lib/api/search'
 
 const navigation = [
   { name: 'Trading', href: '/trading' },
+  { name: 'Discover', href: '/discover' },
   { name: 'Leaderboard', href: '/leaderboard' },
   { name: 'Governance', href: '/governance' },
   { name: 'Launch', href: '/launch' },
