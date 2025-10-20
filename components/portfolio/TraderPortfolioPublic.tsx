@@ -24,7 +24,7 @@ export default function TraderPortfolioPublic({ traderId }: { traderId: string }
           <div className="text-white text-lg font-semibold">Trader not found</div>
           <div className="text-slate-400 text-sm mt-1">ID: {traderId}</div>
           <div className="mt-4">
-            <Link href="/traders" className="text-brand hover:underline">Back to Traders</Link>
+            <Link href="/leaderboard" className="text-brand hover:underline">Back to Leaderboard</Link>
           </div>
         </div>
       </div>
