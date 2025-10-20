@@ -79,16 +79,18 @@ export default function LaunchIndexPage() {
         const response = await fetch('/api/launch/assets');
         if (!response.ok) throw new Error('Failed to fetch assets');
         const data = await response.json();
-        setAssets(data);
+        // Filter to show only spot assets (initial version supports spot trading only)
+        const spotAssets = data.filter((a: Asset) => a.marketType === 'spot');
+        setAssets(spotAssets);
       } catch (error) {
         console.error('Failed to load assets:', error);
-        // Fallback to mock data on error
+        // Fallback to mock spot-only data on error
         setAssets([
-          { symbol: "BTC", name: "Bitcoin", marketType: "perp" },
-          { symbol: "ETH", name: "Ethereum", marketType: "perp" },
-          { symbol: "SOL", name: "Solana", marketType: "perp" },
-          { symbol: "DOGE", name: "Dogecoin", marketType: "perp" },
-          { symbol: "PEPE", name: "Pepe", marketType: "perp" },
+          { symbol: "BTC", name: "Bitcoin", marketType: "spot" },
+          { symbol: "ETH", name: "Ethereum", marketType: "spot" },
+          { symbol: "SOL", name: "Solana", marketType: "spot" },
+          { symbol: "DOGE", name: "Dogecoin", marketType: "spot" },
+          { symbol: "PEPE", name: "Pepe", marketType: "spot" },
         ]);
       } finally {
         setAssetsLoading(false);
@@ -246,22 +248,104 @@ export default function LaunchIndexPage() {
   const totalCost = composition.totalAmount;
   const feeAmt = 0.1; // Fixed fee
 
-  // Mock preview data
+  // Validation states
+  const basicsComplete = useMemo(() => {
+    if (!indexName || indexName.trim().length < 3) return false;
+    if (!ticker || ticker.trim().length < 3) return false;
+    if (!description || description.trim().length < 10) return false;
+    // Ticker format validation: alphanumeric + dash only
+    if (!/^[A-Z0-9-]+$/.test(ticker)) return false;
+    return true;
+  }, [indexName, ticker, description]);
+
+  const componentsValid = useMemo(() => {
+    if (selected.length < 2) return false;
+    const diff = Math.abs(totalAllocation - 100);
+    if (diff > 0.1) return false;
+    if (composition.totalAmount < 100) return false;
+    return true;
+  }, [selected.length, totalAllocation, composition.totalAmount]);
+
+  const canLaunch = basicsComplete && componentsValid;
+
+  // Real preview data from basket calculation API
   const [previewData, setPreviewData] = useState<{ date: string; value: number }[] | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  // Generate placeholder chart data
+  const placeholderData = useMemo(() => {
+    return Array.from({ length: 24 }, (_, i) => {
+      const baseValue = 100;
+      const variation = Math.sin(i / 3) * 8 + Math.cos(i / 5) * 5;
+      return {
+        date: `${i}:00`,
+        value: baseValue + variation,
+      };
+    });
+  }, []);
 
   useEffect(() => {
-    // Generate mock preview data
+    // Fetch real basket performance data
     if (selected.length === 0) {
       setPreviewData(null);
       return;
     }
 
-    const data = Array.from({ length: 30 }, (_, i) => ({
-      date: `${i + 1}`,
-      value: 100 + Math.random() * 20 - 10,
-    }));
-    setPreviewData(data);
-  }, [selected, period]);
+    const fetchPreviewData = async () => {
+      setPreviewLoading(true);
+      try {
+        const endTime = Date.now();
+        const startTime = period === '1H'
+          ? endTime - 60 * 60 * 1000  // 1 hour
+          : endTime - 24 * 60 * 60 * 1000; // 1 day
+
+        const response = await fetch('/api/baskets/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assets: selected.map(s => ({
+              symbol: s.symbol,
+              weight: composition.allocations[s.symbol] || 0,
+              side: s.side,
+              leverage: s.leverage,
+            })),
+            interval: period === '1H' ? '1h' : '1h',
+            from: startTime,
+            to: endTime,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch basket data');
+        }
+
+        const data = await response.json();
+
+        // Transform API response to chart data
+        const chartData = data.basketPriceHistory.map((point: any, index: number) => ({
+          date: new Date(point.timestamp).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          value: point.price,
+        }));
+
+        setPreviewData(chartData);
+      } catch (error) {
+        console.error('Failed to fetch preview data:', error);
+        // Fallback to mock data on error
+        const data = Array.from({ length: 30 }, (_, i) => ({
+          date: `${i + 1}`,
+          value: 100 + Math.random() * 20 - 10,
+        }));
+        setPreviewData(data);
+      } finally {
+        setPreviewLoading(false);
+      }
+    };
+
+    fetchPreviewData();
+  }, [selected, period, composition.allocations]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pt-16">
@@ -318,33 +402,60 @@ export default function LaunchIndexPage() {
                 <h3 className="text-white font-medium">Basics</h3>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-slate-400 mb-1 text-sm">Index Name</div>
+                    <div className="text-slate-400 mb-1 text-sm">
+                      Index Name <span className="text-red-400">*</span>
+                    </div>
                     <Input
-                      placeholder="Enter index name"
+                      placeholder="Enter index name (min 3 chars)"
                       value={indexName}
                       onChange={(e) => setIndexName(e.target.value)}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className={cn(
+                        "bg-slate-900 border-slate-700 text-white",
+                        indexName && indexName.trim().length < 3 && "border-red-400"
+                      )}
                     />
+                    {indexName && indexName.trim().length < 3 && (
+                      <div className="text-red-400 text-xs mt-1">Name must be at least 3 characters</div>
+                    )}
                   </div>
                   <div>
-                    <div className="text-slate-400 mb-1 text-sm">Ticker</div>
+                    <div className="text-slate-400 mb-1 text-sm">
+                      Ticker <span className="text-red-400">*</span>
+                    </div>
                     <Input
-                      placeholder="e.g., MYIDX"
+                      placeholder="e.g., MYIDX (3-8 chars, A-Z 0-9 -)"
                       value={ticker}
                       onChange={(e) => setTicker(e.target.value.toUpperCase())}
                       maxLength={8}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className={cn(
+                        "bg-slate-900 border-slate-700 text-white",
+                        ticker && (ticker.trim().length < 3 || !/^[A-Z0-9-]+$/.test(ticker)) && "border-red-400"
+                      )}
                     />
+                    {ticker && ticker.trim().length < 3 && (
+                      <div className="text-red-400 text-xs mt-1">Ticker must be at least 3 characters</div>
+                    )}
+                    {ticker && ticker.trim().length >= 3 && !/^[A-Z0-9-]+$/.test(ticker) && (
+                      <div className="text-red-400 text-xs mt-1">Only alphanumeric characters and dashes allowed</div>
+                    )}
                   </div>
                   <div>
-                    <div className="text-slate-400 mb-1 text-sm">Description</div>
+                    <div className="text-slate-400 mb-1 text-sm">
+                      Description <span className="text-red-400">*</span>
+                    </div>
                     <textarea
                       rows={3}
-                      placeholder="Describe your index"
+                      placeholder="Describe your index (min 10 chars)"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 resize-none focus:outline-none focus:ring-1 focus:ring-brand"
+                      className={cn(
+                        "w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 resize-none focus:outline-none focus:ring-1 focus:ring-brand",
+                        description && description.trim().length < 10 && "border-red-400"
+                      )}
                     />
+                    {description && description.trim().length < 10 && (
+                      <div className="text-red-400 text-xs mt-1">Description must be at least 10 characters</div>
+                    )}
                   </div>
                   <div>
                     <div className="text-slate-400 mb-1 text-sm">Social Link (Optional)</div>
@@ -378,13 +489,24 @@ export default function LaunchIndexPage() {
                   )}
                 </div>
 
+                {/* Basics Required Warning */}
+                {!basicsComplete && (
+                  <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3">
+                    <div className="text-yellow-400 text-sm font-medium mb-1">Complete Basics First</div>
+                    <div className="text-yellow-400/80 text-xs">
+                      Fill out all required fields in the Basics section before adding components.
+                    </div>
+                  </div>
+                )}
+
                 {/* Search */}
                 <div className="relative">
                   <Input
                     placeholder="Search assets..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-slate-900 border-slate-700 text-white"
+                    disabled={!basicsComplete}
+                    className="bg-slate-900 border-slate-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   {search && filtered.length > 0 && (
                     <div className="absolute z-[100] mt-2 w-full bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-lg p-2 max-h-64 overflow-y-auto shadow-lg">
@@ -421,9 +543,10 @@ export default function LaunchIndexPage() {
                         </div>
                         <Button
                           onClick={() => removeAsset(s.symbol)}
+                          disabled={!basicsComplete}
                           variant="outline"
                           size="sm"
-                          className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white h-7"
+                          className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white h-7 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Remove
                         </Button>
@@ -433,7 +556,7 @@ export default function LaunchIndexPage() {
                           <div className="text-slate-400 mb-1">Side</div>
                           {s.marketType === "spot" ? (
                             <div className="text-xs text-white px-2 py-1 rounded-lg bg-white/10 inline-flex items-center gap-2">
-                              Long
+                              Buy
                               <span className="text-slate-400">(spot only)</span>
                             </div>
                           ) : (
@@ -442,11 +565,13 @@ export default function LaunchIndexPage() {
                                 <button
                                   key={v}
                                   onClick={() => updateAsset(s.symbol, { side: v })}
+                                  disabled={!basicsComplete}
                                   className={cn(
                                     "px-2.5 py-1 rounded-md text-xs transition-colors",
                                     s.side === v
                                       ? "bg-brand text-slate-950 font-medium"
-                                      : "text-slate-400 hover:bg-slate-700"
+                                      : "text-slate-400 hover:bg-slate-700",
+                                    !basicsComplete && "opacity-50 cursor-not-allowed"
                                   )}
                                 >
                                   {v}
@@ -469,6 +594,7 @@ export default function LaunchIndexPage() {
                                 min={1}
                                 max={50}
                                 value={s.leverage}
+                                disabled={!basicsComplete}
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   if (val === "" || val === "0") {
@@ -479,19 +605,20 @@ export default function LaunchIndexPage() {
                                     });
                                   }
                                 }}
-                                className="w-16 bg-slate-900 border-slate-700 text-white text-center"
+                                className="w-16 bg-slate-900 border-slate-700 text-white text-center disabled:opacity-50 disabled:cursor-not-allowed"
                               />
                               <input
                                 type="range"
                                 min={1}
                                 max={50}
                                 value={s.leverage}
+                                disabled={!basicsComplete}
                                 onChange={(e) =>
                                   updateAsset(s.symbol, {
                                     leverage: clamp01_50(Number(e.target.value)),
                                   })
                                 }
-                                className="w-full"
+                                className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
                               />
                             </div>
                           )}
@@ -622,9 +749,14 @@ export default function LaunchIndexPage() {
                       </button>
                     ))}
                   </div>
-                  <div className="h-56">
+                  <div className="h-56 relative">
+                    {!previewData && selected.length === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className="text-slate-500 text-sm">Select assets to see preview</div>
+                      </div>
+                    )}
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={previewData ?? []}>
+                      <AreaChart data={previewData ?? placeholderData}>
                         <XAxis
                           dataKey="date"
                           axisLine={false}
@@ -644,9 +776,9 @@ export default function LaunchIndexPage() {
                         <Area
                           type="monotone"
                           dataKey="value"
-                          stroke="#98FCE4"
-                          fill="#98FCE4"
-                          fillOpacity={0.2}
+                          stroke={!previewData && selected.length === 0 ? "#475569" : "#98FCE4"}
+                          fill={!previewData && selected.length === 0 ? "#475569" : "#98FCE4"}
+                          fillOpacity={!previewData && selected.length === 0 ? 0.1 : 0.2}
                           strokeWidth={2}
                         />
                       </AreaChart>
@@ -697,9 +829,22 @@ export default function LaunchIndexPage() {
                     </Button>
                     <Button
                       onClick={() => setShowLaunchModal(true)}
-                      disabled={selected.length === 0}
+                      disabled={!canLaunch}
                       size="sm"
-                      className="flex-1 md:flex-none bg-brand text-slate-950 font-medium hover:bg-brand/90 disabled:bg-brand/50"
+                      className="flex-1 md:flex-none bg-brand text-slate-950 font-medium hover:bg-brand/90 disabled:bg-brand/50 disabled:cursor-not-allowed"
+                      title={
+                        !canLaunch
+                          ? !basicsComplete
+                            ? "Complete all Basics fields first"
+                            : !componentsValid
+                            ? selected.length < 2
+                              ? "Add at least 2 assets"
+                              : Math.abs(totalAllocation - 100) > 0.1
+                              ? "Allocations must total 100%"
+                              : "Minimum 100 HYPE investment required"
+                            : "Complete all requirements"
+                          : ""
+                      }
                     >
                       Launch
                     </Button>
