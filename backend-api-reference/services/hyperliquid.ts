@@ -1,6 +1,6 @@
 import { InfoClient, HttpTransport } from '@nktkas/hyperliquid';
-import { config } from '../config.js';
-import type { Asset, AssetDetail } from '../types/domain.js';
+import { config } from '../config';
+import type { Asset, AssetDetail } from '../types/domain';
 
 interface RawAssetMeta {
   name?: string;

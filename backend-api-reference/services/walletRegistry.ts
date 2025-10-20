@@ -1,4 +1,4 @@
-import { AppError } from '../utils/httpError.js';
+import { AppError } from '../utils/httpError';
 import { ethers } from 'ethers';
 
 export interface WalletRecord {

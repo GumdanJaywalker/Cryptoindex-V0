@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { listAssets, getAsset } from '../services/assets.js';
-import { getCandles } from '../services/hypercore.js';
-import { resolvePresetRange } from '../utils/candlePresets.js';
-import { AppError } from '../utils/httpError.js';
+import { listAssets, getAsset } from '../services/assets';
+import { getCandles } from '../services/hypercore';
+import { resolvePresetRange } from '../utils/candlePresets';
+import { AppError } from '../utils/httpError';
 
 export const assetsRouter = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { closePosition, openPosition, precheckOpen } from '../services/position.js';
+import { closePosition, openPosition, precheckOpen } from '../services/position';
 import {
   OpenPositionRequestSchema,
   OpenPositionResponseSchema,
@@ -8,8 +8,8 @@ import {
   ClosePositionResponseSchema,
   validateBody,
   sendValidated,
-} from '../schemas/http.js';
-import type { OpenPositionRequest, ClosePositionRequest } from '../schemas/http.js';
+} from '../schemas/http';
+import type { OpenPositionRequest, ClosePositionRequest } from '../schemas/http';
 
 export const positionsRouter = Router();
 

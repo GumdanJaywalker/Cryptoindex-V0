@@ -1,4 +1,4 @@
-import { change24hPct, getInstrumentsIndex, resolveInstrument } from './meta.js';
+import { change24hPct, getInstrumentsIndex, resolveInstrument } from './meta';
 
 export type Asset = {
   name: string;

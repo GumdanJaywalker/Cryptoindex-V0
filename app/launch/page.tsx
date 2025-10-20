@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { LaunchedIndexes } from "@/components/portfolio/LaunchedIndexes";
 
 // Type definitions
 type PositionSide = "long" | "short";
@@ -707,6 +708,9 @@ export default function LaunchIndexPage() {
               </CardContent>
             </Card>
 
+            {/* My Launched Indexes */}
+            <LaunchedIndexes />
+
             {/* Active Layer-3 Launches */}
             <section className="pt-8">
             <div className="mb-6">
@@ -854,6 +858,34 @@ export default function LaunchIndexPage() {
         open={showLaunchModal}
         onClose={() => setShowLaunchModal(false)}
         onConfirm={() => {
+          // Save launched index to localStorage
+          const launchedIndex = {
+            id: `${ticker.toLowerCase()}-${Date.now()}`,
+            name: indexName,
+            symbol: ticker,
+            description: description,
+            socialLink: socialLink,
+            assets: selected.map((asset) => ({
+              symbol: asset.symbol,
+              name: asset.name,
+              side: asset.side,
+              leverage: asset.leverage,
+              allocation: composition.allocations[asset.symbol] || 0,
+            })),
+            totalInvestment: totalCost,
+            fee: feeAmt,
+            launchedAt: new Date().toISOString(),
+            status: 'bonding', // bonding, funding, lp, graduated
+          };
+
+          // Get existing launched indexes
+          const existing = localStorage.getItem('launched-indexes');
+          const indexes = existing ? JSON.parse(existing) : [];
+
+          // Add new index
+          indexes.push(launchedIndex);
+          localStorage.setItem('launched-indexes', JSON.stringify(indexes));
+
           setShowLaunchModal(false);
           setShowSuccessModal(true);
         }}

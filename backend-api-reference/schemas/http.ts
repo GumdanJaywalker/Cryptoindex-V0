@@ -1,7 +1,7 @@
 import type { RequestHandler, Response } from 'express';
-import { z } from './common.js';
-import { zBps, zHash, zodIssues } from './common.js';
-import { InstrumentRowSchema } from './meta.js';
+import { z } from './common';
+import { zBps, zHash, zodIssues } from './common';
+import { InstrumentRowSchema } from './meta';
 
 export const PositionSideSchema = z.enum(['LONG', 'SHORT']);
 

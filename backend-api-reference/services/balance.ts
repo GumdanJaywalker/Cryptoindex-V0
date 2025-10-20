@@ -1,8 +1,8 @@
 import { BigNumber, ethers } from 'ethers';
-import { config } from '../config.js';
-import { erc20, getNativeBalance, provider, routerInterface } from './onchain.js';
-import { ERC20_ABI } from '../abi/erc20.js';
-import { getCached, setCached } from './gasCache.js';
+import { config } from '../config';
+import { erc20, getNativeBalance, provider, routerInterface } from './onchain';
+import { ERC20_ABI } from '../abi/erc20';
+import { getCached, setCached } from './gasCache';
 
 const { utils } = ethers;
 const erc20Interface = new utils.Interface(ERC20_ABI as any);

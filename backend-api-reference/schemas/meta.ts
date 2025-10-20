@@ -1,4 +1,4 @@
-import { z } from './common.js';
+import { z } from './common';
 
 export const InstrumentSchema = z.object({
   assetId: z.number().int().nonnegative(),

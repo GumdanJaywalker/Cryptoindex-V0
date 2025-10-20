@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { AppError } from '../utils/httpError.js';
-import { config } from '../config.js';
+import { AppError } from '../utils/httpError';
+import { config } from '../config';
 import {
   normalizeMetaAndAssetCtxs,
   getAssetBySymbolOrThrow,
   getAssetByIdOrThrow,
   type NormalizedMetaAndAssetCtxs,
   type NormalizedAsset
-} from '../schemas/metaAdapter.js';
+} from '../schemas/metaAdapter';
 
 type CacheEntry<T> = { ts: number; val: T; inflight?: Promise<T> };
 const cache = new Map<string, CacheEntry<any>>();

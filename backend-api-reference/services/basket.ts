@@ -1,4 +1,4 @@
-import type { Candle, Position } from '../types/domain.js';
+import type { Candle, Position } from '../types/domain';
 
 export interface ReturnPoint {
   timestamp: number;

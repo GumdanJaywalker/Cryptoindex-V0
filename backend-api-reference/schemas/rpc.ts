@@ -1,4 +1,4 @@
-import { z } from './common.js';
+import { z } from './common';
 
 // The schema is an object, not a tuple
 export const CandleObjectSchema = z.object({

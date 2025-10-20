@@ -1,14 +1,14 @@
 // backend/src/services/hypercore.ts
 import axios from 'axios';
-import { config } from '../config.js';
-import { cacheService } from '../cache/cacheService.js';
-import { fetchAssetDetail } from './hyperliquid.js';
-import { once } from '../utils/inflight.js';
-import { withRetry } from '../utils/retry.js';
-import { AppError } from '../utils/httpError.js';
-import { CandleSnapshotSchema } from '../schemas/rpc.js';
-import { z, zodIssues } from '../schemas/common.js';
-import type { Candle } from '../types/domain.js';
+import { config } from '../config';
+import { cacheService } from '../cache/cacheService';
+import { fetchAssetDetail } from './hyperliquid';
+import { once } from '../utils/inflight';
+import { withRetry } from '../utils/retry';
+import { AppError } from '../utils/httpError';
+import { CandleSnapshotSchema } from '../schemas/rpc';
+import { z, zodIssues } from '../schemas/common';
+import type { Candle } from '../types/domain';
 
 type FundingHistoryPoint = { timestamp: number; value: number };
 

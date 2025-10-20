@@ -1,6 +1,6 @@
 // backend/src/services/coreWriter.ts
 import { ethers } from 'ethers';
-import { config } from '../config.js';
+import { config } from '../config';
 
 // CoreWriter ABI
 const CORE_WRITER_ABI = [
