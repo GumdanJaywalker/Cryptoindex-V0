@@ -5,31 +5,40 @@
 
 ---
 
-## 📊 OVERALL PROJECT STATUS (88 Total Tasks)
+## 📊 OVERALL PROJECT STATUS (96 Total Tasks)
 
 ### ✅ **TGE Implementation**: 20/44 tasks completed (45%)
 - **Completed**: PHASE 1, 5, 6, 7, 8, 9 (Documentation, Launch Page, Currency Types)
 - **Pending**: PHASE 2-4 (Component modifications, Staking UI, Rewards)
 
-### 🆕 **Discover Page**: 0/48 tasks completed (Planning Complete)
-- **Status**: Implementation plan finalized, ready to begin PHASE 1
-- **Strategy**: Build core functionality first, polish/animations last
+### ✅ **Backend API Integration**: 10/11 tasks completed (91%)
+- **Status**: Launch page now uses real HyperLiquid API
+- **Completed**: Full backend-to-frontend integration
+- **Pending**: Testing & debugging
 
-### 📦 **Backend API Reference**: HLH_hack backend copied to project ✅
-- **Location**: `/backend-api-reference/` folder (now in git repository)
-- **Contents**: Launch API routes, types, utils, middlewares, .env, package.json
-- **Status**: Ready for future backend integration
+### 🚀 **Discover Page**: 3/48 tasks completed (PHASE 1 Foundation Complete)
+- **Status**: Basic routing and Layer tabs implemented
+- **Completed**: Types, page structure, navigation tabs
+- **Next**: PHASE 2 (Core Filtering)
 
 ---
 
-## 🔧 BACKEND API REFERENCE (Oct 19, New)
+## 🔧 BACKEND API INTEGRATION (Oct 20, Updated)
 
-### 📁 Location & Structure
+### 🎯 Status: **LIVE & FUNCTIONAL** ✅
 
-The HLH_hack backend code has been copied into the project for version control and future integration:
+Launch page now uses **real HyperLiquid API** for actual trading capabilities.
+
+### 📁 Project Structure
 
 ```
 backend-api-reference/
+├── services/              # 11 business logic files (NEW)
+├── schemas/               # Request/response validation (NEW)
+├── repositories/          # Database access layer (NEW)
+├── infra/                 # Infrastructure setup (NEW)
+├── abi/                   # Smart contract ABIs (NEW)
+├── config.ts              # Global configuration (NEW)
 ├── routes/
 │   ├── assets.ts          # GET /api/launch/assets
 │   ├── baskets.ts         # POST /api/launch/basket-calculate
@@ -39,52 +48,97 @@ backend-api-reference/
 ├── middlewares/          # Auth, error handling
 ├── .env                  # Environment variables (INCLUDED)
 ├── package.json          # Backend dependencies
-├── .gitignore            # Only ignores node_modules
 └── README.md             # Integration guide
+
+app/api/launch/            # Next.js API Routes (NEW)
+├── assets/
+│   └── route.ts           # GET /api/launch/assets
+└── basket-calculate/
+    └── route.ts           # POST /api/launch/basket-calculate
 ```
 
-### 🎯 Purpose
+### ⚡ What Changed (Oct 20)
 
-This folder serves as:
-1. **Reference Code**: All Launch API implementation details
-2. **Version Control**: Backend code now tracked in git
-3. **Easy Integration**: Copy files when backend is ready
-4. **Team Collaboration**: Everyone can see backend structure
+#### 1. **Complete Backend Code Copied**
+- ✅ `services/` - All business logic (11 files)
+- ✅ `schemas/` - Validation schemas
+- ✅ `repositories/` - Database access
+- ✅ `infra/`, `abi/`, `config.ts` - Infrastructure
 
-### 🚀 Quick Integration
+#### 2. **Next.js API Routes Created**
+- ✅ `app/api/launch/assets/route.ts` - Returns available crypto assets
+- ✅ `app/api/launch/basket-calculate/route.ts` - Calculates portfolio preview
+- Express Router → Next.js Route Handler conversion
 
-When ready to implement backend:
+#### 3. **Launch Page Updated**
+- ❌ Mock data removed (line 70-77)
+- ✅ Real API fetch with `useEffect`
+- ✅ Fallback to mock data on error
+- ✅ Loading state handling
 
+#### 4. **Configuration Updates**
+- ✅ `tsconfig.json` - Added `backend-api-reference/**` to include, removed `app/api/**` from exclude
+- ✅ `.env.local` - Added HyperLiquid API URLs, HyperCore RPC, testnet wallet keys
+
+#### 5. **Dependencies**
+- ✅ `ethers@6.15.0` - Blockchain interactions
+- ✅ `zod` - Schema validation (already installed)
+
+### 🚀 API Endpoints
+
+#### GET /api/launch/assets
+Returns list of available crypto assets from HyperLiquid.
+
+**Response:**
+```json
+[
+  { "symbol": "BTC", "name": "Bitcoin", "marketType": "perp" },
+  { "symbol": "ETH", "name": "Ethereum", "marketType": "perp" },
+  ...
+]
+```
+
+#### POST /api/launch/basket-calculate
+Calculates portfolio preview with real market data.
+
+**Request:**
+```json
+{
+  "assets": [
+    { "symbol": "BTC", "weight": 0.5, "position": "long", "leverage": 1 },
+    { "symbol": "ETH", "weight": 0.5, "position": "long", "leverage": 1 }
+  ],
+  "interval": "1d"
+}
+```
+
+**Response:**
+```json
+{
+  "basketPriceHistory": [...],
+  "performance": { "returnPct": 12.5, "maxDrawdown": -8.3 },
+  "assets": [...]
+}
+```
+
+### 🔑 Environment Variables
+
+Added to `.env.local`:
 ```bash
-# Copy API routes to your backend
-cp backend-api-reference/routes/* your-backend/src/routes/launch/
-
-# Copy supporting files
-cp -r backend-api-reference/{types,utils,middlewares} your-backend/src/
-
-# Install dependencies
-cd your-backend && npm install
-
-# Update frontend to use real API
-# See backend-api-reference/README.md for details
+HYPERLIQUID_API_URL=https://api.hyperliquid.xyz
+INFO_API_URL=https://api.hyperliquid.xyz/info
+HYPERCORE_RPC_URL=https://testnet.hypercore.hyperliquid.xyz
+CHAIN_RPC_URL=https://rpc.hyperliquid-testnet.xyz/evm
+HYPERCORE_WALLET_KEY=<testnet-key>
 ```
 
-### ✅ What's Included
+### ✅ MVP Ready
 
-- ✅ All Launch API routes (assets, baskets, positions)
-- ✅ Complete type definitions
-- ✅ Utility functions
-- ✅ Middleware (auth, error handling)
-- ✅ Environment variables (.env file)
-- ✅ Package dependencies (package.json)
-- ✅ Comprehensive README with integration guide
-
-### 📝 Important Notes
-
-- **Frontend Still Uses Mock Data**: No changes to Launch page functionality
-- **.env File Included**: All environment variables copied (normally excluded from git)
-- **Ready for Backend Team**: Can start implementing server when ready
-- **No External Dependencies**: Everything needed is in the project
+Launch page now supports:
+- ✅ Real asset data from HyperLiquid mainnet
+- ✅ Live portfolio calculations
+- ✅ Actual market prices and performance
+- ✅ Ready for testnet trading integration
 
 ---
 
