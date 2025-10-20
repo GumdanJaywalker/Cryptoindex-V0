@@ -11,6 +11,7 @@ import IndexDetailsModal from './IndexDetailsModal'
 import { getStatusColor, getStatusLabel, formatRelativeTime } from '@/lib/utils/indexStatus'
 import { IndexData } from '@/lib/types/index'
 import { LaunchedIndexesStorage } from '@/lib/storage/launchedIndexes'
+import GraduationProgress, { type GraduationData } from '@/components/trading/GraduationProgress'
 
 export function LaunchedIndexes() {
   const [launchedIndexes, setLaunchedIndexes] = useState<IndexData[]>([])
@@ -22,6 +23,34 @@ export function LaunchedIndexes() {
     const indexes = LaunchedIndexesStorage.get()
     setLaunchedIndexes(indexes)
   }, [])
+
+  // Generate graduation data based on index status
+  const getGraduationData = (index: IndexData): GraduationData => {
+    // Mock data based on status - in production, this would come from the index object
+    const statusMap: Record<string, GraduationData> = {
+      'bonding': {
+        liquidityProgress: Math.floor(Math.random() * 40) + 30, // 30-70%
+        salesProgress: Math.floor(Math.random() * 40) + 20, // 20-60%
+        status: 'launching'
+      },
+      'funding': {
+        liquidityProgress: Math.floor(Math.random() * 20) + 70, // 70-90%
+        salesProgress: Math.floor(Math.random() * 20) + 60, // 60-80%
+        status: 'recruiting-liquidity'
+      },
+      'lp': {
+        liquidityProgress: Math.floor(Math.random() * 10) + 85, // 85-95%
+        salesProgress: Math.floor(Math.random() * 10) + 80, // 80-90%
+        status: 'near-graduation'
+      },
+      'graduated': {
+        liquidityProgress: 100,
+        salesProgress: 100,
+        status: 'graduated'
+      }
+    }
+    return statusMap[index.status] || statusMap['bonding']
+  }
 
   // Utility functions moved to @/lib/utils/indexStatus
 
@@ -110,6 +139,11 @@ export function LaunchedIndexes() {
                     </div>
                     <div className="text-white font-medium">{formatRelativeTime(index.launchedAt)}</div>
                   </div>
+                </div>
+
+                {/* Graduation Progress */}
+                <div className="mb-3 pb-3 border-b border-slate-700">
+                  <GraduationProgress data={getGraduationData(index)} variant="compact" />
                 </div>
 
                 {/* Assets Preview */}

@@ -5,35 +5,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
 import { cn } from "@/lib/utils";
-
-// Generate mock performance data
-const generateMockPerformance = (days: number = 30) => {
-  const data = [];
-  const now = new Date();
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(now.getDate() - i);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-
-    // Generate somewhat realistic performance data
-    const baseValue = 100;
-    const volatility = 15;
-    const trend = (days - i) * 0.3; // Slight upward trend
-    const randomWalk = (Math.random() - 0.5) * volatility;
-
-    data.push({
-      date: `${month}/${day}`,
-      value: Math.max(50, baseValue + trend + randomWalk)
-    });
-  }
-
-  return data;
-};
+import type { IndexData } from "@/lib/types/index";
 
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -55,18 +30,71 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function PerformanceChart() {
-  const [tf, setTf] = useState<"7d" | "30d" | "90d">("30d");
+interface PerformanceChartProps {
+  index?: IndexData | null;
+}
 
-  // Generate mock performance data based on timeframe
-  const performanceData = generateMockPerformance(
-    tf === "7d" ? 7 : tf === "30d" ? 30 : 90
-  );
+export function PerformanceChart({ index }: PerformanceChartProps) {
+  const [tf, setTf] = useState<"7d" | "30d" | "90d">("30d");
+  const [performanceData, setPerformanceData] = useState<{ date: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!index || !index.assets || index.assets.length === 0) {
+      setPerformanceData([]);
+      return;
+    }
+
+    const fetchPerformanceData = async () => {
+      setLoading(true);
+      try {
+        const endTime = Date.now();
+        const daysMap = { "7d": 7, "30d": 30, "90d": 90 };
+        const startTime = endTime - daysMap[tf] * 24 * 60 * 60 * 1000;
+
+        const response = await fetch('/api/baskets/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assets: index.assets.map(asset => ({
+              symbol: asset.symbol,
+              weight: asset.allocation,
+              side: asset.side,
+              leverage: asset.leverage,
+            })),
+            interval: '1h',
+            from: startTime,
+            to: endTime,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch performance data');
+
+        const data = await response.json();
+        const chartData = data.basketPriceHistory.map((point: any) => ({
+          date: new Date(point.timestamp).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          }),
+          value: point.price,
+        }));
+
+        setPerformanceData(chartData);
+      } catch (error) {
+        console.error('Failed to fetch performance data:', error);
+        setPerformanceData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerformanceData();
+  }, [index, tf]);
 
   return (
     <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold">Performance (Mock)</h3>
+        <h3 className="text-white font-semibold">Performance</h3>
         <div className="inline-flex rounded-lg p-1 bg-slate-900 border border-slate-700">
           {(["7d", "30d", "90d"] as const).map((t) => (
             <button

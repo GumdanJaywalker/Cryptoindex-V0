@@ -1,11 +1,297 @@
 # HANDOVER - Development Session Summary
 
-**Date**: 2025-10-20
-**Latest Session**: Portfolio Components Refactoring
+**Date**: 2025-10-21
+**Latest Session**: Index Modal Enhancement & Spot Trading Focus
 
 ---
 
-## 🎯 LATEST SESSION - Portfolio Components Refactoring (Oct 20)
+## 🎯 LATEST SESSION - Index Modal Enhancement & Spot Trading Focus (Oct 21)
+
+### ✅ COMPLETED: Modal Enhancements and Trading Improvements
+
+**Goal**: Remove mock labels, integrate real performance data, add graduation progress to launched indexes, filter for spot-only assets, and update terminology for spot trading.
+
+### 📊 Implementation Summary (5 Features Completed)
+
+#### **FEATURE 1: Real Performance Data Integration** ✅
+**File Modified**: `components/portfolio/index-details/PerformanceChart.tsx`
+
+**Changes Made**:
+- ✅ Title changed: "Performance (Mock)" → "Performance"
+- ✅ Integrated real Hyperliquid basket calculation API (`/api/baskets/calculate`)
+- ✅ Added `index` prop to receive IndexData with asset composition
+- ✅ Implemented real-time data fetching with loading state
+- ✅ Timeframe-specific data requests (7d, 30d, 90d)
+- ✅ Error handling with graceful fallback to empty state
+
+**API Integration**:
+```typescript
+const response = await fetch('/api/baskets/calculate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    assets: index.assets.map(asset => ({
+      symbol: asset.symbol,
+      weight: asset.allocation,
+      side: asset.side,
+      leverage: asset.leverage,
+    })),
+    interval: '1h',
+    from: startTime,
+    to: endTime,
+  }),
+});
+```
+
+**Impact**: PerformanceChart now displays actual historical basket performance instead of mock data ✅
+
+---
+
+#### **FEATURE 2: Graduation Progress Display** ✅
+**Files Modified**:
+- `components/portfolio/LaunchedIndexes.tsx`
+- `components/portfolio/IndexDetailsModal.tsx`
+
+**Changes Made**:
+- ✅ Added `GraduationProgress` import and integration
+- ✅ Created `getGraduationData()` helper function
+- ✅ Status-based mock data generation (bonding/funding/lp/graduated)
+- ✅ Compact variant for index cards
+- ✅ Full variant for modal display
+
+**Progress Ranges by Status**:
+```typescript
+bonding: {
+  liquidityProgress: 30-70%,
+  salesProgress: 20-60%,
+  status: 'launching'
+}
+funding: {
+  liquidityProgress: 70-90%,
+  salesProgress: 60-80%,
+  status: 'recruiting-liquidity'
+}
+lp: {
+  liquidityProgress: 85-95%,
+  salesProgress: 80-90%,
+  status: 'near-graduation'
+}
+graduated: {
+  liquidityProgress: 100%,
+  salesProgress: 100%,
+  status: 'graduated'
+}
+```
+
+**Display Locations**:
+- LaunchedIndexes cards: Compact version with dual progress bars
+- IndexDetailsModal: Full version with detailed metrics
+
+**Impact**: Users can now see Layer-3 graduation progress at a glance ✅
+
+---
+
+#### **FEATURE 3: Spot-Only Asset Filtering** ✅
+**File Modified**: `app/launch/page.tsx`
+
+**Changes Made**:
+- Line 83: Added `.filter(a => a.marketType === 'spot')` to API response
+- Line 88-94: Updated fallback mock data to spot-only assets
+- ✅ Perp assets no longer appear in asset search
+- ✅ Maintained backward compatibility with API
+
+**Before**:
+```typescript
+const response = await fetch('/api/launch/assets');
+const data = await response.json();
+setAssets(data); // All assets (perp + spot)
+```
+
+**After**:
+```typescript
+const response = await fetch('/api/launch/assets');
+const data = await response.json();
+const spotAssets = data.filter((a: Asset) => a.marketType === 'spot');
+setAssets(spotAssets); // Spot-only
+```
+
+**Impact**: Launch page now only shows spot assets, aligning with initial version scope ✅
+
+---
+
+#### **FEATURE 4: Spot Trading Terminology** ✅
+**File Modified**: `app/launch/page.tsx` (Line 559)
+
+**Changes Made**:
+- ✅ Changed "Long" → "Buy" for spot assets
+- ✅ Added "(spot only)" indicator
+- ✅ Perp assets retain "Long/Short" toggle (not shown due to spot-only filter)
+
+**Before**:
+```tsx
+<div>Long</div>
+```
+
+**After**:
+```tsx
+{s.marketType === "spot" ? (
+  <div className="text-xs text-white px-2 py-1 rounded-lg bg-white/10 inline-flex items-center gap-2">
+    Buy
+    <span className="text-slate-400">(spot only)</span>
+  </div>
+) : (
+  // Long/Short toggle
+)}
+```
+
+**Impact**: More intuitive terminology for spot trading users ✅
+
+---
+
+#### **FEATURE 5: Enhanced Index Details Modal** ✅
+**File Modified**: `components/portfolio/IndexDetailsModal.tsx`
+
+**User Decision**: Option B (enhance modal with essential data, not redirect)
+
+**Sections Added**:
+1. **Quick Stats** - Total Investment, Fee Paid, Assets count, Launch date
+2. **Graduation Progress** - Full version with dual progress bars
+3. **Performance Chart** - Real API data integration
+4. **Composition Table** - Asset breakdown with allocations
+5. **Allocation Pie Chart** - Visual portfolio distribution
+6. **Start Trading Button** - Links to `/trading?index={id}` page
+
+**Modal Structure**:
+```tsx
+<Dialog>
+  <DialogHeader> {/* Name, Symbol, Status Badge */} </DialogHeader>
+
+  <Description /> {/* Optional description text */}
+  <QuickStats index={index} />
+  <GraduationProgress data={getGraduationData()} variant="full" />
+  <PerformanceChart index={index} /> {/* Real API data */}
+  <CompositionTable index={index} />
+  <AllocationPieChart index={index} />
+  <TradeButton href={`/trading?index=${index.id}`}>Start Trading</TradeButton>
+  <SocialLink /> {/* Optional social link */}
+</Dialog>
+```
+
+**Impact**: Users can view all essential index information without leaving the page, then easily navigate to trading ✅
+
+---
+
+### 📁 Files Modified (4 Files)
+
+1. **`components/portfolio/index-details/PerformanceChart.tsx`**
+   - Added `index` prop and API integration
+   - Removed "(Mock)" label
+   - Added loading state and error handling
+   - Now fetches real basket calculation data
+
+2. **`components/portfolio/LaunchedIndexes.tsx`**
+   - Added `GraduationProgress` import
+   - Created `getGraduationData()` helper
+   - Added compact graduation progress to each card
+
+3. **`components/portfolio/IndexDetailsModal.tsx`**
+   - Added `GraduationProgress` with full variant
+   - Updated `PerformanceChart` to pass `index` prop
+   - Added "Start Trading" button with routing
+
+4. **`app/launch/page.tsx`**
+   - Filtered assets to spot-only (line 83)
+   - Updated fallback mock data (lines 88-94)
+   - Changed "Long" to "Buy" for spot assets (line 559)
+
+---
+
+### 🔧 API Integration Details
+
+**Endpoint**: `POST /api/baskets/calculate`
+
+**Request Format**:
+```json
+{
+  "assets": [
+    { "symbol": "BTC", "weight": 50, "side": "long", "leverage": 1 },
+    { "symbol": "ETH", "weight": 50, "side": "long", "leverage": 1 }
+  ],
+  "interval": "1h",
+  "from": 1729468800000,
+  "to": 1730073600000
+}
+```
+
+**Response Format**:
+```json
+{
+  "meta": { "interval": "1h", "request": {...}, "source": "hyperliquid.info.candleSnapshot" },
+  "basketPriceHistory": [
+    { "timestamp": 1729468800000, "price": 100 },
+    { "timestamp": 1729472400000, "price": 101.5 }
+  ],
+  "performance": { "returnPct": 12.5, "maxDrawdown": -8.3 },
+  "assets": [...]
+}
+```
+
+**File**: `app/api/baskets/calculate/route.ts` (already exists, no changes needed)
+
+---
+
+### 🐛 Design Decision
+
+**User Feedback**:
+- Initially implemented Option A (redirect to /trading page)
+- User requested Option B: "근데 런치한 인덱스 데이터 추가하는거 option B로 하되 모든걸 다 가져오진 말고 좀 핵심적인 것들 위주로 modal에 넣는 게 좋을 듯해"
+- Translation: Use Option B but with essential data only, not everything
+
+**Final Implementation**: Enhanced modal with 6 key sections (not full trading page content) ✅
+
+---
+
+### ✨ Overall Impact
+
+**User Experience Improvements**:
+- ✅ Real performance data instead of mock labels
+- ✅ Clear graduation progress visibility
+- ✅ Simplified asset selection (spot-only for MVP)
+- ✅ Intuitive terminology for spot trading
+- ✅ Comprehensive index details in modal
+
+**Code Quality**:
+- ✅ Proper API integration with error handling
+- ✅ Reusable `getGraduationData()` helper function
+- ✅ Consistent component patterns
+- ✅ Type-safe implementations
+
+**Build Status**: ✅
+- Dev Server: Running successfully
+- No TypeScript errors
+- No runtime errors
+- All features tested and functional
+
+---
+
+### 📝 Additional Task Added
+
+**TODO (Low Priority)**: SQL injection prevention review
+- User request: "아 그리고 todo에 sql injection 방지가 되어있는지 검토도 넣어줘. 좀 나중에 할거라 우선순위는 낮아."
+- Priority: Low (for later review)
+- Scope: Review all database query inputs for SQL injection vulnerabilities
+
+---
+
+### 🎯 Next Steps (Completed in Session)
+
+1. ✅ Update HANDOVER.md documentation
+2. ⏳ Git commit with descriptive message
+3. ⏳ Vercel deployment
+
+---
+
+## 🎯 PREVIOUS SESSION - Portfolio Components Refactoring (Oct 20)
 
 ### ✅ COMPLETED: Major Code Quality Improvements
 
