@@ -40,6 +40,34 @@ export function LeftSidebar() {
   return (
     <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
       <div className="flex flex-col gap-3 p-3">
+        {/* Quick Links Card */}
+        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+          <h3 className="text-sm font-semibold text-white mb-2.5">Quick Links</h3>
+          <div className="space-y-1.5">
+            <a
+              href="/discover"
+              className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
+            >
+              <span>Discover Indices</span>
+              <Badge variant="outline" className="text-[10px] text-brand border-brand/30">
+                New
+              </Badge>
+            </a>
+            <a
+              href="/launch"
+              className="flex items-center p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
+            >
+              Launch Index
+            </a>
+            <a
+              href="/governance"
+              className="flex items-center p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
+            >
+              Governance
+            </a>
+          </div>
+        </div>
+
         {/* Market Stats Card */}
         <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
           <h3 className="text-sm font-semibold text-white mb-2.5">Market Overview</h3>

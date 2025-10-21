@@ -1,19 +1,146 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { LeftSidebar } from '@/components/sidebar/LeftSidebar'
 import { StickyFooter } from '@/components/layout/Footer'
 import { LayerTabs } from '@/components/discover/layer-tabs'
+import { IndexFilters } from '@/components/discover/index-filters'
+import { IndexDetailCard } from '@/components/discover/index-detail-card'
+import { VsBattleSection } from '@/components/discover/vs-battle-section'
+import { VirtualizedIndexGrid } from '@/components/discover/virtualized-index-grid'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Search, Filter, TrendingUp, Flame, Rocket } from 'lucide-react'
-import type { IndexLayer } from '@/lib/types/discover'
+import { Search, Filter, TrendingUp, Flame, Rocket, X, Link2, Copy } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import type { IndexLayer, FilterOptions, SortOption } from '@/lib/types/discover'
+import { allMockIndices } from '@/lib/data/mock-indices'
+import { applyFilters, sortIndices } from '@/lib/utils/filter-indices'
+import {
+  encodeFiltersToURL,
+  decodeFiltersFromURL,
+  updateURL,
+  getShareableURL,
+} from '@/lib/utils/url-sync'
+import { toast } from 'react-hot-toast'
 
 export default function DiscoverPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Initialize state from URL on mount
+  const [isInitialized, setIsInitialized] = useState(false)
   const [selectedLayer, setSelectedLayer] = useState<IndexLayer | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  const [filters, setFilters] = useState<FilterOptions>({
+    layers: ['layer-1', 'layer-2', 'layer-3'],
+    searchQuery: '',
+    compositionFilters: [],
+    navFilter: null,
+    performanceFilter: null,
+    rebalancingFilter: null,
+    battleFilter: null,
+    graduationFilter: null,
+  })
+
+  const [sortOption, setSortOption] = useState<SortOption>({
+    field: 'volume-24h',
+    direction: 'desc',
+    label: '24h Volume (High to Low)',
+  })
+
+  // Restore state from URL on initial load
+  useEffect(() => {
+    if (!isInitialized) {
+      const decoded = decodeFiltersFromURL(searchParams)
+      setFilters(decoded.filters)
+      setSortOption(decoded.sortOption)
+      setSelectedLayer(decoded.selectedLayer)
+      setSearchQuery(decoded.filters.searchQuery)
+      setDebouncedSearchQuery(decoded.filters.searchQuery)
+      setIsInitialized(true)
+    }
+  }, [searchParams, isInitialized])
+
+  // Apply filters and sorting
+  const filteredAndSortedIndices = useMemo(() => {
+    // Update filters with debounced search query
+    const activeFilters = {
+      ...filters,
+      searchQuery: debouncedSearchQuery,
+    }
+
+    // Apply all filters
+    const filtered = applyFilters(allMockIndices, activeFilters, selectedLayer)
+
+    // Apply sorting
+    const sorted = sortIndices(filtered, sortOption)
+
+    return sorted
+  }, [filters, debouncedSearchQuery, selectedLayer, sortOption])
+
+  // Count active filters
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (filters.compositionFilters.length > 0) count++
+    if (filters.navFilter) count++
+    if (filters.performanceFilter) count++
+    if (filters.rebalancingFilter) count++
+    if (filters.battleFilter) count++
+    if (filters.graduationFilter) count++
+    if (filters.minVolume24h) count++
+    if (filters.minLiquidity) count++
+    if (filters.minAge || filters.maxAge) count++
+    return count
+  }, [filters])
+
+  const handleClearSearch = () => {
+    setSearchQuery('')
+  }
+
+  // Debounce search query (300ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // Sync state changes to URL
+  useEffect(() => {
+    if (!isInitialized) return
+
+    const updatedFilters = {
+      ...filters,
+      searchQuery: debouncedSearchQuery,
+    }
+
+    const params = encodeFiltersToURL(updatedFilters, sortOption, selectedLayer)
+    updateURL(params)
+  }, [filters, debouncedSearchQuery, sortOption, selectedLayer, isInitialized])
+
+  // Copy shareable link to clipboard
+  const handleCopyLink = () => {
+    const updatedFilters = {
+      ...filters,
+      searchQuery: debouncedSearchQuery,
+    }
+    const params = encodeFiltersToURL(updatedFilters, sortOption, selectedLayer)
+    const shareableURL = getShareableURL(params)
+
+    navigator.clipboard.writeText(shareableURL).then(() => {
+      toast.success('Link copied to clipboard!', {
+        duration: 2000,
+        position: 'bottom-center',
+      })
+    })
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -99,20 +226,58 @@ export default function DiscoverPage() {
                     placeholder="Search indexes or composition assets (e.g., 'DOGE')..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-brand/50 transition-colors"
+                    className="w-full bg-slate-900/50 border border-slate-800 rounded-lg pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-brand/50 transition-colors"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={handleClearSearch}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
 
-                <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
+                <Button
+                  variant="outline"
+                  className="border-slate-700 text-slate-300 hover:bg-slate-800 relative"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
                   <Filter className="w-4 h-4 mr-2" />
                   Filters
+                  {activeFilterCount > 0 && (
+                    <Badge className="ml-2 bg-brand text-slate-950 text-xs h-5 w-5 p-0 flex items-center justify-center">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
                 </Button>
 
                 <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Sort
                 </Button>
+
+                <Button
+                  variant="outline"
+                  className="border-brand/30 text-brand hover:bg-brand/10"
+                  onClick={handleCopyLink}
+                >
+                  <Link2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
               </div>
+            </div>
+
+            {/* Filter Panel */}
+            {isFilterOpen && (
+              <div className="mb-6">
+                <IndexFilters
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  onClose={() => setIsFilterOpen(false)}
+                />
+              </div>
+            )}
             </div>
 
             {/* Layer Navigation Tabs */}
@@ -121,89 +286,106 @@ export default function DiscoverPage() {
               onLayerChange={setSelectedLayer}
             />
 
-            {/* Content Area - Will be filled in next phases */}
-            <div className="mt-6">
-              {selectedLayer === 'all' && (
-                <div className="space-y-8">
-                  <PlaceholderSection title="All Indexes" count={127} />
-                </div>
-              )}
-
-              {selectedLayer === 'layer-1' && (
-                <div className="space-y-8">
-                  <PlaceholderSection title="Layer 1: Institutional Indexes" count={24} />
-                </div>
-              )}
-
+            {/* Content Area */}
+            <div className="mt-6 space-y-8">
+              {/* VS Battle Section (Layer 2 only) */}
               {selectedLayer === 'layer-2' && (
-                <div className="space-y-8">
-                  <PlaceholderSection title="Layer 2: Battle Indexes" count={68} />
-                  <PlaceholderSection title="Active VS Battles" count={8} variant="battle" />
-                </div>
+                <VsBattleSection />
               )}
 
-              {selectedLayer === 'layer-3' && (
-                <div className="space-y-8">
-                  <PlaceholderSection title="Layer 3: Launchpad Indexes" count={35} />
-                  <PlaceholderSection title="Graduation Tracker" count={12} variant="graduation" />
+              {/* Index List Header */}
+              <div>
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm text-slate-400">
+                  Showing <span className="text-brand font-medium">{filteredAndSortedIndices.length}</span>{' '}
+                  {filteredAndSortedIndices.length === 1 ? 'index' : 'indices'}
+                  {searchQuery && (
+                    <span className="ml-1">
+                      for &quot;<span className="text-white">{searchQuery}</span>&quot;
+                    </span>
+                  )}
+                </p>
+
+                {activeFilterCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFilters({
+                      layers: ['layer-1', 'layer-2', 'layer-3'],
+                      searchQuery: '',
+                      compositionFilters: [],
+                      navFilter: null,
+                      performanceFilter: null,
+                      rebalancingFilter: null,
+                      battleFilter: null,
+                      graduationFilter: null,
+                    })}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    Clear all filters
+                  </Button>
+                )}
+              </div>
+
+              {/* Index Grid */}
+              {filteredAndSortedIndices.length === 0 ? (
+                <Card className="bg-slate-900/30 border-slate-700">
+                  <CardContent className="p-12">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                        <Search className="w-8 h-8 text-slate-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-2">No indices found</h3>
+                      <p className="text-sm text-slate-400 mb-6">
+                        Try adjusting your filters or search query
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSearchQuery('')
+                          setFilters({
+                            layers: ['layer-1', 'layer-2', 'layer-3'],
+                            searchQuery: '',
+                            compositionFilters: [],
+                            navFilter: null,
+                            performanceFilter: null,
+                            rebalancingFilter: null,
+                            battleFilter: null,
+                            graduationFilter: null,
+                          })
+                        }}
+                        className="border-slate-700 hover:bg-slate-800"
+                      >
+                        Clear all filters
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : filteredAndSortedIndices.length > 20 ? (
+                // Use virtualized grid for large lists (> 20 indices)
+                <VirtualizedIndexGrid
+                  indices={filteredAndSortedIndices}
+                  onIndexClick={(index) => router.push(`/trading?index=${index.symbol}`)}
+                />
+              ) : (
+                // Use regular grid for small lists (<= 20 indices)
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredAndSortedIndices.map((index) => (
+                    <IndexDetailCard
+                      key={index.id}
+                      index={index}
+                      onClick={() => router.push(`/trading?index=${index.symbol}`)}
+                    />
+                  ))}
                 </div>
               )}
+              </div>
             </div>
-          </div>
+ 
         </main>
       </div>
 
       <StickyFooter />
     </div>
-  )
-}
-
-// Placeholder component for development
-function PlaceholderSection({
-  title,
-  count,
-  variant = 'default'
-}: {
-  title: string
-  count: number
-  variant?: 'default' | 'battle' | 'graduation'
-}) {
-  const getIcon = () => {
-    switch (variant) {
-      case 'battle':
-        return <Flame className="w-5 h-5 text-purple-400" />
-      case 'graduation':
-        return <Rocket className="w-5 h-5 text-brand" />
-      default:
-        return <TrendingUp className="w-5 h-5 text-blue-400" />
-    }
-  }
-
-  const getBorderColor = () => {
-    switch (variant) {
-      case 'battle':
-        return 'border-purple-400/30'
-      case 'graduation':
-        return 'border-brand/30'
-      default:
-        return 'border-slate-700'
-    }
-  }
-
-  return (
-    <Card className={`bg-slate-900/30 ${getBorderColor()}`}>
-      <CardContent className="p-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          {getIcon()}
-          <h2 className="text-xl font-semibold text-white">{title}</h2>
-        </div>
-        <p className="text-center text-slate-400 mb-6">
-          {count} items will be displayed here
-        </p>
-        <div className="text-center text-sm text-slate-500">
-          Component implementation coming in next phases
-        </div>
-      </CardContent>
-    </Card>
   )
 }
