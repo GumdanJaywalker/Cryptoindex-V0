@@ -76,7 +76,7 @@ export function LaunchedIndexes() {
   }
 
   return (
-    <Card className="bg-slate-900/40 border-slate-800">
+    <Card className="bg-slate-900/40 border-slate-800" data-section="launched-indexes">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

@@ -34,6 +34,20 @@ export default function LaunchSuccessModal({
     }
   };
 
+  const handleViewMyIndexes = () => {
+    // Clear any drafts and scroll to My Launched Indexes section
+    localStorage.removeItem("launch-draft");
+    onClose();
+    
+    // Scroll to the LaunchedIndexes section after modal closes
+    setTimeout(() => {
+      const launchedIndexesSection = document.querySelector('[data-section="launched-indexes"]');
+      if (launchedIndexesSection) {
+        launchedIndexesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   const handleViewPortfolio = () => {
     // Clear any drafts and navigate to portfolio page
     localStorage.removeItem("launch-draft");
@@ -80,22 +94,31 @@ export default function LaunchSuccessModal({
             {/* Primary Actions */}
             <div className="flex gap-3">
               <Button
-                onClick={handleViewPortfolio}
+                onClick={handleViewMyIndexes}
                 className={cn(
                   "flex-1 bg-brand text-slate-950 font-medium hover:bg-brand/90",
                   "transition-all"
                 )}
               >
-                View Portfolio
+                View My Indexes
               </Button>
               <Button
-                onClick={handleCreateAnother}
+                onClick={handleViewPortfolio}
                 variant="outline"
                 className="flex-1 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
               >
-                Create Another
+                View Portfolio
               </Button>
             </div>
+
+            {/* Create Another */}
+            <Button
+              onClick={handleCreateAnother}
+              variant="outline"
+              className="w-full border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+            >
+              Create Another
+            </Button>
           </div>
         </div>
       </DialogContent>
