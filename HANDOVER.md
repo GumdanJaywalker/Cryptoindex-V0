@@ -286,8 +286,24 @@ setAssets(spotAssets); // Spot-only
 ### 🎯 Next Steps (Completed in Session)
 
 1. ✅ Update HANDOVER.md documentation
-2. ⏳ Git commit with descriptive message
-3. ⏳ Vercel deployment
+2. ✅ Git commit with descriptive message
+3. ✅ Vercel deployment (auto-deployed via GitHub push)
+
+### 📝 Future Tasks (Low Priority)
+
+**SQL Injection Prevention Review**:
+- Priority: Low (for later review)
+- User request: "아 그리고 todo에 sql injection 방지가 되어있는지 검토도 넣어줘. 좀 나중에 할거라 우선순위는 낮아."
+- Scope: Review all database query inputs for SQL injection vulnerabilities
+- Files to check:
+  - `app/api/**/*.ts` - All API route handlers
+  - `backend-api-reference/**/*.ts` - Backend service files
+  - Any database query construction code
+- Recommended approach:
+  - Use parameterized queries (prepared statements)
+  - Validate/sanitize all user inputs
+  - Use ORM with built-in protection (Prisma, TypeORM, etc.)
+  - Review Zod schema validations for completeness
 
 ---
 
