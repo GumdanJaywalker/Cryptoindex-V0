@@ -367,15 +367,15 @@ export function IndexList({
       )}
 
       {/* Card-constrained internal scroll area */}
-      <div className="min-h-0">
+      <div className="min-h-0 flex-1">
         <AnimatePresence mode="wait">
           {filteredIndices.length > 0 ? (
             <motion.div
               key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
               ref={setContainerEl}
               onScroll={onScroll}
-              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-auto overscroll-contain scrollbar-thin"
-              style={{ maxHeight: 'calc(100vh - 320px)' }}
+              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-auto overscroll-contain scrollbar-thin min-h-[320px]"
+              style={{ height: 'calc(100vh - 16rem)' }}
               variants={staggerContainer}
               initial="initial"
               animate="animate"
