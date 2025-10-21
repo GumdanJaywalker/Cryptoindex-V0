@@ -77,7 +77,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950">
       <div className="flex h-16 items-center px-[4vw] lg:px-[3vw]">
         {/* Logo */}
         <div className="flex-1">
