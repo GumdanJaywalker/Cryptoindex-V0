@@ -1156,4 +1156,412 @@ const handleConfirm = async () => {
 
 ---
 
+## 📊 Trading Chart 백엔드 통합 가이드 (TradingView Lightweight Charts)
+
+### 📋 배경
+- Trading 페이지 차트가 TradingView Lightweight Charts로 완전 재작성됨 (2025-10-21)
+- 프론트엔드는 Mock 데이터로 완전히 작동하며 모든 기능 구현 완료
+- 백엔드 OHLCV 데이터 API와 실시간 WebSocket 연결이 필요
+
+### 🎯 핵심 요구사항
+
+**⚠️ CRITICAL - TradingView Lightweight Charts 특수 요구사항:**
+
+1. **Time Format: Unix timestamp in SECONDS** (NOT milliseconds!)
+   - JavaScript `Date.now()`는 밀리초 반환 → 백엔드에서 초 단위로 변환 필요
+   - ❌ Wrong: `1704153600000` (milliseconds)
+   - ✅ Correct: `1704153600` (seconds)
+
+2. **Field Names: Full words** (NOT abbreviations!)
+   - ❌ Wrong: `t`, `o`, `h`, `l`, `c`, `v`
+   - ✅ Correct: `time`, `open`, `high`, `low`, `close`, `volume`
+
+3. **Sort Order: Ascending** (oldest first)
+   - TradingView는 시간순 오름차순 데이터만 허용
+   - `ORDER BY time ASC` 필수
+
+4. **Data Consistency: NO gaps** in time series
+   - 빠진 캔들이 있으면 차트 렌더링 오류 발생
+
+---
+
+### 📁 프론트엔드 파일 구조
+
+**새로 생성된 파일:**
+```
+lib/types/trading-chart.ts          # TypeScript 타입 정의 (OHLCVData, ChartAPIResponse)
+lib/api/trading-chart.ts             # API 함수 (Mock 구현 + Backend 연결 준비)
+components/trading/ChartArea.tsx     # TradingView Chart 컴포넌트 (443 lines)
+```
+
+**타입 정의:**
+```typescript
+// lib/types/trading-chart.ts
+export interface OHLCVData {
+  time: number        // Unix timestamp in SECONDS
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+}
+
+export interface ChartAPIResponse {
+  success: boolean
+  data: OHLCVData[]
+  meta?: {
+    indexId: string
+    timeframe: Timeframe
+    from: number      // Unix timestamp in SECONDS
+    to: number        // Unix timestamp in SECONDS
+    count: number
+  }
+  timestamp: number   // Unix timestamp in MILLISECONDS (응답 시각)
+}
+
+export type Timeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d' | '1w'
+export type ChartType = 'Candlestick' | 'Line' | 'Area' | 'Histogram'
+```
+
+**Mock API 함수:**
+```typescript
+// lib/api/trading-chart.ts - 현재 Mock 구현
+export async function fetchOHLCVData(
+  indexId: string,
+  timeframe: Timeframe,
+  limit: number = 500
+): Promise<ChartAPIResponse>
+
+export function subscribeToRealTimePrice(
+  indexId: string,
+  callback: (price: number, volume: number, time: number) => void
+): () => void
+
+export function calculateMA(data: OHLCVData[], period: number): MAData[]
+export function calculateRSI(data: OHLCVData[], period: number = 14): RSIData[]
+```
+
+---
+
+### 🔧 백엔드 API 구현
+
+#### API: `GET /api/indices/:id/ohlcv` - 차트 OHLCV 데이터
+
+**엔드포인트:**
+```
+GET /api/indices/{index_id}/ohlcv?timeframe=1h&limit=500
+```
+
+**Query Parameters:**
+- `timeframe` (필수): `1m` | `5m` | `15m` | `1h` | `4h` | `1d` | `1w`
+- `from` (선택): Unix timestamp in **SECONDS**
+- `to` (선택): Unix timestamp in **SECONDS**
+- `limit` (선택): 기본 500, 최대 1000
+
+**응답 예시:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "time": 1704153600,
+      "open": 124.5,
+      "high": 126.8,
+      "low": 123.2,
+      "close": 125.4,
+      "volume": 245000
+    },
+    {
+      "time": 1704157200,
+      "open": 125.4,
+      "high": 127.2,
+      "low": 124.8,
+      "close": 126.1,
+      "volume": 312000
+    }
+  ],
+  "meta": {
+    "index_id": "pepe_ecosystem_001",
+    "timeframe": "1h",
+    "from": 1704153600,
+    "to": 1704157200,
+    "count": 2
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**PostgreSQL 구현 예시 (TimescaleDB 권장):**
+```sql
+-- Timeframe별 OHLCV 집계
+SELECT
+  EXTRACT(EPOCH FROM time_bucket('1 hour', timestamp))::INTEGER as time,
+  FIRST(price, timestamp) as open,
+  MAX(price) as high,
+  MIN(price) as low,
+  LAST(price, timestamp) as close,
+  SUM(volume) as volume
+FROM price_ticks
+WHERE
+  index_id = $1
+  AND timestamp >= to_timestamp($2)  -- from (seconds)
+  AND timestamp <= to_timestamp($3)  -- to (seconds)
+GROUP BY time_bucket('1 hour', timestamp)
+ORDER BY time ASC  -- 중요: 오름차순!
+LIMIT $4
+```
+
+**Timeframe 매핑:**
+```javascript
+const TIMEFRAME_INTERVALS = {
+  '1m': '1 minute',
+  '5m': '5 minutes',
+  '15m': '15 minutes',
+  '1h': '1 hour',
+  '4h': '4 hours',
+  '1d': '1 day',
+  '1w': '1 week'
+}
+```
+
+**캐싱 전략:**
+- TTL: 30-60초
+- Key pattern: `chart:ohlcv:{index_id}:{timeframe}:{from}:{to}`
+- Redis sorted set 활용
+
+---
+
+#### WebSocket: `/ws/prices` - 실시간 차트 업데이트
+
+**연결:**
+```javascript
+const ws = new WebSocket('wss://api.example.com/ws/prices')
+
+ws.send(JSON.stringify({
+  action: 'subscribe',
+  channel: 'price_updates',
+  indexId: 'pepe_ecosystem_001'
+}))
+```
+
+**수신 메시지 (차트 전용):**
+```json
+{
+  "channel": "/ws/prices",
+  "event": "candle_update",
+  "data": {
+    "index_id": "pepe_ecosystem_001",
+    "time": 1704153600,
+    "price": 125.48,
+    "volume": 1250
+  },
+  "timestamp": 1704153600000
+}
+```
+
+**업데이트 로직:**
+```javascript
+// 프론트엔드 처리 방식 (참고용)
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data)
+  if (data.event === 'candle_update') {
+    const { time, price, volume } = data.data
+
+    // 현재 캔들 업데이트
+    seriesRef.current.update({
+      time: time,
+      open: lastCandle.open,
+      high: Math.max(lastCandle.high, price),
+      low: Math.min(lastCandle.low, price),
+      close: price
+    })
+  }
+}
+```
+
+**백엔드 구현 가이드:**
+1. Redis Pub/Sub으로 가격 브로드캐스트
+2. 거래 체결 시마다 현재 캔들 업데이트 계산
+3. 1-3초마다 구독자에게 `candle_update` 메시지 전송
+4. 새 캔들 시작 시 별도 `new_candle` 이벤트 전송 (선택)
+
+**Redis 구현 예시:**
+```javascript
+// 가격 업데이트 발생 시
+const currentTime = Math.floor(Date.now() / 1000)
+const candleTime = getCandleTime(currentTime, timeframe) // 캔들 시작 시간
+
+const update = {
+  event: 'candle_update',
+  data: {
+    index_id: indexId,
+    time: candleTime,
+    price: newPrice,
+    volume: currentVolume
+  },
+  timestamp: Date.now()
+}
+
+// Redis Pub
+await redis.publish(`price:${indexId}`, JSON.stringify(update))
+```
+
+---
+
+### ✅ 통합 체크리스트
+
+#### 백엔드 구현
+- [ ] `GET /api/indices/:id/ohlcv` 엔드포인트 생성
+  - [ ] Time format 검증: 응답 `time` 필드는 **SECONDS** 단위
+  - [ ] Field names 검증: 축약형 금지, 풀네임 사용 (time, open, high, low, close, volume)
+  - [ ] Sort order 검증: `ORDER BY time ASC` 강제
+  - [ ] Gap detection: 빠진 캔들 감지 및 채우기
+  - [ ] Timeframe 지원: 1m, 5m, 15m, 1h, 4h, 1d, 1w 모두 구현
+  - [ ] Limit 처리: 기본 500, 최대 1000
+  - [ ] Meta 정보 반환: index_id, timeframe, from, to, count
+
+- [ ] WebSocket `/ws/prices` 구현
+  - [ ] 구독 메커니즘: `action: 'subscribe'` 처리
+  - [ ] `candle_update` 이벤트 전송 (1-3초 간격)
+  - [ ] Time format: **SECONDS** 단위 전송
+  - [ ] 현재 캔들만 업데이트 (이전 캔들 불변)
+  - [ ] Redis Pub/Sub 활용
+
+- [ ] 데이터 소스 준비
+  - [ ] Price ticks 테이블 생성 (실시간 가격 저장)
+  - [ ] OHLCV 집계 배치 작업 (1분/5분은 실시간, 1시간 이상은 배치)
+  - [ ] TimescaleDB 또는 유사 시계열 DB 사용 권장
+  - [ ] Volume 데이터 집계 로직
+
+- [ ] 캐싱 구현
+  - [ ] Redis 캐싱 (TTL: 30-60초)
+  - [ ] Key pattern: `chart:ohlcv:{index_id}:{timeframe}:{from}:{to}`
+  - [ ] Sorted set으로 time 기반 range query 최적화
+
+#### 프론트엔드 연결
+- [ ] `lib/api/trading-chart.ts` - Mock 제거
+  - [ ] `fetchOHLCVData()` - 실제 API 호출로 교체
+  - [ ] `subscribeToRealTimePrice()` - Mock interval 제거, 실제 WebSocket 연결
+  - [ ] TODO 주석 모두 제거
+  - [ ] Error handling 추가 (네트워크 오류, 데이터 형식 오류)
+
+- [ ] `components/trading/ChartArea.tsx` - 테스트
+  - [ ] OHLCV 데이터 로드 확인
+  - [ ] 차트 렌더링 확인 (Candlestick, Line, Area, Histogram)
+  - [ ] Timeframe 전환 확인 (1m ~ 1w)
+  - [ ] MA 지표 동작 확인 (MA20, MA50)
+  - [ ] 실시간 가격 업데이트 확인
+  - [ ] Volume 히스토그램 표시 확인
+
+#### 테스트
+- [ ] **Time Format 검증**
+  - [ ] API 응답 `time` 필드가 초 단위인지 확인 (예: 1704153600)
+  - [ ] WebSocket `time` 필드가 초 단위인지 확인
+  - [ ] 밀리초를 보내면 차트가 깨지는지 확인 (의도적 실패 테스트)
+
+- [ ] **Field Names 검증**
+  - [ ] 축약형 (t, o, h, l, c, v) 사용 시 에러 발생 확인
+  - [ ] 풀네임 (time, open, high, low, close, volume) 정상 동작 확인
+
+- [ ] **Sort Order 검증**
+  - [ ] 내림차순 데이터 전송 시 차트 오류 확인
+  - [ ] 오름차순 데이터 정상 렌더링 확인
+
+- [ ] **Gap Detection**
+  - [ ] 빠진 캔들 있는 데이터 전송 시 동작 확인
+  - [ ] 연속된 시계열 데이터 정상 렌더링 확인
+
+- [ ] **Timeframe 전환**
+  - [ ] 1m, 5m, 15m, 1h, 4h, 1d, 1w 모두 데이터 로드 확인
+  - [ ] 각 Timeframe별 적절한 캔들 개수 확인
+
+- [ ] **실시간 업데이트**
+  - [ ] WebSocket 연결 성공 확인
+  - [ ] 1-3초마다 candle_update 수신 확인
+  - [ ] 차트에 실시간 반영 확인 (마지막 캔들만 업데이트)
+
+- [ ] **에러 핸들링**
+  - [ ] 네트워크 오류 시 재시도 로직 확인
+  - [ ] WebSocket 재연결 로직 확인
+  - [ ] 빈 데이터 처리 확인
+
+#### 성능 최적화
+- [ ] 캐싱 동작 확인 (같은 요청 2회 → 2번째는 캐시 hit)
+- [ ] WebSocket 연결 pooling
+- [ ] 불필요한 데이터 로드 방지 (limit 적절히 설정)
+- [ ] Chart resize 성능 확인
+
+#### 문서화
+- [x] BACKEND_DATA_REQUIREMENTS.md 업데이트 (API 3, WS 1)
+- [x] BACKEND_INTEGRATION_CHECKLIST.md 업데이트 (현재 파일)
+- [ ] API 스웨거 문서 추가
+- [ ] WebSocket 프로토콜 문서 추가
+
+---
+
+### 🎯 통합 우선순위
+
+#### 🔴 High Priority (차트 기본 기능)
+1. **GET /api/indices/:id/ohlcv** - OHLCV 데이터 API (필수)
+2. **Time format 검증** - 초 단위 변환 (Critical!)
+3. **Field names 검증** - 풀네임 사용 (Critical!)
+4. **Sort order 검증** - 오름차순 정렬 (Critical!)
+
+#### 🟡 Medium Priority (실시간 기능)
+5. **WebSocket /ws/prices** - 실시간 가격 업데이트
+6. **candle_update 이벤트** - 차트 실시간 반영
+7. **캐싱 구현** - 성능 최적화
+
+#### 🟢 Low Priority (추가 기능)
+8. **기술적 지표** - EMA, MACD, Bollinger Bands 추가
+9. **Drawing tools** - Trendline, Fibonacci 등
+10. **Chart settings 저장** - 사용자별 차트 설정
+
+---
+
+### 🚨 주의사항
+
+1. **Time Format 절대 엄수!**
+   - TradingView는 초 단위만 허용
+   - 밀리초를 전송하면 차트가 완전히 깨짐
+   - 백엔드 개발자 반드시 확인 필요
+
+2. **Field Names 절대 변경 금지!**
+   - 축약형 사용 시 차트 렌더링 실패
+   - 반드시 풀네임 사용 (time, open, high, low, close, volume)
+
+3. **Sort Order 필수!**
+   - 내림차순 데이터는 차트 오류 발생
+   - 반드시 `ORDER BY time ASC`
+
+4. **Gap 처리**
+   - 빠진 캔들이 있으면 차트 렌더링 문제 발생
+   - 가능하면 빈 캔들 채우기 (volume=0)
+
+5. **WebSocket 안정성**
+   - 연결 끊김 시 자동 재연결 로직 필요
+   - Heartbeat/Ping-Pong 구현 권장
+
+---
+
+### 📊 참고 자료
+
+**TradingView Lightweight Charts 공식 문서:**
+- https://tradingview.github.io/lightweight-charts/
+- Data format: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/CandlestickData
+
+**프론트엔드 구현 파일:**
+- `lib/types/trading-chart.ts` (타입 정의)
+- `lib/api/trading-chart.ts` (API 함수 - Mock 및 실제 연결 준비)
+- `components/trading/ChartArea.tsx` (Chart 컴포넌트 - 443 lines)
+
+**프론트엔드 사용 라이브러리:**
+- `lightweight-charts` v5.0.8 (이미 설치됨)
+
+---
+
+**최종 업데이트:** TradingView Lightweight Charts 백엔드 통합 가이드 추가 (2025-10-21)
+
+---
+
 **최종 업데이트:** Launch 페이지 백엔드 통합 가이드 추가 (2025-10-19)

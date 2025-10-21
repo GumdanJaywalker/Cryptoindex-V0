@@ -257,18 +257,28 @@ GET /api/indices/pepe_ecosystem_001
 
 ---
 
-### API 3: `GET /api/indices/:id/ohlcv` - 차트 데이터
+### API 3: `GET /api/indices/:id/ohlcv` - 차트 데이터 (TradingView Lightweight Charts)
 
 **Request:**
 ```
-GET /api/indices/pepe_ecosystem_001/ohlcv?timeframe=1h&limit=100
+GET /api/indices/pepe_ecosystem_001/ohlcv?timeframe=1h&limit=500
 ```
 
 **Query Parameters:**
-- `timeframe`: `1m` | `5m` | `15m` | `1h` | `4h` | `1d` | `7d`
-- `from` (선택): epoch ms
-- `to` (선택): epoch ms
-- `limit` (선택): 기본 100, 최대 1000
+- `timeframe`: `1m` | `5m` | `15m` | `1h` | `4h` | `1d` | `1w`
+- `from` (선택): Unix timestamp in **SECONDS** (not milliseconds)
+- `to` (선택): Unix timestamp in **SECONDS** (not milliseconds)
+- `limit` (선택): 기본 500, 최대 1000
+
+**⚠️ CRITICAL - TradingView Lightweight Charts 요구사항:**
+1. **Time format: Unix timestamp in SECONDS** (NOT milliseconds!)
+   - ❌ Wrong: `1704153600000` (milliseconds)
+   - ✅ Correct: `1704153600` (seconds)
+2. **Field names: Full words** (NOT abbreviations!)
+   - ❌ Wrong: `t`, `o`, `h`, `l`, `c`, `v`
+   - ✅ Correct: `time`, `open`, `high`, `low`, `close`, `volume`
+3. **Sort order: Ascending** (oldest first)
+4. **Data consistency: NO gaps** in time series
 
 **Response:**
 ```json
@@ -276,23 +286,75 @@ GET /api/indices/pepe_ecosystem_001/ohlcv?timeframe=1h&limit=100
   "success": true,
   "data": [
     {
-      "t": 1704153600000,
-      "o": 124.5,
-      "h": 126.8,
-      "l": 123.2,
-      "c": 125.4,
-      "v": 245000
+      "time": 1704153600,
+      "open": 124.5,
+      "high": 126.8,
+      "low": 123.2,
+      "close": 125.4,
+      "volume": 245000
+    },
+    {
+      "time": 1704157200,
+      "open": 125.4,
+      "high": 127.2,
+      "low": 124.8,
+      "close": 126.1,
+      "volume": 312000
     }
   ],
+  "meta": {
+    "index_id": "pepe_ecosystem_001",
+    "timeframe": "1h",
+    "from": 1704153600,
+    "to": 1704157200,
+    "count": 2
+  },
   "timestamp": 1704153600000
 }
 ```
 
-**사용 컴포넌트:** `ChartArea`, `ChartAreaOld`
+**프론트 타입:** `OHLCVData[]`, `ChartAPIResponse` (lib/types/trading-chart.ts)
+
+**사용 컴포넌트:** `ChartArea` (TradingView Lightweight Charts 5.0.8)
+
+**프론트 API 함수:** `fetchOHLCVData(indexId, timeframe, limit)` (lib/api/trading-chart.ts)
+
+**Timeframe별 권장 데이터 양:**
+- `1m`: 최대 500 candles (8시간 분량)
+- `5m`: 최대 500 candles (41시간 분량)
+- `15m`: 최대 500 candles (5일 분량)
+- `1h`: 최대 500 candles (21일 분량)
+- `4h`: 최대 500 candles (83일 분량)
+- `1d`: 최대 500 candles (500일 분량)
+- `1w`: 최대 500 candles (9.6년 분량)
+
+**데이터 생성 방법:**
+```sql
+-- 예시 (PostgreSQL)
+SELECT
+  EXTRACT(EPOCH FROM time_bucket('1 hour', timestamp))::INTEGER as time,
+  FIRST(price, timestamp) as open,
+  MAX(price) as high,
+  MIN(price) as low,
+  LAST(price, timestamp) as close,
+  SUM(volume) as volume
+FROM price_ticks
+WHERE index_id = 'pepe_ecosystem_001'
+  AND timestamp >= NOW() - INTERVAL '21 days'
+GROUP BY time_bucket('1 hour', timestamp)
+ORDER BY time ASC  -- 중요: 오름차순 정렬!
+LIMIT 500
+```
 
 **데이터 소스:**
-- 1분/5분 캔들: 실시간 계산 (가격 스트림 집계)
-- 1시간 이상: DB 저장 (배치 작업)
+- 1분/5분 캔들: 실시간 계산 (가격 스트림 집계) → Redis 캐싱
+- 15분 이상: DB 저장 (배치 작업) → TimescaleDB 권장
+- Volume: DEX 거래량 또는 자체 거래 집계
+
+**캐싱 전략:**
+- TTL: 30-60초 (가격 변동 주기 고려)
+- Key pattern: `chart:ohlcv:{index_id}:{timeframe}:{from}:{to}`
+- Redis sorted set으로 time 기반 range query 최적화
 
 ---
 
@@ -1718,9 +1780,16 @@ GET /api/market/trends?period=24h
 **연결:**
 ```javascript
 const ws = new WebSocket('wss://api.example.com/ws/prices')
+
+// 구독 메시지 전송
+ws.send(JSON.stringify({
+  action: 'subscribe',
+  channel: 'price_updates',
+  index_ids: ['pepe_ecosystem_001', 'doge_family_002']
+}))
 ```
 
-**수신 메시지:**
+**수신 메시지 (일반 가격 업데이트):**
 ```json
 {
   "channel": "/ws/prices",
@@ -1736,13 +1805,78 @@ const ws = new WebSocket('wss://api.example.com/ws/prices')
 }
 ```
 
-**업데이트 주기:** 1-3초
+**⚠️ TradingView Chart 실시간 업데이트 메시지:**
+```json
+{
+  "channel": "/ws/prices",
+  "event": "candle_update",
+  "data": {
+    "index_id": "pepe_ecosystem_001",
+    "time": 1704153600,
+    "price": 125.48,
+    "volume": 1250
+  },
+  "timestamp": 1704153600000
+}
+```
 
-**사용 컴포넌트:** 모든 Trading 컴포넌트 (가격 표시)
+**TradingView Chart 업데이트 요구사항:**
+1. **Time in SECONDS**: `time` 필드는 Unix timestamp in seconds
+2. **Update frequency**: 1-3초 간격으로 현재 진행 중인 캔들 업데이트
+3. **Price**: 최신 거래 가격
+4. **Volume**: 현재 캔들의 누적 거래량
+5. **Message format**: 프론트에서 `seriesRef.current.update({ time, value: price })` 형태로 사용
 
-**프론트 훅:** `useRealtimePrices(indexIds)` (hooks/use-market-data.ts - 현재 polling)
+**프론트 구현:**
+```typescript
+// lib/api/trading-chart.ts
+export function subscribeToRealTimePrice(
+  indexId: string,
+  callback: (price: number, volume: number, time: number) => void
+): () => void {
+  const ws = new WebSocket('wss://api.example.com/ws/prices')
 
-**현재 상태:** `MockRealtimeConnection` 클래스 (hooks/use-realtime.ts)
+  ws.onopen = () => {
+    ws.send(JSON.stringify({
+      action: 'subscribe',
+      channel: 'price_updates',
+      indexId
+    }))
+  }
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data)
+    if (data.event === 'candle_update') {
+      const { time, price, volume } = data.data
+      callback(price, volume || 0, time)
+    }
+  }
+
+  return () => ws.close()
+}
+```
+
+**업데이트 주기:**
+- 일반 가격: 1-3초
+- 차트 캔들: 1-3초 (현재 캔들만 업데이트)
+
+**사용 컴포넌트:**
+- 모든 Trading 컴포넌트 (가격 표시)
+- `ChartArea` (TradingView Lightweight Charts - 실시간 캔들 업데이트)
+
+**프론트 훅:**
+- `useRealtimePrices(indexIds)` (hooks/use-market-data.ts - 현재 polling)
+- `subscribeToRealTimePrice(indexId, callback)` (lib/api/trading-chart.ts - Chart 전용)
+
+**현재 상태:**
+- `MockRealtimeConnection` 클래스 (hooks/use-realtime.ts)
+- Mock interval (3초) - components/trading/ChartArea.tsx lines 243-270
+
+**백엔드 구현 가이드:**
+1. Redis Pub/Sub으로 가격 브로드캐스트
+2. 거래 체결 시마다 현재 캔들 업데이트 계산
+3. 1초마다 구독자에게 `candle_update` 메시지 전송
+4. 새 캔들 시작 시 별도 `new_candle` 이벤트 전송 (선택)
 
 ---
 
