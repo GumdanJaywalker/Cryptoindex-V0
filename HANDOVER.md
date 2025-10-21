@@ -1,10 +1,204 @@
 # HANDOVER - Development Session Summary
 
 **Date**: 2025-10-21
-**Latest Session**: Landing Page Carousel Redesign
+**Latest Session**: Discover Page Refactor with Advanced Filters
 
 ---
 
+## 🎯 LATEST SESSION - Discover Page Refactor (Oct 21, Evening)
+
+### ✅ COMPLETED: Table-Based Discovery with Advanced Filters
+
+**Goal**: Replace card grid layout with table-based index list and add advanced filtering capabilities for better index discovery UX.
+
+---
+
+## 📊 Implementation Summary
+
+### 🎉 What Was Delivered
+
+**Complete Discover Page Refactor** - Table-focused experience with:
+- **Table-Based Index List** - Restored from landing page trending-indices (virtualized scrolling)
+- **Advanced Filters Modal** - 4 comprehensive filter categories with presets
+- **Simplified Layout** - Removed Layer tabs, consolidated into filter buttons
+- **Internal Scroll Only** - Fixed height table, no page scrolling required
+- **11 Basic Filters** - All, Favorites, Hot, New, VS Battles, Gainers, Losers, High Volume, Layer 1/2/3
+
+---
+
+### 📁 Files Created/Modified
+
+#### **1. New Components** (2 files)
+- `components/discover/index-list.tsx` (530 lines)
+  - Table-based index list (restored from git d7e76df trending-indices)
+  - Virtualized scrolling for 100+ indices (useVirtualList hook)
+  - Sortable columns: Name, Price, 24h%, Volume, MCap
+  - 11 basic filter buttons with active state
+  - Advanced Filters button with badge count
+  - Favorites-first ordering
+  - Search with debounce
+  - Empty states (no results, no favorites)
+
+- `components/discover/advanced-filters-modal.tsx` (470 lines)
+  - **Composition Filters**: Select coins (DOGE, SHIB, PEPE, etc.) + Match Any/All mode
+  - **NAV Range**: Min/Max net asset value with presets (<$1M, $1M-$10M, >$10M)
+  - **Performance Range**: 24h/7d/30d tabs with min/max % + presets (0-10%, 10-50%, >50%, -50%-0%)
+  - **Volume & Liquidity**: Min 24h volume + Min TVL with presets (>$100K, >$1M, >$10M)
+  - Active filter count badge
+  - Reset all functionality
+  - Apply/Cancel actions
+
+#### **2. Modified Files** (1 file)
+- `app/discover/page.tsx` (simplified 430 → 140 lines, -67%)
+  - Removed Layer tabs
+  - Removed complex URL sync
+  - Removed VirtualizedIndexGrid, IndexDetailCard
+  - Simple filter state management
+  - Advanced filter integration (composition, NAV, performance, volume/liquidity)
+  - Clean layout: no page scroll, table internal scroll only
+
+---
+
+### 🔧 Technical Details
+
+#### **Filter Logic**
+```typescript
+// Basic filters (in index-list.tsx)
+- Search: name, symbol, description
+- Category: hot, new, vs-battles, gainers, losers, high-volume
+- Layer: layer-1, layer-2, layer-3
+- Favorites: user starred indices
+
+// Advanced filters (in page.tsx)
+- Composition: Match Any/All coins in index.assets
+- NAV: index.tvl between min-max
+- Performance 24h/7d: index.change24h/change7d between min-max
+- Volume: index.volume24h >= min
+- Liquidity: index.tvl >= min
+```
+
+#### **Layout Structure**
+```
+┌─ Header (fixed) ────────────────────┐
+├─ Sidebar │ Main (flex layout) ──────┤
+│          │ ┌─ Title (flex-shrink-0) │
+│          │ └─ IndexList (flex-1)   │
+│          │    ├─ Search (fixed)     │
+│          │    ├─ Filters (fixed)    │
+│          │    │  ├─ 11 basic        │
+│          │    │  └─ Advanced btn    │
+│          │    └─ Table (scroll ✓)   │
+│          │      height: calc(100vh - 16rem)
+└──────────────────────────────────────┘
+```
+
+#### **Virtualization**
+- Row height: 50px
+- Buffer: 6 rows
+- Calculates visible items based on scroll position
+- Top/bottom spacers for smooth scrolling
+- Sticky table header
+
+---
+
+### 🎯 Key Features
+
+1. **11 Basic Filters** (filter buttons row)
+   - All, Favorites (★), Hot (🔥), New (✨), VS Battles (⚔️)
+   - Top Gainers (↑), Top Losers (↓), High Volume (📊)
+   - Layer 1 (🏛️), Layer 2 (👑), Layer 3 (⚡)
+   - Divider + Advanced Filters button
+
+2. **Advanced Filters Modal** (4 sections)
+   - Composition: 12 popular coins, Match Any/All toggle
+   - NAV Range: Custom inputs + 3 presets
+   - Performance: 3 timeframe tabs, custom inputs + 4 presets per tab
+   - Volume/Liquidity: Custom inputs + 3 presets each
+
+3. **Table Features**
+   - Sortable columns (click header to toggle asc/desc)
+   - Virtualized scrolling (handles 100+ rows efficiently)
+   - Sticky header (stays visible during scroll)
+   - Favorites-first ordering (starred indices always on top)
+   - IndexRow component from trading (price, chart, badges)
+
+4. **UX Improvements**
+   - No page scrolling (fixed layout)
+   - Table height: calc(100vh - 16rem) - always fits viewport
+   - Active filter count badges
+   - Clear visual feedback (brand color for active filters)
+   - Empty states with helpful CTAs
+
+---
+
+### 🐛 Fixed Issues
+
+1. **Layer Separation** ✅
+   - Previously: Layer 2 = VS Battles (incorrect)
+   - Now: Separate filters for Layer 1/2/3 AND VS Battles
+   - VS Battles can exist in any layer
+
+2. **Scroll Behavior** ✅
+   - Previously: Page scroll + table scroll (confusing)
+   - Now: Table internal scroll only (clean UX)
+   - Table bottom always above viewport floor
+
+3. **Filter Organization** ✅
+   - Previously: Complex filter panel with too many options
+   - Now: 11 simple buttons + Advanced Filters modal
+   - Progressive disclosure pattern
+
+---
+
+### 📦 Git Commits
+
+**Commit 1**: `ccbaeeb` - Main refactor
+```
+feat: refactor discover page with table view and advanced filters
+- Create index-list.tsx (restored from d7e76df)
+- Create advanced-filters-modal.tsx
+- Simplify discover page.tsx (430 → 140 lines)
+```
+
+**Commit 2**: `15d1099` - Scroll fix
+```
+fix: restore original table scroll behavior in discover page
+- Use fixed height calc(100vh - 16rem)
+- Add flex-1 for proper layout
+- Restore min-h-[320px] guarantee
+```
+
+---
+
+### ✅ Testing Checklist
+
+- [x] Basic filters work (All, Hot, New, etc.)
+- [x] Layer filters separated from VS Battles
+- [x] Advanced Filters modal opens/closes
+- [x] Composition filter (Match Any/All)
+- [x] NAV range filtering
+- [x] Performance range (24h/7d/30d)
+- [x] Volume/Liquidity filtering
+- [x] Table sorting (all columns)
+- [x] Virtualized scrolling (100+ indices)
+- [x] Search functionality
+- [x] Favorites-first ordering
+- [x] No page scrolling
+- [x] Table internal scrolling only
+- [x] Mobile responsiveness (to be tested)
+
+---
+
+**Current Status**: Discover page refactor ✅ complete, deployed to Vercel 🚀
+
+**Next Steps**:
+- Test mobile layout
+- Add URL sync for advanced filters (optional)
+- Consider adding sort presets (Volume High-Low, Performance Top-Bottom, etc.)
+
+---
+
+## 🎯 PREVIOUS SESSION - Landing Page Carousel Implementation (Oct 21, Morning)
 ## 🎯 LATEST SESSION - Landing Page Carousel Implementation (Oct 21)
 
 ### ✅ COMPLETED: Carousel-Based Landing Page Redesign
