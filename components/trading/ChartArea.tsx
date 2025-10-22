@@ -17,7 +17,7 @@ import type { OHLCVData, Timeframe, ChartType, TechnicalIndicator } from '@/lib/
 import { fetchOHLCVData, calculateMA, calculateRSI, subscribeToRealTimePrice } from '@/lib/api/trading-chart'
 
 // Import lightweight-charts dynamically (browser-only library)
-import type { IChartApi, ISeriesApi } from 'lightweight-charts'
+import type { IChartApi, ISeriesApi, CandlestickSeriesPartialOptions, LineSeriesPartialOptions, AreaSeriesPartialOptions, HistogramSeriesPartialOptions } from 'lightweight-charts'
 
 const timeframes: Timeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d', '1w']
 const chartTypes: ChartType[] = ['Candlestick', 'Line', 'Area', 'Histogram']
@@ -36,6 +36,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('1h')
   const [selectedChartType, setSelectedChartType] = useState<ChartType>('Candlestick')
   const [loading, setLoading] = useState(true)
+  const [isChartReady, setIsChartReady] = useState(false)
   const [chartData, setChartData] = useState<OHLCVData[]>([])
   const [currentPrice, setCurrentPrice] = useState<number>(0)
   const [priceChange, setPriceChange] = useState<number>(0)
@@ -51,7 +52,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
     // Dynamically import lightweight-charts (browser-only library)
     const initChart = async () => {
-      const { createChart } = await import('lightweight-charts')
+      const { createChart, CrosshairMode } = await import('lightweight-charts')
 
       const chart = createChart(chartContainerRef.current!, {
         width: chartContainerRef.current!.clientWidth,
@@ -60,12 +61,16 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           background: { color: '#0f172a' },
           textColor: '#94a3b8'
         },
+        localization: {
+          locale: 'en-US',
+          dateFormat: 'dd MMM \'yy'
+        },
         grid: {
           vertLines: { color: '#1e293b' },
           horzLines: { color: '#1e293b' }
         },
         crosshair: {
-          mode: 1 // CrosshairMode.Normal
+          mode: CrosshairMode.Normal
         },
         rightPriceScale: {
           borderColor: '#334155'
@@ -78,6 +83,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
       })
 
       chartRef.current = chart
+      setIsChartReady(true)
 
       // Handle window resize
       const handleResize = () => {
@@ -96,6 +102,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           chartRef.current.remove()
           chartRef.current = null
         }
+        setIsChartReady(false)
       }
     }
 
@@ -139,123 +146,141 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
   // Update chart series when data or type changes
   useEffect(() => {
-    if (!chartRef.current || chartData.length === 0) return
+    if (!isChartReady || !chartRef.current || chartData.length === 0) return
 
-    // Remove existing series
-    if (seriesRef.current) {
-      chartRef.current.removeSeries(seriesRef.current)
-      seriesRef.current = null
-    }
-    if (volumeSeriesRef.current) {
-      chartRef.current.removeSeries(volumeSeriesRef.current)
-      volumeSeriesRef.current = null
-    }
+    const updateSeries = async () => {
+      if (!chartRef.current) return
 
-    // Create new series based on chart type
-    if (selectedChartType === 'Candlestick') {
-      const candlestickSeries = chartRef.current.addCandlestickSeries({
-        upColor: '#22c55e',
-        downColor: '#ef4444',
-        borderUpColor: '#22c55e',
-        borderDownColor: '#ef4444',
-        wickUpColor: '#22c55e',
-        wickDownColor: '#ef4444'
-      })
-
-      candlestickSeries.setData(chartData)
-      seriesRef.current = candlestickSeries as any
-    } else if (selectedChartType === 'Line') {
-      const lineSeries = chartRef.current.addLineSeries({
-        color: '#8BD6FF',
-        lineWidth: 2
-      })
-
-      const lineData = chartData.map(d => ({ time: d.time, value: d.close }))
-      lineSeries.setData(lineData)
-      seriesRef.current = lineSeries as any
-    } else if (selectedChartType === 'Area') {
-      const areaSeries = chartRef.current.addAreaSeries({
-        topColor: 'rgba(139, 214, 255, 0.4)',
-        bottomColor: 'rgba(139, 214, 255, 0.0)',
-        lineColor: '#8BD6FF',
-        lineWidth: 2
-      })
-
-      const areaData = chartData.map(d => ({ time: d.time, value: d.close }))
-      areaSeries.setData(areaData)
-      seriesRef.current = areaSeries as any
-    } else if (selectedChartType === 'Histogram') {
-      const histogramSeries = chartRef.current.addHistogramSeries({
-        color: '#8BD6FF'
-      })
-
-      const histogramData = chartData.map(d => ({ time: d.time, value: d.close }))
-      histogramSeries.setData(histogramData)
-      seriesRef.current = histogramSeries as any
-    }
-
-    // Add volume series (always shown at bottom)
-    const volumeSeries = chartRef.current.addHistogramSeries({
-      color: '#475569',
-      priceFormat: {
-        type: 'volume'
-      },
-      priceScaleId: ''
-    })
-
-    volumeSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.85, // Push volume to bottom 15%
-        bottom: 0
+      // Remove existing series
+      if (seriesRef.current) {
+        chartRef.current.removeSeries(seriesRef.current)
+        seriesRef.current = null
       }
-    })
+      if (volumeSeriesRef.current) {
+        chartRef.current.removeSeries(volumeSeriesRef.current)
+        volumeSeriesRef.current = null
+      }
 
-    const volumeData = chartData.map(d => ({
-      time: d.time,
-      value: d.volume,
-      color: d.close >= d.open ? '#22c55e40' : '#ef444440'
-    }))
+      // Import series types for v5 API
+      const lc = await import('lightweight-charts')
 
-    volumeSeries.setData(volumeData)
-    volumeSeriesRef.current = volumeSeries
+      // Create new series based on chart type
+      if (selectedChartType === 'Candlestick') {
+        const candlestickSeries = chartRef.current.addSeries(lc.CandlestickSeries, {
+          upColor: '#22c55e',
+          downColor: '#ef4444',
+          borderUpColor: '#22c55e',
+          borderDownColor: '#ef4444',
+          wickUpColor: '#22c55e',
+          wickDownColor: '#ef4444'
+        })
 
-    // Fit content
-    chartRef.current.timeScale().fitContent()
-  }, [chartData, selectedChartType])
+        candlestickSeries.setData(chartData)
+        seriesRef.current = candlestickSeries as any
+      } else if (selectedChartType === 'Line') {
+        const lineSeries = chartRef.current.addSeries(lc.LineSeries, {
+          color: '#8BD6FF',
+          lineWidth: 2
+        })
+
+        const lineData = chartData.map(d => ({ time: d.time, value: d.close }))
+        lineSeries.setData(lineData)
+        seriesRef.current = lineSeries as any
+      } else if (selectedChartType === 'Area') {
+        const areaSeries = chartRef.current.addSeries(lc.AreaSeries, {
+          topColor: 'rgba(139, 214, 255, 0.4)',
+          bottomColor: 'rgba(139, 214, 255, 0.0)',
+          lineColor: '#8BD6FF',
+          lineWidth: 2
+        })
+
+        const areaData = chartData.map(d => ({ time: d.time, value: d.close }))
+        areaSeries.setData(areaData)
+        seriesRef.current = areaSeries as any
+      } else if (selectedChartType === 'Histogram') {
+        const histogramSeries = chartRef.current.addSeries(lc.HistogramSeries, {
+          color: '#8BD6FF'
+        })
+
+        const histogramData = chartData.map(d => ({ time: d.time, value: d.close }))
+        histogramSeries.setData(histogramData)
+        seriesRef.current = histogramSeries as any
+      }
+
+      // Add volume series (always shown at bottom)
+      const volumeSeries = chartRef.current.addSeries(lc.HistogramSeries, {
+        color: '#475569',
+        priceFormat: {
+          type: 'volume'
+        },
+        priceScaleId: ''
+      })
+
+      volumeSeries.priceScale().applyOptions({
+        scaleMargins: {
+          top: 0.85, // Push volume to bottom 15%
+          bottom: 0
+        }
+      })
+
+      const volumeData = chartData.map(d => ({
+        time: d.time,
+        value: d.volume,
+        color: d.close >= d.open ? '#22c55e40' : '#ef444440'
+      }))
+
+      volumeSeries.setData(volumeData)
+      volumeSeriesRef.current = volumeSeries
+
+      // Fit content
+      chartRef.current.timeScale().fitContent()
+    }
+
+    updateSeries()
+  }, [isChartReady, chartData, selectedChartType])
 
   // Add/remove technical indicators
   useEffect(() => {
-    if (!chartRef.current || chartData.length === 0) return
+    if (!isChartReady || !chartRef.current || chartData.length === 0) return
 
-    // Clear all indicator series (except main and volume)
-    // TODO: Implement indicator series management
+    const addIndicators = async () => {
+      if (!chartRef.current) return
 
-    indicators.forEach(indicator => {
-      if (!indicator.visible) return
+      // Clear all indicator series (except main and volume)
+      // TODO: Implement indicator series management
 
-      if (indicator.type === 'MA') {
-        const period = indicator.params.period || 20
-        const maData = calculateMA(chartData, period)
+      // Import series types for v5 API
+      const lc = await import('lightweight-charts')
 
-        const maSeries = chartRef.current!.addLineSeries({
-          color: indicator.color || '#ffaa00',
-          lineWidth: 1,
-          title: `MA(${period})`
-        })
+      indicators.forEach(indicator => {
+        if (!indicator.visible) return
 
-        maSeries.setData(maData)
-      }
+        if (indicator.type === 'MA') {
+          const period = indicator.params.period || 20
+          const maData = calculateMA(chartData, period)
 
-      if (indicator.type === 'RSI') {
-        const period = indicator.params.period || 14
-        const rsiData = calculateRSI(chartData, period)
+          const maSeries = chartRef.current!.addSeries(lc.LineSeries, {
+            color: indicator.color || '#ffaa00',
+            lineWidth: 1,
+            title: `MA(${period})`
+          })
 
-        // RSI should be in a separate pane (not implemented in basic version)
-        // For now, we'll skip RSI visualization
-        console.log('RSI data calculated:', rsiData.length, 'points')
-      }
-    })
-  }, [chartData, indicators])
+          maSeries.setData(maData)
+        }
+
+        if (indicator.type === 'RSI') {
+          const period = indicator.params.period || 14
+          const rsiData = calculateRSI(chartData, period)
+
+          // RSI should be in a separate pane (not implemented in basic version)
+          // For now, we'll skip RSI visualization
+          console.log('RSI data calculated:', rsiData.length, 'points')
+        }
+      })
+    }
+
+    addIndicators()
+  }, [isChartReady, chartData, indicators])
 
   // Real-time updates
   useEffect(() => {
