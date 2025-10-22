@@ -228,101 +228,40 @@ export function Component({ ...props }: ComponentProps) {
 - **콘솔 로그**: 개발용 로그도 영어로 작성
 - **국제 사용자 대상**: 글로벌 서비스를 위한 영어 우선 정책
 
-## 📊 현재 진행 상황 (2025-10-19 업데이트)
+## 📋 개발 규칙
 
-### ✅ 최근 완료된 작업 (10월 14일)
-- **전체 사이드바 시스템 통일 완료**:
-  - `components/ui/sidebar.tsx` (shadcn 기본 사이드바) 제거
-  - 모든 페이지에서 `components/sidebar/LeftSidebar.tsx` 사용으로 통일
-  - 랜딩 페이지 기준 사이드바로 전체 페이지 일관성 확보
+### 1. Dev Server 실행
+- **사용자가 직접 실행**: 사용자 본인이 `pnpm run dev`를 직접 실행하여 확인
+- **Claude는 실행하지 않음**: Claude Code는 dev 서버를 직접 켜지 않음
+- **이유**: 사용자가 직접 브라우저에서 결과를 확인하는 것이 더 효율적
 
-- **전체 페이지 레이아웃 통일 완료**:
-  - **왼쪽 여백 최소화**: `px-4 lg:px-4`로 변경 (기존 `px-[4vw] lg:px-[3vw]`에서 대폭 감소)
-  - **사이드바 고정 너비**:
-    - lg: 260px (기존 가변 너비 26vw → 고정)
-    - xl: 280px
-    - 2xl: 300px
-  - **2컬럼 그리드 레이아웃**: 사이드바 + 메인 컨텐츠로 단순화
-  - **적용된 페이지**: Traders, Launch, Referrals, Governance, Governance Detail, Portfolio
-  - 모든 페이지가 랜딩과 동일한 좁은 여백 및 레이아웃 사용
+### 2. 백엔드 연동 작업 후 문서 업데이트
+백엔드 API 연동 작업을 한 후에는 반드시 다음 문서들을 업데이트할 것:
+- `/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/BACKEND_INTEGRATION_CHECKLIST.md`
+- `/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/BACKEND_DATA_REQUIREMENTS.md`
 
-### ✅ 이전 완료된 작업 (10월 10일)
-- **Trading 페이지 레이아웃 개선 완료**:
-  - Header 하단 여백 제거: TradingLayout의 `pt-16` 제거로 헤더와 컨텐츠 사이 공백 제거
-  - IndexInfoBar sticky 위치 조정: `top-16` → `top-0`으로 변경하여 자연스러운 sticky 효과
+업데이트 내용:
+- 새로 추가된 API 엔드포인트
+- 변경된 데이터 구조
+- 완료된 통합 작업 체크리스트
 
-- **AllIndicesModal 데이터 로딩 문제 해결**:
-  - LeftSidebar의 "View All" 버튼 클릭 시 데이터 미표시 문제 해결
-  - `indices={memeIndices}` → `indices={allMockIndices}`로 변경하여 올바른 데이터 전달
-  - 필터 로직 수정: `index.trending` → `index.isHot`, `index.layer` → `index.layerInfo?.layer` 등 속성명 통일
+### 3. 모든 작업 후 인수인계 문서 업데이트
+모든 작업이 완료된 후에는 인수인계 문서를 업데이트할 것:
+- `HANDOVER.md` - 최신 작업 2-3개 세션만 유지 (간소화)
+- `HANDOVER_ARCHIVE.md` - 오래된 세션은 아카이브로 이동
 
-### ✅ 이전 완료된 작업 (9월 1일)
-- **Portfolio 페이지 대폭 개선 완료**: 
-  - PC 웹 최적화: `max-w-7xl mx-auto` 적용으로 적절한 최대 너비 설정
-  - 브랜드 색상 완전 통일: 모든 탭과 아이콘을 #8BD6FF 브랜드 색상으로 변경
-  - 용어 표준화 완료: Long/Short → Buy/Sell 변경으로 더 직관적인 거래 용어 적용
-  - 일관된 디자인: 다른 페이지들과 통일된 브랜드 색상 시스템 적용
-  - 포지션 테이블 및 통계 카드 모두 브랜드 색상으로 업데이트
+업데이트 원칙:
+- 개조식 서술 적극 활용 (bullet points)
+- 이모지 남발 제거
+- "훌륭한", "깔끔한" 같은 미사여구 제거
+- 상세 설명이 필요한 부분은 설명문식으로 작성
+- 모든 기술 정보는 충실히 유지 (정보 손실 없이)
 
-### ✅ 이전 완료된 작업 (8월 31일)
-- **빌드 에러 해결**: Header 컴포넌트 import 문제 완전 해결
-- **UI 개선**: 트레이딩 페이지 회전 애니메이션 제거, 헤더 클릭 문제 해결
-- **사이드바 구현 완료**: 왼쪽 사이드바에 Market Overview, Top Movers, Mini Portfolio, Recent Activity, Price Alerts, Search Bar 추가
-- **Trending 페이지 제거**: 랜딩페이지와 중복되어 불필요한 페이지 정리
-- **Governance 페이지 대폭 개선**: 
-  - PC 친화적 레이아웃으로 변경 (`max-w-7xl mx-auto`)
-  - Battle Votes 완전 제거 → Index Rebalancing Battles로 통합
-  - 인덱스 내부 경쟁 구조 구현 (DOG vs Chinese Rapping Dog, Piano Cat vs Grumpy Cat 등)
-- **디자인 시스템 통일**: 
-  - 전체적인 디자인 단순화 완료
-  - 브랜드 색상(#8BD6FF) 위주로 색상 통일
-  - 복잡한 그라데이션 제거, 미니멀한 스타일 적용
-
-### 🎯 현재 우선순위 (다음 작업 대기)
-
-### 🔥 1순위: Trading 페이지 UI 개선
-**목표**: Buy 버튼 텍스트 가독성 문제 해결
-
-#### 📋 구체적 작업:
-- **Buy 버튼 텍스트 가시성 수정**: 현재 글자가 안 보이는 문제 해결
-- **버튼 컬러 대비 개선**: 텍스트와 배경의 명도 대비 최적화
-- **브랜드 색상 적용**: #8BD6FF 테마에 맞춘 가독성 확보
-
-### 🔥 2순위: 정갈한 호버 효과 구현
-**목표**: 억지스럽지 않은 자연스러운 인터랙션 효과
-
-#### 📋 구체적 작업:
-- **중요 버튼에만 적용**: Start Trading, Portfolio 링크 등
-- **커서 위치 따라 밝아지는 효과**: 마우스 움직임에 반응하는 그라데이션
-- **브랜드 색상 기반**: #8BD6FF 계열의 은은한 효과
-- **성능 최적화**: 부드럽고 자연스러운 애니메이션
-
-### 📈 완료된 주요 기능들 (총 13개 페이지)
-
-#### 🔥 핵심 페이지
-1. **Landing Page** (/) - 메인 랜딩
-2. **Trading Page** (/trading) - 거래 페이지 (26개 컴포넌트)
-3. **Launch Page** (/launch) - 인덱스 생성 마법사 (4개 컴포넌트)
-4. **Portfolio Page** (/portfolio) - 포트폴리오 관리 (11개 컴포넌트)
-5. **Governance Page** (/governance) - 거버넌스 투표 (7개 컴포넌트)
-6. **Governance Detail** (/governance/[id]) - 투표 상세
-
-#### 🟡 보조 페이지
-7. **Traders Page** (/traders) - 트레이더 목록
-8. **Trader Profile** (/traders/[id]) - 트레이더 프로필
-9. **Referrals Page** (/referrals) - 레퍼럴 프로그램
-10. **Referral Apply** (/referrals/apply) - 레퍼럴 신청
-11. **Settings Page** (/settings) - 사용자 설정 (7개 섹션)
-12. **Notifications Page** (/notifications) - 알림 센터 (5개 컴포넌트)
-13. **Dashboard Page** (/dashboard) - 대시보드
-
-#### 🎨 완료된 시스템
-- **통합 사이드바**: LeftSidebar (모든 페이지 공통)
-- **모바일 최적화**: 플로팅 버튼, 바텀시트, 모바일 네비게이션
-- **PWA 지원**: 설치 프롬프트 구현
-- **200+ UI 컴포넌트**: shadcn/ui + Aceternity UI + Magic UI
-- **브랜드 색상 시스템**: #98FCE4 기반 통일된 디자인
-- **완전한 TypeScript**: 100% 타입 안전성
+### 4. 문서 작성 스타일
+- **간결함**: 불필요한 수식어 제거, 핵심 정보만 전달
+- **정보 밀도**: 토큰 절약하면서도 정보는 온전히 유지
+- **개조식 우선**: bullet points로 간결하게 작성
+- **설명문 병행**: 복잡한 로직이나 플로우는 설명문으로 작성
 
 ## 🎨 새로운 개발 방식
 
