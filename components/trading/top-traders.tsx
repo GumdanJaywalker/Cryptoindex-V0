@@ -27,7 +27,7 @@ import {
   ArrowDown
 } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
-import { allMockIndices } from '@/lib/data/mock-indices'
+import { allMockIndices } from '@/lib/data/mock-indexes'
 import { TraderCard } from './trader-card'
 import { cn } from '@/lib/utils'
 import {

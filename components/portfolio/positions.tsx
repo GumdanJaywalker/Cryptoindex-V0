@@ -20,7 +20,7 @@ import {
 import { Trade, MemeIndex } from '@/lib/types/index-trading'
 import { usePositionManagement } from '@/hooks/use-wallet'
 import { useTradingStore } from '@/lib/store/trading-store'
-import { allMockIndices } from '@/lib/data/mock-indices'
+import { allMockIndices } from '@/lib/data/mock-indexes'
 import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface PositionsProps {

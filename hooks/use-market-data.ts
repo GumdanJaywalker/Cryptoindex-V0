@@ -2,7 +2,7 @@ import React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTradingStore, useTradingActions } from '@/lib/store/trading-store'
 import { MemeIndex, TopTrader, MarketStats, Trade } from '@/lib/types/index-trading'
-import { generateMockIndices, generateMockTraders } from '@/lib/data/mock-indices'
+import { generateMockIndices, generateMockTraders } from '@/lib/data/mock-indexes'
 
 // API 시뮬레이션 함수들
 const simulateApiDelay = (ms: number = 1000) => 

@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MemeIndex } from '@/lib/types/index-trading'
-import { allMockIndices } from '@/lib/data/mock-indices'
+import { allMockIndices } from '@/lib/data/mock-indexes'
 
 // Main content component
 function DiscoverPageContent() {

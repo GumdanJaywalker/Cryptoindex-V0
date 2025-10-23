@@ -13,10 +13,10 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { useState } from 'react'
 import { usePriceAlertsStore } from '@/lib/store/price-alerts'
 import { useToast, createSuccessToast, createErrorToast } from '@/components/notifications/toast-system'
-import { AllIndicesModal } from '@/components/modals/AllIndicesModal'
+import { AllIndexesModal } from '@/components/modals/AllIndexesModal'
 import useTradingStore from '@/lib/store/trading-store'
 import { cn } from '@/lib/utils'
-import { allMockIndices } from '@/lib/data/mock-indices'
+import { allMockIndices } from '@/lib/data/mock-indexes'
 import { useCurrency } from '@/lib/hooks/useCurrency'
 
 export function LeftSidebar() {
@@ -412,7 +412,7 @@ export function LeftSidebar() {
       </div>
 
       {/* All Indices Modal */}
-      <AllIndicesModal
+      <AllIndexesModal
         open={allIndicesOpen}
         onOpenChange={setAllIndicesOpen}
         indices={allMockIndices}

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { TopTrader } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
 import { getAvatarUrl } from '@/lib/utils/avatar'
-import { allMockIndices } from '@/lib/data/mock-indices'
+import { allMockIndices } from '@/lib/data/mock-indexes'
 import {
   TrendingUp,
   Target,
