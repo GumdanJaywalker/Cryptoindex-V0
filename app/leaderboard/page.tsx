@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
-import { mockTopTraders, allMockIndices } from '@/lib/data/mock-indices'
+import { mockTopTraders, allMockIndices } from '@/lib/data/mock-indexes'
 import TraderDetailsModal from '@/components/trading/trader-details-modal'
 import { cn } from '@/lib/utils'
 

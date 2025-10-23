@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Clock,
   TrendingUp,
@@ -11,7 +12,23 @@ import {
   Activity,
   BarChart3,
   Eye,
-  Plus
+  Plus,
+  Info,
+  PieChart,
+  DollarSign,
+  Target,
+  ExternalLink,
+  BookOpen,
+  Shield,
+  AlertTriangle,
+  Layers,
+  CheckCircle,
+  Calendar,
+  Users,
+  ArrowUpDown,
+  Waves,
+  Brain,
+  Radar
 } from 'lucide-react'
 import type { OHLCVData, Timeframe, ChartType, TechnicalIndicator } from '@/lib/types/trading-chart'
 import { fetchOHLCVData, calculateMA, calculateRSI, subscribeToRealTimePrice } from '@/lib/api/trading-chart'
@@ -33,6 +50,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | ISeriesApi<'Line'> | ISeriesApi<'Area'> | ISeriesApi<'Histogram'> | null>(null)
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
 
+  const [activeTab, setActiveTab] = useState<'Chart' | 'Info' | 'Trading Data'>('Chart')
   const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('1h')
   const [selectedChartType, setSelectedChartType] = useState<ChartType>('Candlestick')
   const [loading, setLoading] = useState(true)
@@ -56,7 +74,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
       const chart = createChart(chartContainerRef.current!, {
         width: chartContainerRef.current!.clientWidth,
-        height: 500,
+        height: chartContainerRef.current!.clientHeight || 400,
         layout: {
           background: { color: '#0f172a' },
           textColor: '#94a3b8'
@@ -89,7 +107,8 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
       const handleResize = () => {
         if (chartContainerRef.current && chartRef.current) {
           chartRef.current.applyOptions({
-            width: chartContainerRef.current.clientWidth
+            width: chartContainerRef.current.clientWidth,
+            height: chartContainerRef.current.clientHeight || 400
           })
         }
       }
@@ -334,10 +353,32 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
   }
 
   return (
-    <Card className={`bg-slate-900/50 border-slate-800 ${className || ''}`}>
-      <CardContent className="p-4">
-        {/* Chart Header */}
-        <div className="flex items-center justify-between mb-4">
+    <Card className={`h-full flex flex-col bg-slate-900/50 border-slate-800 ${className || ''}`}>
+      <CardContent className="p-0 flex-1 flex flex-col min-h-0">
+        {/* Tab Navigation */}
+        <div className="h-10 bg-slate-900 border-b border-slate-700 flex items-center flex-shrink-0">
+          <div className="flex space-x-1 px-4">
+            {(['Chart', 'Info', 'Trading Data'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-3 py-1 text-sm whitespace-nowrap rounded transition-colors ${
+                  activeTab === tab
+                    ? 'bg-slate-700 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chart Tab Content */}
+        {activeTab === 'Chart' && (
+          <div className="flex-1 flex flex-col p-4 overflow-auto min-h-0">
+            {/* Chart Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
           {/* Price Info */}
           <div className="flex items-center gap-4">
             <div>
@@ -394,7 +435,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         </div>
 
         {/* Timeframe Selector */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 flex-shrink-0">
           <Clock className="w-4 h-4 text-slate-400" />
           <div className="flex gap-1">
             {timeframes.map(tf => (
@@ -427,7 +468,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
         {/* Active Indicators */}
         {indicators.length > 0 && (
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
             <Eye className="w-4 h-4 text-slate-400" />
             {indicators.map(ind => (
               <Badge
@@ -443,17 +484,17 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         )}
 
         {/* Chart Container */}
-        <div className="relative">
+        <div className="relative flex-1 min-h-0">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-slate-950/50 z-10">
               <div className="text-slate-400">Loading chart...</div>
             </div>
           )}
-          <div ref={chartContainerRef} className="rounded-lg overflow-hidden" />
+          <div ref={chartContainerRef} className="rounded-lg overflow-hidden h-full" />
         </div>
 
         {/* Chart Info */}
-        <div className="mt-4 grid grid-cols-4 gap-4 text-xs">
+        <div className="mt-4 grid grid-cols-4 gap-4 text-xs flex-shrink-0">
           <div>
             <div className="text-slate-400">Open</div>
             <div className="text-white font-semibold">
@@ -479,6 +520,320 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </div>
           </div>
         </div>
+          </div>
+        )}
+
+        {/* Info Tab Content */}
+        {activeTab === 'Info' && (
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
+            {/* Basic Index Information */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="w-4 h-4 text-blue-400" />
+                  <h4 className="text-sm font-semibold text-white">DOG_INDEX</h4>
+                  <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                    👑 No.1
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs text-slate-400">Market Capitalization</div>
+                    <div className="text-sm font-semibold text-white">$147.8M</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Total Assets</div>
+                    <div className="text-sm font-semibold text-white">7</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Index Inception</div>
+                    <div className="text-sm font-semibold text-white">2024-01-15</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Rebalance Frequency</div>
+                    <div className="text-sm font-semibold text-white">Weekly</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Management Fee</div>
+                    <div className="text-sm font-semibold text-white">0.75% p.a.</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400">Settlement Currency</div>
+                    <div className="text-sm font-semibold text-white">USDC</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-700">
+                  <h5 className="text-xs font-semibold text-white mb-2">Description</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    The DOG_INDEX tracks the performance of the most popular dog-themed meme cryptocurrencies.
+                    This diversified index includes tokens like DOGE, SHIB, FLOKI, BONK, and other canine-inspired
+                    cryptocurrencies, providing exposure to this growing sector with automatic rebalancing.
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1 text-blue-400 cursor-pointer hover:underline">
+                    <ExternalLink className="w-3 h-3" />
+                    <span>Whitepaper</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-blue-400 cursor-pointer hover:underline">
+                    <ExternalLink className="w-3 h-3" />
+                    <span>Index Methodology</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Composition */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <PieChart className="w-4 h-4 text-purple-400" />
+                  <h4 className="text-sm font-semibold text-white">Asset Composition</h4>
+                </div>
+
+                <div className="space-y-2">
+                  {[
+                    { name: 'DOGE', weight: 30, price: '$0.0892' },
+                    { name: 'SHIB', weight: 25, price: '$0.000012' },
+                    { name: 'FLOKI', weight: 15, price: '$0.000089' },
+                    { name: 'BONK', weight: 12, price: '$0.000021' },
+                    { name: 'WIF', weight: 10, price: '$0.00145' },
+                    { name: 'Others', weight: 8, price: '-' }
+                  ].map((asset, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-white font-medium">{asset.name}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-slate-400">{asset.price}</span>
+                          <span className="text-white font-semibold">{asset.weight}%</span>
+                        </div>
+                      </div>
+                      <Progress value={asset.weight} className="h-1.5" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Trading Rules */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield className="w-4 h-4 text-green-400" />
+                  <h4 className="text-sm font-semibold text-white">Trading Rules</h4>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <div className="text-slate-400 mb-1">Trading Hours</div>
+                    <div className="text-white">24/7 (Continuous)</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">Minimum Trade Size</div>
+                    <div className="text-white">0.01 contracts</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">Maximum Leverage</div>
+                    <div className="text-white">50x</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">Maker Fee</div>
+                    <div className="text-white">0.02%</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">Taker Fee</div>
+                    <div className="text-white">0.05%</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Trading Data Tab Content */}
+        {activeTab === 'Trading Data' && (
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-brand" />
+              Trading Data Analytics
+            </h3>
+
+            {/* Market Statistics */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-green-400" />
+                    <span className="text-xs text-slate-400">24h Volume</span>
+                  </div>
+                  <div className="text-lg font-bold text-white">$24.7M</div>
+                  <div className="text-xs text-green-400">+12.5%</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Waves className="w-4 h-4 text-blue-400" />
+                    <span className="text-xs text-slate-400">Liquidity (TVL)</span>
+                  </div>
+                  <div className="text-lg font-bold text-white">$147.8M</div>
+                  <div className="text-xs text-blue-400">+5.3%</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs text-slate-400">Active Traders</span>
+                  </div>
+                  <div className="text-lg font-bold text-white">2,847</div>
+                  <div className="text-xs text-purple-400">+18.2%</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ArrowUpDown className="w-4 h-4 text-orange-400" />
+                    <span className="text-xs text-slate-400">Open Interest</span>
+                  </div>
+                  <div className="text-lg font-bold text-white">$89.2M</div>
+                  <div className="text-xs text-red-400">-3.1%</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Order Book Depth */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Layers className="w-4 h-4 text-blue-400" />
+                  <h4 className="text-sm font-semibold text-white">Order Book Depth</h4>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400">Bid Depth (1%)</span>
+                    <span className="text-green-400 font-semibold">$1.2M</span>
+                  </div>
+                  <Progress value={65} className="h-2 bg-slate-700" />
+
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400">Ask Depth (1%)</span>
+                    <span className="text-red-400 font-semibold">$890K</span>
+                  </div>
+                  <Progress value={45} className="h-2 bg-slate-700" />
+
+                  <div className="flex items-center justify-between text-xs pt-2">
+                    <span className="text-slate-400">Bid/Ask Ratio</span>
+                    <span className="text-white font-semibold">1.35</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Funding Rate */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-purple-400" />
+                  <h4 className="text-sm font-semibold text-white">Funding Rate</h4>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <div className="text-slate-400 mb-1">Current Rate</div>
+                    <div className="text-white font-semibold">0.0125%</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">Next Funding</div>
+                    <div className="text-white font-semibold">2h 15m</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">8h Average</div>
+                    <div className="text-green-400 font-semibold">+0.0089%</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 mb-1">24h Average</div>
+                    <div className="text-green-400 font-semibold">+0.0112%</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Sentiment */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="w-4 h-4 text-orange-400" />
+                  <h4 className="text-sm font-semibold text-white">Market Sentiment</h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-slate-400">Long/Short Ratio</span>
+                      <span className="text-white font-semibold">1.8 : 1</span>
+                    </div>
+                    <div className="flex h-2 rounded overflow-hidden">
+                      <div className="bg-green-500" style={{ width: '64%' }} />
+                      <div className="bg-red-500" style={{ width: '36%' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-slate-400">Fear & Greed Index</span>
+                      <span className="text-green-400 font-semibold">72 (Greed)</span>
+                    </div>
+                    <Progress value={72} className="h-2" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2 text-xs">
+                    <div>
+                      <div className="text-slate-400 mb-1">Social Volume</div>
+                      <div className="text-white font-semibold">High</div>
+                    </div>
+                    <div>
+                      <div className="text-slate-400 mb-1">Sentiment Score</div>
+                      <div className="text-green-400 font-semibold">+68%</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Top Traders Activity */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Radar className="w-4 h-4 text-yellow-400" />
+                  <h4 className="text-sm font-semibold text-white">Top Traders Activity</h4>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Top 10 Net Position</span>
+                    <span className="text-green-400 font-semibold">+$12.4M Long</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Top 100 Net Position</span>
+                    <span className="text-green-400 font-semibold">+$28.7M Long</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Whale/Retail Ratio</span>
+                    <span className="text-white font-semibold">2.3</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

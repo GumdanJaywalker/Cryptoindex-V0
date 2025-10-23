@@ -32,7 +32,7 @@ import { MemeIndex, IndexFilter, SortOption } from '@/lib/types/index-trading'
 import { IndexRow } from '@/components/trading/index-row'
 import { cn } from '@/lib/utils'
 
-interface AllIndicesModalProps {
+interface AllIndexesModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   indices: MemeIndex[]
@@ -60,13 +60,13 @@ const filterOptions: Array<{
   { key: 'layer-3', label: 'Layer 3', icon: Zap, color: 'text-red-400 border-red-400' }
 ]
 
-export function AllIndicesModal({ 
+export function AllIndexesModal({ 
   open, 
   onOpenChange, 
   indices, 
   initialFilter = 'gainers',
   onIndexSelect 
-}: AllIndicesModalProps) {
+}: AllIndexesModalProps) {
   const [selectedFilter, setSelectedFilter] = useState<IndexFilter>(initialFilter)
   const [sortBy, setSortBy] = useState<SortOption>('change')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')

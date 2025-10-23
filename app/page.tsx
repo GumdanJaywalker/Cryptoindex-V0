@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
 // Import mock data and types
-import { allMockIndices, mockTopTraders } from '@/lib/data/mock-indices'
+import { allMockIndices, mockTopTraders } from '@/lib/data/mock-indexes'
 import { MemeIndex, TopTrader } from '@/lib/types/index-trading'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import { Header } from '@/components/layout/Header'
