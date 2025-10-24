@@ -52,7 +52,7 @@ import { staggerContainer, fadeInUp } from '@/lib/animations/micro-interactions'
 import { useVirtualList } from '@/lib/hooks/use-performance'
 
 interface IndexListProps {
-  indices: MemeIndex[]
+  indexes: MemeIndex[]
   onIndexSelect: (index: MemeIndex) => void
   className?: string
   onAdvancedFiltersClick?: () => void
@@ -76,8 +76,8 @@ const filterOptions: Array<{
   { key: 'gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Best performing 24h' },
   { key: 'losers', label: 'Top Losers', icon: TrendingDown, description: 'Worst performing 24h' },
   { key: 'high-volume', label: 'High Volume', icon: Activity, description: 'Most active trading' },
-  { key: 'layer-1', label: 'Layer 1', icon: Building2, description: 'Institutional-grade indices (Low risk)', color: 'text-blue-400 border-blue-400' },
-  { key: 'layer-2', label: 'Layer 2', icon: Crown, description: 'Mainstream meme indices (Medium risk)', color: 'text-orange-400 border-orange-400' },
+  { key: 'layer-1', label: 'Layer 1', icon: Building2, description: 'Institutional-grade indexes (Low risk)', color: 'text-blue-400 border-blue-400' },
+  { key: 'layer-2', label: 'Layer 2', icon: Crown, description: 'Mainstream meme indexes (Medium risk)', color: 'text-orange-400 border-orange-400' },
   { key: 'layer-3', label: 'Layer 3', icon: Zap, description: 'Ultra-volatile launchpad (High risk)', color: 'text-red-400 border-red-400' }
 ]
 
@@ -94,7 +94,7 @@ const sortOptions: Array<{
 ]
 
 export function IndexList({
-  indices,
+  indexes,
   onIndexSelect,
   className,
   onAdvancedFiltersClick,
@@ -104,7 +104,7 @@ export function IndexList({
   const [sortBy, setSortBy] = useState<SortOption>('marketCap')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredIndices, setFilteredIndices] = useState<MemeIndex[]>([])
+  const [filteredIndexes, setFilteredIndices] = useState<MemeIndex[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -119,9 +119,9 @@ export function IndexList({
     setLastUpdated(new Date())
   }, [])
 
-  // Simplified filter and sort - show all indices by default
+  // Simplified filter and sort - show all indexes by default
   useEffect(() => {
-    if (!indices.length) return
+    if (!indexes.length) return
 
     // If Favorites filter is active but no favorites are set, show empty list
     if (selectedFilter === 'favorites' && (!favorites || favorites.length === 0)) {
@@ -129,7 +129,7 @@ export function IndexList({
       return
     }
 
-    let filtered = [...indices]
+    let filtered = [...indexes]
 
     // Only apply search filter if there's actual search query
     if (searchQuery.trim()) {
@@ -224,7 +224,7 @@ export function IndexList({
     }
 
     setFilteredIndices(filtered)
-  }, [indices, selectedFilter, sortBy, sortDirection, searchQuery, favorites])
+  }, [indexes, selectedFilter, sortBy, sortDirection, searchQuery, favorites])
 
   // Measure container height for virtualization (robust on mount + resize)
   useEffect(() => {
@@ -240,7 +240,7 @@ export function IndexList({
 
   const ROW_HEIGHT = 50
   const { visibleItems, totalHeight, onScroll } = useVirtualList(
-    filteredIndices,
+    filteredIndexes,
     ROW_HEIGHT,
     containerHeight,
     6
@@ -248,7 +248,7 @@ export function IndexList({
   const startIndex = visibleItems.length ? visibleItems[0].index : 0
   const endIndex = visibleItems.length ? visibleItems[visibleItems.length - 1].index : -1
   const topSpacer = startIndex * ROW_HEIGHT
-  const bottomSpacer = Math.max(0, filteredIndices.length - endIndex - 1) * ROW_HEIGHT
+  const bottomSpacer = Math.max(0, filteredIndexes.length - endIndex - 1) * ROW_HEIGHT
 
   const handleHeaderClick = (column: SortOption) => {
     if (sortBy === column) {
@@ -276,7 +276,7 @@ export function IndexList({
         <div className="relative max-w-md flex-1 min-w-[240px]">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search indices..."
+            placeholder="Search indexes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 h-9"
@@ -350,10 +350,10 @@ export function IndexList({
         <div className="flex items-center gap-2 text-sm text-slate-400 flex-shrink-0">
           <Search className="w-4 h-4" />
           <span>
-            Found {filteredIndices.length} result{filteredIndices.length !== 1 ? 's' : ''}
+            Found {filteredIndexes.length} result{filteredIndexes.length !== 1 ? 's' : ''}
             for "{searchQuery}"
           </span>
-          {filteredIndices.length === 0 && (
+          {filteredIndexes.length === 0 && (
             <Button
               onClick={() => setSearchQuery('')}
               variant="ghost"
@@ -369,7 +369,7 @@ export function IndexList({
       {/* Card-constrained internal scroll area */}
       <div className="min-h-0 flex-1">
         <AnimatePresence mode="wait">
-          {filteredIndices.length > 0 ? (
+          {filteredIndexes.length > 0 ? (
             <motion.div
               key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
               ref={setContainerEl}
@@ -491,7 +491,7 @@ export function IndexList({
                             No favorites yet
                           </h3>
                           <p className="text-slate-400 text-sm mb-4">
-                            Star indices to see them here. Click the star icon on any row.
+                            Star indexes to see them here. Click the star icon on any row.
                           </p>
                           <div className="flex gap-2 justify-center">
                             <Button
@@ -500,7 +500,7 @@ export function IndexList({
                               size="sm"
                               className="text-xs"
                             >
-                              Browse indices
+                              Browse indexes
                             </Button>
                           </div>
                         </div>
@@ -512,7 +512,7 @@ export function IndexList({
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-white mb-2">
-                            No indices found
+                            No indexes found
                           </h3>
                           <p className="text-slate-400 text-sm mb-4">
                             Try adjusting your search or filter criteria

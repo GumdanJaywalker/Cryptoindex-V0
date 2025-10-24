@@ -1,13 +1,179 @@
 # HANDOVER - Development Session Summary
 
-**Last Updated**: 2025-10-22
-**Latest Session**: TradingView Chart Test Page (Oct 22)
+**Last Updated**: 2025-10-24
+**Latest Session**: Phase 0 Fee Structure Implementation (Oct 24)
 
 > For archived sessions, see HANDOVER_ARCHIVE.md
 
 ---
 
-## LATEST SESSION - TradingView Chart Test Page (Oct 22)
+## LATEST SESSION - Phase 0 Fee Structure Implementation (Oct 24)
+
+### Goal
+Centralize all fee configurations and implement proper $HIIN/$HIDE two-token fee structure based on Phase 0 tokenomics documentation
+
+### Implementation
+
+#### New Files (2 files)
+- `lib/constants/fees.ts` (230+ lines)
+  - Centralized fee constants for all platform operations
+  - HIIN_FEES object: Launch (0.1 $HIIN), Management (0.02% annual), Rebalancing (0.05%), Gas multiplier
+  - HIDE_FEES object: Trading (0.30%), LP Add/Remove (0.10%), LP Claim (0.05%), Gas multiplier
+  - Native payment discount: 10% when paying in $HIIN/$HIDE vs $HYPE
+  - FeeType enum for type-safe fee categorization
+  - Helper functions: getNativeTokenForFee(), getBaseFeeRate(), getDiscountRate(), getFeeLabel()
+  - Fee descriptions and labels for UI display
+  - Currency type integration with existing useCurrency hook
+
+- `lib/utils/fees.ts` (300+ lines)
+  - Fee calculation utilities with discount logic
+  - FeeCalculation interface: baseFee, discount, finalFee, discountPercentage, paymentToken, nativeToken, feeType
+  - calculateTradingFee(amount, paymentToken): Computes $HIDE trading fee with 10% discount
+  - calculateLaunchFee(paymentToken): Computes 0.1 $HIIN launch fee with discount
+  - calculateManagementFee(aum, days, paymentToken): Annual 0.02% AUM fee prorated
+  - calculateRebalancingFee(tvl, paymentToken): 0.05% TVL rebalancing fee
+  - calculateLPFee(amount, operation, paymentToken): LP add/remove/claim fees
+  - Helper functions: getDiscountedFee(), formatFeeBreakdown(), aggregateFees()
+
+#### Modified Files (6 files)
+- `components/trading/quick-trade-button.tsx`
+  - Line 62: Changed hardcoded 0.005 (0.5%) → FEES.HIDE.TRADING_FEE (0.30%)
+  - Added import: import { FEES } from '@/lib/constants/fees'
+
+- `components/trading/trade-panel.tsx`
+  - Line 53: Changed hardcoded 0.001 (0.1%) → FEES.HIDE.TRADING_FEE (0.30%)
+  - Added import: import { FEES } from '@/lib/constants/fees'
+
+- `components/trading/TradingPanelSimple.tsx`
+  - Line 35: Changed hardcoded 0.001 (0.1%) → FEES.HIDE.TRADING_FEE (0.30%)
+  - Added import: import { FEES } from '@/lib/constants/fees'
+
+- `components/trading/confirm-modal.tsx`
+  - Line 80: Changed hardcoded 0.001 (0.1%) → FEES.HIDE.TRADING_FEE (0.30%)
+  - Added import: import { FEES } from '@/lib/constants/fees'
+
+- `components/trading/LiquidityModal.tsx`
+  - Line 35: Changed hardcoded 0.001 → FEES.HIDE.LP_ADD_FEE (0.10%)
+  - Added import: import { FEES } from "@/lib/constants/fees"
+
+- `app/launch/page.tsx`
+  - Line 249: Changed hardcoded 0.1 → FEES.HIIN.LAUNCH_FEE with proper typing
+  - Added import: import { FEES } from "@/lib/constants/fees"
+
+### Technical Details
+
+Fee Inconsistency Problem (User Issue):
+```typescript
+// Problem: Trading fees scattered across 4 files with different values
+quick-trade-button.tsx:    const fees = positionSize * 0.005  // 0.5% ❌
+trade-panel.tsx:            const fees = amount * 0.001       // 0.1% ❌
+TradingPanelSimple.tsx:     const fees = amount * 0.001       // 0.1% ❌
+confirm-modal.tsx:          const fees = amount * 0.001       // 0.1% ❌
+
+// Solution: Single source of truth
+lib/constants/fees.ts:      HIDE_FEES.TRADING_FEE = 0.003     // 0.30% ✅
+```
+
+Two-Token Fee Structure:
+```typescript
+// $HIIN (Index DAO) - For index creation/management
+export const HIIN_FEES = {
+  LAUNCH_FEE: 0.1,                      // 0.1 $HIIN fixed per index launch
+  MANAGEMENT_FEE_ANNUAL: 0.0002,        // 0.02% annual AUM
+  REBALANCING_FEE: 0.0005,              // 0.05% per rebalancing event
+  GAS_MULTIPLIER: 1.0,                  // Covers on-chain gas
+  ACCEPTED_TOKENS: ['HIIN', 'HYPE'],    // Native + fallback
+  NATIVE_PAYMENT_DISCOUNT: 0.10,        // 10% discount for $HIIN
+} as const
+
+// $HIDE (DEX DAO) - For trading/LP operations
+export const HIDE_FEES = {
+  TRADING_FEE: 0.003,                   // 0.30% trading/swap fee
+  SWAP_GAS_MULTIPLIER: 1.0,             // Covers swap gas
+  LP_ADD_FEE: 0.001,                    // 0.10% LP addition
+  LP_REMOVE_FEE: 0.001,                 // 0.10% LP removal
+  LP_CLAIM_FEE: 0.0005,                 // 0.05% rewards claim
+  ACCEPTED_TOKENS: ['HIDE', 'HYPE'],    // Native + fallback
+  NATIVE_PAYMENT_DISCOUNT: 0.10,        // 10% discount for $HIDE
+} as const
+```
+
+Discount Logic Implementation:
+```typescript
+export function calculateTradingFee(
+  amount: number,
+  paymentToken: Currency = 'HYPE'
+): FeeCalculation {
+  const feeType = FeeType.TRADING
+  const baseFeeRate = getBaseFeeRate(feeType)       // 0.003 (0.30%)
+  const baseFee = amount * baseFeeRate
+
+  const nativeToken = getNativeTokenForFee(feeType) // 'HIDE'
+  const isNativePayment = paymentToken === nativeToken
+  const discountRate = isNativePayment ? 0.10 : 0   // 10% if paying in $HIDE
+  const discount = baseFee * discountRate
+  const finalFee = baseFee - discount
+
+  return {
+    baseFee,           // e.g., $30 for $10k trade
+    discount,          // e.g., $3 if paying in $HIDE
+    finalFee,          // e.g., $27 with discount
+    discountPercentage: discountRate * 100,  // 10
+    paymentToken,      // 'HIDE' or 'HYPE'
+    nativeToken,       // 'HIDE'
+    feeType,           // FeeType.TRADING
+  }
+}
+```
+
+Type Safety with Enums:
+```typescript
+export enum FeeType {
+  INDEX_LAUNCH = 'INDEX_LAUNCH',
+  INDEX_MANAGEMENT = 'INDEX_MANAGEMENT',
+  INDEX_REBALANCING = 'INDEX_REBALANCING',
+  INDEX_GAS = 'INDEX_GAS',
+  TRADING = 'TRADING',
+  SWAP_GAS = 'SWAP_GAS',
+  LP_ADD = 'LP_ADD',
+  LP_REMOVE = 'LP_REMOVE',
+  LP_CLAIM = 'LP_CLAIM',
+}
+
+// Usage prevents typos
+const nativeToken = getNativeTokenForFee(FeeType.TRADING)  // ✅ 'HIDE'
+const nativeToken = getNativeTokenForFee('trading')        // ❌ TypeScript error
+```
+
+### Key Issue Resolved
+
+User's complaint: **"거래수수료가 아직 변수로 떠 그거 조정해야돼"** (Trading fees are still variable, need to adjust that)
+
+Before:
+- 4 trading components had hardcoded fees: 0.5%, 0.1%, 0.1%, 0.1%
+- No single source of truth
+- Changing fees required editing 4+ files
+- Risk of inconsistent fee display
+
+After:
+- All fees centralized in `lib/constants/fees.ts`
+- Single constant: `FEES.HIDE.TRADING_FEE = 0.003` (0.30%)
+- All 4 components import and use this constant
+- Future phase updates: Change one value, affects all components
+- Type-safe with FeeType enum and Currency type
+
+### Status
+Phase 0 fee structure fully implemented, all trading fees standardized to 0.30%, ready for backend API integration
+
+### Next Steps
+- Backend API integration when ready (pass paymentToken for discount calculation)
+- Phase 1 fee updates: Adjust constants in `lib/constants/fees.ts` only
+- UI enhancements: Display fee breakdown with discount in trading modals
+- Add fee history tracking for analytics
+
+---
+
+## PREVIOUS SESSION - TradingView Chart Test Page (Oct 22)
 
 ### Goal
 Create test page to verify lightweight-charts integration with mock data and fix v5 API compatibility issues
@@ -160,7 +326,7 @@ Filter logic:
 - Search: name, symbol, description
 - Category: hot, new, vs-battles, gainers, losers, high-volume
 - Layer: layer-1, layer-2, layer-3
-- Favorites: user starred indices
+- Favorites: user starred indexes
 
 // Advanced filters (in page.tsx)
 - Composition: Match Any/All coins in index.assets
@@ -202,7 +368,7 @@ Table Features:
 - Sortable columns (click header to toggle asc/desc)
 - Virtualized scrolling (handles 100+ rows efficiently)
 - Sticky header (stays visible during scroll)
-- Favorites-first ordering (starred indices always on top)
+- Favorites-first ordering (starred indexes always on top)
 - IndexRow component from trading (price, chart, badges)
 
 UX Improvements:
@@ -271,7 +437,7 @@ Landing Carousels (2 files):
 - `components/landing/TraderCarousel.tsx` (141 lines) - Single trader card carousel, auto-rotation every 5 seconds (embla-carousel-autoplay), hover-only arrows (50% opacity), dot navigation, continuous loop
 
 Carousel Cards (2 files):
-- `components/landing/CarouselIndexCard.tsx` (342 lines) - Composition-focused index card (copied from discover page design), NAV vs Market Price comparison, Layer badges (L1/L2/L3), graduation progress for L3 indices, rebalancing schedule display, expandable asset composition (show more/less), click handler to open IndexDetailModal
+- `components/landing/CarouselIndexCard.tsx` (342 lines) - Composition-focused index card (copied from discover page design), NAV vs Market Price comparison, Layer badges (L1/L2/L3), graduation progress for L3 indexes, rebalancing schedule display, expandable asset composition (show more/less), click handler to open IndexDetailModal
 - `components/landing/CarouselTraderCard.tsx` (211 lines) - Large trader card with comprehensive stats, avatar with rank badge (Top 3 get trophy icon), total PnL prominent display, 7-Day Performance sparkline chart, Hydration Fix: Deterministic seed-based sparkline generation, Win Rate/Total Trades/Followers stats grid, links to /traders/[id] page
 
 Modal Component (1 file):
@@ -299,7 +465,7 @@ Modal Component (1 file):
 User Feedback Iterations:
 1. 2x2 Grid → 2 Cards Horizontal: Changed from 4 cards per page to 2 for better visibility
 2. Arrow Opacity: Changed to opacity-0 group-hover:opacity-50 for subtle hover-only arrows
-3. Hero Subtitles: Added descriptive subtitles under section headings ("Explore the hottest meme coin indices right now", "Most profitable traders this week")
+3. Hero Subtitles: Added descriptive subtitles under section headings ("Explore the hottest meme coin indexes right now", "Most profitable traders this week")
 4. Vertical Centering: Changed grid alignment items-start → items-center, added padding pb-8
 
 ### Technical Implementation
@@ -331,7 +497,7 @@ const [emblaRef, emblaApi] = useEmblaCarousel(
 
 // Pagination: 2 cards per page
 const pages = []
-for (let i = 0; i < indices.length; i += 2) {
+for (let i = 0; i < indexes.length; i += 2) {
   pages.push(indices.slice(i, i + 2))
 }
 
@@ -396,7 +562,7 @@ Code Statistics:
 - Net Lines Changed: +1,053 lines
 
 Features:
-- Carousel Slides: 6 pages (12 indices ÷ 2 per page)
+- Carousel Slides: 6 pages (12 indexes ÷ 2 per page)
 - Auto-Rotation: 5 seconds per trader
 - Modal Sections: 4 (Stats, Graduation, Composition, Rebalancing)
 - Responsive Breakpoints: 3 layouts (mobile/tablet/desktop)

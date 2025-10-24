@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface NavItem {
   href: string
@@ -138,6 +139,7 @@ export function MobileNav() {
 
 // Mobile Header with condensed controls
 export function MobileHeader() {
+  const { formatBalance } = useCurrency()
   const [isWalletOpen, setIsWalletOpen] = useState(false)
 
   return (
@@ -170,7 +172,7 @@ export function MobileHeader() {
               className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors"
             >
               <Wallet className="w-4 h-4 text-brand" />
-              <span className="text-sm font-medium text-white">$2.4K</span>
+              <span className="text-sm font-medium text-white">{formatBalance(2400)}</span>
             </motion.button>
 
             {/* Profile/Settings */}
@@ -195,15 +197,15 @@ export function MobileHeader() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-400">Total Balance</span>
-                  <span className="text-lg font-bold text-white">$2,456.78</span>
+                  <span className="text-lg font-bold text-white">{formatBalance(2456.78)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-400">Available</span>
-                  <span className="text-sm text-green-400">$1,234.56</span>
+                  <span className="text-sm text-green-400">{formatBalance(1234.56)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-400">In Positions</span>
-                  <span className="text-sm text-orange-400">$1,222.22</span>
+                  <span className="text-sm text-orange-400">{formatBalance(1222.22)}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-700">
                   <button className="w-full bg-brand text-black font-semibold py-2 rounded-lg text-sm">
@@ -221,6 +223,7 @@ export function MobileHeader() {
 
 // Mobile-specific status bar with key metrics
 export function MobileStatusBar() {
+  const { formatVolume } = useCurrency()
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -241,7 +244,7 @@ export function MobileStatusBar() {
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
               <span className="text-slate-300">Market Open</span>
             </div>
-            <div className="text-slate-400">Vol: $84.2M</div>
+            <div className="text-slate-400">Vol: {formatVolume(84200000)}</div>
           </div>
           
           <motion.div
@@ -264,7 +267,7 @@ export function MobileStatusBar() {
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <div className="text-slate-400">24h Volume</div>
-                  <div className="text-white font-semibold">$84.2M</div>
+                  <div className="text-white font-semibold">{formatVolume(84200000)}</div>
                 </div>
                 <div>
                   <div className="text-slate-400">Active Traders</div>
@@ -272,7 +275,7 @@ export function MobileStatusBar() {
                 </div>
                 <div>
                   <div className="text-slate-400">Total TVL</div>
-                  <div className="text-white font-semibold">$2.1B</div>
+                  <div className="text-white font-semibold">{formatVolume(2100000000)}</div>
                 </div>
                 <div>
                   <div className="text-slate-400">Top Gainer</div>

@@ -27,7 +27,7 @@ import {
   ArrowDown
 } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 import { TraderCard } from './trader-card'
 import { cn } from '@/lib/utils'
 import {
@@ -460,8 +460,8 @@ export function TopTraders({
                     </div>
                     <div className="mt-3 pl-9 flex items-center justify-between">
                       <div className="flex gap-1 flex-wrap">
-                        {t.tradingIndices.slice(0,2).map(idxId => {
-                          const m = allMockIndices.find(x => x.id === idxId)
+                        {t.tradingIndexes.slice(0,2).map(idxId => {
+                          const m = allMockIndexes.find(x => x.id === idxId)
                           const label = m?.symbol || idxId.toUpperCase()
                           return (
                             <Link
@@ -516,8 +516,8 @@ export function TopTraders({
                     </div>
                     <div className="mt-2 pl-9 flex items-center justify-between">
                       <div className="flex flex-wrap gap-1">
-                        {t.tradingIndices.slice(0,2).map(idxId => {
-                          const m = allMockIndices.find(x => x.id === idxId)
+                        {t.tradingIndexes.slice(0,2).map(idxId => {
+                          const m = allMockIndexes.find(x => x.id === idxId)
                           const label = m?.symbol || idxId.toUpperCase()
                           return (
                             <Link

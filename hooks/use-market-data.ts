@@ -233,8 +233,8 @@ export function useRefreshMarketData() {
 export function useIndexDetails(indexId: string, options?: {
   enabled?: boolean
 }) {
-  const indices = useTradingStore((state) => state.indices)
-  const selectedIndex = indices.find(index => index.id === indexId)
+  const indexes = useTradingStore((state) => state.indices)
+  const selectedIndex = indexes.find(index => index.id === indexId)
 
   return useQuery({
     queryKey: ['indexDetails', indexId],

@@ -134,7 +134,7 @@ export function OrderBook() {
                 />
                 
                 <div className={`flex-1 font-mono ${ask.isMyOrder ? 'text-blue-400 font-semibold' : 'text-red-400'}`}>
-                  {ask.price.toFixed(4)}
+                  {formatPrice(ask.price)}
                 </div>
                 <div className="flex-1 text-right text-slate-300 font-mono">
                   {ask.size.toFixed(1)}
@@ -161,7 +161,7 @@ export function OrderBook() {
         <div className="h-8 flex items-center justify-center border-y border-slate-800 bg-slate-900">
           <div className="text-xs text-slate-400 flex items-center gap-3">
             <div>
-              Spread: <span className="text-white font-mono">{spread.toFixed(4)}</span>
+              Spread: <span className="text-white font-mono">{formatPrice(spread)}</span>
               <span className="text-slate-500 ml-1">({spreadPercentage}%)</span>
             </div>
             <div className="flex items-center gap-1">
@@ -192,7 +192,7 @@ export function OrderBook() {
                 />
                 
                 <div className={`flex-1 font-mono ${bid.isMyOrder ? 'text-blue-400 font-semibold' : 'text-green-400'}`}>
-                  {bid.price.toFixed(4)}
+                  {formatPrice(bid.price)}
                 </div>
                 <div className="flex-1 text-right text-slate-300 font-mono">
                   {bid.size.toFixed(1)}

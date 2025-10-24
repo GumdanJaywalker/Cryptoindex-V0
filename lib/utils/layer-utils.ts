@@ -45,9 +45,9 @@ export function assignLayerInfo(index: MemeIndex): MemeIndex {
   }
 }
 
-// Apply layer info to all indices
-export function assignLayersToIndices(indices: MemeIndex[]): MemeIndex[] {
-  return indices.map(assignLayerInfo)
+// Apply layer info to all indexes
+export function assignLayersToIndexes(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.map(assignLayerInfo)
 }
 
 // Get layer display info

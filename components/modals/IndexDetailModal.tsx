@@ -28,12 +28,12 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
 
   if (!index) return null;
 
-  // Get graduation data for L3 indices
+  // Get graduation data for L3 indexes
   const getGraduationData = (): GraduationData => {
     if (index.graduation) {
       return index.graduation;
     }
-    // Fallback for indices without graduation data
+    // Fallback for indexes without graduation data
     return {
       liquidityProgress: 0,
       salesProgress: 0,

@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import type { OHLCVData, Timeframe, ChartType, TechnicalIndicator } from '@/lib/types/trading-chart'
 import { fetchOHLCVData, calculateMA, calculateRSI, subscribeToRealTimePrice } from '@/lib/api/trading-chart'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 // Import lightweight-charts dynamically (browser-only library)
 import type { IChartApi, ISeriesApi, CandlestickSeriesPartialOptions, LineSeriesPartialOptions, AreaSeriesPartialOptions, HistogramSeriesPartialOptions } from 'lightweight-charts'
@@ -45,6 +46,7 @@ interface ChartAreaProps {
 }
 
 export function ChartArea({ indexId = 'default-index', className }: ChartAreaProps) {
+  const { formatPrice, formatVolume } = useCurrency()
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | ISeriesApi<'Line'> | ISeriesApi<'Area'> | ISeriesApi<'Histogram'> | null>(null)
@@ -384,13 +386,13 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             <div>
               <div className="text-xs text-slate-400">DOG_INDEX • {selectedTimeframe}</div>
               <div className="text-2xl font-bold text-white">
-                ${currentPrice.toFixed(4)}
+                {formatPrice(currentPrice)}
               </div>
             </div>
             <div className={`flex items-center gap-1 ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {priceChange >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <div className="text-sm font-semibold">
-                {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(4)}
+                {priceChange >= 0 ? '+' : ''}{formatPrice(Math.abs(priceChange))}
               </div>
               <div className="text-xs">
                 ({priceChange >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%)
@@ -399,7 +401,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             <div className="text-xs text-slate-400">
               <div>24h Vol</div>
               <div className="text-sm font-semibold text-white">
-                ${(volume24h / 1000000).toFixed(2)}M
+                {formatVolume(volume24h)}
               </div>
             </div>
           </div>
@@ -498,25 +500,25 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           <div>
             <div className="text-slate-400">Open</div>
             <div className="text-white font-semibold">
-              ${chartData[chartData.length - 1]?.open.toFixed(4) || '0.0000'}
+              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].open) : formatPrice(0)}
             </div>
           </div>
           <div>
             <div className="text-slate-400">High</div>
             <div className="text-white font-semibold">
-              ${chartData[chartData.length - 1]?.high.toFixed(4) || '0.0000'}
+              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].high) : formatPrice(0)}
             </div>
           </div>
           <div>
             <div className="text-slate-400">Low</div>
             <div className="text-white font-semibold">
-              ${chartData[chartData.length - 1]?.low.toFixed(4) || '0.0000'}
+              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].low) : formatPrice(0)}
             </div>
           </div>
           <div>
             <div className="text-slate-400">Close</div>
             <div className="text-white font-semibold">
-              ${chartData[chartData.length - 1]?.close.toFixed(4) || '0.0000'}
+              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].close) : formatPrice(0)}
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useIndexBuilder } from '@/hooks/use-index-builder'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 function parseRaw(raw: string): Array<{ symbol: string; weight: number }> {
   return raw
@@ -18,6 +19,7 @@ function parseRaw(raw: string): Array<{ symbol: string; weight: number }> {
 }
 
 export function IndexCreatorOverview() {
+  const { formatBalance } = useCurrency()
   const { data } = useIndexBuilder()
   const items = useMemo(() => parseRaw(data.constituents.raw), [data.constituents.raw])
   const total = items.reduce((s, i) => s + (Number.isFinite(i.weight) ? i.weight : 0), 0)
@@ -89,11 +91,11 @@ export function IndexCreatorOverview() {
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <div className="text-xs text-slate-400 mb-1">Accrued</div>
-                  <div className="text-xl font-bold text-white">${accruedCreatorUsd.toFixed(2)}</div>
+                  <div className="text-xl font-bold text-white">{formatBalance(accruedCreatorUsd)}</div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-400 mb-1">Projected (30d)</div>
-                  <div className="text-xl font-bold text-white">${monthlyCreatorUsd.toFixed(2)}</div>
+                  <div className="text-xl font-bold text-white">{formatBalance(monthlyCreatorUsd)}</div>
                 </div>
               </div>
             </div>

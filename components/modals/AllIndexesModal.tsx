@@ -35,7 +35,7 @@ import { cn } from '@/lib/utils'
 interface AllIndexesModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  indices: MemeIndex[]
+  indexes: MemeIndex[]
   initialFilter?: IndexFilter
   onIndexSelect?: (index: MemeIndex) => void
 }
@@ -63,7 +63,7 @@ const filterOptions: Array<{
 export function AllIndexesModal({ 
   open, 
   onOpenChange, 
-  indices, 
+  indexes, 
   initialFilter = 'gainers',
   onIndexSelect 
 }: AllIndexesModalProps) {
@@ -81,7 +81,7 @@ export function AllIndexesModal({
     }
   }
 
-  const filteredAndSortedIndices = (indices || [])
+  const filteredAndSortedIndices = (indexes || [])
     .filter((index) => {
       // Search filter
       if (searchQuery) {
@@ -161,7 +161,7 @@ export function AllIndexesModal({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder="Search indices..."
+              placeholder="Search indexes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500"
@@ -275,7 +275,7 @@ export function AllIndexesModal({
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-slate-400">
-                        No indices found
+                        No indexes found
                       </TableCell>
                     </TableRow>
                   )}
@@ -286,7 +286,7 @@ export function AllIndexesModal({
 
           {/* Results count */}
           <div className="text-sm text-slate-400 text-center">
-            Showing {filteredAndSortedIndices.length} of {indices?.length || 0} indices
+            Showing {filteredAndSortedIndices.length} of {indexes?.length || 0} indexes
           </div>
         </div>
       </DialogContent>

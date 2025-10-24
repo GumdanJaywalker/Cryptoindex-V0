@@ -152,7 +152,7 @@ export function VsBattleSection({ battles = mockBattles }: VsBattleSectionProps)
               <div>
                 <CardTitle className="text-xl text-white">VS Battles Arena</CardTitle>
                 <p className="text-sm text-slate-400 mt-1">
-                  Layer 2 indices battle for asset rebalancing
+                  Layer 2 indexes battle for asset rebalancing
                 </p>
               </div>
             </div>

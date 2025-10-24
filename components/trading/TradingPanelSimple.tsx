@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { CurrencyNumberTicker } from '@/components/ui/currency-number-ticker'
 import { MagicCard } from '@/components/magicui/magic-card'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { FEES } from '@/lib/constants/fees'
 // Removed shimmer for order buttons (solid style preferred)
 
 export function TradingPanel() {
@@ -31,7 +32,7 @@ export function TradingPanel() {
   const [currentPrice, setCurrentPrice] = useState(1.2345)
   const [availableBalance, setAvailableBalance] = useState(8234.12)
   const [dogHoldings, setDogHoldings] = useState(100.00)
-  const feeRate = 0.001 // 0.1% fee
+  const feeRate = FEES.HIDE.TRADING_FEE // Phase 0: 0.30% trading fee in $HIDE
 
   // Simulate price updates for NumberTicker animations
   useEffect(() => {

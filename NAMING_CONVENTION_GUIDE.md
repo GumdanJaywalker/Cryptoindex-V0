@@ -1403,7 +1403,7 @@ async function apiFetch<T>(
 }
 
 // 사용 예시
-const indices = await apiFetch<MemeIndex[]>('/api/indices')
+const indexes = await apiFetch<MemeIndex[]>('/api/indices')
 // indices[0].currentPrice ✅ (자동 변환됨)
 ```
 
@@ -1448,7 +1448,7 @@ async def get_indices(filter: str = "all", sort: str = "volume", limit: int = 20
         SELECT 
             id, symbol, name, current_price, change_24h, volume_24h,
             market_cap, is_hot, is_new, created_at
-        FROM indices
+        FROM indexes
         WHERE ...
         ORDER BY ...
         LIMIT %s

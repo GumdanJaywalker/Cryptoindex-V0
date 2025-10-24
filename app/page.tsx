@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
 // Import mock data and types
-import { allMockIndices, mockTopTraders } from '@/lib/data/mock-indexes'
+import { allMockIndexes, mockTopTraders } from '@/lib/data/mock-indexes'
 import { MemeIndex, TopTrader } from '@/lib/types/index-trading'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import { Header } from '@/components/layout/Header'
@@ -35,7 +35,7 @@ export default function Home() {
   }, [])
 
   const handleQuickTrade = useCallback((type: 'buy' | 'sell') => {
-    const index = selectedIndex || allMockIndices[0]
+    const index = selectedIndex || allMockIndexes[0]
     console.log(`Quick ${type} trade for ${index.symbol}`)
     // Navigate to trading page with quick trade action
     router.push(`/trading?index=${index.id}&action=${type}`)
@@ -73,11 +73,11 @@ export default function Home() {
                   Trending Indexes
                 </h2>
                 <p className="text-slate-400 text-sm">
-                  Explore the hottest meme coin indices right now
+                  Explore the hottest meme coin indexes right now
                 </p>
               </div>
               <IndexCarousel
-                indices={allMockIndices.slice(0, 12)}
+                indexes={allMockIndexes.slice(0, 12)}
                 onCardClick={handleIndexClick}
               />
             </div>

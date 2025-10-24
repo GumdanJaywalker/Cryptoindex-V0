@@ -10,7 +10,7 @@ import StickyFooter from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'HyperIndex - Meme Coin Index Trading Platform',
-  description: 'Trade meme coin indices with leverage on Hyper Network',
+  description: 'Trade meme coin indexes with leverage on Hyper Network',
   generator: 'HyperIndex',
   applicationName: 'HyperIndex',
   referrer: 'origin-when-cross-origin',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://hyperindex.app',
     title: 'HyperIndex - Meme Coin Index Trading Platform',
-    description: 'Trade meme coin indices with leverage on Hyper Network',
+    description: 'Trade meme coin indexes with leverage on Hyper Network',
     siteName: 'HyperIndex',
     images: [
       {
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'HyperIndex - Meme Coin Index Trading Platform',
-    description: 'Trade meme coin indices with leverage on Hyper Network',
+    description: 'Trade meme coin indexes with leverage on Hyper Network',
     images: ['/twitter-image.png'],
     creator: '@hyperindex',
   },

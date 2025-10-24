@@ -340,7 +340,7 @@ Notes
 - Data/Mocks
   - Extend MemeIndex with launch/graduation fields:
     - `launch: { mode: 'virtual-amm', liquidityTargetUsd: number, liquidityRaisedUsd: number, salesExitThreshold: number, soldAmount: number, status: 'launching'|'recruiting'|'near-graduation'|'graduated' }`
-  - Mock updates in `lib/data/mock-indices.ts` for a subset of indices.
+  - Mock updates in `lib/data/mock-indices.ts` for a subset of indexes.
 - Trading Behavior (UI copy)
   - Price source: bonding curve; display indicative slippage/impact; warn about virtual fills.
   - After graduation, price/liq source flips to L2 pool.

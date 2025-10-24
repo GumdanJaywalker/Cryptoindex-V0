@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { LaunchedIndexes } from "@/components/portfolio/LaunchedIndexes";
+import { FEES } from "@/lib/constants/fees";
 
 // Type definitions
 type PositionSide = "long" | "short";
@@ -246,7 +247,7 @@ export default function LaunchIndexPage() {
   };
 
   const totalCost = composition.totalAmount;
-  const feeAmt = 0.1; // Fixed fee
+  const feeAmt = FEES.HIIN.LAUNCH_FEE; // Phase 0: 0.1 $HIIN launch fee
 
   // Validation states
   const basicsComplete = useMemo(() => {

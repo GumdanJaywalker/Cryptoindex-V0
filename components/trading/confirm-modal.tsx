@@ -20,6 +20,7 @@ import {
 import { MemeIndex } from '@/lib/types/index-trading'
 import { useWallet } from '@/hooks/use-wallet'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { FEES } from '@/lib/constants/fees'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -76,7 +77,7 @@ export function ConfirmModal({
     const currentPrice = index.currentPrice
     const positionSize = amount
     const totalValue = amount * leverage
-    const estimatedFees = amount * 0.001 * leverage // 0.1% fee
+    const estimatedFees = amount * FEES.HIDE.TRADING_FEE * leverage // Phase 0: 0.30% trading fee in $HIDE
     const slippageCost = (amount * tradeData.slippage / 100) * leverage
     
     const liquidationPrice = type === 'buy'

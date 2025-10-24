@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { TopTrader } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
 import { getAvatarUrl } from '@/lib/utils/avatar'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 import {
   TrendingUp,
   Target,
@@ -144,8 +144,8 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
           <div className="mb-6">
             <div className="text-sm text-slate-400 mb-3">Main Positions</div>
             <div className="grid grid-cols-3 gap-2">
-              {trader.tradingIndices.slice(0, 3).map((indexId) => {
-                const index = allMockIndices.find(idx => idx.id === indexId)
+              {trader.tradingIndexes.slice(0, 3).map((indexId) => {
+                const index = allMockIndexes.find(idx => idx.id === indexId)
                 if (!index) return null
 
                 const isPositive = index.change24h >= 0

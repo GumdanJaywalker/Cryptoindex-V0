@@ -20,7 +20,7 @@ import {
 import { Trade, MemeIndex } from '@/lib/types/index-trading'
 import { usePositionManagement } from '@/hooks/use-wallet'
 import { useTradingStore } from '@/lib/store/trading-store'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface PositionsProps {
@@ -54,7 +54,7 @@ function PositionCard({
   const [stopLossPrice, setStopLossPrice] = useState<string>('')
   const [takeProfitPrice, setTakeProfitPrice] = useState<string>('')
   const [partialClosePercentage, setPartialClosePercentage] = useState(25)
-  const { formatBalance } = useCurrency()
+  const { formatBalance, formatPrice } = useCurrency()
 
   // 현재 가격과 PnL 계산
   const currentPrice = index.currentPrice
@@ -134,18 +134,18 @@ function PositionCard({
         
         <div className="space-y-1">
           <div className="text-slate-400">Entry Price</div>
-          <div className="text-white font-semibold">${trade.entryPrice.toFixed(4)}</div>
+          <div className="text-white font-semibold">{formatPrice(trade.entryPrice)}</div>
         </div>
-        
+
         <div className="space-y-1">
           <div className="text-slate-400">Current Price</div>
-          <div className="text-white font-semibold">${currentPrice.toFixed(4)}</div>
+          <div className="text-white font-semibold">{formatPrice(currentPrice)}</div>
         </div>
-        
+
         <div className="space-y-1">
           <div className="text-slate-400">Unrealized PnL</div>
           <div className={`font-bold ${isProfit ? 'text-green-300' : 'text-red-300'}`}>
-            {isProfit ? '+' : ''}${unrealizedPnL.toFixed(2)}
+            {isProfit ? '+' : ''}{formatBalance(unrealizedPnL)}
             <div className="text-xs">
               ({isProfit ? '+' : ''}{unrealizedPnLPercentage.toFixed(2)}%)
             </div>
@@ -166,7 +166,7 @@ function PositionCard({
               {riskLevel === 'high' ? 'Liquidation Risk!' : 'Approaching Liquidation'}
             </div>
             <div className="text-xs text-slate-400">
-              Liquidation at ${liquidationPrice.toFixed(4)} ({distanceToLiquidation.toFixed(1)}% away)
+              Liquidation at {formatPrice(liquidationPrice)} ({distanceToLiquidation.toFixed(1)}% away)
             </div>
           </div>
         </motion.div>
@@ -180,17 +180,17 @@ function PositionCard({
               <Shield className="w-4 h-4 text-slate-400" />
               <div>
                 <div className="text-slate-400 text-xs">Stop Loss</div>
-                <div className="text-white font-semibold">${trade.stopLoss.toFixed(4)}</div>
+                <div className="text-white font-semibold">{formatPrice(trade.stopLoss)}</div>
               </div>
             </div>
           )}
-          
+
           {trade.takeProfit && (
             <div className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg border border-slate-700">
               <Target className="w-4 h-4 text-slate-400" />
               <div>
                 <div className="text-slate-400 text-xs">Take Profit</div>
-                <div className="text-white font-semibold">${trade.takeProfit.toFixed(4)}</div>
+                <div className="text-white font-semibold">{formatPrice(trade.takeProfit)}</div>
               </div>
             </div>
           )}
@@ -267,7 +267,7 @@ function PositionCard({
                 <div className="flex space-x-2">
                   <input
                     type="number"
-                    placeholder={`Current: ${currentPrice.toFixed(4)}`}
+                    placeholder={`Current: ${formatPrice(currentPrice)}`}
                     value={stopLossPrice}
                     onChange={(e) => setStopLossPrice(e.target.value)}
                     className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
@@ -282,13 +282,13 @@ function PositionCard({
                   </button>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-xs text-slate-400">Take Profit Price</label>
                 <div className="flex space-x-2">
                   <input
                     type="number"
-                    placeholder={`Current: ${currentPrice.toFixed(4)}`}
+                    placeholder={`Current: ${formatPrice(currentPrice)}`}
                     value={takeProfitPrice}
                     onChange={(e) => setTakeProfitPrice(e.target.value)}
                     className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
@@ -341,8 +341,8 @@ export function Positions({
 
     // 정렬
     filtered.sort((a, b) => {
-      const indexA = allMockIndices.find(idx => idx.id === a.indexId)
-      const indexB = allMockIndices.find(idx => idx.id === b.indexId)
+      const indexA = allMockIndexes.find(idx => idx.id === a.indexId)
+      const indexB = allMockIndexes.find(idx => idx.id === b.indexId)
       
       if (!indexA || !indexB) return 0
       
@@ -370,7 +370,7 @@ export function Positions({
   // 총 PnL 계산
   const totalPnL = useMemo(() => {
     return filteredAndSortedPositions.reduce((total, trade) => {
-      const index = allMockIndices.find(idx => idx.id === trade.indexId)
+      const index = allMockIndexes.find(idx => idx.id === trade.indexId)
       if (!index) return total
       
       const pnl = trade.type === 'long'
@@ -406,7 +406,7 @@ export function Positions({
                 </span>
               </div>
               <div className={`font-semibold ${totalPnL >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                {totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)} PnL
+                {totalPnL >= 0 ? '+' : ''}{formatBalance(totalPnL)} PnL
               </div>
             </div>
           </div>
@@ -453,7 +453,7 @@ export function Positions({
             </motion.div>
           ) : (
             filteredAndSortedPositions.map((trade) => {
-              const index = allMockIndices.find(idx => idx.id === trade.indexId)
+              const index = allMockIndexes.find(idx => idx.id === trade.indexId)
               if (!index) return null
               
               return (

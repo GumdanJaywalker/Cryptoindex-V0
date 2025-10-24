@@ -9,12 +9,14 @@ import { mockRecentTrades, generateMockTraders } from '@/lib/data/mock-indexes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ArrowUpRight, BarChart3, Percent, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 function formatAddressShort(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
 }
 
 export default function TraderPortfolioPublic({ traderId }: { traderId: string }) {
+  const { formatBalance, formatPrice } = useCurrency()
   const trader: TopTrader | undefined = generateMockTraders().find((t) => t.id === traderId)
 
   if (!trader) {
@@ -72,7 +74,7 @@ export default function TraderPortfolioPublic({ traderId }: { traderId: string }
               {(trader.pnlPercentage24h||0) >= 0 ? '+' : ''}{(trader.pnlPercentage24h||0).toFixed(1)}%
             </div>
             <div className={cn('text-[11px]', (trader.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-              {(trader.pnl24h||0) >= 0 ? '+$' : '-$'}{Math.abs(trader.pnl24h||0).toLocaleString()}
+              {(trader.pnl24h||0) >= 0 ? '+' : ''}{formatBalance(trader.pnl24h||0)}
             </div>
           </CardContent>
         </Card>
@@ -80,7 +82,7 @@ export default function TraderPortfolioPublic({ traderId }: { traderId: string }
           <CardContent className="p-4">
             <div className="text-xs text-slate-400">Total PnL</div>
             <div className={cn('text-sm font-semibold', (trader.totalPnl||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-              {(trader.totalPnl||0) >= 0 ? '+$' : '-$'}{Math.abs(trader.totalPnl||0).toLocaleString()}
+              {(trader.totalPnl||0) >= 0 ? '+' : ''}{formatBalance(trader.totalPnl||0)}
             </div>
             <div className={cn('text-[11px]', (trader.totalPnlPercentage||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
               {(trader.totalPnlPercentage||0) >= 0 ? '+' : ''}{(trader.totalPnlPercentage||0).toFixed(1)}%
@@ -90,15 +92,15 @@ export default function TraderPortfolioPublic({ traderId }: { traderId: string }
         <Card className="bg-slate-900/40 border-slate-800">
           <CardContent className="p-4">
             <div className="text-xs text-slate-400">Trading Indices</div>
-            <div className="text-sm font-semibold text-white">{trader.tradingIndices.length}</div>
+            <div className="text-sm font-semibold text-white">{trader.tradingIndexes.length}</div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {trader.tradingIndices.slice(0, 6).map((id) => (
+              {trader.tradingIndexes.slice(0, 6).map((id) => (
                 <Link key={id} href={`/trading?index=${id}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 text-xs border border-slate-700 hover:border-slate-600 hover:text-white">
                   {id.toUpperCase()}
                 </Link>
               ))}
-              {trader.tradingIndices.length > 6 && (
-                <span className="text-xs text-slate-400">+{trader.tradingIndices.length - 6} more</span>
+              {trader.tradingIndexes.length > 6 && (
+                <span className="text-xs text-slate-400">+{trader.tradingIndexes.length - 6} more</span>
               )}
             </div>
           </CardContent>
@@ -125,9 +127,9 @@ export default function TraderPortfolioPublic({ traderId }: { traderId: string }
                     <span className="text-slate-300">{t.indexId.toUpperCase()}</span>
                   </div>
                   <div className="flex items-center gap-6 font-mono text-xs">
-                    <span className="text-slate-400">Entry ${t.entryPrice.toFixed(4)}</span>
-                    <span className="text-slate-400">Size ${t.amount.toFixed(0)}</span>
-                    <span className={cn(t.pnl >= 0 ? 'text-green-400' : 'text-red-400')}>{t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</span>
+                    <span className="text-slate-400">Entry {formatPrice(t.entryPrice)}</span>
+                    <span className="text-slate-400">Size {formatBalance(t.amount)}</span>
+                    <span className={cn(t.pnl >= 0 ? 'text-green-400' : 'text-red-400')}>{t.pnl >= 0 ? '+' : ''}{formatBalance(t.pnl)}</span>
                   </div>
                 </div>
               ))}
