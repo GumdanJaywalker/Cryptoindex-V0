@@ -1,7 +1,7 @@
 {
   "name": "CryptoIndex - Meme Coin Index Trading",
   "short_name": "CryptoIndex",
-  "description": "Trade meme coin indices with leverage on the ultimate DeFi platform",
+  "description": "Trade meme coin indexes with leverage on the ultimate DeFi platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -87,7 +87,7 @@
     {
       "name": "Quick Trade",
       "short_name": "Trade",
-      "description": "Start trading meme coin indices",
+      "description": "Start trading meme coin indexes",
       "url": "/trading",
       "icons": [
         {

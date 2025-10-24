@@ -8,6 +8,7 @@ import { MemeIndex } from '@/lib/types/index-trading'
 import { useTradingActions } from '@/lib/store/trading-store'
 import { useWallet } from '@/hooks/use-wallet'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { FEES } from '@/lib/constants/fees'
 
 interface TradePanelProps {
   index: MemeIndex | null
@@ -49,7 +50,7 @@ export function TradePanel({
   // 계산된 값들
   const currentPrice = index?.currentPrice || 0
   const totalValue = amount * leverage
-  const estimatedFees = amount * 0.001 * leverage // 0.1% fee
+  const estimatedFees = amount * FEES.HIDE.TRADING_FEE * leverage // Phase 0: 0.30% trading fee in $HIDE
   const liquidationPrice = currentPrice * (1 - (1 / leverage) * 0.9) // 90% margin
   const maxLoss = amount * 0.9 // 90% of position
   

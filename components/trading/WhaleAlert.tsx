@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 // Mock whale transaction data
 const mockWhaleTransactions = [
@@ -58,6 +59,7 @@ const mockWhaleTransactions = [
 ]
 
 export function WhaleAlert() {
+  const { formatPrice, formatBalance } = useCurrency()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -115,15 +117,14 @@ export function WhaleAlert() {
                 {formatNumber(tx.amount)} HYPE
               </div>
               <div className="text-xs text-muted-foreground">
-                @ ${tx.price.toFixed(3)}
+                @ {formatPrice(tx.price)}
               </div>
             </div>
 
             {/* Value & Details */}
             <div className="flex items-center justify-between text-xs">
-              <div>
-                <span className="text-muted-foreground">$</span>
-                <span className={`font-medium ${isLargeTransaction ? 'text-brand' : 'text-foreground'}`}>{formatNumber(tx.value)}</span>
+              <div className={`font-medium ${isLargeTransaction ? 'text-brand' : 'text-foreground'}`}>
+                {formatBalance(tx.value)}
               </div>
               <div className="text-right">
                 <div className="text-muted-foreground">{tx.exchange}</div>

@@ -9,11 +9,11 @@ import { CarouselIndexCard } from './CarouselIndexCard'
 import { cn } from '@/lib/utils'
 
 interface IndexCarouselProps {
-  indices: MemeIndex[]
+  indexes: MemeIndex[]
   onCardClick?: (index: MemeIndex) => void
 }
 
-export function IndexCarousel({ indices, onCardClick }: IndexCarouselProps) {
+export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     loop: true,
@@ -22,10 +22,10 @@ export function IndexCarousel({ indices, onCardClick }: IndexCarouselProps) {
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
 
-  // Group indices into pages of 2 (1x2 horizontal)
+  // Group indexes into pages of 2 (1x2 horizontal)
   const pages = []
-  for (let i = 0; i < indices.length; i += 2) {
-    pages.push(indices.slice(i, i + 2))
+  for (let i = 0; i < indexes.length; i += 2) {
+    pages.push(indexes.slice(i, i + 2))
   }
 
   const scrollPrev = useCallback(() => {
@@ -64,7 +64,7 @@ export function IndexCarousel({ indices, onCardClick }: IndexCarouselProps) {
   if (pages.length === 0) {
     return (
       <div className="text-center py-12 text-slate-400">
-        No trending indices available
+        No trending indexes available
       </div>
     )
   }

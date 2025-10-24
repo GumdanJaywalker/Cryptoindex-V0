@@ -12,15 +12,15 @@ import type { FilterOptions, SortOption, IndexLayer } from '@/lib/types/discover
 // ============================================================================
 
 /**
- * Filter indices by search query
+ * Filter indexes by search query
  * Searches in: name, symbol, description, asset symbols
  */
-export function filterBySearch(indices: MemeIndex[], query: string): MemeIndex[] {
-  if (!query.trim()) return indices
+export function filterBySearch(indexes: MemeIndex[], query: string): MemeIndex[] {
+  if (!query.trim()) return indexes
 
   const searchLower = query.toLowerCase().trim()
 
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     // Search in index name
     if (index.name.toLowerCase().includes(searchLower)) return true
 
@@ -47,28 +47,28 @@ export function filterBySearch(indices: MemeIndex[], query: string): MemeIndex[]
 }
 
 /**
- * Filter indices by layer
+ * Filter indexes by layer
  */
 export function filterByLayer(
   indices: MemeIndex[],
   selectedLayer: IndexLayer | 'all'
 ): MemeIndex[] {
-  if (selectedLayer === 'all') return indices
+  if (selectedLayer === 'all') return indexes
 
-  return indices.filter((index) => index.layerInfo?.layer === selectedLayer)
+  return indexes.filter((index) => index.layerInfo?.layer === selectedLayer)
 }
 
 /**
- * Filter indices by composition assets
- * Returns indices that contain ANY of the specified assets
+ * Filter indexes by composition assets
+ * Returns indexes that contain ANY of the specified assets
  */
 export function filterByComposition(
   indices: MemeIndex[],
   compositionFilters: FilterOptions['compositionFilters']
 ): MemeIndex[] {
-  if (!compositionFilters || compositionFilters.length === 0) return indices
+  if (!compositionFilters || compositionFilters.length === 0) return indexes
 
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     return compositionFilters.some((filter) => {
       const asset = index.assets.find(
         (a) => a.symbol.toLowerCase() === filter.assetSymbol.toLowerCase()
@@ -90,16 +90,16 @@ export function filterByComposition(
 }
 
 /**
- * Filter indices by NAV premium/discount
+ * Filter indexes by NAV premium/discount
  * Note: NAV calculation would require real data, using mock for now
  */
 export function filterByNAV(
   indices: MemeIndex[],
   navFilter: FilterOptions['navFilter']
 ): MemeIndex[] {
-  if (!navFilter) return indices
+  if (!navFilter) return indexes
 
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     // Mock NAV premium calculation
     // In production, would calculate: ((price - nav) / nav) * 100
     const mockNAVPremium = (Math.random() - 0.5) * 40 // -20% to +20%
@@ -112,15 +112,15 @@ export function filterByNAV(
 }
 
 /**
- * Filter indices by performance
+ * Filter indexes by performance
  */
 export function filterByPerformance(
   indices: MemeIndex[],
   performanceFilter: FilterOptions['performanceFilter']
 ): MemeIndex[] {
-  if (!performanceFilter) return indices
+  if (!performanceFilter) return indexes
 
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     let performanceValue: number
 
     switch (performanceFilter.timeframe) {
@@ -160,17 +160,17 @@ export function filterByPerformance(
 }
 
 /**
- * Filter indices by rebalancing schedule
+ * Filter indexes by rebalancing schedule
  */
 export function filterByRebalancing(
   indices: MemeIndex[],
   rebalancingFilter: FilterOptions['rebalancingFilter']
 ): MemeIndex[] {
   if (!rebalancingFilter || rebalancingFilter.nextRebalancing === 'any') {
-    return indices
+    return indexes
   }
 
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     if (!index.lastRebalanced) return false
 
     const now = new Date()
@@ -203,16 +203,16 @@ export function filterByRebalancing(
 }
 
 /**
- * Filter indices by battle status (Layer 2)
+ * Filter indexes by battle status (Layer 2)
  */
 export function filterByBattle(
   indices: MemeIndex[],
   battleFilter: FilterOptions['battleFilter']
 ): MemeIndex[] {
-  if (!battleFilter || battleFilter.status === 'all') return indices
+  if (!battleFilter || battleFilter.status === 'all') return indexes
 
-  return indices.filter((index) => {
-    // Only Layer-2 indices have battles
+  return indexes.filter((index) => {
+    // Only Layer-2 indexes have battles
     if (index.layerInfo?.layer !== 'layer-2') return false
 
     if (battleFilter.hasActiveBattle !== undefined) {
@@ -226,16 +226,16 @@ export function filterByBattle(
 }
 
 /**
- * Filter indices by graduation progress (Layer 3)
+ * Filter indexes by graduation progress (Layer 3)
  */
 export function filterByGraduation(
   indices: MemeIndex[],
   graduationFilter: FilterOptions['graduationFilter']
 ): MemeIndex[] {
-  if (!graduationFilter || graduationFilter.stage === 'all') return indices
+  if (!graduationFilter || graduationFilter.stage === 'all') return indexes
 
-  return indices.filter((index) => {
-    // Only Layer-3 indices have graduation
+  return indexes.filter((index) => {
+    // Only Layer-3 indexes have graduation
     if (index.layerInfo?.layer !== 'layer-3') return false
     if (!index.graduation) return false
 
@@ -276,38 +276,38 @@ export function filterByGraduation(
 }
 
 /**
- * Filter indices by volume
+ * Filter indexes by volume
  */
 export function filterByVolume(
   indices: MemeIndex[],
   minVolume?: number
 ): MemeIndex[] {
-  if (!minVolume) return indices
+  if (!minVolume) return indexes
 
-  return indices.filter((index) => index.volume24h >= minVolume)
+  return indexes.filter((index) => index.volume24h >= minVolume)
 }
 
 /**
- * Filter indices by liquidity (TVL)
+ * Filter indexes by liquidity (TVL)
  */
 export function filterByLiquidity(
   indices: MemeIndex[],
   minLiquidity?: number
 ): MemeIndex[] {
-  if (!minLiquidity) return indices
+  if (!minLiquidity) return indexes
 
-  return indices.filter((index) => index.tvl >= minLiquidity)
+  return indexes.filter((index) => index.tvl >= minLiquidity)
 }
 
 /**
- * Filter indices by age
+ * Filter indexes by age
  */
 export function filterByAge(
   indices: MemeIndex[],
   minAge?: number,
   maxAge?: number
 ): MemeIndex[] {
-  return indices.filter((index) => {
+  return indexes.filter((index) => {
     if (!index.createdAt) return true
 
     const ageInDays = Math.floor(
@@ -326,14 +326,14 @@ export function filterByAge(
 // ============================================================================
 
 /**
- * Apply all filters to indices
+ * Apply all filters to indexes
  */
 export function applyFilters(
   indices: MemeIndex[],
   filters: FilterOptions,
   selectedLayer: IndexLayer | 'all'
 ): MemeIndex[] {
-  let filtered = indices
+  let filtered = indexes
 
   // Layer filter
   filtered = filterByLayer(filtered, selectedLayer)
@@ -376,9 +376,9 @@ export function applyFilters(
 // ============================================================================
 
 /**
- * Sort indices by specified option
+ * Sort indexes by specified option
  */
-export function sortIndices(
+export function sortIndexes(
   indices: MemeIndex[],
   sortOption: SortOption
 ): MemeIndex[] {
@@ -465,33 +465,33 @@ export function sortIndices(
 // ============================================================================
 
 /**
- * Get hot trending indices
+ * Get hot trending indexes
  */
-export function getHotIndices(indices: MemeIndex[]): MemeIndex[] {
-  return indices.filter((index) => index.isHot || index.isMooning)
+export function getHotIndices(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.filter((index) => index.isHot || index.isMooning)
 }
 
 /**
- * Get new indices (created within last 7 days)
+ * Get new indexes (created within last 7 days)
  */
-export function getNewIndices(indices: MemeIndex[]): MemeIndex[] {
-  return indices.filter((index) => index.isNew)
+export function getNewIndices(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.filter((index) => index.isNew)
 }
 
 /**
- * Get indices with active battles (Layer 2)
+ * Get indexes with active battles (Layer 2)
  */
-export function getBattleIndices(indices: MemeIndex[]): MemeIndex[] {
-  return indices.filter(
+export function getBattleIndices(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.filter(
     (index) => index.layerInfo?.layer === 'layer-2' && index.hasBattle
   )
 }
 
 /**
- * Get graduating indices (Layer 3 near graduation)
+ * Get graduating indexes (Layer 3 near graduation)
  */
-export function getGraduatingIndices(indices: MemeIndex[]): MemeIndex[] {
-  return indices.filter(
+export function getGraduatingIndices(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.filter(
     (index) =>
       index.layerInfo?.layer === 'layer-3' &&
       index.graduation?.status === 'near-graduation'
@@ -501,6 +501,6 @@ export function getGraduatingIndices(indices: MemeIndex[]): MemeIndex[] {
 /**
  * Get top performers (24h change > 20%)
  */
-export function getTopPerformers(indices: MemeIndex[]): MemeIndex[] {
-  return indices.filter((index) => index.change24h > 20)
+export function getTopPerformers(indexes: MemeIndex[]): MemeIndex[] {
+  return indexes.filter((index) => index.change24h > 20)
 }

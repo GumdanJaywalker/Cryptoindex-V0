@@ -35,7 +35,7 @@ Created 7 components, 2 utilities, modified 5 files
 - `components/discover/vs-battle-section.tsx` (88 lines) - Battle arena with filtering
 - `components/discover/index-detail-card.tsx` (163 lines) - Composition-focused cards, NAV vs Price
 - `components/discover/index-filters.tsx` (287 lines) - 6 filter categories (search, layer, sort, status, TVL, composition)
-- `components/discover/virtualized-index-grid.tsx` (118 lines) - react-window integration, handles 100+ indices
+- `components/discover/virtualized-index-grid.tsx` (118 lines) - react-window integration, handles 100+ indexes
 - `lib/utils/filter-indices.ts` (93 lines) - Multi-criteria filtering logic
 - `lib/utils/url-sync.ts` (52 lines) - Shareable filter URLs
 
@@ -239,7 +239,7 @@ Launch page now supports: real asset data from HyperLiquid mainnet, live portfol
 ## Discover Page Implementation Plan (Oct 19)
 
 ### Goal
-Build comprehensive `/discover` page for exploring and comparing HyperIndex indices
+Build comprehensive `/discover` page for exploring and comparing HyperIndex indexes
 
 ### Features Planned
 - 3-Layer System Navigation (L1: Institutional, L2: Mainstream, L3: Launchpad)

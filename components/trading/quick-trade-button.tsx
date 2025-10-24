@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { MemeIndex } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { FEES } from '@/lib/constants/fees'
 
 interface QuickTradeButtonProps {
   index: MemeIndex
@@ -57,7 +59,7 @@ function calculateTrade(
     ? (exitPrice - entryPrice) / entryPrice * positionSize
     : (entryPrice - exitPrice) / entryPrice * positionSize
   
-  const fees = positionSize * 0.005 // 0.5% trading fee (현물 거래 수수료)
+  const fees = positionSize * FEES.HIDE.TRADING_FEE // Phase 0: 0.30% trading fee in $HIDE
   const netReturn = grossReturn - fees
   const returnPercentage = (netReturn / amount) * 100
   
@@ -78,17 +80,18 @@ function calculateTrade(
 }
 
 // Portal 기반 툴팁 컴포넌트
-function PortalTooltip({ 
+function PortalTooltip({
   calculation,
   type,
   show,
   targetRef
-}: { 
+}: {
   calculation: TradeCalculation
   type: 'buy' | 'sell'
   show: boolean
   targetRef: React.RefObject<HTMLElement | null>
 }) {
+  const { formatBalance, formatPrice } = useCurrency()
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [mounted, setMounted] = useState(false)
   
@@ -140,7 +143,7 @@ function PortalTooltip({
                 <div>
                   <div className="text-slate-400">Position Size</div>
                   <div className="text-white font-medium">
-                    ${(calculation.amount * calculation.leverage).toLocaleString()}
+                    {formatBalance(calculation.amount * calculation.leverage)}
                   </div>
                 </div>
                 <div>
@@ -156,22 +159,22 @@ function PortalTooltip({
                     "text-xs font-semibold",
                     isPositive ? "text-green-400" : "text-red-400"
                   )}>
-                    {isPositive ? '+' : ''}${calculation.expectedReturn.toFixed(2)}
+                    {isPositive ? '+' : ''}{formatBalance(calculation.expectedReturn)}
                     <span className="ml-1 text-slate-500">
                       ({isPositive ? '+' : ''}{calculation.expectedReturnPercentage.toFixed(1)}%)
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-slate-400 text-xs">Fees</span>
-                  <span className="text-red-400 text-xs">-${calculation.fees.toFixed(2)}</span>
+                  <span className="text-red-400 text-xs">-{formatBalance(calculation.fees)}</span>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-1 text-xs text-amber-400">
                 <AlertTriangle className="w-3 h-3" />
-                <span>Liquidation: ${calculation.liquidationPrice.toFixed(4)}</span>
+                <span>Liquidation: {calculation.liquidationPrice > 0 ? formatPrice(calculation.liquidationPrice) : 'N/A (Spot)'}</span>
               </div>
             </div>
           </div>
@@ -190,6 +193,7 @@ export function QuickTradeButton({
   variant = 'default',
   showExpectedReturn = true
 }: QuickTradeButtonProps) {
+  const { formatBalance } = useCurrency()
   // sound effects disabled during core refactor
   const [hoveredButton, setHoveredButton] = useState<'buy' | 'sell' | null>(null)
   const [defaultAmount] = useState(100) // $100 기본값
@@ -261,7 +265,7 @@ export function QuickTradeButton({
           <span>Quick Trade</span>
         </div>
         <Badge variant="outline" className="text-xs px-1 py-0">
-          ${defaultAmount} • {defaultLeverage}x
+          {formatBalance(defaultAmount)} • {defaultLeverage}x
         </Badge>
       </div>
       
@@ -289,7 +293,7 @@ export function QuickTradeButton({
               <span className="font-semibold">Buy</span>
               {showExpectedReturn && (
                 <div className="text-xs opacity-80">
-                  +${buyCalculation.expectedReturn.toFixed(0)}
+                  +{formatBalance(buyCalculation.expectedReturn)}
                 </div>
               )}
             </span>
@@ -329,7 +333,7 @@ export function QuickTradeButton({
               <span className="font-semibold">Sell</span>
               {showExpectedReturn && (
                 <div className="text-xs opacity-80">
-                  +${sellCalculation.expectedReturn.toFixed(0)}
+                  +{formatBalance(sellCalculation.expectedReturn)}
                 </div>
               )}
             </span>

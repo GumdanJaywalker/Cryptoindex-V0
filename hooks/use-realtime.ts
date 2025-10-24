@@ -479,8 +479,8 @@ export function useRealtimeTradeFeed(options: UseRealtimeOptions = {}) {
 
 // 전체 실시간 데이터 통합 훅
 export function useRealtimeData(options: UseRealtimeOptions = {}) {
-  const indices = useTradingStore((state) => state.indices)
-  const indexIds = indices.map(index => index.id)
+  const indexes = useTradingStore((state) => state.indices)
+  const indexIds = indexes.map(index => index.id)
   
   const connection = useRealtimeConnection(options)
   const alerts = useRealtimeAlerts({ enabled: connection.isConnected })

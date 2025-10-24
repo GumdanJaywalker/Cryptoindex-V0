@@ -152,7 +152,7 @@ export function AdvancedFiltersModal({
               <h3 className="font-semibold text-white">Composition Filters</h3>
             </div>
             <p className="text-xs text-slate-400">
-              Filter indices that contain specific coins
+              Filter indexes that contain specific coins
             </p>
 
             {/* Match Mode Toggle */}

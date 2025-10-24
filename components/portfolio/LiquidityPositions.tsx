@@ -50,19 +50,19 @@ export function LiquidityPositions() {
           </div>
           <div>
             <div className="text-slate-400">Accrued Fees</div>
-            <div className="text-white font-semibold">${totalFees.toFixed(2)}</div>
+            <div className="text-white font-semibold">{formatBalance(totalFees)}</div>
           </div>
           <div>
             <div className="text-slate-400">Fees (7d)</div>
-            <div className="text-white font-semibold">${fees7d.toFixed(2)}</div>
+            <div className="text-white font-semibold">{formatBalance(fees7d)}</div>
           </div>
           <div>
             <div className="text-slate-400">Fees (30d)</div>
-            <div className="text-white font-semibold">${fees30d.toFixed(2)}</div>
+            <div className="text-white font-semibold">{formatBalance(fees30d)}</div>
           </div>
           <div>
             <div className="text-slate-400">Est. Fees (per day)</div>
-            <div className="text-white font-semibold">${estFeesPerDay.toFixed(2)}</div>
+            <div className="text-white font-semibold">{formatBalance(estFeesPerDay)}</div>
           </div>
         </CardContent>
       </Card>

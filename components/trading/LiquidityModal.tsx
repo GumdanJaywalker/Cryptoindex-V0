@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast, createSuccessToast, createErrorToast } from "@/components/notifications/toast-system"
 import { useCurrency } from "@/lib/hooks/useCurrency"
+import { FEES } from "@/lib/constants/fees"
 
 interface LiquidityModalProps {
   open: boolean
@@ -32,7 +33,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
     const usd = parsedAmount
     const shares = usd > 0 ? usd / 100 : 0
     const apr = 28.4
-    const fees = usd * 0.001
+    const fees = usd * FEES.HIDE.LP_ADD_FEE
     const gas = 2.15
     return { usd, shares, apr, fees, gas }
   }, [parsedAmount])

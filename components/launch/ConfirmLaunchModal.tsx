@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 type SelectedAsset = {
   symbol: string;
@@ -39,6 +40,7 @@ export default function ConfirmLaunchModal({
   totalCost,
   feeAmount,
 }: ConfirmLaunchModalProps) {
+  const { formatFee } = useCurrency();
   const [riskAcknowledged, setRiskAcknowledged] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -87,7 +89,7 @@ export default function ConfirmLaunchModal({
               </div>
               <div>
                 <div className="text-slate-400">Total Cost</div>
-                <div className="text-white">{totalCost.toFixed(2)} HYPE</div>
+                <div className="text-white">{formatFee(totalCost)}</div>
               </div>
             </div>
           </Card>
@@ -129,12 +131,12 @@ export default function ConfirmLaunchModal({
           <Card className="bg-slate-900 border-slate-700 p-4">
             <div className="flex justify-between items-center">
               <span className="text-slate-400">Creation Fee (Fixed)</span>
-              <span className="text-white">{feeAmount.toFixed(2)} HYPE</span>
+              <span className="text-white">{formatFee(feeAmount)}</span>
             </div>
             <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-700">
               <span className="text-white font-medium">Total Required</span>
               <span className="text-white font-medium">
-                {(totalCost + feeAmount).toFixed(2)} HYPE
+                {formatFee(totalCost + feeAmount)}
               </span>
             </div>
           </Card>

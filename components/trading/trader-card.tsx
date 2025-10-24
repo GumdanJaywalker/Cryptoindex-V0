@@ -26,14 +26,15 @@ import {
 } from 'lucide-react'
 import { TopTrader } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
-import { 
-  AnimatedNumber, 
-  AnimatedPercentage, 
+import {
+  AnimatedNumber,
+  AnimatedPercentage,
   usePriceFlash,
   scaleHover,
   fadeInUp,
   AnimatedBadge
 } from '@/lib/animations/micro-interactions'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface TraderCardProps {
   trader: TopTrader
@@ -150,6 +151,7 @@ export function TraderCard({
   showPnLChart = true,
   className
 }: TraderCardProps) {
+  const { formatBalance } = useCurrency()
   const [isHovered, setIsHovered] = useState(false)
   
   // 시간대별 PnL 선택
@@ -419,11 +421,11 @@ export function TraderCard({
             </div>
             <div className="flex items-center justify-between text-xs mt-1">
               <div className="text-slate-400">Active Positions</div>
-              <div className="text-white">{trader.tradingIndices.length} indices</div>
+              <div className="text-white">{trader.tradingIndexes.length} indices</div>
             </div>
             <div className="flex items-center justify-between text-xs mt-1">
               <div className="text-slate-400">Avg. Position Size</div>
-              <div className="text-white">${(Math.abs(trader.totalPnl) / trader.totalTrades * 5).toFixed(0)}</div>
+              <div className="text-white">{formatBalance(Math.abs(trader.totalPnl) / trader.totalTrades * 5)}</div>
             </div>
           </div>
           
@@ -470,10 +472,10 @@ export function TraderCard({
                     <span>Active since:</span>
                     <span>{trader.isNewTrader ? 'This week' : 'Long time'}</span>
                   </div>
-                  {trader.tradingIndices.length > 0 && (
+                  {trader.tradingIndexes.length > 0 && (
                     <div className="flex justify-between mt-1">
                       <span>Trading:</span>
-                      <span>{trader.tradingIndices.length} indices</span>
+                      <span>{trader.tradingIndexes.length} indices</span>
                     </div>
                   )}
                 </div>

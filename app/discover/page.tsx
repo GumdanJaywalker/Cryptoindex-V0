@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MemeIndex } from '@/lib/types/index-trading'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 
 // Main content component
 function DiscoverPageContent() {
@@ -22,9 +22,9 @@ function DiscoverPageContent() {
     compositionMatchMode: 'any',
   })
 
-  // Apply advanced filters to indices
-  const filteredIndices = useMemo(() => {
-    let filtered = [...allMockIndices]
+  // Apply advanced filters to indexes
+  const filteredIndexes = useMemo(() => {
+    let filtered = [...allMockIndexes]
 
     // Composition filter
     if (advancedFilters.compositionCoins.length > 0) {
@@ -116,7 +116,7 @@ function DiscoverPageContent() {
 
             {/* Index List Component */}
             <IndexList
-              indices={filteredIndices}
+              indexes={filteredIndexes}
               onIndexSelect={handleIndexSelect}
               onAdvancedFiltersClick={() => setAdvancedFiltersOpen(true)}
               advancedFilterCount={advancedFilterCount}

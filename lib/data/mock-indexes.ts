@@ -1,5 +1,5 @@
 import { MemeIndex, TopTrader, Trade, MarketStats } from '@/lib/types/index-trading'
-import { assignLayersToIndices } from '@/lib/utils/layer-utils'
+import { assignLayersToIndexes } from '@/lib/utils/layer-utils'
 
 // 시드 기반 랜덤 함수 (서버/클라이언트에서 일관된 결과)
 class SeededRandom {
@@ -315,7 +315,7 @@ export const mockIndices: MemeIndex[] = [
   }
 ]
 
-// Generate additional smaller indices to reach 15 total
+// Generate additional smaller indexes to reach 15 total
 export const additionalIndices: MemeIndex[] = [
   {
     id: 'cat-memes',
@@ -471,12 +471,12 @@ export const additionalIndices: MemeIndex[] = [
   }
 ]
 
-// Combine all indices and enrich with discovery/graduation metadata
-// Apply layer info to all indices
-const indicesWithLayers = assignLayersToIndices([...mockIndices, ...additionalIndices])
+// Combine all indexes and enrich with discovery/graduation metadata
+// Apply layer info to all indexes
+const indexesWithLayers = assignLayersToIndexes([...mockIndices, ...additionalIndices])
 
 // Add createdAt/heatScore and graduation (for L3) deterministically
-export const allMockIndices = indicesWithLayers.map((idx, i) => {
+export const allMockIndexes = indexesWithLayers.map((idx, i) => {
   const rng = new SeededRandom(5000 + i)
   // If marked as NEW, keep within last 24h; else within last 120 days
   const now = Date.now()
@@ -492,7 +492,7 @@ export const allMockIndices = indicesWithLayers.map((idx, i) => {
   const hotBoost = idx.isHot ? 20 : 0
   const heatScore = Math.max(0, Math.min(100, Math.round(changeScore + volumeScore + hotBoost + rng.next() * 10 - 5)))
 
-  // Graduation for Layer-3 indices
+  // Graduation for Layer-3 indexes
   let graduation: MemeIndex['graduation'] | undefined
   if (idx.layerInfo?.layer === 'layer-3') {
     const liquidity = Math.round(rng.next() * 100)
@@ -546,7 +546,7 @@ export const mockTopTraders: TopTrader[] = Array.from({ length: 80 }, (_, i) => 
     winRate: 45 + rng.next() * 40,
     totalTrades: Math.floor((50 + rng.next() * 500) * baseMultiplier),
     followersCount: Math.floor((10 + rng.next() * 1000) * baseMultiplier),
-    tradingIndices: allMockIndices.slice(0, 3 + Math.floor(rng.next() * 5)).map(idx => idx.id),
+    tradingIndexes: allMockIndexes.slice(0, 3 + Math.floor(rng.next() * 5)).map(idx => idx.id),
     isNewTrader: rng.next() > 0.85,
     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=trader${traderNumber}`,
     badges: isTopTrader ? ['🥇', '🔥', '💎'] : isGoodTrader ? ['⭐', '🔥'] : ['⭐'],
@@ -592,7 +592,7 @@ export const mockRecentTrades: Trade[] = Array.from({ length: 50 }, (_, i) => {
   
   return {
     id: `trade-${i + 1}`,
-    indexId: allMockIndices[Math.floor(rng.next() * allMockIndices.length)].id,
+    indexId: allMockIndexes[Math.floor(rng.next() * allMockIndexes.length)].id,
     traderId: mockTopTraders[Math.floor(rng.next() * mockTopTraders.length)].id,
     type: isLong ? 'long' : 'short',
     entryPrice,
@@ -618,7 +618,7 @@ export function simulateRealtimeUpdate(): any {
       return {
         type: 'price',
         data: {
-          indexId: allMockIndices[Math.floor(Math.random() * allMockIndices.length)].id,
+          indexId: allMockIndexes[Math.floor(Math.random() * allMockIndexes.length)].id,
           newPrice: 1 + Math.random() * 10,
           change: (Math.random() - 0.5) * 20
         },
@@ -641,7 +641,7 @@ export function simulateRealtimeUpdate(): any {
 
 // Export functions for use in React Query hooks
 export function generateMockIndices(): MemeIndex[] {
-  return allMockIndices
+  return allMockIndexes
 }
 
 export function generateMockTraders(): TopTrader[] {

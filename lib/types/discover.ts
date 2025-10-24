@@ -281,7 +281,7 @@ export const DEFAULT_FILTER_PRESETS: FilterPreset[] = [
   {
     id: 'hot-battles',
     name: 'Hot Battles',
-    description: 'Layer 2 indices with active VS battles',
+    description: 'Layer 2 indexes with active VS battles',
     filters: {
       layers: ['layer-2'],
       battleFilter: {
@@ -293,7 +293,7 @@ export const DEFAULT_FILTER_PRESETS: FilterPreset[] = [
   {
     id: 'graduating-soon',
     name: 'Graduating Soon',
-    description: 'Layer 3 indices close to graduation',
+    description: 'Layer 3 indexes close to graduation',
     filters: {
       layers: ['layer-3'],
       graduationFilter: {

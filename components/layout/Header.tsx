@@ -9,6 +9,7 @@ import { Settings, Search } from 'lucide-react'
 import { NotificationsButton } from '@/components/notifications/NotificationsButton'
 import { WalletConnectButton } from '@/components/wallet/WalletConnectButton'
 import { searchIndexes, type IndexSearchResult } from '@/lib/api/search'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 // Logo served from public. Place your official backgroundless text logo at /public/logos/hyperindex-text.svg
 
 const navigation = [
@@ -22,6 +23,7 @@ const navigation = [
 ]
 
 export function Header() {
+  const { formatPrice } = useCurrency()
   const pathname = usePathname()
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
@@ -140,7 +142,7 @@ export function Header() {
                         <div className="text-xs text-slate-400">{result.symbol}</div>
                       </div>
                       {result.price && (
-                        <div className="text-sm text-slate-300">${result.price.toFixed(2)}</div>
+                        <div className="text-sm text-slate-300">{formatPrice(result.price)}</div>
                       )}
                     </div>
                   </button>

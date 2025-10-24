@@ -107,7 +107,7 @@ export default function Home() {
               </h1>
               
               <p className="text-xl text-slate-300 mb-8 max-w-lg">
-                Trade curated meme coin indices with leverage, governance voting, and community-driven rebalancing on Hyperliquid.
+                Trade curated meme coin indexes with leverage, governance voting, and community-driven rebalancing on Hyperliquid.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-12">

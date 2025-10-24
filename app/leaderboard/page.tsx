@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopTrader, TraderFilter, TraderSort } from '@/lib/types/index-trading'
-import { mockTopTraders, allMockIndices } from '@/lib/data/mock-indexes'
+import { mockTopTraders, allMockIndexes } from '@/lib/data/mock-indexes'
 import TraderDetailsModal from '@/components/trading/trader-details-modal'
 import { cn } from '@/lib/utils'
 
@@ -154,8 +154,8 @@ export default function TradersPage() {
                           </span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {podium[0].tradingIndices.slice(0,3).map(idxId => {
-                            const m = allMockIndices.find(x => x.id === idxId)
+                          {podium[0].tradingIndexes.slice(0,3).map(idxId => {
+                            const m = allMockIndexes.find(x => x.id === idxId)
                             const label = m?.symbol || idxId.toUpperCase()
                             return (
                               <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>
@@ -201,8 +201,8 @@ export default function TradersPage() {
                           </span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {t.tradingIndices.slice(0,3).map(idxId => {
-                            const m = allMockIndices.find(x => x.id === idxId)
+                          {t.tradingIndexes.slice(0,3).map(idxId => {
+                            const m = allMockIndexes.find(x => x.id === idxId)
                             const label = m?.symbol || idxId.toUpperCase()
                             return (
                               <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>
@@ -258,8 +258,8 @@ export default function TradersPage() {
                   {/* Line 2 */}
                   <div className="mt-2 pl-9 flex items-center justify-between">
                     <div className="flex flex-wrap gap-1">
-                      {t.tradingIndices.slice(0,2).map(idxId => {
-                        const m = allMockIndices.find(x => x.id === idxId)
+                      {t.tradingIndexes.slice(0,2).map(idxId => {
+                        const m = allMockIndexes.find(x => x.id === idxId)
                         const label = m?.symbol || idxId.toUpperCase()
                         return (
                           <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>

@@ -11,7 +11,7 @@ import { TopTrader } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
 import { ArrowUpRight, BarChart3, Percent, Target, Users } from 'lucide-react'
 import { getAvatarUrl } from '@/lib/utils/avatar'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 
 interface TraderDetailsModalProps {
   open: boolean
@@ -35,8 +35,8 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
   const pnl7 = trader.pnl7d || 0
   const pnl30 = trader.pnl30d || 0
 
-  const indices = trader.tradingIndices
-    .map((id) => ({ id, meta: allMockIndices.find((x) => x.id === id) }))
+  const indexes = trader.tradingIndexes
+    .map((id) => ({ id, meta: allMockIndexes.find((x) => x.id === id) }))
     .filter(Boolean)
 
   return (

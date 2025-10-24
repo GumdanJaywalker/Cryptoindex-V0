@@ -12,8 +12,10 @@ import { getStatusColor, getStatusLabel, formatRelativeTime } from '@/lib/utils/
 import { IndexData } from '@/lib/types/index'
 import { LaunchedIndexesStorage } from '@/lib/storage/launchedIndexes'
 import GraduationProgress, { type GraduationData } from '@/components/trading/GraduationProgress'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 export function LaunchedIndexes() {
+  const { formatFee } = useCurrency()
   const [launchedIndexes, setLaunchedIndexes] = useState<IndexData[]>([])
   const [selectedIndex, setSelectedIndex] = useState<IndexData | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -130,7 +132,7 @@ export function LaunchedIndexes() {
                   </div>
                   <div>
                     <div className="text-slate-400 mb-1">Investment</div>
-                    <div className="text-white font-medium">{index.totalInvestment.toFixed(0)} HYPE</div>
+                    <div className="text-white font-medium">{formatFee(index.totalInvestment)}</div>
                   </div>
                   <div>
                     <div className="text-slate-400 mb-1 flex items-center gap-1">

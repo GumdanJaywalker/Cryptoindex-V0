@@ -6,11 +6,11 @@ import { IndexDetailCard } from './index-detail-card'
 import type { MemeIndex } from '@/lib/types/index-trading'
 
 interface VirtualizedIndexGridProps {
-  indices: MemeIndex[]
+  indexes: MemeIndex[]
   onIndexClick: (index: MemeIndex) => void
 }
 
-export function VirtualizedIndexGrid({ indices, onIndexClick }: VirtualizedIndexGridProps) {
+export function VirtualizedIndexGrid({ indexes, onIndexClick }: VirtualizedIndexGridProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({
     width: 1200,
@@ -35,7 +35,7 @@ export function VirtualizedIndexGrid({ indices, onIndexClick }: VirtualizedIndex
         columnCount = 2 // md: 2 columns
       }
 
-      const rowCount = Math.ceil(indices.length / columnCount)
+      const rowCount = Math.ceil(indexes.length / columnCount)
 
       setDimensions({
         width: containerWidth,
@@ -48,10 +48,10 @@ export function VirtualizedIndexGrid({ indices, onIndexClick }: VirtualizedIndex
     updateDimensions()
     window.addEventListener('resize', updateDimensions)
     return () => window.removeEventListener('resize', updateDimensions)
-  }, [indices.length])
+  }, [indexes.length])
 
-  // If no indices, return empty state (handled by parent)
-  if (indices.length === 0) {
+  // If no indexes, return empty state (handled by parent)
+  if (indexes.length === 0) {
     return null
   }
 
@@ -68,7 +68,7 @@ export function VirtualizedIndexGrid({ indices, onIndexClick }: VirtualizedIndex
     style: React.CSSProperties
   }) => {
     const index = rowIndex * dimensions.columnCount + columnIndex
-    const indexData = indices[index]
+    const indexData = indexes[index]
 
     if (!indexData) return null
 

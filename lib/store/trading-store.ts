@@ -147,7 +147,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
         ...initialState,
 
         // 인덱스 액션 구현
-        setIndices: (indices) => set({ indices }),
+        setIndices: (indices) => set({ indexes }),
         
         setSelectedIndex: (index) => set({ selectedIndex: index }),
         

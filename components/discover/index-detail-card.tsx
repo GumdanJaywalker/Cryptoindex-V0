@@ -17,6 +17,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import type { MemeIndex } from '@/lib/types/index-trading'
+import { useCurrency } from '@/lib/hooks/useCurrency'
 
 interface IndexDetailCardProps {
   index: MemeIndex
@@ -24,6 +25,7 @@ interface IndexDetailCardProps {
 }
 
 export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
+  const { formatPrice, formatVolume } = useCurrency()
   const [isExpanded, setIsExpanded] = useState(false)
 
   // Mock NAV calculation (in production, would use real NAV data)
@@ -97,7 +99,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
             <p className="text-xs text-slate-500 mb-1">Market Price</p>
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-bold text-white">
-                ${index.currentPrice.toFixed(4)}
+                {formatPrice(index.currentPrice)}
               </span>
               <span
                 className={`text-sm font-medium ${
@@ -114,7 +116,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
             <p className="text-xs text-slate-500 mb-1">NAV (Net Asset Value)</p>
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-bold text-slate-300">
-                ${mockNAV.toFixed(4)}
+                {formatPrice(mockNAV)}
               </span>
               <Badge
                 variant="outline"
@@ -142,7 +144,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
               <span className="text-xs text-slate-500">24h Volume</span>
             </div>
             <p className="text-sm font-semibold text-white">
-              ${(index.volume24h / 1000000).toFixed(1)}M
+              {formatVolume(index.volume24h)}
             </p>
           </div>
 
@@ -152,7 +154,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
               <span className="text-xs text-slate-500">TVL</span>
             </div>
             <p className="text-sm font-semibold text-white">
-              ${(index.tvl / 1000000).toFixed(1)}M
+              {formatVolume(index.tvl)}
             </p>
           </div>
 

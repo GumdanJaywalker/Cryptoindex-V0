@@ -72,7 +72,7 @@ export interface TopTrader {
   winRate: number // Percentage
   totalTrades: number
   followersCount: number
-  tradingIndices: string[] // Array of index IDs they trade
+  tradingIndexes: string[] // Array of index IDs they trade
   isNewTrader?: boolean // Recently joined (within 7 days)
   avatar?: string // Profile image URL
   badges?: Array<'🥇' | '🥈' | '🥉' | '🔥' | '⭐' | '💎'>

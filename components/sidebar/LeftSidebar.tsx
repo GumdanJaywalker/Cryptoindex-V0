@@ -16,11 +16,13 @@ import { useToast, createSuccessToast, createErrorToast } from '@/components/not
 import { AllIndexesModal } from '@/components/modals/AllIndexesModal'
 import useTradingStore from '@/lib/store/trading-store'
 import { cn } from '@/lib/utils'
-import { allMockIndices } from '@/lib/data/mock-indexes'
+import { allMockIndexes } from '@/lib/data/mock-indexes'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { useCurrencyStore } from '@/lib/store/currency-store'
 
 export function LeftSidebar() {
-  const { formatBalance, formatVolume } = useCurrency()
+  const { formatBalance, formatVolume, formatPrice } = useCurrency()
+  const { currency } = useCurrencyStore()
   const [addAlertOpen, setAddAlertOpen] = useState(false)
   const [comboboxOpen, setComboboxOpen] = useState(false)
   const [alertSymbol, setAlertSymbol] = useState('')
@@ -40,34 +42,6 @@ export function LeftSidebar() {
   return (
     <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
       <div className="flex flex-col gap-3 p-3">
-        {/* Quick Links Card */}
-        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
-          <h3 className="text-sm font-semibold text-white mb-2.5">Quick Links</h3>
-          <div className="space-y-1.5">
-            <a
-              href="/discover"
-              className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
-            >
-              <span>Discover Indices</span>
-              <Badge variant="outline" className="text-[10px] text-brand border-brand/30">
-                New
-              </Badge>
-            </a>
-            <a
-              href="/launch"
-              className="flex items-center p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
-            >
-              Launch Index
-            </a>
-            <a
-              href="/governance"
-              className="flex items-center p-2 rounded-lg hover:bg-slate-800/30 transition-colors text-xs text-white hover:text-brand"
-            >
-              Governance
-            </a>
-          </div>
-        </div>
-
         {/* Market Stats Card */}
         <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
           <h3 className="text-sm font-semibold text-white mb-2.5">Market Overview</h3>
@@ -173,7 +147,7 @@ export function LeftSidebar() {
                     </div>
                     {a.type === 'price' ? (
                       <span className="text-slate-400 text-[10px]">
-                        {a.priceCondition === 'above' ? '>' : '<'} ${a.targetPrice?.toLocaleString()}
+                        {a.priceCondition === 'above' ? '>' : '<'} {formatPrice(a.targetPrice || 0)}
                       </span>
                     ) : (
                       <span className="text-slate-400 text-[10px]">
@@ -236,7 +210,7 @@ export function LeftSidebar() {
                           className="w-full justify-between bg-slate-900/50 border-slate-700 text-white hover:bg-slate-800 hover:text-white"
                         >
                           {alertSymbol
-                            ? allMockIndices.find((idx) => idx.symbol === alertSymbol)?.symbol
+                            ? allMockIndexes.find((idx) => idx.symbol === alertSymbol)?.symbol
                             : "Select index..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -247,7 +221,7 @@ export function LeftSidebar() {
                           <CommandList>
                             <CommandEmpty className="text-slate-400">No index found.</CommandEmpty>
                             <CommandGroup>
-                              {allMockIndices.map((idx) => (
+                              {allMockIndexes.map((idx) => (
                                 <CommandItem
                                   key={idx.id}
                                   value={idx.symbol}
@@ -338,7 +312,7 @@ export function LeftSidebar() {
                         </Select>
                       </div>
                       <div>
-                        <Label className="text-slate-300 text-xs">Price (USD)</Label>
+                        <Label className="text-slate-300 text-xs">Price ({currency})</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -376,7 +350,7 @@ export function LeftSidebar() {
                             priceCondition: alertCondition,
                             targetPrice: priceNum
                           })
-                          addToast(createSuccessToast('Alert added', `${saved.symbol} ${saved.priceCondition} $${saved.targetPrice}`))
+                          addToast(createSuccessToast('Alert added', `${saved.symbol} ${saved.priceCondition} ${formatPrice(saved.targetPrice || 0)}`))
                         } else {
                           const pctNum = Number(percentageChange)
                           if (!Number.isFinite(pctNum) || pctNum <= 0) {
@@ -415,7 +389,7 @@ export function LeftSidebar() {
       <AllIndexesModal
         open={allIndicesOpen}
         onOpenChange={setAllIndicesOpen}
-        indices={allMockIndices}
+        indexes={allMockIndexes}
         initialFilter="gainers"
         onIndexSelect={setSelectedIndex}
       />
