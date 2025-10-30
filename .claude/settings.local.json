@@ -41,7 +41,10 @@
       "Bash(test:*)",
       "Read(//Users/kimhyeon/Desktop/PROJECTS/HLH_hack/src/components/**)",
       "Read(//Users/kimhyeon/Desktop/PROJECTS/HLH_hack/backend/src/routes/**)",
-      "Read(//Users/kimhyeon/Desktop/PROJECTS/**)"
+      "Read(//Users/kimhyeon/Desktop/PROJECTS/**)",
+      "mcp__mcp-playwright__playwright_screenshot",
+      "mcp__mcp-playwright__playwright_evaluate",
+      "mcp__mcp-playwright__playwright_close"
     ],
     "deny": []
   },

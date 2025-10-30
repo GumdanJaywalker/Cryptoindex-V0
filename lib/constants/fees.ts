@@ -1,258 +1,288 @@
 /**
- * Centralized Fee Configuration for HyperIndex Phase 0
+ * Fee Structure Configuration for HyperIndex
  *
- * Phase 0: Closed Beta (Oct 2025 - Nov 2025)
- * - No TGE yet
- * - Labs-led mainnet
- * - Limited access (KOLs and invitees only)
+ * Based on Business Documentation (Slides 26-28)
+ * Date: 2025-10-28
+ * Status: Production Implementation
  *
- * Fee Structure:
- * - 💙 $HIIN fees: Index-related operations (Index DAO revenue)
- * - 💜 $HIDE fees: DEX-related operations (DEX DAO revenue)
- * - All fees flow to Protocol Revenue Treasury
- * - Quarterly buy-backs & 60-month locking (Phase 1+)
+ * Fee Model:
+ * - VIP-tiered protocol fees (0.3%-0.6%)
+ * - Layer-specific fees (L1/L2/L3/VS/Partner/Graduated)
+ * - Creator fees (0%-0.95%)
+ * - LP fees (0%-0.4%)
+ * - Rebalancing fees (0.1%-0.3% per event)
+ * - Management fees (0.5%-1% yearly)
  */
-
-import type { Currency } from '@/lib/types/currency'
 
 /**
- * $HIIN Fee Configuration (Index DAO)
- *
- * Used for:
- * - Index launching (Layer 3 creation)
- * - Index management and rebalancing
- * - On-chain gas for index operations
+ * VIP Tier Levels
+ * Determines protocol fee rate based on user activity
  */
-export const HIIN_FEES = {
-  /**
-   * Index Launch Fee
-   * Fixed fee charged when creating a new index
-   * Payable in $HIIN (discounted) or HYPE
-   */
-  LAUNCH_FEE: 0.1, // 0.1 $HIIN
+export enum VIPTier {
+  VIP0 = 'VIP0',
+  VIP1 = 'VIP1',
+  VIP2 = 'VIP2',
+  VIP3 = 'VIP3',
+  VIP4 = 'VIP4',
+}
 
-  /**
-   * Index Management Fee
-   * Annual fee based on AUM (Assets Under Management)
-   * Charged proportionally per epoch
-   */
-  MANAGEMENT_FEE_ANNUAL: 0.0002, // 0.02% annual
+/**
+ * Index Layer Types
+ */
+export type LayerType = 'L1' | 'L2' | 'L3' | 'VS' | 'PARTNER' | 'GRADUATED'
 
-  /**
-   * Index Rebalancing Fee
-   * Charged per rebalancing transaction
-   * Percentage of rebalanced amount
-   */
-  REBALANCING_FEE: 0.0005, // 0.05%
-
-  /**
-   * Gas for Index Operations
-   * Dynamic - actual gas cost at time of transaction
-   * Payable in $HIIN (discounted) or HYPE
-   */
-  GAS_MULTIPLIER: 1.0, // 1x actual gas cost
-
-  /**
-   * Payment Token Options
-   */
-  ACCEPTED_TOKENS: ['HIIN', 'HYPE'] as Currency[],
-
-  /**
-   * Discount Rate
-   * Applied when paying in $HIIN instead of HYPE
-   */
-  NATIVE_PAYMENT_DISCOUNT: 0.10, // 10% discount
+/**
+ * VIP Protocol Fee Rates
+ * Lower tier = higher fee
+ */
+export const VIP_PROTOCOL_FEES = {
+  VIP0: 0.006,   // 0.60% - 20% distribution
+  VIP1: 0.005,   // 0.50% - 25% distribution
+  VIP2: 0.004,   // 0.40% - 30% distribution
+  VIP3: 0.0035,  // 0.35% - 15% distribution
+  VIP4: 0.003,   // 0.30% - 10% distribution
 } as const
 
 /**
- * $HIDE Fee Configuration (DEX DAO)
- *
- * Used for:
- * - Trading/swap operations
- * - Liquidity provision (LP)
- * - DEX transaction gas
+ * Blended Protocol Fee Rate
+ * Weighted average across all VIP tiers
  */
-export const HIDE_FEES = {
+export const BLENDED_PROTOCOL_FEE = 0.0045 // 0.45%
+
+/**
+ * Special Fee Rates
+ */
+export const PARTNER_ROUTING_FEE = 0.005 // 0.50% (non-direct C-R)
+export const PARTNER_DIRECT_CR_FEE = 0.005 // 0.50% (direct C-R)
+
+/**
+ * Invited User Discount
+ * Applied to all trading fees for invited users
+ */
+export const INVITED_USER_DISCOUNT = 0.10 // 10% base discount
+
+/**
+ * Launcher Fee
+ * Fixed fee for creating new index
+ */
+export const LAUNCHER_FEE_USD = 5 // $5 per launch
+
+/**
+ * Layer-Specific Fee Configuration
+ */
+export const LAYER_FEES = {
   /**
-   * Trading/Swap Fee
-   * Standard fee for all trading operations
-   * Percentage of trade volume
-   * Portion is burnable (tokenomics)
+   * Layer 1 - Broad Market Indices
+   * Examples: Top 10, DeFi Leaders, Gaming Index
    */
-  TRADING_FEE: 0.003, // 0.30%
+  L1: {
+    CREATOR_FEE: 0,              // 0% - No creator fee
+    PROTOCOL_FEE_MIN: 0.003,     // 0.3% (VIP4)
+    PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
+    LP_FEE: 0.004,               // 0.4% - Standard LP fee
+    REBALANCING_RATE: 0.001,     // 0.1% per event
+    REBALANCING_FREQUENCY: 12,   // Monthly (12 times/year)
+    MANAGEMENT_YEARLY: 0.007,    // 0.7% annual
+  },
 
   /**
-   * Swap Gas Fee
-   * Dynamic - actual gas cost for swap transaction
-   * Payable in $HIDE (discounted) or HYPE
+   * Layer 2 - Sector Indices
+   * Examples: AI Tokens, Meme Coins, RWA Index
    */
-  SWAP_GAS_MULTIPLIER: 1.0, // 1x actual gas cost
+  L2: {
+    CREATOR_FEE: 0,              // 0% - No creator fee
+    PROTOCOL_FEE_MIN: 0.003,     // 0.3% (VIP4)
+    PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
+    LP_FEE: 0.004,               // 0.4% - Standard LP fee
+    REBALANCING_RATE: 0.001,     // 0.1% per event
+    REBALANCING_FREQUENCY: 26,   // Bi-weekly (26 times/year)
+    MANAGEMENT_YEARLY: 0.0085,   // 0.85% annual
+  },
 
   /**
-   * LP Add Fee
-   * Charged when adding liquidity to pools
-   * Percentage of liquidity added
+   * Layer 3 - User-Created Indices (Bonding Curve)
+   * Examples: Custom meme indices, personal strategies
    */
-  LP_ADD_FEE: 0.001, // 0.10%
+  L3: {
+    CREATOR_FEE: 0.004,          // 0.4% - Creator gets fee
+    PROTOCOL_FEE_MIN: 0.003,     // 0.3% (VIP4)
+    PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
+    LP_FEE: 0,                   // 0% - Bonding curve, no LP
+    REBALANCING_RATE: 0,         // 0% - No rebalancing (bonding curve)
+    REBALANCING_FREQUENCY: 0,    // N/A
+    MANAGEMENT_YEARLY: 0.01,     // 1% annual
+  },
 
   /**
-   * LP Remove Fee
-   * Charged when removing liquidity from pools
-   * Percentage of liquidity removed
+   * VS Battles - Event-Driven Indices
+   * Examples: Trump vs Biden, ETH vs SOL
    */
-  LP_REMOVE_FEE: 0.001, // 0.10%
+  VS: {
+    CREATOR_FEE: 0,              // 0% - No creator fee
+    PROTOCOL_FEE_MIN: 0.003,     // 0.3% (VIP4)
+    PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
+    LP_FEE: 0.004,               // 0.4% - Standard LP fee
+    REBALANCING_RATE: 0.001,     // 0.1% per event
+    REBALANCING_FREQUENCY: 26,   // Bi-weekly (26 times/year)
+    MANAGEMENT_YEARLY: 0.01,     // 1% annual
+  },
 
   /**
-   * LP Claim Fee
-   * Charged when claiming LP rewards
-   * Percentage of rewards claimed
+   * Partner Indices - External Partner Integration
+   * Examples: Institutional partners, third-party indices
    */
-  LP_CLAIM_FEE: 0.0005, // 0.05%
+  PARTNER: {
+    PROTOCOL_FEE: 0.005,         // 0.5% - Reduced (Direct C-R)
+    CREATOR_FEE: 0,              // 0% - No creator fee
+    LP_FEE: 0,                   // 0% - Direct C-R, no LP
+    REBALANCING_RATE: 0.003,     // 0.3% per event
+    REBALANCING_FREQUENCY: 12,   // Monthly (12 times/year)
+    MANAGEMENT_YEARLY: 0.005,    // 0.5% annual
+  },
 
   /**
-   * Payment Token Options
+   * Graduated Indices - L3 indices that graduated to L1/L2
+   * Variable fees based on performance and governance
    */
-  ACCEPTED_TOKENS: ['HIDE', 'HYPE'] as Currency[],
-
-  /**
-   * Discount Rate
-   * Applied when paying in $HIDE instead of HYPE
-   */
-  NATIVE_PAYMENT_DISCOUNT: 0.10, // 10% discount
+  GRADUATED: {
+    CREATOR_FEE_MIN: 0.0008,     // 0.08% - Minimum creator fee
+    CREATOR_FEE_MAX: 0.0095,     // 0.95% - Maximum creator fee
+    PROTOCOL_FEE_MIN: 0.003,     // 0.3% (VIP4)
+    PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
+    LP_FEE_MIN: 0.0002,          // 0.02% - Minimum LP fee
+    LP_FEE_MAX: 0.004,           // 0.4% - Maximum LP fee
+  },
 } as const
 
 /**
- * Combined Fee Configuration
- * Convenience export for accessing all fees
+ * Fee Type Categories
+ * For type-safe fee calculations
  */
-export const FEES = {
-  HIIN: HIIN_FEES,
-  HIDE: HIDE_FEES,
-} as const
-
-/**
- * Fee Type Enum for type safety
- */
-export enum FeeType {
-  // HIIN Fees
-  INDEX_LAUNCH = 'INDEX_LAUNCH',
-  INDEX_MANAGEMENT = 'INDEX_MANAGEMENT',
-  INDEX_REBALANCING = 'INDEX_REBALANCING',
-  INDEX_GAS = 'INDEX_GAS',
-
-  // HIDE Fees
+export enum FeeCategory {
   TRADING = 'TRADING',
-  SWAP_GAS = 'SWAP_GAS',
-  LP_ADD = 'LP_ADD',
-  LP_REMOVE = 'LP_REMOVE',
-  LP_CLAIM = 'LP_CLAIM',
+  REBALANCING = 'REBALANCING',
+  MANAGEMENT = 'MANAGEMENT',
+  LAUNCHER = 'LAUNCHER',
 }
 
 /**
- * Get the native token for a fee type
- * Returns the token that provides discount for this fee
+ * Get protocol fee rate for a VIP tier
  */
-export function getNativeTokenForFee(feeType: FeeType): Currency {
-  switch (feeType) {
-    case FeeType.INDEX_LAUNCH:
-    case FeeType.INDEX_MANAGEMENT:
-    case FeeType.INDEX_REBALANCING:
-    case FeeType.INDEX_GAS:
-      return 'HIIN'
+export function getProtocolFeeRate(vipTier: VIPTier): number {
+  return VIP_PROTOCOL_FEES[vipTier]
+}
 
-    case FeeType.TRADING:
-    case FeeType.SWAP_GAS:
-    case FeeType.LP_ADD:
-    case FeeType.LP_REMOVE:
-    case FeeType.LP_CLAIM:
-      return 'HIDE'
+/**
+ * Get VIP tier from index (for display purposes)
+ * In production, this would come from user profile/backend
+ */
+export function getVIPTierDisplay(tier: VIPTier): {
+  name: string
+  rate: number
+  discount: number
+} {
+  const rate = VIP_PROTOCOL_FEES[tier]
+  const discount = (VIP_PROTOCOL_FEES.VIP0 - rate) / VIP_PROTOCOL_FEES.VIP0
 
-    default:
-      return 'HYPE'
+  return {
+    name: tier,
+    rate,
+    discount,
   }
 }
 
 /**
- * Get the base fee rate for a fee type
+ * Calculate total trading fee range for a layer
+ * Returns min/max based on VIP tier range
  */
-export function getBaseFeeRate(feeType: FeeType): number {
-  switch (feeType) {
-    case FeeType.INDEX_LAUNCH:
-      return FEES.HIIN.LAUNCH_FEE
-    case FeeType.INDEX_MANAGEMENT:
-      return FEES.HIIN.MANAGEMENT_FEE_ANNUAL
-    case FeeType.INDEX_REBALANCING:
-      return FEES.HIIN.REBALANCING_FEE
-    case FeeType.INDEX_GAS:
-      return FEES.HIIN.GAS_MULTIPLIER
+export function getTradingFeeRange(layer: LayerType): {
+  min: number
+  max: number
+  components: {
+    protocolMin: number
+    protocolMax: number
+    creator: number
+    lp: number
+  }
+} {
+  if (layer === 'PARTNER') {
+    return {
+      min: LAYER_FEES.PARTNER.PROTOCOL_FEE,
+      max: LAYER_FEES.PARTNER.PROTOCOL_FEE,
+      components: {
+        protocolMin: LAYER_FEES.PARTNER.PROTOCOL_FEE,
+        protocolMax: LAYER_FEES.PARTNER.PROTOCOL_FEE,
+        creator: 0,
+        lp: 0,
+      },
+    }
+  }
 
-    case FeeType.TRADING:
-      return FEES.HIDE.TRADING_FEE
-    case FeeType.SWAP_GAS:
-      return FEES.HIDE.SWAP_GAS_MULTIPLIER
-    case FeeType.LP_ADD:
-      return FEES.HIDE.LP_ADD_FEE
-    case FeeType.LP_REMOVE:
-      return FEES.HIDE.LP_REMOVE_FEE
-    case FeeType.LP_CLAIM:
-      return FEES.HIDE.LP_CLAIM_FEE
+  if (layer === 'GRADUATED') {
+    return {
+      min: LAYER_FEES.GRADUATED.PROTOCOL_FEE_MIN + LAYER_FEES.GRADUATED.CREATOR_FEE_MIN + LAYER_FEES.GRADUATED.LP_FEE_MIN,
+      max: LAYER_FEES.GRADUATED.PROTOCOL_FEE_MAX + LAYER_FEES.GRADUATED.CREATOR_FEE_MAX + LAYER_FEES.GRADUATED.LP_FEE_MAX,
+      components: {
+        protocolMin: LAYER_FEES.GRADUATED.PROTOCOL_FEE_MIN,
+        protocolMax: LAYER_FEES.GRADUATED.PROTOCOL_FEE_MAX,
+        creator: LAYER_FEES.GRADUATED.CREATOR_FEE_MAX, // Show max for display
+        lp: LAYER_FEES.GRADUATED.LP_FEE_MAX,
+      },
+    }
+  }
 
-    default:
-      return 0
+  const layerConfig = LAYER_FEES[layer]
+  const creatorFee = layerConfig.CREATOR_FEE || 0
+  const lpFee = layerConfig.LP_FEE || 0
+
+  return {
+    min: layerConfig.PROTOCOL_FEE_MIN + creatorFee + lpFee,
+    max: layerConfig.PROTOCOL_FEE_MAX + creatorFee + lpFee,
+    components: {
+      protocolMin: layerConfig.PROTOCOL_FEE_MIN,
+      protocolMax: layerConfig.PROTOCOL_FEE_MAX,
+      creator: creatorFee,
+      lp: lpFee,
+    },
   }
 }
-
-/**
- * Get the discount rate for paying in native token
- */
-export function getDiscountRate(feeType: FeeType): number {
-  const nativeToken = getNativeTokenForFee(feeType)
-  return nativeToken === 'HIIN'
-    ? FEES.HIIN.NATIVE_PAYMENT_DISCOUNT
-    : FEES.HIDE.NATIVE_PAYMENT_DISCOUNT
-}
-
-/**
- * Revenue Treasury Configuration
- *
- * Phase 0: All fees flow to Protocol Revenue Treasury
- * Phase 1+: Quarterly buy-backs & 60-month locking
- */
-export const REVENUE_CONFIG = {
-  TREASURY_ADDRESS: '0x0000000000000000000000000000000000000000', // TBD
-  BUYBACK_FREQUENCY_DAYS: 90, // Quarterly
-  LOCK_DURATION_MONTHS: 60, // 60 months
-  PHASE_0_ACTIVE: true, // Currently in Phase 0
-} as const
 
 /**
  * Fee Display Labels
  * For UI components
  */
 export const FEE_LABELS = {
-  [FeeType.INDEX_LAUNCH]: 'Index Launch Fee',
-  [FeeType.INDEX_MANAGEMENT]: 'Index Management Fee',
-  [FeeType.INDEX_REBALANCING]: 'Index Rebalancing Fee',
-  [FeeType.INDEX_GAS]: 'Gas Fee',
-  [FeeType.TRADING]: 'Trading Fee',
-  [FeeType.SWAP_GAS]: 'Swap Gas Fee',
-  [FeeType.LP_ADD]: 'LP Add Fee',
-  [FeeType.LP_REMOVE]: 'LP Remove Fee',
-  [FeeType.LP_CLAIM]: 'LP Claim Fee',
+  TRADING: 'Trading Fee',
+  PROTOCOL: 'Protocol Fee',
+  CREATOR: 'Creator Fee',
+  LP: 'LP Fee',
+  REBALANCING: 'Rebalancing Fee',
+  MANAGEMENT: 'Management Fee',
+  LAUNCHER: 'Index Launch Fee',
 } as const
 
 /**
- * Fee Display Descriptions
+ * Fee Descriptions
  * For tooltips and help text
  */
 export const FEE_DESCRIPTIONS = {
-  [FeeType.INDEX_LAUNCH]: 'One-time fee for creating a new index on Layer 3',
-  [FeeType.INDEX_MANAGEMENT]: 'Annual fee based on Assets Under Management (AUM)',
-  [FeeType.INDEX_REBALANCING]: 'Fee charged per index rebalancing transaction',
-  [FeeType.INDEX_GAS]: 'On-chain gas cost for index operations',
-  [FeeType.TRADING]: 'Fee applied to all trading and swap operations',
-  [FeeType.SWAP_GAS]: 'On-chain gas cost for swap transactions',
-  [FeeType.LP_ADD]: 'Fee for adding liquidity to pools',
-  [FeeType.LP_REMOVE]: 'Fee for removing liquidity from pools',
-  [FeeType.LP_CLAIM]: 'Fee for claiming LP rewards',
+  TRADING: 'Total fee for trading index tokens',
+  PROTOCOL: 'Fee collected by protocol (varies by VIP tier)',
+  CREATOR: 'Fee paid to index creator',
+  LP: 'Fee paid to liquidity providers',
+  REBALANCING: 'Fee charged when index is rebalanced',
+  MANAGEMENT: 'Annual fee based on Assets Under Management',
+  LAUNCHER: 'One-time fee for creating a new index',
+} as const
+
+/**
+ * Fee Comparison with Other Platforms
+ * For marketing and transparency
+ */
+export const FEE_COMPARISON = {
+  AXIOM: 0.022,      // 2.20%
+  PHOTON: 0.0225,    // 2.25%
+  BULLX: 0.0225,     // 2.25%
+  PUMPFUN: 0.0125,   // 1.25%
+  HYPERINDEX: 0.01,  // 1.00% (average)
 } as const

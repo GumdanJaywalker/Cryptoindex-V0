@@ -1,6 +1,6 @@
 # CLAUDE.md - HyperIndex 개발 환경 정보
 
-> 📅 **마지막 업데이트**: 2025-10-20
+> 📅 **마지막 업데이트**: 2025-10-28
 > 🔄 **자동 업데이트**: doc-updater agent로 실제 프로젝트 구조 스캔 및 반영
 
 이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
@@ -247,8 +247,8 @@ export function Component({ ...props }: ComponentProps) {
 
 ### 3. 모든 작업 후 인수인계 문서 업데이트
 모든 작업이 완료된 후에는 인수인계 문서를 업데이트할 것:
-- `HANDOVER.md` - 최신 작업 2-3개 세션만 유지 (간소화)
-- `HANDOVER_ARCHIVE.md` - 오래된 세션은 아카이브로 이동
+- `docs/handover/HANDOVER.md` - 최신 작업 2-3개 세션만 유지 (간소화)
+- `docs/handover/HANDOVER_ARCHIVE.md` - 오래된 세션은 아카이브로 이동
 
 업데이트 원칙:
 - 개조식 서술 적극 활용 (bullet points)
@@ -262,6 +262,130 @@ export function Component({ ...props }: ComponentProps) {
 - **정보 밀도**: 토큰 절약하면서도 정보는 온전히 유지
 - **개조식 우선**: bullet points로 간결하게 작성
 - **설명문 병행**: 복잡한 로직이나 플로우는 설명문으로 작성
+
+### 5. Planning 문서 작성 규칙 (YYYYMMMWW Format)
+
+**위치**: `docs/planning/YYYYMMMWW/`
+
+**명명 규칙**:
+- Format: YYYYMMMWW (Year + Month Initials + Week Number)
+- 예시: 2025OCT04 = 2025년 10월 4주차 (October Week 4)
+- 월 이니셜: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
+- 주 번호: 01-05 (해당 월의 첫째 주부터 다섯째 주)
+
+**필수 템플릿 구조**:
+```markdown
+# [기능명] Refactoring/Planning
+
+## UX or 세부 컴포넌트 항목
+[업데이트 필요한 핵심 컴포넌트 나열]
+
+## 레퍼런스
+[참고한 외부 서비스 및 디자인 패턴]
+
+## 용이성의 근거
+### 채택 방안
+[선택한 접근 방식과 그 이유]
+
+### 비채택 대안 #1
+[고려했으나 채택하지 않은 방안 1과 이유]
+
+### 비채택 대안 #2
+[고려했으나 채택하지 않은 방안 2와 이유]
+
+## 타 페이지 및 컴포넌트와의 관계성
+[다른 페이지/컴포넌트와의 연동 관계]
+
+## 상세 계획 - 실행 절차
+[단계별 구현 계획, 시간 추정 제외]
+```
+
+**작성 원칙**:
+- 시간 추정 불포함 (시간은 실제 작업 시 가변적)
+- 채택 방안과 비채택 대안 명확히 구분
+- 컴포넌트 간 관계 다이어그램 또는 설명 포함
+- 레퍼런스는 실제 조사한 내용 기반 (AI 복붙 금지)
+
+### 6. 템플릿 기반 문서 작성 규칙
+
+**템플릿 위치**: `/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/2025OCT04 Frontend Docs/Frontend Docs/templates/`
+
+**템플릿 종류**:
+1. **작업 계획 (Task Plan)**: `2025OCT04 Task Plan - [페이지명].md`
+2. **작업 리뷰 (Task Review)**: `2025OCT04 Task Review - [페이지명].md`
+3. **피드백 (Feedback)**: `Re [작업명] Feedback.md`
+4. **기타 템플릿**: 템플릿 폴더 내 다른 .md 파일들
+
+**작성 지침**:
+- 사용자가 작업계획, 작업리뷰, 피드백 등의 문서 작성을 요청하면:
+  1. 먼저 `/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/2025OCT04 Frontend Docs/Frontend Docs/templates/` 폴더에서 해당 템플릿을 확인
+  2. 템플릿 구조를 **정확히 따라서** 문서 작성
+  3. 템플릿의 각 섹션 제목과 순서 유지
+  4. AI 복붙 금지: 실제 프로젝트 상황에 맞게 작성
+
+**저장 위치**:
+- Task Plan 문서: `docs/planning/YYYYMMMWW/[기능명]_TASK_PLAN.md`
+- Task Review 문서: 작업 완료 후 별도 요청 시 생성
+- Feedback 문서: 피드백 대응 시 별도 요청 시 생성
+
+**예시**:
+- 사용자: "Launch 페이지 작업 계획 문서 만들어줘"
+- Claude: Task Plan 템플릿을 읽고 → 템플릿 구조에 맞춰 `docs/planning/2025OCT04/LAUNCH_PAGE_TASK_PLAN.md` 생성
+
+### 7. 작업 시작 및 완료 시 문서 읽기/수정 규칙
+
+**작업 시작 시 필수 읽기**:
+1. `docs/planning/YYYYMMMWW/README.md` (예: 2025OCT04) - 해당 주차 작업 개요
+2. `docs/planning/YYYYMMMWW/TASK_PRIORITY.md` (예: 2025OCT04) - 작업 우선순위 확인
+3. `docs/handover/HANDOVER.md` - 최신 세션 내용 확인
+4. 해당 작업 관련 planning 문서 (예: `LAUNCH_PAGE_REFACTORING.md`)
+
+**작업 완료 시 필수 수정**:
+1. `docs/handover/HANDOVER.md` - 새 세션 추가 (최신 작업 2-3개만 유지)
+2. `docs/planning/YYYYMMMWW/TASK_PRIORITY.md` (예: 2025OCT04) - 완료된 항목 체크 또는 업데이트
+3. `docs/planning/YYYYMMMWW/README.md` (예: 2025OCT04) - Status Summary 업데이트
+4. 백엔드 작업 시: `/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/BACKEND_INTEGRATION_CHECKLIST.md` 업데이트
+
+**문서 경로 기준**:
+- 모든 planning 문서: `docs/planning/YYYYMMMWW/` (예: 2025OCT04)
+- 인수인계 문서: `docs/handover/`
+- 백엔드 문서: 프로젝트 루트 (`/Users/kimhyeon/Desktop/PROJECTS/Cryptoindex-V0/`)
+
+### 8. Notion 문서 관리 워크플로우
+
+**Notion → Docs 폴더 정리 프로세스**:
+1. Notion에서 markdown으로 export
+2. `YYYYMMMWW Frontend Docs/` 폴더에 저장
+3. 카테고리별 폴더 생성 후 분류:
+   - `/task-plans` - 작업 계획 문서
+   - `/task-reviews` - 작업 리뷰 문서
+   - `/feedbacks` - 피드백 및 답변
+   - `/templates` - 문서 템플릿
+   - `/okrs` - OKR 문서
+   - `/misc` - 기타 문서
+
+4. Planning 문서 추출:
+   - 중요 계획 문서는 `docs/planning/YYYYMMMWW/`로 이동
+   - 템플릿 형식에 맞춰 재구성
+   - README.md 추가하여 해당 주차 작업 요약
+
+**폴더 구조 예시**:
+```
+/docs
+  /planning
+    /2025OCT04
+      README.md
+      CURRENCY_SYSTEM_REFACTORING.md
+      FRONTEND_SECURITY_ATTACK_SCENARIOS.md
+      LAUNCH_PAGE_REFACTORING.md
+  /backend
+    BACKEND_INTEGRATION_CHECKLIST.md
+    BACKEND_DATA_REQUIREMENTS.md
+  /handover
+    HANDOVER.md
+    HANDOVER_ARCHIVE.md
+  OVERVIEW.md
+```
 
 ## 🎨 새로운 개발 방식
 
