@@ -1,353 +1,458 @@
 /**
- * Fee Calculation Utilities for HyperIndex Phase 0
+ * Fee Calculation Utilities for HyperIndex
  *
- * Provides helper functions for calculating fees with discount logic,
- * payment token selection, and fee breakdown generation.
+ * Provides calculation functions for VIP-tiered and Layer-specific fees
+ * Based on Business Documentation (Slides 26-28)
  */
 
-import type { Currency, ExchangeRates } from '@/lib/types/currency'
-import { convertCurrency } from '@/lib/utils/currency'
 import {
-  FEES,
-  FeeType,
-  getNativeTokenForFee,
-  getBaseFeeRate,
-  getDiscountRate,
+  VIPTier,
+  LayerType,
+  VIP_PROTOCOL_FEES,
+  LAYER_FEES,
+  LAUNCHER_FEE_USD,
+  INVITED_USER_DISCOUNT,
+  getProtocolFeeRate,
 } from '@/lib/constants/fees'
 
 /**
- * Fee Calculation Result
+ * Fee Breakdown Interface
+ * Detailed breakdown of all fee components
  */
-export interface FeeCalculation {
-  baseFee: number // Fee amount before discount (in HYPE)
-  discount: number // Discount amount (in HYPE)
-  finalFee: number // Final fee after discount (in HYPE)
-  discountPercentage: number // Discount percentage applied
-  paymentToken: Currency // Token used for payment
-  nativeToken: Currency // Native token for this fee type
-  feeType: FeeType
+export interface FeeBreakdown {
+  protocolFee: number      // Protocol fee (VIP-tiered)
+  creatorFee: number       // Creator fee (layer-specific)
+  lpFee: number            // LP fee (layer-specific)
+  totalFee: number         // Sum of all fees
+  protocolFeeRate: number  // Protocol fee rate (percentage)
+  creatorFeeRate: number   // Creator fee rate (percentage)
+  lpFeeRate: number        // LP fee rate (percentage)
+  totalFeeRate: number     // Total fee rate (percentage)
 }
 
 /**
- * Calculate trading/swap fee with discount logic
+ * Trading Fee Calculation Result
+ */
+export interface TradingFeeResult {
+  baseFee: FeeBreakdown           // Base fee without discounts
+  invitedDiscount: number          // Invited user discount (10%)
+  finalFee: FeeBreakdown           // Final fee after discount
+  savings: number                  // Total savings from discount
+  vipTier: VIPTier                 // User's VIP tier
+  layer: LayerType                 // Index layer
+}
+
+/**
+ * Calculate trading fee with full breakdown
  *
- * @param amount - Trade amount in HYPE
- * @param paymentToken - Token used for payment ('HIDE', 'HYPE')
- * @returns Fee calculation result
+ * @param amount - Trade amount in USD
+ * @param vipTier - User's VIP tier
+ * @param layer - Index layer type
+ * @param isInvited - Whether user was invited (gets 10% discount)
+ * @returns Detailed fee breakdown
  *
  * Examples:
- * - calculateTradingFee(1000, 'HIDE') => 3.0 $HIDE (with 10% discount)
- * - calculateTradingFee(1000, 'HYPE') => 3.0 HYPE (no discount)
+ * - calculateTradingFee(1000, VIPTier.VIP2, 'L1', false)
+ *   => Protocol: 0.4%, Creator: 0%, LP: 0.4%, Total: 0.8% = $8
+ * - calculateTradingFee(1000, VIPTier.VIP2, 'L3', true)
+ *   => Protocol: 0.4%, Creator: 0.4%, LP: 0%, Total: 0.8%, Discount: 10% = $7.2
  */
 export function calculateTradingFee(
   amount: number,
-  paymentToken: Currency = 'HYPE'
-): FeeCalculation {
-  const feeType = FeeType.TRADING
-  const baseFeeRate = getBaseFeeRate(feeType)
-  const baseFee = amount * baseFeeRate
+  vipTier: VIPTier,
+  layer: LayerType,
+  isInvited: boolean = false
+): TradingFeeResult {
+  // Get protocol fee based on VIP tier
+  const protocolFeeRate = getProtocolFeeRate(vipTier)
 
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  const discount = baseFee * discountRate
-  const finalFee = baseFee - discount
+  // Get layer-specific fees
+  let creatorFeeRate = 0
+  let lpFeeRate = 0
+
+  if (layer === 'PARTNER') {
+    // Partner: Only protocol fee (0.5%), no creator/LP fees
+    creatorFeeRate = 0
+    lpFeeRate = 0
+  } else if (layer === 'GRADUATED') {
+    // Graduated: Use max rates for calculation (variable in practice)
+    creatorFeeRate = LAYER_FEES.GRADUATED.CREATOR_FEE_MAX
+    lpFeeRate = LAYER_FEES.GRADUATED.LP_FEE_MAX
+  } else {
+    // L1/L2/L3/VS: Use configured rates
+    const layerConfig = LAYER_FEES[layer]
+    creatorFeeRate = layerConfig.CREATOR_FEE || 0
+    lpFeeRate = layerConfig.LP_FEE || 0
+  }
+
+  // Calculate base fees
+  const protocolFee = amount * protocolFeeRate
+  const creatorFee = amount * creatorFeeRate
+  const lpFee = amount * lpFeeRate
+  const totalFee = protocolFee + creatorFee + lpFee
+  const totalFeeRate = protocolFeeRate + creatorFeeRate + lpFeeRate
+
+  const baseFee: FeeBreakdown = {
+    protocolFee,
+    creatorFee,
+    lpFee,
+    totalFee,
+    protocolFeeRate,
+    creatorFeeRate,
+    lpFeeRate,
+    totalFeeRate,
+  }
+
+  // Apply invited user discount (10%)
+  const discountRate = isInvited ? INVITED_USER_DISCOUNT : 0
+  const invitedDiscount = totalFee * discountRate
+
+  const finalFee: FeeBreakdown = {
+    protocolFee: protocolFee * (1 - discountRate),
+    creatorFee: creatorFee * (1 - discountRate),
+    lpFee: lpFee * (1 - discountRate),
+    totalFee: totalFee * (1 - discountRate),
+    protocolFeeRate,
+    creatorFeeRate,
+    lpFeeRate,
+    totalFeeRate,
+  }
 
   return {
     baseFee,
-    discount,
+    invitedDiscount,
     finalFee,
-    discountPercentage: discountRate * 100,
-    paymentToken,
-    nativeToken,
-    feeType,
+    savings: invitedDiscount,
+    vipTier,
+    layer,
   }
 }
 
 /**
- * Calculate index launch fee with discount logic
+ * Calculate rebalancing fee
  *
- * @param paymentToken - Token used for payment ('HIIN', 'HYPE')
- * @returns Fee calculation result
+ * @param aum - Assets Under Management in USD
+ * @param layer - Index layer type
+ * @param customFrequency - Optional custom frequency (overrides default)
+ * @returns Annual rebalancing fee
  *
  * Examples:
- * - calculateLaunchFee('HIIN') => 0.09 $HIIN (with 10% discount)
- * - calculateLaunchFee('HYPE') => 0.1 HYPE (no discount)
+ * - calculateRebalancingFee(1000000, 'L1') => $12,000 annual (0.1% * 12 times)
+ * - calculateRebalancingFee(1000000, 'L2') => $26,000 annual (0.1% * 26 times)
+ * - calculateRebalancingFee(1000000, 'PARTNER') => $36,000 annual (0.3% * 12 times)
  */
-export function calculateLaunchFee(
-  paymentToken: Currency = 'HYPE'
-): FeeCalculation {
-  const feeType = FeeType.INDEX_LAUNCH
-  const baseFee = getBaseFeeRate(feeType)
+export function calculateRebalancingFee(
+  aum: number,
+  layer: LayerType,
+  customFrequency?: number
+): {
+  perEventFee: number
+  perEventRate: number
+  annualFee: number
+  annualRate: number
+  frequency: number
+} {
+  if (layer === 'L3') {
+    // L3: No rebalancing (bonding curve)
+    return {
+      perEventFee: 0,
+      perEventRate: 0,
+      annualFee: 0,
+      annualRate: 0,
+      frequency: 0,
+    }
+  }
 
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  const discount = baseFee * discountRate
-  const finalFee = baseFee - discount
+  if (layer === 'GRADUATED') {
+    // Graduated: Use L1 rebalancing schedule as default
+    const rate = LAYER_FEES.L1.REBALANCING_RATE
+    const frequency = customFrequency || LAYER_FEES.L1.REBALANCING_FREQUENCY
+
+    return {
+      perEventFee: aum * rate,
+      perEventRate: rate,
+      annualFee: aum * rate * frequency,
+      annualRate: rate * frequency,
+      frequency,
+    }
+  }
+
+  const layerConfig = LAYER_FEES[layer]
+  const rate = layerConfig.REBALANCING_RATE
+  const frequency = customFrequency || layerConfig.REBALANCING_FREQUENCY
 
   return {
-    baseFee,
-    discount,
-    finalFee,
-    discountPercentage: discountRate * 100,
-    paymentToken,
-    nativeToken,
-    feeType,
+    perEventFee: aum * rate,
+    perEventRate: rate,
+    annualFee: aum * rate * frequency,
+    annualRate: rate * frequency,
+    frequency,
   }
 }
 
 /**
- * Calculate index management fee (annual AUM fee)
+ * Calculate management fee
  *
- * @param aum - Assets Under Management in HYPE
- * @param paymentToken - Token used for payment ('HIIN', 'HYPE')
- * @returns Fee calculation result
- *
- * Note: This returns the annual fee. Divide by 365 for daily fee,
- * or by 12 for monthly fee, etc.
+ * @param aum - Assets Under Management in USD
+ * @param layer - Index layer type
+ * @param days - Number of days to calculate (default: 365 for annual)
+ * @returns Management fee for specified period
  *
  * Examples:
- * - calculateManagementFee(1000000, 'HIIN') => 180 $HIIN annual (with 10% discount)
- * - calculateManagementFee(1000000, 'HYPE') => 200 HYPE annual (no discount)
+ * - calculateManagementFee(1000000, 'L1') => $7,000 annual (0.7%)
+ * - calculateManagementFee(1000000, 'L1', 30) => $575 monthly (0.7% / 12)
+ * - calculateManagementFee(1000000, 'PARTNER') => $5,000 annual (0.5%)
  */
 export function calculateManagementFee(
   aum: number,
-  paymentToken: Currency = 'HYPE'
-): FeeCalculation {
-  const feeType = FeeType.INDEX_MANAGEMENT
-  const baseFeeRate = getBaseFeeRate(feeType)
-  const baseFee = aum * baseFeeRate
+  layer: LayerType,
+  days: number = 365
+): {
+  fee: number
+  annualFee: number
+  rate: number
+  period: string
+} {
+  const annualRate = LAYER_FEES[layer].MANAGEMENT_YEARLY
+  const annualFee = aum * annualRate
+  const fee = (annualFee / 365) * days
 
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  const discount = baseFee * discountRate
-  const finalFee = baseFee - discount
+  let period = 'annual'
+  if (days === 30 || days === 31) period = 'monthly'
+  else if (days === 7) period = 'weekly'
+  else if (days === 1) period = 'daily'
 
   return {
-    baseFee,
-    discount,
-    finalFee,
-    discountPercentage: discountRate * 100,
-    paymentToken,
-    nativeToken,
-    feeType,
+    fee,
+    annualFee,
+    rate: annualRate,
+    period,
   }
 }
 
 /**
- * Calculate index rebalancing fee
+ * Calculate launcher fee
  *
- * @param amount - Amount being rebalanced in HYPE
- * @param paymentToken - Token used for payment ('HIIN', 'HYPE')
- * @returns Fee calculation result
- *
- * Examples:
- * - calculateRebalancingFee(10000, 'HIIN') => 4.5 $HIIN (with 10% discount)
- * - calculateRebalancingFee(10000, 'HYPE') => 5.0 HYPE (no discount)
+ * @returns Fixed launcher fee in USD
  */
-export function calculateRebalancingFee(
-  amount: number,
-  paymentToken: Currency = 'HYPE'
-): FeeCalculation {
-  const feeType = FeeType.INDEX_REBALANCING
-  const baseFeeRate = getBaseFeeRate(feeType)
-  const baseFee = amount * baseFeeRate
-
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  const discount = baseFee * discountRate
-  const finalFee = baseFee - discount
-
+export function calculateLauncherFee(): {
+  fee: number
+  feeUSD: number
+} {
   return {
-    baseFee,
-    discount,
-    finalFee,
-    discountPercentage: discountRate * 100,
-    paymentToken,
-    nativeToken,
-    feeType,
+    fee: LAUNCHER_FEE_USD,
+    feeUSD: LAUNCHER_FEE_USD,
   }
 }
 
 /**
- * Calculate LP fee (add/remove/claim)
+ * Get total cost including all fees
  *
- * @param amount - Amount for LP operation in HYPE
- * @param type - Type of LP operation
- * @param paymentToken - Token used for payment ('HIDE', 'HYPE')
- * @returns Fee calculation result
- *
- * Examples:
- * - calculateLPFee(1000, 'add', 'HIDE') => 0.9 $HIDE (with 10% discount)
- * - calculateLPFee(1000, 'remove', 'HYPE') => 1.0 HYPE (no discount)
- */
-export function calculateLPFee(
-  amount: number,
-  type: 'add' | 'remove' | 'claim',
-  paymentToken: Currency = 'HYPE'
-): FeeCalculation {
-  const feeType =
-    type === 'add'
-      ? FeeType.LP_ADD
-      : type === 'remove'
-      ? FeeType.LP_REMOVE
-      : FeeType.LP_CLAIM
-
-  const baseFeeRate = getBaseFeeRate(feeType)
-  const baseFee = amount * baseFeeRate
-
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  const discount = baseFee * discountRate
-  const finalFee = baseFee - discount
-
-  return {
-    baseFee,
-    discount,
-    finalFee,
-    discountPercentage: discountRate * 100,
-    paymentToken,
-    nativeToken,
-    feeType,
-  }
-}
-
-/**
- * Get discounted fee amount
- * Generic helper for applying discount based on payment token
- *
- * @param baseFee - Base fee amount before discount
- * @param feeType - Type of fee
- * @param paymentToken - Token used for payment
- * @returns Discounted fee amount
- *
- * Examples:
- * - getDiscountedFee(100, FeeType.TRADING, 'HIDE') => 90 (10% discount)
- * - getDiscountedFee(100, FeeType.TRADING, 'HYPE') => 100 (no discount)
- */
-export function getDiscountedFee(
-  baseFee: number,
-  feeType: FeeType,
-  paymentToken: Currency
-): number {
-  const nativeToken = getNativeTokenForFee(feeType)
-  const isNativePayment = paymentToken === nativeToken
-  const discountRate = isNativePayment ? getDiscountRate(feeType) : 0
-  return baseFee * (1 - discountRate)
-}
-
-/**
- * Calculate total cost including fee
- *
- * @param amount - Base amount
- * @param feeCalculation - Fee calculation result
- * @returns Total cost (amount + fee)
+ * @param tradeAmount - Trade amount
+ * @param vipTier - User's VIP tier
+ * @param layer - Index layer
+ * @param isInvited - Whether user was invited
+ * @returns Total cost (amount + fees)
  */
 export function calculateTotalCost(
-  amount: number,
-  feeCalculation: FeeCalculation
-): number {
-  return amount + feeCalculation.finalFee
+  tradeAmount: number,
+  vipTier: VIPTier,
+  layer: LayerType,
+  isInvited: boolean = false
+): {
+  tradeAmount: number
+  fees: TradingFeeResult
+  totalCost: number
+} {
+  const fees = calculateTradingFee(tradeAmount, vipTier, layer, isInvited)
+  const totalCost = tradeAmount + fees.finalFee.totalFee
+
+  return {
+    tradeAmount,
+    fees,
+    totalCost,
+  }
 }
 
 /**
  * Format fee breakdown for display
  *
- * @param feeCalculation - Fee calculation result
- * @param exchangeRates - Exchange rates for currency conversion
- * @param displayCurrency - Currency to display (default: payment token)
- * @returns Formatted fee breakdown strings
+ * @param breakdown - Fee breakdown
+ * @returns Formatted strings for UI display
  */
-export function formatFeeBreakdown(
-  feeCalculation: FeeCalculation,
-  exchangeRates?: ExchangeRates,
-  displayCurrency?: Currency
-): {
-  baseFee: string
-  discount: string
-  finalFee: string
-  savings: string
+export function formatFeeBreakdown(breakdown: FeeBreakdown): {
+  protocolFee: string
+  creatorFee: string
+  lpFee: string
+  totalFee: string
+  protocolFeeRate: string
+  creatorFeeRate: string
+  lpFeeRate: string
+  totalFeeRate: string
 } {
-  const currency = displayCurrency || feeCalculation.paymentToken
-
-  // Convert if needed
-  const baseFeeConverted = exchangeRates
-    ? convertCurrency(feeCalculation.baseFee, 'HYPE', currency, exchangeRates)
-    : feeCalculation.baseFee
-
-  const discountConverted = exchangeRates
-    ? convertCurrency(feeCalculation.discount, 'HYPE', currency, exchangeRates)
-    : feeCalculation.discount
-
-  const finalFeeConverted = exchangeRates
-    ? convertCurrency(feeCalculation.finalFee, 'HYPE', currency, exchangeRates)
-    : feeCalculation.finalFee
-
-  // Format with currency suffix
-  const suffix = currency === 'USD' ? '' : ` ${currency}`
-  const prefix = currency === 'USD' ? '$' : ''
-
   return {
-    baseFee: `${prefix}${baseFeeConverted.toFixed(4)}${suffix}`,
-    discount: `${prefix}${discountConverted.toFixed(4)}${suffix}`,
-    finalFee: `${prefix}${finalFeeConverted.toFixed(4)}${suffix}`,
-    savings: feeCalculation.discountPercentage > 0
-      ? `Save ${feeCalculation.discountPercentage}% with ${feeCalculation.nativeToken}`
-      : 'No discount available',
+    protocolFee: `$${breakdown.protocolFee.toFixed(2)}`,
+    creatorFee: `$${breakdown.creatorFee.toFixed(2)}`,
+    lpFee: `$${breakdown.lpFee.toFixed(2)}`,
+    totalFee: `$${breakdown.totalFee.toFixed(2)}`,
+    protocolFeeRate: `${(breakdown.protocolFeeRate * 100).toFixed(2)}%`,
+    creatorFeeRate: `${(breakdown.creatorFeeRate * 100).toFixed(2)}%`,
+    lpFeeRate: `${(breakdown.lpFeeRate * 100).toFixed(2)}%`,
+    totalFeeRate: `${(breakdown.totalFeeRate * 100).toFixed(2)}%`,
   }
 }
 
 /**
- * Check if discount is available for fee type with payment token
+ * Format fee for simple display
  *
- * @param feeType - Type of fee
- * @param paymentToken - Token used for payment
- * @returns True if discount is available
+ * @param fee - Fee amount
+ * @returns Formatted fee string
  */
-export function isDiscountAvailable(
-  feeType: FeeType,
-  paymentToken: Currency
-): boolean {
-  const nativeToken = getNativeTokenForFee(feeType)
-  return paymentToken === nativeToken
+export function formatFee(fee: number): string {
+  if (fee >= 1000000) {
+    return `$${(fee / 1000000).toFixed(2)}M`
+  } else if (fee >= 1000) {
+    return `$${(fee / 1000).toFixed(2)}K`
+  } else {
+    return `$${fee.toFixed(2)}`
+  }
 }
 
 /**
- * Get recommended payment token for maximum discount
+ * Get detailed fee breakdown for UI display
+ * Combines trading, rebalancing, and management fees
  *
- * @param feeType - Type of fee
- * @returns Recommended payment token (native token)
+ * @param amount - Trade amount
+ * @param aum - Assets Under Management (for rebalancing/management)
+ * @param vipTier - User's VIP tier
+ * @param layer - Index layer
+ * @param isInvited - Whether user was invited
+ * @param includeRebalancing - Include rebalancing fee
+ * @param includeManagement - Include management fee
+ * @returns Comprehensive fee breakdown
  */
-export function getRecommendedPaymentToken(feeType: FeeType): Currency {
-  return getNativeTokenForFee(feeType)
-}
-
-/**
- * Batch fee calculation for multiple operations
- *
- * @param operations - Array of fee calculations
- * @returns Aggregated fee calculation
- */
-export function aggregateFees(operations: FeeCalculation[]): {
-  totalBaseFee: number
-  totalDiscount: number
-  totalFinalFee: number
-  averageDiscountPercentage: number
+export function getTotalFeeBreakdown(
+  amount: number,
+  aum: number,
+  vipTier: VIPTier,
+  layer: LayerType,
+  isInvited: boolean = false,
+  includeRebalancing: boolean = false,
+  includeManagement: boolean = false
+): {
+  trading: TradingFeeResult
+  rebalancing?: ReturnType<typeof calculateRebalancingFee>
+  management?: ReturnType<typeof calculateManagementFee>
+  totalFees: number
+  totalFeesFormatted: string
 } {
-  const totalBaseFee = operations.reduce((sum, op) => sum + op.baseFee, 0)
-  const totalDiscount = operations.reduce((sum, op) => sum + op.discount, 0)
-  const totalFinalFee = operations.reduce((sum, op) => sum + op.finalFee, 0)
-  const averageDiscountPercentage =
-    operations.reduce((sum, op) => sum + op.discountPercentage, 0) / operations.length
+  const trading = calculateTradingFee(amount, vipTier, layer, isInvited)
+
+  const rebalancing = includeRebalancing
+    ? calculateRebalancingFee(aum, layer)
+    : undefined
+
+  const management = includeManagement
+    ? calculateManagementFee(aum, layer)
+    : undefined
+
+  const totalFees =
+    trading.finalFee.totalFee +
+    (rebalancing?.annualFee || 0) +
+    (management?.annualFee || 0)
 
   return {
-    totalBaseFee,
-    totalDiscount,
-    totalFinalFee,
-    averageDiscountPercentage,
+    trading,
+    rebalancing,
+    management,
+    totalFees,
+    totalFeesFormatted: formatFee(totalFees),
+  }
+}
+
+/**
+ * Compare fees across different VIP tiers
+ * Useful for showing potential savings
+ *
+ * @param amount - Trade amount
+ * @param layer - Index layer
+ * @param isInvited - Whether user was invited
+ * @returns Fee comparison across all VIP tiers
+ */
+export function compareFeesByVIPTier(
+  amount: number,
+  layer: LayerType,
+  isInvited: boolean = false
+): {
+  tier: VIPTier
+  fee: number
+  rate: number
+  savings: number
+  savingsVsVIP0: number
+}[] {
+  const results = Object.values(VIPTier).map((tier) => {
+    const result = calculateTradingFee(amount, tier, layer, isInvited)
+    return {
+      tier,
+      fee: result.finalFee.totalFee,
+      rate: result.finalFee.totalFeeRate,
+      savings: result.savings,
+      savingsVsVIP0: 0, // Will calculate below
+    }
+  })
+
+  // Calculate savings vs VIP0
+  const vip0Fee = results[0].fee
+  results.forEach((result) => {
+    result.savingsVsVIP0 = vip0Fee - result.fee
+  })
+
+  return results
+}
+
+/**
+ * Estimate annual fees for index holder
+ * Includes trading, rebalancing, and management fees
+ *
+ * @param holdingValue - Current holding value
+ * @param annualTradingVolume - Estimated annual trading volume
+ * @param vipTier - User's VIP tier
+ * @param layer - Index layer
+ * @param isInvited - Whether user was invited
+ * @returns Estimated annual fees
+ */
+export function estimateAnnualFees(
+  holdingValue: number,
+  annualTradingVolume: number,
+  vipTier: VIPTier,
+  layer: LayerType,
+  isInvited: boolean = false
+): {
+  tradingFees: number
+  rebalancingFees: number
+  managementFees: number
+  totalAnnualFees: number
+  effectiveRate: number
+} {
+  const trading = calculateTradingFee(
+    annualTradingVolume,
+    vipTier,
+    layer,
+    isInvited
+  )
+  const rebalancing = calculateRebalancingFee(holdingValue, layer)
+  const management = calculateManagementFee(holdingValue, layer)
+
+  const totalAnnualFees =
+    trading.finalFee.totalFee + rebalancing.annualFee + management.annualFee
+
+  const effectiveRate = totalAnnualFees / (holdingValue + annualTradingVolume)
+
+  return {
+    tradingFees: trading.finalFee.totalFee,
+    rebalancingFees: rebalancing.annualFee,
+    managementFees: management.annualFee,
+    totalAnnualFees,
+    effectiveRate,
   }
 }
