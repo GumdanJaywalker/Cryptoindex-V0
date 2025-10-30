@@ -141,7 +141,6 @@ __tests__/
 *.spec.tsx
 
 # Development files
-docs/
 debug/
 .debug/
 dist/
