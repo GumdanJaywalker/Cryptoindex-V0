@@ -1,9 +1,159 @@
 # HANDOVER - Development Session Summary
 
-**Last Updated**: 2025-10-29
-**Latest Session**: Phase 0 Terminology & UI Consistency (Oct 29)
+**Last Updated**: 2025-10-30
+**Latest Session**: Currency System & Discover Page Fixes (Oct 30)
 
 > For archived sessions, see HANDOVER_ARCHIVE.md
+
+---
+
+## LATEST SESSION - Currency System & Discover Page Fixes (Oct 30)
+
+### Goal
+Finalize fee structure implementation decisions, simplify currency display to HYPE-only, fix discover page search/filters, remove emojis from index names
+
+### Completed
+- Deleted duplicate files: `.dockerignore 2`, `.gitignore 3`
+
+### Pending Tasks (10 items)
+
+**Fee Structure (5 tasks)**:
+1. Decide VIP tier integration approach (Mock VIP2 / User store / Backend API)
+2. Add `layer` field to mock index data (`lib/data/mock-indexes.ts`)
+3. Set `isInvited` default value for Phase 0
+4. Update 6 components to use new VIP/Layer fee structure:
+   - `components/trading/quick-trade-button.tsx`
+   - `components/trading/trade-panel.tsx`
+   - `components/trading/TradingPanelSimple.tsx`
+   - `components/trading/confirm-modal.tsx`
+   - `components/trading/LiquidityModal.tsx`
+   - `app/launch/page.tsx`
+5. Test VIP tier calculations and UI display
+
+**Currency System (2 tasks)**:
+6. Remove Preferences section from settings completely (`components/settings/PreferencesSection.tsx`)
+7. Force HYPE display in `useCurrency` hook (keep fee variables HIIN/HIDE intact in code)
+
+**Discover Page (3 tasks)**:
+8. Remove description from search logic (`components/discover/index-list.tsx` line 137-141) - name + symbol only
+9. Fix filters with dynamic criteria:
+   - Hot: `heatScore >= 70` (already calculated in mock data)
+   - New: `createdAt >= (now - 7 days)`
+   - Top Gainers: Top 10 by `change24h > 0`
+   - Top Losers: Top 10 by `change24h < 0`
+   - High Volume: Top 10 by `volume24h` (currently missing)
+10. Remove emojis from all index names in `lib/data/mock-indexes.ts` + add emoji validation regex
+
+### Key Decisions
+
+**Currency Display**:
+- Current: Settings > Preferences allows 7 currencies (HYPE, USD, USDC, USDT, BTC, HIIN, HIDE)
+- Current: Mock exchange rates with ±1% random fluctuation every 30 seconds
+- Problem: Misleading users with fake price data
+- Solution: Force HYPE-only display, remove Preferences section
+- Important: Keep fee calculation variables (HIIN/HIDE) intact in `lib/constants/fees.ts`
+
+**Fee Structure Status**:
+- ✅ Constants written: `lib/constants/fees.ts` (VIP tiers, layer fees)
+- ✅ Utils written: `lib/utils/fees.ts` (calculation functions)
+- ❌ Implementation pending: 5 decisions needed (see tasks 1-5)
+- ❌ Components not updated: 6 components still use old Phase 0 structure
+
+**Discover Page Issues**:
+- Search: Matches description field causing false positives (e.g., "Moon" returns "DiamondIDX" because description contains "to the moon")
+- Filters: Use hardcoded `isHot`/`isNew` flags instead of dynamic criteria
+- Filters: Gainers/Losers show ALL items instead of top N
+- Filters: High Volume case missing entirely (no implementation)
+- Names: All 16 indexes have emojis (e.g., '🐕 Dog Memes Index')
+
+### Technical Details
+
+**Fee Structure (VIP-tiered)**:
+```typescript
+// lib/constants/fees.ts
+export enum VIPTier {
+  VIP0 = 'VIP0', // 0.60%
+  VIP1 = 'VIP1', // 0.50%
+  VIP2 = 'VIP2', // 0.40%
+  VIP3 = 'VIP3', // 0.35%
+  VIP4 = 'VIP4', // 0.30%
+}
+
+export type LayerType = 'L1' | 'L2' | 'L3' | 'VS' | 'PARTNER' | 'GRADUATED'
+
+// Layer fees examples
+L1: Creator 0%, Protocol 0.3-0.6%, LP 0.4%
+L2: Creator 0%, Protocol 0.3-0.6%, LP 0.4%
+L3: Creator 0.4%, Protocol 0.3-0.6%, LP 0%
+```
+
+**Search Logic Fix**:
+```typescript
+// Current (problematic) - components/discover/index-list.tsx:137-141
+filtered = filtered.filter(index =>
+  index.name.toLowerCase().includes(query) ||
+  index.symbol.toLowerCase().includes(query) ||
+  index.description.toLowerCase().includes(query) // ← Remove this line
+)
+
+// Needed
+filtered = filtered.filter(index =>
+  index.name.toLowerCase().includes(query) ||
+  index.symbol.toLowerCase().includes(query)
+)
+```
+
+**Filter Criteria Improvements**:
+```typescript
+// Current: Hardcoded flags
+case 'hot': filtered = filtered.filter(index => index.isHot)
+case 'new': filtered = filtered.filter(index => index.isNew)
+
+// Needed: Dynamic criteria
+case 'hot':
+  filtered = filtered.filter(index => index.heatScore >= 70)
+case 'new':
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+  filtered = filtered.filter(index => new Date(index.createdAt).getTime() >= sevenDaysAgo)
+case 'gainers':
+  filtered = filtered
+    .filter(index => index.change24h > 0)
+    .sort((a, b) => b.change24h - a.change24h)
+    .slice(0, 10)
+case 'losers':
+  filtered = filtered
+    .filter(index => index.change24h < 0)
+    .sort((a, b) => a.change24h - b.change24h)
+    .slice(0, 10)
+case 'high-volume':
+  filtered = filtered
+    .sort((a, b) => b.volume24h - a.volume24h)
+    .slice(0, 10)
+```
+
+**Emoji Validation**:
+```typescript
+// Add to index creation/validation
+function validateIndexName(name: string): boolean {
+  return /^[a-zA-Z0-9\s\-]+$/.test(name)
+}
+```
+
+### Related Documents
+- `/docs/planning/2025OCT04/FEE_STRUCTURE_SPECIFICATION.md` (900+ lines) - Business documentation-based fee structure
+- `/docs/planning/2025OCT04/CURRENCY_SYSTEM_REFACTORING.md` (1,246 lines) - 5-phase currency system plan
+- `/docs/planning/2025OCT04/DISCOVER_PAGE_TASK_PLAN.md` (569 lines) - 11 feedback items, 7-phase plan
+
+### Status
+Tasks planned, decisions pending, ready to execute after user decisions
+
+### Next Steps
+1. User decides: VIP tier approach, layer field in mock data, isInvited default
+2. Implement currency system simplification (remove Preferences, force HYPE)
+3. Fix discover page search and filters
+4. Remove emojis and add validation
+5. Update 6 components to new fee structure
+6. Test everything
 
 ---
 
