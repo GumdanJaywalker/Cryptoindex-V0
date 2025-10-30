@@ -1,19 +1,21 @@
 // Bonding Curve routes - L3 index trading
 
+import Decimal from 'decimal.js';
 import { Router } from 'express';
 import {
   calculateBuyPrice,
   calculateSellPrice,
   getPriceAtSupply,
+  getCurrentPrice,
   simulatePriceTrajectory,
-  getDefaultHybridParams,
-} from '../services/bondingCurve.js';
+  getDefaultQuadraticParams,
+} from '../services/bondingCurve.supabase.js';
 import {
   checkGraduationEligibility,
   getGraduationProgress,
   graduateIndex,
   estimateGraduationTime,
-} from '../services/graduation.js';
+} from '../services/graduation.supabase.js';
 import { getIndexById } from '../services/index.supabase.js';
 import { AppError } from '../utils/httpError.js';
 import type { L3Index } from '../types/index.js';
@@ -38,16 +40,16 @@ bondingCurveRouter.get('/:indexId/price', async (req, res, next) => {
     }
     
     const l3Index = index as L3Index;
-    const supply = l3Index.bondingCurve?.totalRaised || 0;
+    const supply = l3Index.bondingCurve?.totalRaised || '0';
     
     res.json({
       success: true,
       data: {
         indexId,
-        currentPrice: l3Index.bondingCurve?.currentPrice || 0,
+        currentPrice: l3Index.bondingCurve?.currentPrice || '0',
         currentSupply: supply,
-        marketCap: l3Index.bondingCurve?.currentMarketCap || 0,
-        progress: l3Index.bondingCurve?.progress || 0,
+        marketCap: l3Index.bondingCurve?.currentMarketCap || '0',
+        progress: l3Index.bondingCurve?.progress || '0',
       }
     });
   } catch (error) {
@@ -64,7 +66,7 @@ bondingCurveRouter.post('/:indexId/quote/buy', async (req, res, next) => {
     const { indexId } = req.params;
     const { amount } = req.body;
     
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!amount || new Decimal(amount).lessThanOrEqualTo(0)) {
       throw new AppError(400, {
         code: 'BAD_REQUEST',
         message: 'Amount must be greater than 0'
@@ -80,21 +82,17 @@ bondingCurveRouter.post('/:indexId/quote/buy', async (req, res, next) => {
       });
     }
     
-    const l3Index = index as L3Index;
-    const supply = l3Index.bondingCurve?.totalRaised || 0;
-    const params = l3Index.bondingCurve?.params || getDefaultHybridParams(1000000);
-    
-    const quote = calculateBuyPrice(supply, parseFloat(amount), params);
-    
+    // Use new Supabase API (returns simple string price)
+    const totalCost = await calculateBuyPrice(indexId, amount);
+    const currentPrice = await getCurrentPrice(indexId); // Get current price
+
     res.json({
       success: true,
       data: {
         amount,
-        pricePerToken: quote.pricePerToken.toFixed(6),
-        averagePrice: quote.averagePrice.toFixed(6),
-        totalCost: quote.totalCost.toFixed(2),
-        newSupply: quote.newSupply,
-        slippage: (((quote.pricePerToken - quote.averagePrice) / quote.averagePrice) * 100).toFixed(2) + '%',
+        totalCost: new Decimal(totalCost).toFixed(2),
+        estimatedPrice: new Decimal(currentPrice).toFixed(6),
+        message: 'Buy quote calculated successfully',
       }
     });
   } catch (error) {
@@ -111,7 +109,7 @@ bondingCurveRouter.post('/:indexId/quote/sell', async (req, res, next) => {
     const { indexId } = req.params;
     const { amount } = req.body;
     
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!amount || new Decimal(amount).lessThanOrEqualTo(0)) {
       throw new AppError(400, {
         code: 'BAD_REQUEST',
         message: 'Amount must be greater than 0'
@@ -127,20 +125,17 @@ bondingCurveRouter.post('/:indexId/quote/sell', async (req, res, next) => {
       });
     }
     
-    const l3Index = index as L3Index;
-    const supply = l3Index.bondingCurve?.totalRaised || 0;
-    const params = l3Index.bondingCurve?.params || getDefaultHybridParams(1000000);
-    
-    const quote = calculateSellPrice(supply, parseFloat(amount), params);
-    
+    // Use new Supabase API (returns simple string price)
+    const totalReturn = await calculateSellPrice(indexId, amount);
+    const currentPrice = await getCurrentPrice(indexId); // Get current price
+
     res.json({
       success: true,
       data: {
         amount,
-        pricePerToken: quote.pricePerToken.toFixed(6),
-        averagePrice: quote.averagePrice.toFixed(6),
-        totalReturn: quote.totalReturn.toFixed(2),
-        newSupply: quote.newSupply,
+        totalReturn: new Decimal(totalReturn).toFixed(2),
+        estimatedPrice: new Decimal(currentPrice).toFixed(6),
+        message: 'Sell quote calculated successfully',
       }
     });
   } catch (error) {
@@ -166,11 +161,9 @@ bondingCurveRouter.get('/:indexId/trajectory', async (req, res, next) => {
       });
     }
     
-    const l3Index = index as L3Index;
-    const params = l3Index.bondingCurve?.params || getDefaultHybridParams(1000000);
-    const maxSupply = params.targetMarketCap / params.basePrice; // Estimate
-    
-    const trajectory = simulatePriceTrajectory(params, maxSupply, steps);
+    // Use new Supabase API
+    const trajectory = await simulatePriceTrajectory(indexId, steps);
+    const params = getDefaultQuadraticParams(); // Get default params for display
     
     res.json({
       success: true,
@@ -229,16 +222,15 @@ bondingCurveRouter.post('/:indexId/graduate', async (req, res, next) => {
       });
     }
     
-    const l2Index = await graduateIndex(indexId, userId);
-    
-    req.log?.info({ indexId, l2IndexId: l2Index.id }, 'Index graduated successfully');
-    
+    const result = await graduateIndex(indexId);
+
+    req.log?.info({ indexId }, 'Index graduated successfully');
+
     res.json({
       success: true,
       data: {
-        oldL3IndexId: indexId,
-        newL2Index: l2Index,
-        message: 'Congratulations! Your index has graduated to Layer 2',
+        indexId,
+        ...result,
       }
     });
   } catch (error) {

@@ -1,7 +1,8 @@
 // Funding Round Service - Supabase Implementation
 // Investment management with proper transaction handling
 
-import { supabase } from '../config/supabase.js';
+import Decimal from 'decimal.js';
+import { supabase } from '../lib/supabase.js';
 import { AppError } from '../utils/httpError.js';
 import type {
   FundingRound,
@@ -21,12 +22,12 @@ function transformFundingRound(row: any): FundingRound {
   return {
     id: row.id,
     name: row.name,
-    pricePerToken: parseFloat(row.price_per_token),
-    discountPercent: parseFloat(row.discount_percent),
-    minInvestment: parseFloat(row.min_investment),
-    maxInvestment: parseFloat(row.max_investment),
-    targetRaise: parseFloat(row.target_raise),
-    currentRaise: parseFloat(row.current_raise),
+    pricePerToken: row.price_per_token,
+    discountPercent: row.discount_percent,
+    minInvestment: row.min_investment,
+    maxInvestment: row.max_investment,
+    targetRaise: row.target_raise,
+    currentRaise: row.current_raise,
     startTime: new Date(row.start_time).getTime(),
     endTime: new Date(row.end_time).getTime(),
     vestingMonths: row.vesting_months,
@@ -44,19 +45,19 @@ function transformInvestment(row: any): Investment {
     userId: row.user_id,
     roundId: row.round_id,
     roundName: row.round_name,
-    investmentAmount: parseFloat(row.investment_amount),
-    tokenAmount: parseFloat(row.token_amount),
-    pricePerToken: parseFloat(row.price_per_token),
+    investmentAmount: row.investment_amount,
+    tokenAmount: row.token_amount,
+    pricePerToken: row.price_per_token,
     timestamp: new Date(row.created_at).getTime(),
     vestingSchedule: {
-      totalAmount: parseFloat(row.vesting_total),
+      totalAmount: row.vesting_total,
       startTime: new Date(row.vesting_start_time).getTime(),
       cliffEndTime: new Date(row.vesting_cliff_end_time).getTime(),
       endTime: new Date(row.vesting_end_time).getTime(),
-      claimedAmount: parseFloat(row.claimed_amount),
+      claimedAmount: row.claimed_amount,
     },
-    claimedAmount: parseFloat(row.claimed_amount),
-    remainingAmount: parseFloat(row.remaining_amount),
+    claimedAmount: row.claimed_amount,
+    remainingAmount: row.remaining_amount,
   };
 }
 
@@ -237,13 +238,13 @@ export async function getInvestment(investmentId: string): Promise<Investment> {
  * Calculate claimable amount from vesting (Pure Function)
  * This function has NO side effects and can be tested independently
  */
-export function calculateClaimableAmount(investment: Investment): number {
+export function calculateClaimableAmount(investment: Investment): string {
   const now = Date.now();
   const schedule = investment.vestingSchedule;
   
   // Before cliff, nothing is claimable
   if (now < schedule.cliffEndTime) {
-    return 0;
+    return '0';
   }
   
   // After vesting end, everything is claimable
@@ -254,12 +255,13 @@ export function calculateClaimableAmount(investment: Investment): number {
   // During vesting, calculate linear unlock
   const vestingDuration = schedule.endTime - schedule.cliffEndTime;
   const elapsedTime = now - schedule.cliffEndTime;
-  const vestedPercent = elapsedTime / vestingDuration;
-  
-  const totalVested = schedule.totalAmount * vestedPercent;
-  const claimable = totalVested - schedule.claimedAmount;
-  
-  return Math.max(0, Math.min(claimable, investment.remainingAmount));
+  const vestedPercent = new Decimal(elapsedTime).dividedBy(vestingDuration);
+
+  const totalVested = new Decimal(schedule.totalAmount).times(vestedPercent);
+  const claimable = totalVested.minus(schedule.claimedAmount);
+  const remainingAmount = new Decimal(investment.remainingAmount);
+
+  return Decimal.max(0, Decimal.min(claimable, remainingAmount)).toString();
 }
 
 // ============================================================================
@@ -270,39 +272,39 @@ export function calculateClaimableAmount(investment: Investment): number {
  * Get all claimable amounts for user
  */
 export async function getUserClaimableTokens(userId: string): Promise<{
-  total: number;
+  total: string;
   byInvestment: Array<{
     investmentId: string;
     roundName: string;
-    claimable: number;
-    totalVested: number;
-    totalAmount: number;
+    claimable: string;
+    totalVested: string;
+    totalAmount: string;
   }>;
 }> {
   const userInvestments = await getUserInvestments(userId);
   const now = Date.now();
   
-  let total = 0;
-  
+  let total = new Decimal(0);
+
   const byInvestment = userInvestments.map(inv => {
     const claimable = calculateClaimableAmount(inv);
-    total += claimable;
-    
+    total = total.plus(claimable);
+
     const schedule = inv.vestingSchedule;
     const vestingProgress = now < schedule.cliffEndTime
-      ? 0
-      : Math.min((now - schedule.cliffEndTime) / (schedule.endTime - schedule.cliffEndTime), 1);
-    
+      ? new Decimal(0)
+      : Decimal.min(new Decimal(now - schedule.cliffEndTime).dividedBy(schedule.endTime - schedule.cliffEndTime), new Decimal(1));
+
     return {
       investmentId: inv.id,
       roundName: inv.roundName,
       claimable,
-      totalVested: schedule.totalAmount * vestingProgress,
+      totalVested: new Decimal(schedule.totalAmount).times(vestingProgress).toString(),
       totalAmount: schedule.totalAmount,
     };
   });
-  
-  return { total, byInvestment };
+
+  return { total: total.toString(), byInvestment };
 }
 
 /**
@@ -311,8 +313,8 @@ export async function getUserClaimableTokens(userId: string): Promise<{
 export async function getFundingRoundStats() {
   const rounds = await getAllFundingRounds();
   
-  const totalRaised = rounds.reduce((sum, r) => sum + r.currentRaise, 0);
-  const totalTarget = rounds.reduce((sum, r) => sum + r.targetRaise, 0);
+  const totalRaised = rounds.reduce((sum, r) => new Decimal(sum).plus(r.currentRaise).toString(), '0');
+  const totalTarget = rounds.reduce((sum, r) => new Decimal(sum).plus(r.targetRaise).toString(), '0');
   
   return {
     totalRounds: rounds.length,
@@ -320,13 +322,13 @@ export async function getFundingRoundStats() {
     completedRounds: rounds.filter(r => r.status === 'completed').length,
     totalRaised,
     totalTarget,
-    progress: totalTarget > 0 ? (totalRaised / totalTarget) * 100 : 0,
+    progress: new Decimal(totalTarget).greaterThan(0) ? new Decimal(totalRaised).dividedBy(totalTarget).times(100).toFixed(2) : '0',
     rounds: rounds.map(r => ({
       name: r.name,
       status: r.status,
       raised: r.currentRaise,
       target: r.targetRaise,
-      progress: r.targetRaise > 0 ? (r.currentRaise / r.targetRaise) * 100 : 0,
+      progress: new Decimal(r.targetRaise).greaterThan(0) ? new Decimal(r.currentRaise).dividedBy(r.targetRaise).times(100).toFixed(2) : '0',
     })),
   };
 }

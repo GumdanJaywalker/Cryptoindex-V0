@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/maengseojun/Documents/Project/HyperIndex/HI/backend/src/**)",
+      "Read(//Users/maengseojun/Documents/Project/HyperIndex/HI/backend/**)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Read(//Users/maengseojun/Downloads/**)",
+      "Bash(find:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

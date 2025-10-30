@@ -1,6 +1,7 @@
 // Token routes - Native token API
 // ✅ MIGRATED TO SUPABASE
 
+import Decimal from 'decimal.js';
 import { Router } from 'express';
 import {
   getBalance,
@@ -20,7 +21,7 @@ import {
   getFundingRoundStats,
   calculateClaimableAmount,
   getInvestment,
-} from '../services/fundingRound.js';
+} from '../services/fundingRound.supabase.js';
 import {
   getFeeStats,
   getBuybackStats,
@@ -35,7 +36,7 @@ export const tokenRouter = Router();
 
 // Initialize on first load (async)
 (async () => {
-  await initializeTreasury(100_000_000); // 100M tokens
+  await initializeTreasury('100000000'); // 100M tokens
   initializeFundingRounds();
 })();
 
@@ -274,7 +275,7 @@ tokenRouter.post('/claim/:investmentId', async (req, res, next) => {
     
     const { investmentId } = req.params;
     
-    const investment = getInvestment(investmentId);
+    const investment = await getInvestment(investmentId);
     
     if (investment.userId !== userId) {
       throw new AppError(403, {
@@ -284,20 +285,20 @@ tokenRouter.post('/claim/:investmentId', async (req, res, next) => {
     }
     
     const claimableAmount = calculateClaimableAmount(investment);
-    
-    if (claimableAmount <= 0) {
+
+    if (new Decimal(claimableAmount).lessThanOrEqualTo(0)) {
       throw new AppError(400, {
         code: 'BAD_REQUEST',
         message: 'No tokens available to claim yet'
       });
     }
-    
+
     const tx = await claimTokens(userId, claimableAmount, `${investment.roundName} vesting`);
-    
-    // Update investment
-    investment.claimedAmount += claimableAmount;
-    investment.remainingAmount -= claimableAmount;
-    investment.vestingSchedule.claimedAmount += claimableAmount;
+
+    // Update investment using Decimal.js
+    investment.claimedAmount = new Decimal(investment.claimedAmount).plus(claimableAmount).toString();
+    investment.remainingAmount = new Decimal(investment.remainingAmount).minus(claimableAmount).toString();
+    investment.vestingSchedule.claimedAmount = new Decimal(investment.vestingSchedule.claimedAmount).plus(claimableAmount).toString();
     
     req.log?.info({
       userId,
@@ -312,7 +313,7 @@ tokenRouter.post('/claim/:investmentId', async (req, res, next) => {
         claimedAmount: claimableAmount,
         remainingAmount: investment.remainingAmount,
       },
-      message: `Successfully claimed ${claimableAmount.toFixed(2)} HI tokens`
+      message: `Successfully claimed ${new Decimal(claimableAmount).toFixed(2)} HI tokens`
     });
   } catch (error) {
     next(error);

@@ -1,5 +1,6 @@
 // Token Service - Native token management
 
+import Decimal from 'decimal.js';
 import { AppError } from '../utils/httpError.js';
 import type {
   TokenHolder,
@@ -12,28 +13,28 @@ import type {
 const tokenHolders = new Map<string, TokenHolder>();
 const tokenTransactions: TokenTransaction[] = [];
 
-let totalSupply = 1_000_000_000; // 1 billion HI
-let burnedAmount = 0;
-let circulatingSupply = 0;
+let totalSupply = '1000000000'; // 1 billion HI
+let burnedAmount = '0';
+let circulatingSupply = '0';
 
 /**
  * Get or create token holder
  */
 export function getTokenHolder(userId: string): TokenHolder {
   let holder = tokenHolders.get(userId);
-  
+
   if (!holder) {
     holder = {
       userId,
-      balance: 0,
-      locked: 0,
-      staked: 0,
-      rewards: 0,
+      balance: '0',
+      locked: '0',
+      staked: '0',
+      rewards: '0',
       investments: [],
     };
     tokenHolders.set(userId, holder);
   }
-  
+
   return holder;
 }
 
@@ -41,20 +42,23 @@ export function getTokenHolder(userId: string): TokenHolder {
  * Get token balance
  */
 export function getBalance(userId: string): {
-  available: number;
-  locked: number;
-  staked: number;
-  rewards: number;
-  total: number;
+  available: string;
+  locked: string;
+  staked: string;
+  rewards: string;
+  total: string;
 } {
   const holder = getTokenHolder(userId);
-  
+  const balanceDec = new Decimal(holder.balance);
+  const lockedDec = new Decimal(holder.locked);
+  const stakedDec = new Decimal(holder.staked);
+
   return {
     available: holder.balance,
     locked: holder.locked,
     staked: holder.staked,
     rewards: holder.rewards,
-    total: holder.balance + holder.locked + holder.staked,
+    total: balanceDec.plus(lockedDec).plus(stakedDec).toString(),
   };
 }
 
@@ -63,20 +67,21 @@ export function getBalance(userId: string): {
  */
 export function mintTokens(
   userId: string,
-  amount: number,
+  amount: string,
   reason: string
 ): TokenTransaction {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
     });
   }
-  
+
   const holder = getTokenHolder(userId);
-  holder.balance += amount;
-  circulatingSupply += amount;
-  
+  holder.balance = new Decimal(holder.balance).plus(amountDec).toString();
+  circulatingSupply = new Decimal(circulatingSupply).plus(amountDec).toString();
+
   const tx: TokenTransaction = {
     id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     userId,
@@ -86,9 +91,9 @@ export function mintTokens(
     reason,
     timestamp: Date.now(),
   };
-  
+
   tokenTransactions.push(tx);
-  
+
   return tx;
 }
 
@@ -97,29 +102,31 @@ export function mintTokens(
  */
 export function burnTokens(
   userId: string,
-  amount: number,
+  amount: string,
   reason: string
 ): TokenTransaction {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
     });
   }
-  
+
   const holder = getTokenHolder(userId);
-  
-  if (holder.balance < amount) {
+  const balanceDec = new Decimal(holder.balance);
+
+  if (balanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: `Insufficient balance. Have: ${holder.balance}, Need: ${amount}`
     });
   }
-  
-  holder.balance -= amount;
-  burnedAmount += amount;
-  circulatingSupply -= amount;
-  
+
+  holder.balance = balanceDec.minus(amountDec).toString();
+  burnedAmount = new Decimal(burnedAmount).plus(amountDec).toString();
+  circulatingSupply = new Decimal(circulatingSupply).minus(amountDec).toString();
+
   const tx: TokenTransaction = {
     id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     userId,
@@ -129,9 +136,9 @@ export function burnTokens(
     reason,
     timestamp: Date.now(),
   };
-  
+
   tokenTransactions.push(tx);
-  
+
   return tx;
 }
 
@@ -141,30 +148,32 @@ export function burnTokens(
 export function transferTokens(
   fromUserId: string,
   toUserId: string,
-  amount: number,
+  amount: string,
   reason: string = 'Transfer'
 ): TokenTransaction {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
     });
   }
-  
+
   const fromHolder = getTokenHolder(fromUserId);
-  
-  if (fromHolder.balance < amount) {
+  const fromBalanceDec = new Decimal(fromHolder.balance);
+
+  if (fromBalanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: `Insufficient balance. Have: ${fromHolder.balance}, Need: ${amount}`
     });
   }
-  
+
   const toHolder = getTokenHolder(toUserId);
-  
-  fromHolder.balance -= amount;
-  toHolder.balance += amount;
-  
+
+  fromHolder.balance = fromBalanceDec.minus(amountDec).toString();
+  toHolder.balance = new Decimal(toHolder.balance).plus(amountDec).toString();
+
   const tx: TokenTransaction = {
     id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     userId: fromUserId,
@@ -175,44 +184,48 @@ export function transferTokens(
     reason,
     timestamp: Date.now(),
   };
-  
+
   tokenTransactions.push(tx);
-  
+
   return tx;
 }
 
 /**
  * Lock tokens (for vesting)
  */
-export function lockTokens(userId: string, amount: number): void {
+export function lockTokens(userId: string, amount: string): void {
   const holder = getTokenHolder(userId);
-  
-  if (holder.balance < amount) {
+  const amountDec = new Decimal(amount);
+  const balanceDec = new Decimal(holder.balance);
+
+  if (balanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: 'Insufficient available balance to lock'
     });
   }
-  
-  holder.balance -= amount;
-  holder.locked += amount;
+
+  holder.balance = balanceDec.minus(amountDec).toString();
+  holder.locked = new Decimal(holder.locked).plus(amountDec).toString();
 }
 
 /**
  * Unlock tokens (from vesting)
  */
-export function unlockTokens(userId: string, amount: number): void {
+export function unlockTokens(userId: string, amount: string): void {
   const holder = getTokenHolder(userId);
-  
-  if (holder.locked < amount) {
+  const amountDec = new Decimal(amount);
+  const lockedDec = new Decimal(holder.locked);
+
+  if (lockedDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: 'Insufficient locked balance to unlock'
     });
   }
-  
-  holder.locked -= amount;
-  holder.balance += amount;
+
+  holder.locked = lockedDec.minus(amountDec).toString();
+  holder.balance = new Decimal(holder.balance).plus(amountDec).toString();
 }
 
 /**
@@ -220,11 +233,11 @@ export function unlockTokens(userId: string, amount: number): void {
  */
 export function claimTokens(
   userId: string,
-  amount: number,
+  amount: string,
   source: string
 ): TokenTransaction {
   unlockTokens(userId, amount);
-  
+
   const tx: TokenTransaction = {
     id: `tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     userId,
@@ -234,9 +247,9 @@ export function claimTokens(
     reason: `Claimed from ${source}`,
     timestamp: Date.now(),
   };
-  
+
   tokenTransactions.push(tx);
-  
+
   return tx;
 }
 
@@ -245,13 +258,15 @@ export function claimTokens(
  */
 export function getTokenMetrics(): TokenMetrics {
   const stakedAmount = Array.from(tokenHolders.values()).reduce(
-    (sum, holder) => sum + holder.staked,
-    0
+    (sum, holder) => new Decimal(sum).plus(holder.staked).toString(),
+    '0'
   );
-  
+
   // Mock price - in production, get from oracle
-  const priceUsd = 0.05;
-  
+  const priceUsd = '0.05';
+  const circulatingSupplyDec = new Decimal(circulatingSupply);
+  const priceUsdDec = new Decimal(priceUsd);
+
   return {
     totalSupply,
     circulatingSupply,
@@ -259,7 +274,7 @@ export function getTokenMetrics(): TokenMetrics {
     stakedAmount,
     treasuryBalance: getBalance('treasury').total,
     priceUsd,
-    marketCap: circulatingSupply * priceUsd,
+    marketCap: circulatingSupplyDec.times(priceUsdDec).toString(),
     holders: tokenHolders.size,
   };
 }
@@ -272,13 +287,13 @@ export function getTransactionHistory(
   limit: number = 50
 ): TokenTransaction[] {
   let txs = tokenTransactions;
-  
+
   if (userId) {
     txs = txs.filter(
       tx => tx.userId === userId || tx.from === userId || tx.to === userId
     );
   }
-  
+
   return txs
     .sort((a, b) => b.timestamp - a.timestamp)
     .slice(0, limit);
@@ -294,20 +309,21 @@ export function getAllHolders(): TokenHolder[] {
 /**
  * Initialize treasury
  */
-export function initializeTreasury(amount: number): void {
+export function initializeTreasury(amount: string): void {
   const treasury = getTokenHolder('treasury');
-  
-  if (treasury.balance === 0) {
+  const amountDec = new Decimal(amount);
+
+  if (new Decimal(treasury.balance).equals(0)) {
     treasury.balance = amount;
-    circulatingSupply += amount;
-    
-    console.log(`💰 Treasury initialized with ${amount.toLocaleString()} HI tokens`);
+    circulatingSupply = new Decimal(circulatingSupply).plus(amountDec).toString();
+
+    console.log(`💰 Treasury initialized with ${amountDec.toNumber().toLocaleString()} HI tokens`);
   }
 }
 
 /**
  * Get treasury balance
  */
-export function getTreasuryBalance(): number {
+export function getTreasuryBalance(): string {
   return getBalance('treasury').available;
 }

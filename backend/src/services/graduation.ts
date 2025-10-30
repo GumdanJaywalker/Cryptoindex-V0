@@ -1,5 +1,6 @@
 // Graduation Service - L3 to L2 migration logic
 
+import Decimal from 'decimal.js';
 import { AppError } from '../utils/httpError.js';
 import type { Index, L3Index, GraduationCriteria } from '../types/index.js';
 import { getIndexById } from './index.supabase.js';
@@ -10,9 +11,9 @@ import { getIndexById } from './index.supabase.js';
  * MVP values: $1M market cap, 100 holders, $50k volume, $100k TVL
  */
 export const DEFAULT_GRADUATION_CRITERIA: GraduationCriteria = {
-  minMarketCap: 1_000_000,      // $1M market cap
+  minMarketCap: '1000000',      // $1M market cap
   minHolders: 100,              // 100 unique holders
-  minVolume24h: 50_000,         // $50k daily volume
+  minVolume24h: '50000',        // $50k daily volume
   minAge: 30 * 24 * 60 * 60,    // 30 days in seconds
 };
 
@@ -45,9 +46,9 @@ export async function checkGraduationEligibility(
   
   // Get current metrics
   const current = {
-    marketCap: l3Index.bondingCurve?.currentMarketCap || 0,
+    marketCap: l3Index.bondingCurve?.currentMarketCap || '0',
     holders: index.holders || 0,
-    volume24h: parseFloat(index.volume24h || '0'),
+    volume24h: index.volume24h || '0',
     age: Date.now() - index.createdAt,
   };
   
@@ -66,9 +67,9 @@ export async function checkGraduationEligibility(
     );
   }
   
-  if (current.volume24h < DEFAULT_GRADUATION_CRITERIA.minVolume24h) {
+  if (new Decimal(current.volume24h).lessThan(DEFAULT_GRADUATION_CRITERIA.minVolume24h)) {
     missing.push(
-      `24h Volume: $${current.volume24h.toLocaleString()} / $${DEFAULT_GRADUATION_CRITERIA.minVolume24h.toLocaleString()}`
+      `24h Volume: $${new Decimal(current.volume24h).toNumber().toLocaleString()} / $${new Decimal(DEFAULT_GRADUATION_CRITERIA.minVolume24h).toNumber().toLocaleString()}`
     );
   }
   
@@ -81,7 +82,12 @@ export async function checkGraduationEligibility(
   return {
     eligible: missing.length === 0,
     criteria: DEFAULT_GRADUATION_CRITERIA,
-    current,
+    current: {
+      marketCap: new Decimal(current.marketCap).toNumber(),
+      holders: current.holders,
+      volume24h: new Decimal(current.volume24h).toNumber(),
+      age: current.age,
+    },
     missing,
   };
 }
@@ -116,7 +122,7 @@ export async function graduateIndex(
     name: l3Index.name,
     description: `${l3Index.description} (Graduated from L3)`,
     components: l3Index.components,
-    managementFee: 0.01, // L2 fee: 1%
+    managementFee: '0.01', // L2 fee: 1%
     status: 'active',
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -149,7 +155,7 @@ export async function getGraduationProgress(indexId: string) {
   // Calculate progress for each criterion (0-100%)
   const progress = {
     marketCap: Math.min(
-      (eligibility.current.marketCap / eligibility.criteria.minMarketCap) * 100,
+      new Decimal(eligibility.current.marketCap).dividedBy(eligibility.criteria.minMarketCap).times(100).toNumber(),
       100
     ),
     holders: Math.min(
@@ -157,7 +163,7 @@ export async function getGraduationProgress(indexId: string) {
       100
     ),
     volume: Math.min(
-      (eligibility.current.volume24h / eligibility.criteria.minVolume24h) * 100,
+      new Decimal(eligibility.current.volume24h).dividedBy(eligibility.criteria.minVolume24h).times(100).toNumber(),
       100
     ),
     age: Math.min(

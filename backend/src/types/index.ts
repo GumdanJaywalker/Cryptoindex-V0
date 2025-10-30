@@ -19,7 +19,7 @@ export type IndexStatus = 'active' | 'paused' | 'graduated' | 'deprecated';
 export interface IndexComponent {
   symbol: string;
   address: string;
-  weight: number; // Percentage (0-1), sum should be 1.0
+  weight: string; // Percentage (0-1), sum should be 1.0
   chainId?: number; // For future multi-chain support
 }
 
@@ -35,8 +35,8 @@ export interface Index {
   components: IndexComponent[];
   
   // Fees
-  managementFee: number; // Annual % (e.g., 0.007 = 0.7%)
-  performanceFee?: number; // % of profits (for L3)
+  managementFee: string; // Annual % (e.g., '0.007' = 0.7%)
+  performanceFee?: string; // % of profits (for L3)
   
   // Status
   status: IndexStatus;
@@ -60,7 +60,7 @@ export interface LayerConfig {
   minComponents: number;
   maxComponents: number;
   tradingMechanism: 'amm' | 'bonding-curve';
-  managementFee: number; // Default fee
+  managementFee: string; // Default fee
   rebalancingFrequency?: 'monthly' | 'weekly' | 'user-controlled';
   permissionless: boolean; // Can users create?
 }
@@ -74,7 +74,7 @@ export const L1_CONFIG: LayerConfig = {
   minComponents: 50,
   maxComponents: 100,
   tradingMechanism: 'amm',
-  managementFee: 0.007, // 0.7% annually
+  managementFee: '0.007', // 0.7% annually
   rebalancingFrequency: 'monthly',
   permissionless: false, // Admin only
 };
@@ -88,7 +88,7 @@ export const L2_CONFIG: LayerConfig = {
   minComponents: 5,
   maxComponents: 50,
   tradingMechanism: 'amm',
-  managementFee: 0.01, // 1% annually
+  managementFee: '0.01', // 1% annually
   rebalancingFrequency: 'weekly',
   permissionless: false, // Admin or graduated L3
 };
@@ -102,19 +102,80 @@ export const L3_CONFIG: LayerConfig = {
   minComponents: 2,
   maxComponents: 20,
   tradingMechanism: 'bonding-curve',
-  managementFee: 0.02, // 2% annually
+  managementFee: '0.02', // 2% annually
   rebalancingFrequency: 'user-controlled',
   permissionless: true, // Anyone can create
 };
 
 /**
  * Bonding Curve parameters (Layer 3 only)
+ *
+ * Quadratic Formula: P(s) = basePrice + a*s + b*s²
+ * - 초기: Linear 주도 (안정적 시작)
+ * - 후기: Quadratic 주도 (빠른 졸업 유도)
+ * - 가격 상한: 없음 (Graduation이 자연스럽게 제한)
  */
 export interface BondingCurveParams {
-  initialPrice: number; // Starting price
-  targetMarketCap: number; // Graduation target in USD
-  k: number; // Bonding curve constant
-  reserveRatio?: number; // For Bancor-style curves
+  /** Curve type: 'linear' or 'quadratic' */
+  curveType: 'linear' | 'quadratic';
+
+  /** Initial price at supply = 0 (e.g., "0.001") */
+  basePrice: string;
+
+  /** Linear coefficient (a in P(s) = a*s + b*s²) */
+  linearCoefficient: string;
+
+  /** Quadratic coefficient (b in P(s) = a*s + b*s²). Required for quadratic curve. */
+  quadraticCoefficient: string;
+
+  /** Target market cap for graduation (e.g., "1000000000" = $1B) */
+  targetMarketCap: string;
+
+  /** Graduation threshold in token supply (e.g., "800000000" = 800M tokens) */
+  graduationThreshold: string;
+}
+
+/**
+ * 기본 Quadratic 파라미터 상수
+ */
+export const QUADRATIC_CURVE_DEFAULTS = {
+  BASE_PRICE: '0.001',
+  LINEAR_COEFFICIENT: '0.000000003',           // a = 3e-9
+  QUADRATIC_COEFFICIENT: '0.0000000000000000039', // b = 3.9e-18
+  TARGET_MARKET_CAP: '4000000000',              // $4B target
+  GRADUATION_THRESHOLD: '800000000',           // 800M tokens
+} as const;
+
+/**
+ * 기본 Quadratic 파라미터
+ *
+ * 설계 목표:
+ * - 시작 가격: $0.001
+ * - 800M 토큰 시 가격: ~$4.90
+ * - 전환점: ~769M 토큰 (Linear와 Quadratic이 균형)
+ * - 초기 단계: Linear 주도 (안정적 시작)
+ * - 후기 단계: Quadratic 주도 (빠른 졸업 유도)
+ *
+ * Formula: P(s) = 0.001 + 3e-9*s + 3.9e-18*s²
+ */
+export function getDefaultQuadraticParams(): BondingCurveParams {
+  return {
+    curveType: 'quadratic',
+    basePrice: QUADRATIC_CURVE_DEFAULTS.BASE_PRICE,
+    linearCoefficient: QUADRATIC_CURVE_DEFAULTS.LINEAR_COEFFICIENT,
+    quadraticCoefficient: QUADRATIC_CURVE_DEFAULTS.QUADRATIC_COEFFICIENT,
+    targetMarketCap: QUADRATIC_CURVE_DEFAULTS.TARGET_MARKET_CAP,
+    graduationThreshold: QUADRATIC_CURVE_DEFAULTS.GRADUATION_THRESHOLD,
+  };
+}
+
+/**
+ * Price trajectory simulation point
+ */
+export interface PricePoint {
+  supply: string;
+  price: string;
+  marketCap?: string;
 }
 
 /**
@@ -124,17 +185,17 @@ export interface L3Index extends Index {
   layer: 'L3';
   bondingCurve: {
     params: BondingCurveParams;
-    currentPrice: number;
-    currentMarketCap: number;
-    totalRaised: number;
-    progress: number; // % to graduation (0-100)
+    currentPrice: string;
+    currentMarketCap: string;
+    totalRaised: string;
+    progress: string; // % to graduation (0-100)
   };
   fundingRound?: {
     active: boolean;
     startTime: number;
     endTime: number;
-    targetAmount: number;
-    raisedAmount: number;
+    targetAmount: string;
+    raisedAmount: string;
   };
 }
 
@@ -142,16 +203,16 @@ export interface L3Index extends Index {
  * Graduation criteria for L3 → L2
  */
 export interface GraduationCriteria {
-  minMarketCap: number; // e.g., $1M
+  minMarketCap: string; // e.g., $1M
   minHolders: number; // e.g., 100
-  minVolume24h: number; // e.g., $50k
+  minVolume24h: string; // e.g., $50k
   minAge: number; // seconds, e.g., 30 days
 }
 
 export const DEFAULT_GRADUATION_CRITERIA: GraduationCriteria = {
-  minMarketCap: 1_000_000, // $1M
+  minMarketCap: '1000000', // $1M
   minHolders: 100,
-  minVolume24h: 50_000, // $50k
+  minVolume24h: '50000', // $50k
   minAge: 30 * 24 * 60 * 60, // 30 days
 };
 

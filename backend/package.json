@@ -16,6 +16,7 @@
     "@nktkas/hyperliquid": "^0.24.3",
     "@supabase/supabase-js": "^2.39.0",
     "axios": "^1.12.2",
+    "decimal.js": "^10.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-rate-limit": "^7.4.0",
@@ -27,6 +28,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/decimal.js": "^0.0.32",
     "@types/express": "^4.17.21",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.7.6",

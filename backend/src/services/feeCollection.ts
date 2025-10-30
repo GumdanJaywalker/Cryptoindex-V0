@@ -1,12 +1,13 @@
 // Fee Collection and Buyback Service
 
+import Decimal from 'decimal.js';
 import { AppError } from '../utils/httpError.js';
 import type {
   FeeCollectionConfig,
   BuybackConfig,
   DEFAULT_FEE_CONFIG,
   DEFAULT_BUYBACK_CONFIG,
-} from '../types/token.ts';
+} from '../types/token.js';
 import {
   getTokenHolder,
   transferTokens,
@@ -17,55 +18,55 @@ import {
 
 // Configuration (in production, store in database)
 let feeConfig: FeeCollectionConfig = {
-  swapFeePercent: 0.003,
-  rebalancingFeePercent: 0.005,
-  l1ManagementFee: 0.007,
-  l2ManagementFee: 0.01,
-  l3ManagementFee: 0.02,
-  l3PerformanceFee: 0.2,
-  treasuryShare: 0.4,
-  buybackShare: 0.3,
-  stakingRewardShare: 0.3,
+  swapFeePercent: '0.003',
+  rebalancingFeePercent: '0.005',
+  l1ManagementFee: '0.007',
+  l2ManagementFee: '0.01',
+  l3ManagementFee: '0.02',
+  l3PerformanceFee: '0.2',
+  treasuryShare: '0.4',
+  buybackShare: '0.3',
+  stakingRewardShare: '0.3',
 };
 
 let buybackConfig: BuybackConfig = {
   enabled: true,
-  minTreasuryBalance: 10_000,
-  buybackPercentPerWeek: 0.1,
-  priceThreshold: 0.04,
-  burnPercentage: 0.5,
+  minTreasuryBalance: '10000',
+  buybackPercentPerWeek: '0.1',
+  priceThreshold: '0.04',
+  burnPercentage: '0.5',
 };
 
 // Fee collection stats
 interface FeeStats {
-  totalCollected: number;
-  toTreasury: number;
-  toBuyback: number;
-  toStaking: number;
+  totalCollected: string;
+  toTreasury: string;
+  toBuyback: string;
+  toStaking: string;
   lastCollection: number;
 }
 
 const feeStats: FeeStats = {
-  totalCollected: 0,
-  toTreasury: 0,
-  toBuyback: 0,
-  toStaking: 0,
+  totalCollected: '0',
+  toTreasury: '0',
+  toBuyback: '0',
+  toStaking: '0',
   lastCollection: Date.now(),
 };
 
 // Buyback stats
 interface BuybackStats {
-  totalBuyback: number;
-  totalBurned: number;
-  totalLP: number;
+  totalBuyback: string;
+  totalBurned: string;
+  totalLP: string;
   lastBuyback: number;
   buybackCount: number;
 }
 
 const buybackStats: BuybackStats = {
-  totalBuyback: 0,
-  totalBurned: 0,
-  totalLP: 0,
+  totalBuyback: '0',
+  totalBurned: '0',
+  totalLP: '0',
   lastBuyback: Date.now(),
   buybackCount: 0,
 };
@@ -75,55 +76,58 @@ const buybackStats: BuybackStats = {
  */
 export async function collectFee(
   fromUserId: string,
-  feeAmount: number,
+  feeAmount: string,
   reason: string
 ): Promise<void> {
-  if (feeAmount <= 0) return;
-  
+  const feeAmountDec = new Decimal(feeAmount);
+  if (feeAmountDec.lessThanOrEqualTo(0)) return;
+
   // Transfer fee from user to treasury
   await transferTokens(fromUserId, SYSTEM_ACCOUNTS.TREASURY, feeAmount, reason);
-  
-  // Distribute fee
-  const toTreasury = feeAmount * feeConfig.treasuryShare;
-  const toBuyback = feeAmount * feeConfig.buybackShare;
-  const toStaking = feeAmount * feeConfig.stakingRewardShare;
-  
+
+  // Distribute fee using Decimal.js
+  const toTreasury = feeAmountDec.times(feeConfig.treasuryShare);
+  const toBuyback = feeAmountDec.times(feeConfig.buybackShare);
+  const toStaking = feeAmountDec.times(feeConfig.stakingRewardShare);
+
   // Move buyback portion to buyback pool
-  if (toBuyback > 0) {
-    await transferTokens(SYSTEM_ACCOUNTS.TREASURY, SYSTEM_ACCOUNTS.BUYBACK_POOL, toBuyback, 'Fee allocation for buyback');
+  if (toBuyback.greaterThan(0)) {
+    await transferTokens(SYSTEM_ACCOUNTS.TREASURY, SYSTEM_ACCOUNTS.BUYBACK_POOL, toBuyback.toString(), 'Fee allocation for buyback');
   }
-  
+
   // Move staking portion to staking rewards pool
-  if (toStaking > 0) {
-    await transferTokens(SYSTEM_ACCOUNTS.TREASURY, SYSTEM_ACCOUNTS.STAKING_REWARDS, toStaking, 'Fee allocation for staking rewards');
+  if (toStaking.greaterThan(0)) {
+    await transferTokens(SYSTEM_ACCOUNTS.TREASURY, SYSTEM_ACCOUNTS.STAKING_REWARDS, toStaking.toString(), 'Fee allocation for staking rewards');
   }
-  
-  // Update stats
-  feeStats.totalCollected += feeAmount;
-  feeStats.toTreasury += toTreasury;
-  feeStats.toBuyback += toBuyback;
-  feeStats.toStaking += toStaking;
+
+  // Update stats using Decimal.js
+  feeStats.totalCollected = new Decimal(feeStats.totalCollected).plus(feeAmount).toString();
+  feeStats.toTreasury = new Decimal(feeStats.toTreasury).plus(toTreasury).toString();
+  feeStats.toBuyback = new Decimal(feeStats.toBuyback).plus(toBuyback).toString();
+  feeStats.toStaking = new Decimal(feeStats.toStaking).plus(toStaking).toString();
   feeStats.lastCollection = Date.now();
 }
 
 /**
  * Calculate swap fee in native token
  */
-export function calculateSwapFee(swapValueUsd: number): number {
+export function calculateSwapFee(swapValueUsd: string): string {
   // Fee is calculated in native token
   // Mock: 1 HI = $0.05
-  const tokenPrice = 0.05;
-  const feeUsd = swapValueUsd * feeConfig.swapFeePercent;
-  return feeUsd / tokenPrice;
+  const tokenPrice = new Decimal('0.05');
+  const swapValueDec = new Decimal(swapValueUsd);
+  const feeUsd = swapValueDec.times(feeConfig.swapFeePercent);
+  return feeUsd.dividedBy(tokenPrice).toString();
 }
 
 /**
  * Calculate rebalancing fee
  */
-export function calculateRebalancingFee(rebalanceValueUsd: number): number {
-  const tokenPrice = 0.05;
-  const feeUsd = rebalanceValueUsd * feeConfig.rebalancingFeePercent;
-  return feeUsd / tokenPrice;
+export function calculateRebalancingFee(rebalanceValueUsd: string): string {
+  const tokenPrice = new Decimal('0.05');
+  const rebalanceValueDec = new Decimal(rebalanceValueUsd);
+  const feeUsd = rebalanceValueDec.times(feeConfig.rebalancingFeePercent);
+  return feeUsd.dividedBy(tokenPrice).toString();
 }
 
 /**
@@ -131,11 +135,11 @@ export function calculateRebalancingFee(rebalanceValueUsd: number): number {
  */
 export function calculateManagementFee(
   indexLayer: 'L1' | 'L2' | 'L3',
-  indexTvlUsd: number,
+  indexTvlUsd: string,
   durationDays: number
-): number {
-  let annualFeeRate: number;
-  
+): string {
+  let annualFeeRate: string;
+
   switch (indexLayer) {
     case 'L1':
       annualFeeRate = feeConfig.l1ManagementFee;
@@ -147,24 +151,26 @@ export function calculateManagementFee(
       annualFeeRate = feeConfig.l3ManagementFee;
       break;
   }
-  
-  const tokenPrice = 0.05;
-  const dailyFeeRate = annualFeeRate / 365;
-  const feeUsd = indexTvlUsd * dailyFeeRate * durationDays;
-  
-  return feeUsd / tokenPrice;
+
+  const tokenPrice = new Decimal('0.05');
+  const indexTvlDec = new Decimal(indexTvlUsd);
+  const dailyFeeRate = new Decimal(annualFeeRate).dividedBy(365);
+  const feeUsd = indexTvlDec.times(dailyFeeRate).times(durationDays);
+
+  return feeUsd.dividedBy(tokenPrice).toString();
 }
 
 /**
  * Calculate performance fee (L3 only)
  */
-export function calculatePerformanceFee(profitUsd: number): number {
-  if (profitUsd <= 0) return 0;
-  
-  const tokenPrice = 0.05;
-  const feeUsd = profitUsd * feeConfig.l3PerformanceFee;
-  
-  return feeUsd / tokenPrice;
+export function calculatePerformanceFee(profitUsd: string): string {
+  const profitDec = new Decimal(profitUsd);
+  if (profitDec.lessThanOrEqualTo(0)) return '0';
+
+  const tokenPrice = new Decimal('0.05');
+  const feeUsd = profitDec.times(feeConfig.l3PerformanceFee);
+
+  return feeUsd.dividedBy(tokenPrice).toString();
 }
 
 /**
@@ -172,77 +178,79 @@ export function calculatePerformanceFee(profitUsd: number): number {
  */
 export async function executeBuyback(): Promise<{
   success: boolean;
-  amountBuyback: number;
-  amountBurned: number;
-  amountLP: number;
+  amountBuyback: string;
+  amountBurned: string;
+  amountLP: string;
   reason?: string;
 }> {
   if (!buybackConfig.enabled) {
     return {
       success: false,
-      amountBuyback: 0,
-      amountBurned: 0,
-      amountLP: 0,
+      amountBuyback: '0',
+      amountBurned: '0',
+      amountLP: '0',
       reason: 'Buyback is disabled',
     };
   }
-  
+
   const buybackPool = await getTokenHolder(SYSTEM_ACCOUNTS.BUYBACK_POOL);
-  const buybackBalance = buybackPool.balance;
-  
+  const buybackBalance = new Decimal(buybackPool.balance);
+  const minBalance = new Decimal(buybackConfig.minTreasuryBalance);
+
   // Check minimum balance
-  if (buybackBalance < buybackConfig.minTreasuryBalance) {
+  if (buybackBalance.lessThan(minBalance)) {
     return {
       success: false,
-      amountBuyback: 0,
-      amountBurned: 0,
-      amountLP: 0,
-      reason: `Buyback pool balance (${buybackBalance}) below minimum (${buybackConfig.minTreasuryBalance})`,
+      amountBuyback: '0',
+      amountBurned: '0',
+      amountLP: '0',
+      reason: `Buyback pool balance (${buybackBalance.toString()}) below minimum (${buybackConfig.minTreasuryBalance})`,
     };
   }
-  
+
   // Check price threshold (mock)
-  const currentPrice = 0.05; // Mock price
-  if (currentPrice >= buybackConfig.priceThreshold) {
+  const currentPrice = new Decimal('0.05'); // Mock price
+  const priceThreshold = new Decimal(buybackConfig.priceThreshold);
+  if (currentPrice.greaterThanOrEqualTo(priceThreshold)) {
     return {
       success: false,
-      amountBuyback: 0,
-      amountBurned: 0,
-      amountLP: 0,
-      reason: `Current price ($${currentPrice}) above threshold ($${buybackConfig.priceThreshold})`,
+      amountBuyback: '0',
+      amountBurned: '0',
+      amountLP: '0',
+      reason: `Current price ($${currentPrice.toString()}) above threshold ($${buybackConfig.priceThreshold})`,
     };
   }
-  
-  // Calculate buyback amount
-  const buybackAmount = buybackBalance * buybackConfig.buybackPercentPerWeek;
-  
+
+  // Calculate buyback amount using Decimal.js
+  const buybackAmount = buybackBalance.times(buybackConfig.buybackPercentPerWeek);
+
   // Calculate burn vs LP allocation
-  const burnAmount = buybackAmount * buybackConfig.burnPercentage;
-  const lpAmount = buybackAmount - burnAmount;
-  
+  const burnAmount = buybackAmount.times(buybackConfig.burnPercentage);
+  const lpAmount = buybackAmount.minus(burnAmount);
+
   // Execute burn
-  if (burnAmount > 0) {
-    await burnTokens(SYSTEM_ACCOUNTS.BUYBACK_POOL, burnAmount, 'Buyback burn');
+  if (burnAmount.greaterThan(0)) {
+    await burnTokens(SYSTEM_ACCOUNTS.BUYBACK_POOL, burnAmount.toString(), 'Buyback burn');
   }
-  
+
   // Add to LP (mock - in production, add to liquidity pool)
-  if (lpAmount > 0) {
+  if (lpAmount.greaterThan(0)) {
     // TODO: liquidity-pool needs a UUID too
-    // transferTokens(SYSTEM_ACCOUNTS.BUYBACK_POOL, 'liquidity-pool', lpAmount, 'Buyback LP provision');
+    // transferTokens(SYSTEM_ACCOUNTS.BUYBACK_POOL, 'liquidity-pool', lpAmount.toString(), 'Buyback LP provision');
   }
-  
-  // Update stats
-  buybackStats.totalBuyback += buybackAmount;
-  buybackStats.totalBurned += burnAmount;
-  buybackStats.totalLP += lpAmount;
+
+  // Update stats using Decimal.js
+  buybackStats.totalBuyback = new Decimal(buybackStats.totalBuyback).plus(buybackAmount).toString();
+  buybackStats.totalBurned = new Decimal(buybackStats.totalBurned).plus(burnAmount).toString();
+  buybackStats.totalLP = new Decimal(buybackStats.totalLP).plus(lpAmount).toString();
   buybackStats.lastBuyback = Date.now();
   buybackStats.buybackCount += 1;
-  
+
   return {
     success: true,
-    amountBuyback: buybackAmount,
-    amountBurned: burnAmount,
-    amountLP: lpAmount,
+    amountBuyback: buybackAmount.toString(),
+    amountBurned: burnAmount.toString(),
+    amountLP: lpAmount.toString(),
   };
 }
 
@@ -293,38 +301,41 @@ export function updateBuybackConfig(newConfig: Partial<BuybackConfig>): void {
  */
 export async function simulateBuybackSchedule(weeks: number = 12): Promise<Array<{
   week: number;
-  buybackAmount: number;
-  burnAmount: number;
-  lpAmount: number;
-  poolBalance: number;
+  buybackAmount: string;
+  burnAmount: string;
+  lpAmount: string;
+  poolBalance: string;
 }>> {
   const schedule: Array<{
     week: number;
-    buybackAmount: number;
-    burnAmount: number;
-    lpAmount: number;
-    poolBalance: number;
+    buybackAmount: string;
+    burnAmount: string;
+    lpAmount: string;
+    poolBalance: string;
   }> = [];
-  
-  let poolBalance = (await getTokenHolder(SYSTEM_ACCOUNTS.BUYBACK_POOL)).balance;
-  
+
+  let poolBalance = new Decimal((await getTokenHolder(SYSTEM_ACCOUNTS.BUYBACK_POOL)).balance);
+  const minBalance = new Decimal(buybackConfig.minTreasuryBalance);
+  const weeklyPercent = new Decimal(buybackConfig.buybackPercentPerWeek);
+  const burnPercent = new Decimal(buybackConfig.burnPercentage);
+
   for (let week = 1; week <= weeks; week++) {
-    if (poolBalance < buybackConfig.minTreasuryBalance) break;
-    
-    const buybackAmount = poolBalance * buybackConfig.buybackPercentPerWeek;
-    const burnAmount = buybackAmount * buybackConfig.burnPercentage;
-    const lpAmount = buybackAmount - burnAmount;
-    
-    poolBalance -= buybackAmount;
-    
+    if (poolBalance.lessThan(minBalance)) break;
+
+    const buybackAmount = poolBalance.times(weeklyPercent);
+    const burnAmount = buybackAmount.times(burnPercent);
+    const lpAmount = buybackAmount.minus(burnAmount);
+
+    poolBalance = poolBalance.minus(buybackAmount);
+
     schedule.push({
       week,
-      buybackAmount,
-      burnAmount,
-      lpAmount,
-      poolBalance,
+      buybackAmount: buybackAmount.toString(),
+      burnAmount: burnAmount.toString(),
+      lpAmount: lpAmount.toString(),
+      poolBalance: poolBalance.toString(),
     });
   }
-  
+
   return schedule;
 }

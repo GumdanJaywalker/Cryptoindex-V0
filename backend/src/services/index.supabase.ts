@@ -1,7 +1,8 @@
 // Index Service - Supabase version
 // FULLY MIGRATED - All functions now use Supabase
 
-import { supabase } from '../lib/supabase.js';
+import Decimal from 'decimal.js';
+import { supabase, type Database } from '../lib/supabase.js';
 import { AppError } from '../utils/httpError.js';
 import type {
   Index,
@@ -22,7 +23,7 @@ export function getLayerConfig(layer: Layer): LayerConfig {
       minComponents: 50,
       maxComponents: 100,
       tradingMechanism: 'amm' as const,
-      managementFee: 0.007,
+      managementFee: '0.007',
       rebalancingFrequency: 'monthly' as const,
       permissionless: false,
     },
@@ -31,7 +32,7 @@ export function getLayerConfig(layer: Layer): LayerConfig {
       minComponents: 5,
       maxComponents: 50,
       tradingMechanism: 'amm' as const,
-      managementFee: 0.01,
+      managementFee: '0.01',
       rebalancingFrequency: 'weekly' as const,
       permissionless: false,
     },
@@ -40,7 +41,7 @@ export function getLayerConfig(layer: Layer): LayerConfig {
       minComponents: 2,
       maxComponents: 20,
       tradingMechanism: 'bonding-curve' as const,
-      managementFee: 0.02,
+      managementFee: '0.02',
       rebalancingFrequency: 'user-controlled' as const,
       permissionless: true,
     },
@@ -69,11 +70,12 @@ function validateComponents(components: IndexComponent[], layer: Layer): void {
     });
   }
   
-  const totalWeight = components.reduce((sum, c) => sum + c.weight, 0);
-  if (Math.abs(totalWeight - 1.0) > 0.001) {
+  const totalWeight = components.reduce((sum, c) => new Decimal(sum).plus(c.weight), new Decimal(0));
+  const difference = totalWeight.minus(1.0).abs();
+  if (difference.greaterThan(0.001)) {
     throw new AppError(400, {
       code: 'WEIGHT_SUM_INVALID',
-      message: `Component weights must sum to 1.0, got ${totalWeight}`
+      message: `Component weights must sum to 1.0, got ${totalWeight.toString()}`
     });
   }
   
@@ -87,7 +89,8 @@ function validateComponents(components: IndexComponent[], layer: Layer): void {
     }
     symbols.add(comp.symbol);
     
-    if (comp.weight <= 0 || comp.weight > 1) {
+    const weightDec = new Decimal(comp.weight);
+    if (weightDec.lessThanOrEqualTo(0) || weightDec.greaterThan(1)) {
       throw new AppError(400, {
         code: 'BAD_REQUEST',
         message: `Invalid weight for ${comp.symbol}: ${comp.weight}`
@@ -157,31 +160,31 @@ export async function createIndex(
     // For now, use the first user from the database
     const { data: users } = await supabase.from('users').select('id').limit(1);
     if (users && users.length > 0) {
-      indexData.created_by = users[0].id;
+      indexData.created_by = (users[0] as any).id;
     }
   }
   
   // Add performance fee for L3
   if (layer === 'L3') {
-    indexData.performance_fee = 0.2;
+    indexData.performance_fee = '0.2';
   }
   
   const { data: index, error: indexError } = await supabase
     .from('indices')
-    .insert(indexData)
+    .insert(indexData as any)
     .select()
     .single();
   
   if (indexError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to create index: ${indexError.message}`
     });
   }
   
   // Step 2: Insert components
   const componentsData = components.map(c => ({
-    index_id: index.id,
+    index_id: (index as any).id,
     symbol: c.symbol,
     address: c.address,
     weight: c.weight,
@@ -189,13 +192,13 @@ export async function createIndex(
   
   const { error: componentsError } = await supabase
     .from('index_components')
-    .insert(componentsData);
+    .insert(componentsData as any);
   
   if (componentsError) {
     // Rollback: delete the index
-    await supabase.from('indices').delete().eq('id', index.id);
+    await supabase.from('indices').delete().eq('id', (index as any).id);
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to insert components: ${componentsError.message}`
     });
   }
@@ -203,15 +206,13 @@ export async function createIndex(
   // Step 3: Insert bonding curve params (if L3)
   if (layer === 'L3' && bondingCurveParams) {
     const bondingCurveData = {
-      index_id: index.id,
+      index_id: (index as any).id,
       curve_type: bondingCurveParams.curveType,
       base_price: bondingCurveParams.basePrice,
-      linear_slope: bondingCurveParams.linearSlope,
-      max_price: bondingCurveParams.maxPrice,
-      sigmoid_slope: bondingCurveParams.sigmoidSlope,
-      midpoint: bondingCurveParams.midpoint,
-      transition_point: bondingCurveParams.transitionPoint,
+      linear_coefficient: bondingCurveParams.linearCoefficient,
+      quadratic_coefficient: bondingCurveParams.quadraticCoefficient,
       target_market_cap: bondingCurveParams.targetMarketCap,
+      graduation_threshold: bondingCurveParams.graduationThreshold,
       current_price: bondingCurveParams.basePrice,
       current_market_cap: 0,
       total_raised: 0,
@@ -220,20 +221,20 @@ export async function createIndex(
     
     const { error: bcError } = await supabase
       .from('bonding_curve_params')
-      .insert(bondingCurveData);
+      .insert(bondingCurveData as any);
     
     if (bcError) {
       // Rollback: delete index and components
-      await supabase.from('indices').delete().eq('id', index.id);
+      await supabase.from('indices').delete().eq('id', (index as any).id);
       throw new AppError(500, {
-        code: 'DB_ERROR',
+        code: 'BAD_REQUEST',
         message: `Failed to insert bonding curve params: ${bcError.message}`
       });
     }
   }
   
   // Return the created index
-  return getIndexById(index.id);
+  return getIndexById((index as any).id);
 }
 
 /**
@@ -273,7 +274,7 @@ export async function updateIndexComponents(
   
   if (deleteError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to delete old components: ${deleteError.message}`
     });
   }
@@ -288,11 +289,11 @@ export async function updateIndexComponents(
   
   const { error: insertError } = await supabase
     .from('index_components')
-    .insert(componentsData);
+    .insert(componentsData as any);
   
   if (insertError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to insert new components: ${insertError.message}`
     });
   }
@@ -300,12 +301,13 @@ export async function updateIndexComponents(
   // Update the index updated_at timestamp
   const { error: updateError } = await supabase
     .from('indices')
+    // @ts-ignore - Supabase type inference limitation
     .update({ updated_at: new Date().toISOString() })
     .eq('id', indexId);
   
   if (updateError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to update index: ${updateError.message}`
     });
   }
@@ -337,52 +339,50 @@ export async function getIndexById(indexId: string): Promise<Index> {
     }
     
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch index: ${indexError.message}`
     });
   }
   
   // Transform database format to application format
   const transformedIndex: Index = {
-    id: index.id,
-    layer: index.layer as Layer,
-    symbol: index.symbol,
-    name: index.name,
-    description: index.description,
-    components: index.components.map((c: any) => ({
+    id: (index as any).id,
+    layer: (index as any).layer as Layer,
+    symbol: (index as any).symbol,
+    name: (index as any).name,
+    description: (index as any).description,
+    components: ((index as any).components || []).map((c: any) => ({
       symbol: c.symbol,
       address: c.address,
-      weight: parseFloat(c.weight),
+      weight: c.weight,
     })),
-    managementFee: parseFloat(index.management_fee),
-    status: index.status as any,
-    createdAt: new Date(index.created_at).getTime(),
-    updatedAt: new Date(index.updated_at).getTime(),
-    createdBy: index.created_by,
-    totalValueLocked: index.total_value_locked?.toString() || '0',
-    holders: index.holders || 0,
-    volume24h: index.volume_24h?.toString() || '0',
+    managementFee: (index as any).management_fee,
+    status: (index as any).status as any,
+    createdAt: new Date((index as any).created_at).getTime(),
+    updatedAt: new Date((index as any).updated_at).getTime(),
+    createdBy: (index as any).created_by,
+    totalValueLocked: (index as any).total_value_locked?.toString() || '0',
+    holders: (index as any).holders || 0,
+    volume24h: (index as any).volume_24h?.toString() || '0',
   };
   
   // If L3, add bonding curve data
-  if (index.layer === 'L3' && index.bondingCurve && index.bondingCurve.length > 0) {
-    const bc = index.bondingCurve[0];
-    (transformedIndex as L3Index).performanceFee = parseFloat(index.performance_fee || '0.2');
+  if ((index as any).layer === 'L3' && (index as any).bondingCurve && (index as any).bondingCurve.length > 0) {
+    const bc = (index as any).bondingCurve[0];
+    (transformedIndex as L3Index).performanceFee = (index as any).performance_fee || '0.2';
     (transformedIndex as L3Index).bondingCurve = {
       params: {
         curveType: bc.curve_type as any,
-        basePrice: parseFloat(bc.base_price),
-        linearSlope: bc.linear_slope ? parseFloat(bc.linear_slope) : undefined,
-        maxPrice: bc.max_price ? parseFloat(bc.max_price) : undefined,
-        sigmoidSlope: bc.sigmoid_slope ? parseFloat(bc.sigmoid_slope) : undefined,
-        midpoint: bc.midpoint ? parseFloat(bc.midpoint) : undefined,
-        transitionPoint: bc.transition_point ? parseFloat(bc.transition_point) : undefined,
-        targetMarketCap: parseFloat(bc.target_market_cap),
+        basePrice: bc.base_price,
+        linearCoefficient: bc.linear_coefficient || '0.000000003',
+        quadraticCoefficient: bc.quadratic_coefficient || '0.0000000000000000039',
+        targetMarketCap: bc.target_market_cap,
+        graduationThreshold: bc.graduation_threshold || '800000000',
       },
-      currentPrice: parseFloat(bc.current_price),
-      currentMarketCap: parseFloat(bc.current_market_cap),
-      totalRaised: parseFloat(bc.total_raised),
-      progress: parseFloat(bc.progress),
+      currentPrice: bc.current_price,
+      currentMarketCap: bc.current_market_cap,
+      totalRaised: bc.total_raised,
+      progress: bc.progress,
     };
   }
   
@@ -412,12 +412,12 @@ export async function getIndexBySymbol(symbol: string): Promise<Index> {
     }
     
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch index: ${indexError.message}`
     });
   }
   
-  return getIndexById(index.id);
+  return getIndexById((index as any).id);
 }
 
 /**
@@ -441,14 +441,14 @@ export async function getAllIndices(layer?: Layer): Promise<Index[]> {
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch indices: ${error.message}`
     });
   }
   
   // Transform each index
   return Promise.all(indices.map(async (index: any) => {
-    return getIndexById(index.id);
+    return getIndexById((index as any).id);
   }));
 }
 
@@ -458,10 +458,11 @@ export async function getAllIndices(layer?: Layer): Promise<Index[]> {
 export async function calculateIndexPrice(indexId: string): Promise<number> {
   const index = await getIndexById(indexId);
   let totalValue = 0;
-  
+
   for (const component of index.components) {
     const mockPrice = 100 + Math.random() * 50;
-    totalValue += component.weight * mockPrice;
+    const weightNum = parseFloat(component.weight);
+    totalValue += weightNum * mockPrice;
   }
   
   return totalValue;

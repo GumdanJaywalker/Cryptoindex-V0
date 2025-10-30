@@ -1,7 +1,8 @@
 // Token Service - Supabase version
 // Native token (HI) management with PostgreSQL
 
-import { supabase } from '../lib/supabase.js';
+import Decimal from 'decimal.js';
+import { supabase, type Database } from '../lib/supabase.js';
 
 // System account IDs (fixed UUIDs)
 export const SYSTEM_ACCOUNTS = {
@@ -29,7 +30,7 @@ export async function getTokenHolder(userId: string): Promise<TokenHolder> {
   
   if (error && error.code !== 'PGRST116') {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch token holder: ${error.message}`
     });
   }
@@ -51,11 +52,11 @@ export async function getTokenHolder(userId: string): Promise<TokenHolder> {
           id: userId,
           privy_user_id: `system-${userId}`,
           wallet_address: `system-${userId}`,
-        });
+        } as any);
       
       if (userError && userError.code !== '23505') { // Ignore duplicate
         throw new AppError(500, {
-          code: 'DB_ERROR',
+          code: 'BAD_REQUEST',
           message: `Failed to create system user: ${userError.message}`
         });
       }
@@ -66,38 +67,38 @@ export async function getTokenHolder(userId: string): Promise<TokenHolder> {
       .from('token_holders')
       .insert({
         user_id: userId,
-        balance: 0,
-        locked: 0,
-        staked: 0,
-        rewards: 0,
-      })
+        balance: '0',
+        locked: '0',
+        staked: '0',
+        rewards: '0',
+      } as any)
       .select()
       .single();
     
     if (createError) {
       throw new AppError(500, {
-        code: 'DB_ERROR',
+        code: 'BAD_REQUEST',
         message: `Failed to create token holder: ${createError.message}`
       });
     }
     
     return {
-      userId: newHolder.user_id,
-      balance: parseFloat(newHolder.balance),
-      locked: parseFloat(newHolder.locked),
-      staked: parseFloat(newHolder.staked),
-      rewards: parseFloat(newHolder.rewards),
-      investments: [],
+    userId: (newHolder as any).user_id,
+    balance: (newHolder as any).balance.toString(),
+    locked: (newHolder as any).locked.toString(),
+    staked: (newHolder as any).staked.toString(),
+    rewards: (newHolder as any).rewards.toString(),
+    investments: [],
     };
   }
   
   // Return existing holder
   return {
-    userId: holder.user_id,
-    balance: parseFloat(holder.balance),
-    locked: parseFloat(holder.locked),
-    staked: parseFloat(holder.staked),
-    rewards: parseFloat(holder.rewards),
+    userId: (holder as any).user_id,
+    balance: (holder as any).balance.toString(),
+    locked: (holder as any).locked.toString(),
+    staked: (holder as any).staked.toString(),
+    rewards: (holder as any).rewards.toString(),
     investments: [],
   };
 }
@@ -106,20 +107,24 @@ export async function getTokenHolder(userId: string): Promise<TokenHolder> {
  * Get token balance
  */
 export async function getBalance(userId: string): Promise<{
-  available: number;
-  locked: number;
-  staked: number;
-  rewards: number;
-  total: number;
+  available: string;
+  locked: string;
+  staked: string;
+  rewards: string;
+  total: string;
 }> {
   const holder = await getTokenHolder(userId);
   
+  const balanceDec = new Decimal(holder.balance);
+  const lockedDec = new Decimal(holder.locked);
+  const stakedDec = new Decimal(holder.staked);
+
   return {
     available: holder.balance,
     locked: holder.locked,
     staked: holder.staked,
     rewards: holder.rewards,
-    total: holder.balance + holder.locked + holder.staked,
+    total: balanceDec.plus(lockedDec).plus(stakedDec).toString(),
   };
 }
 
@@ -128,10 +133,11 @@ export async function getBalance(userId: string): Promise<{
  */
 export async function mintTokens(
   userId: string,
-  amount: number,
+  amount: string,
   reason: string
 ): Promise<TokenTransaction> {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
@@ -142,10 +148,11 @@ export async function mintTokens(
   const holder = await getTokenHolder(userId);
   
   // Update balance (read-modify-write)
-  const newBalance = holder.balance + amount;
+  const newBalance = new Decimal(holder.balance).plus(amountDec).toString();
   
   const { error: updateError } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
       balance: newBalance
     })
@@ -153,7 +160,7 @@ export async function mintTokens(
   
   if (updateError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to mint tokens: ${updateError.message}`
     });
   }
@@ -167,25 +174,25 @@ export async function mintTokens(
       amount: amount,
       to_user: userId,
       reason: reason,
-    })
+    } as any)
     .select()
     .single();
   
   if (txError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to record transaction: ${txError.message}`
     });
   }
   
   return {
-    id: tx.id,
-    userId: tx.user_id,
+    id: (tx as any).id,
+    userId: (tx as any).user_id,
     type: 'mint',
-    amount: parseFloat(tx.amount),
-    to: tx.to_user,
-    reason: tx.reason,
-    timestamp: new Date(tx.created_at).getTime(),
+    amount: (tx as any).amount,
+    to: (tx as any).to_user,
+    reason: (tx as any).reason,
+    timestamp: new Date((tx as any).created_at).getTime(),
   };
 }
 
@@ -194,10 +201,11 @@ export async function mintTokens(
  */
 export async function burnTokens(
   userId: string,
-  amount: number,
+  amount: string,
   reason: string
 ): Promise<TokenTransaction> {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
@@ -205,8 +213,9 @@ export async function burnTokens(
   }
   
   const holder = await getTokenHolder(userId);
-  
-  if (holder.balance < amount) {
+  const balanceDec = new Decimal(holder.balance);
+
+  if (balanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: `Insufficient balance. Have: ${holder.balance}, Need: ${amount}`
@@ -214,17 +223,19 @@ export async function burnTokens(
   }
   
   // Update balance (subtract)
+  const newBalance = new Decimal(holder.balance).minus(amountDec).toString();
   const { data, error: updateError } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
-      balance: holder.balance - amount
+      balance: newBalance
     })
     .eq('user_id', userId)
     .select();
   
   if (updateError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to burn tokens: ${updateError.message}`
     });
   }
@@ -238,25 +249,25 @@ export async function burnTokens(
       amount: amount,
       from_user: userId,
       reason: reason,
-    })
+    } as any)
     .select()
     .single();
   
   if (txError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to record transaction: ${txError.message}`
     });
   }
   
   return {
-    id: tx.id,
-    userId: tx.user_id,
+    id: (tx as any).id,
+    userId: (tx as any).user_id,
     type: 'burn',
-    amount: parseFloat(tx.amount),
-    from: tx.from_user,
-    reason: tx.reason,
-    timestamp: new Date(tx.created_at).getTime(),
+    amount: (tx as any).amount,
+    from: (tx as any).from_user,
+    reason: (tx as any).reason,
+    timestamp: new Date((tx as any).created_at).getTime(),
   };
 }
 
@@ -266,10 +277,11 @@ export async function burnTokens(
 export async function transferTokens(
   fromUserId: string,
   toUserId: string,
-  amount: number,
+  amount: string,
   reason: string = 'Transfer'
 ): Promise<TokenTransaction> {
-  if (amount <= 0) {
+  const amountDec = new Decimal(amount);
+  if (amountDec.lessThanOrEqualTo(0)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
       message: 'Amount must be greater than 0'
@@ -277,8 +289,9 @@ export async function transferTokens(
   }
   
   const fromHolder = await getTokenHolder(fromUserId);
-  
-  if (fromHolder.balance < amount) {
+  const fromBalanceDec = new Decimal(fromHolder.balance);
+
+  if (fromBalanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: `Insufficient balance. Have: ${fromHolder.balance}, Need: ${amount}`
@@ -289,31 +302,35 @@ export async function transferTokens(
   const toHolder = await getTokenHolder(toUserId);
   
   // Subtract from sender
+  const newFromBalance = new Decimal(fromHolder.balance).minus(amountDec).toString();
   const { error: fromError } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
-      balance: fromHolder.balance - amount
+      balance: newFromBalance
     })
     .eq('user_id', fromUserId);
   
   if (fromError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to deduct tokens: ${fromError.message}`
     });
   }
   
   // Add to recipient
+  const newToBalance = new Decimal(toHolder.balance).plus(amountDec).toString();
   const { error: toError } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
-      balance: toHolder.balance + amount
+      balance: newToBalance
     })
     .eq('user_id', toUserId);
   
   if (toError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to add tokens: ${toError.message}`
     });
   }
@@ -328,53 +345,59 @@ export async function transferTokens(
       from_user: fromUserId,
       to_user: toUserId,
       reason: reason,
-    })
+    } as any)
     .select()
     .single();
   
   if (txError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to record transaction: ${txError.message}`
     });
   }
   
   return {
-    id: tx.id,
-    userId: tx.user_id,
+    id: (tx as any).id,
+    userId: (tx as any).user_id,
     type: 'transfer',
-    amount: parseFloat(tx.amount),
-    from: tx.from_user,
-    to: tx.to_user,
-    reason: tx.reason,
-    timestamp: new Date(tx.created_at).getTime(),
+    amount: (tx as any).amount,
+    from: (tx as any).from_user,
+    to: (tx as any).to_user,
+    reason: (tx as any).reason,
+    timestamp: new Date((tx as any).created_at).getTime(),
   };
 }
 
 /**
  * Lock tokens (for vesting)
  */
-export async function lockTokens(userId: string, amount: number): Promise<void> {
+export async function lockTokens(userId: string, amount: string): Promise<void> {
+  const amountDec = new Decimal(amount);
   const holder = await getTokenHolder(userId);
-  
-  if (holder.balance < amount) {
+  const balanceDec = new Decimal(holder.balance);
+
+  if (balanceDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: 'Insufficient available balance to lock'
     });
   }
   
+  const newBalance = new Decimal(holder.balance).minus(amountDec).toString();
+  const newLocked = new Decimal(holder.locked).plus(amountDec).toString();
+
   const { error } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
-      balance: holder.balance - amount,
-      locked: holder.locked + amount,
+      balance: newBalance,
+      locked: newLocked,
     })
     .eq('user_id', userId);
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to lock tokens: ${error.message}`
     });
   }
@@ -383,27 +406,33 @@ export async function lockTokens(userId: string, amount: number): Promise<void> 
 /**
  * Unlock tokens (from vesting)
  */
-export async function unlockTokens(userId: string, amount: number): Promise<void> {
+export async function unlockTokens(userId: string, amount: string): Promise<void> {
+  const amountDec = new Decimal(amount);
   const holder = await getTokenHolder(userId);
-  
-  if (holder.locked < amount) {
+  const lockedDec = new Decimal(holder.locked);
+
+  if (lockedDec.lessThan(amountDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_FUNDS',
       message: 'Insufficient locked balance to unlock'
     });
   }
   
+  const newLocked = new Decimal(holder.locked).minus(amountDec).toString();
+  const newBalance = new Decimal(holder.balance).plus(amountDec).toString();
+
   const { error } = await supabase
     .from('token_holders')
+    // @ts-ignore - Supabase type inference limitation
     .update({
-      locked: holder.locked - amount,
-      balance: holder.balance + amount,
+      locked: newLocked,
+      balance: newBalance,
     })
     .eq('user_id', userId);
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to unlock tokens: ${error.message}`
     });
   }
@@ -414,7 +443,7 @@ export async function unlockTokens(userId: string, amount: number): Promise<void
  */
 export async function claimTokens(
   userId: string,
-  amount: number,
+  amount: string,
   source: string
 ): Promise<TokenTransaction> {
   await unlockTokens(userId, amount);
@@ -427,25 +456,25 @@ export async function claimTokens(
       amount: amount,
       to_user: userId,
       reason: `Claimed from ${source}`,
-    })
+    } as any)
     .select()
     .single();
   
   if (txError) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to record claim: ${txError.message}`
     });
   }
   
   return {
-    id: tx.id,
-    userId: tx.user_id,
+    id: (tx as any).id,
+    userId: (tx as any).user_id,
     type: 'claim',
-    amount: parseFloat(tx.amount),
-    to: tx.to_user,
-    reason: tx.reason,
-    timestamp: new Date(tx.created_at).getTime(),
+    amount: (tx as any).amount,
+    to: (tx as any).to_user,
+    reason: (tx as any).reason,
+    timestamp: new Date((tx as any).created_at).getTime(),
   };
 }
 
@@ -460,17 +489,17 @@ export async function getTokenMetrics(): Promise<TokenMetrics> {
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch metrics: ${error.message}`
     });
   }
   
-  let circulatingSupply = 0;
-  let stakedAmount = 0;
-  
-  holders?.forEach(holder => {
-    circulatingSupply += parseFloat(holder.balance) + parseFloat(holder.locked);
-    stakedAmount += parseFloat(holder.staked);
+  let circulatingSupply = new Decimal(0);
+  let stakedAmount = new Decimal(0);
+
+  (holders as any[])?.forEach((holder: any) => {
+    circulatingSupply = circulatingSupply.plus(holder.balance).plus(holder.locked);
+    stakedAmount = stakedAmount.plus(holder.staked);
   });
   
   // Get burned amount from burn transactions
@@ -479,11 +508,11 @@ export async function getTokenMetrics(): Promise<TokenMetrics> {
     .select('amount')
     .eq('type', 'burn');
   
-  const burnedAmount = burnTxs?.reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
+  const burnedAmount = (burnTxs as any[])?.reduce((sum: string, tx: any) => new Decimal(sum).plus(tx.amount).toString(), '0') || '0';
   
   // Constants
-  const totalSupply = 1_000_000_000; // 1 billion HI
-  const priceUsd = 0.05; // Mock price
+  const totalSupply = '1000000000'; // 1 billion HI
+  const priceUsd = '0.05'; // Mock price
   
   // Get treasury balance
   const treasuryBalance = await getBalance(SYSTEM_ACCOUNTS.TREASURY);
@@ -496,12 +525,12 @@ export async function getTokenMetrics(): Promise<TokenMetrics> {
   
   return {
     totalSupply,
-    circulatingSupply,
+    circulatingSupply: circulatingSupply.toString(),
     burnedAmount,
-    stakedAmount,
+    stakedAmount: stakedAmount.toString(),
     treasuryBalance: treasuryBalance.total,
     priceUsd,
-    marketCap: circulatingSupply * priceUsd,
+    marketCap: circulatingSupply.times(priceUsd).toString(),
     holders: count || 0,
   };
 }
@@ -527,16 +556,16 @@ export async function getTransactionHistory(
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch transactions: ${error.message}`
     });
   }
   
-  return txs.map(tx => ({
+  return (txs as any[]).map((tx: any) => ({
     id: tx.id,
     userId: tx.user_id,
     type: tx.type as any,
-    amount: parseFloat(tx.amount),
+    amount: tx.amount,
     from: tx.from_user || undefined,
     to: tx.to_user || undefined,
     reason: tx.reason,
@@ -555,17 +584,17 @@ export async function getAllHolders(): Promise<TokenHolder[]> {
   
   if (error) {
     throw new AppError(500, {
-      code: 'DB_ERROR',
+      code: 'BAD_REQUEST',
       message: `Failed to fetch holders: ${error.message}`
     });
   }
   
-  return holders.map(h => ({
+  return (holders as any[]).map((h: any) => ({
     userId: h.user_id,
-    balance: parseFloat(h.balance),
-    locked: parseFloat(h.locked),
-    staked: parseFloat(h.staked),
-    rewards: parseFloat(h.rewards),
+    balance: h.balance,
+    locked: h.locked,
+    staked: h.staked,
+    rewards: h.rewards,
     investments: [],
   }));
 }
@@ -573,10 +602,12 @@ export async function getAllHolders(): Promise<TokenHolder[]> {
 /**
  * Initialize treasury
  */
-export async function initializeTreasury(amount: number): Promise<void> {
+export async function initializeTreasury(amount: string): Promise<void> {
+  const amountDec = new Decimal(amount);
   const treasuryBalance = await getBalance(SYSTEM_ACCOUNTS.TREASURY);
   
-  if (treasuryBalance.available === 0) {
+  const availableDec = new Decimal(treasuryBalance.available);
+  if (availableDec.equals(0)) {
     await mintTokens(SYSTEM_ACCOUNTS.TREASURY, amount, 'Treasury initialization');
     console.log(`💰 Treasury initialized with ${amount.toLocaleString()} HI tokens`);
   }
@@ -585,7 +616,7 @@ export async function initializeTreasury(amount: number): Promise<void> {
 /**
  * Get treasury balance
  */
-export async function getTreasuryBalance(): Promise<number> {
+export async function getTreasuryBalance(): Promise<string> {
   const balance = await getBalance(SYSTEM_ACCOUNTS.TREASURY);
   return balance.available;
 }

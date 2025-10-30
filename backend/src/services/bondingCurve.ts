@@ -1,5 +1,6 @@
 // Bonding Curve Service - Price calculation for L3 indices
 
+import Decimal from 'decimal.js';
 import { AppError } from '../utils/httpError.js';
 
 /**
@@ -12,24 +13,24 @@ export type CurveType = 'linear' | 'exponential' | 'sigmoid' | 'hybrid';
  */
 export interface BondingCurveParams {
   curveType: CurveType;
-  
+
   // Linear parameters
-  basePrice: number;          // Initial price
-  linearSlope?: number;       // k1 for linear growth
-  
+  basePrice: string;          // Initial price
+  linearSlope?: string;       // k1 for linear growth
+
   // Sigmoid parameters
-  maxPrice?: number;          // L: Upper price limit
-  sigmoidSlope?: number;      // k2: Sigmoid steepness
-  midpoint?: number;          // x0: Inflection point
-  
+  maxPrice?: string;          // L: Upper price limit
+  sigmoidSlope?: string;      // k2: Sigmoid steepness
+  midpoint?: string;          // x0: Inflection point
+
   // Hybrid parameters
-  transitionPoint?: number;   // Supply threshold for linear→sigmoid
-  
+  transitionPoint?: string;   // Supply threshold for linear→sigmoid
+
   // Reserve parameters
-  reserveRatio?: number;      // For Bancor-style (0-1)
-  
+  reserveRatio?: string;      // For Bancor-style (0-1)
+
   // Target
-  targetMarketCap: number;    // Graduation target
+  targetMarketCap: string;    // Graduation target
 }
 
 /**
@@ -37,11 +38,14 @@ export interface BondingCurveParams {
  * P = basePrice + k * supply
  */
 function calculateLinearPrice(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
-  const k = params.linearSlope || 0.0001;
-  return params.basePrice + k * supply;
+): string {
+  const supplyDec = new Decimal(supply);
+  const k = new Decimal(params.linearSlope || '0.0001');
+  const basePrice = new Decimal(params.basePrice);
+
+  return basePrice.plus(k.times(supplyDec)).toString();
 }
 
 /**
@@ -49,11 +53,18 @@ function calculateLinearPrice(
  * P = basePrice * e^(k * supply)
  */
 function calculateExponentialPrice(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
-  const k = params.linearSlope || 0.00001;
-  return params.basePrice * Math.exp(k * supply);
+): string {
+  const supplyDec = new Decimal(supply);
+  const k = new Decimal(params.linearSlope || '0.00001');
+  const basePrice = new Decimal(params.basePrice);
+
+  // Use approximation for exponential since Decimal.js doesn't have native exp
+  const exponent = k.times(supplyDec);
+  const expApprox = new Decimal(Math.exp(exponent.toNumber()));
+
+  return basePrice.times(expApprox).toString();
 }
 
 /**
@@ -61,14 +72,20 @@ function calculateExponentialPrice(
  * P = L / (1 + e^(-k * (supply - midpoint)))
  */
 function calculateSigmoidPrice(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
-  const L = params.maxPrice || params.targetMarketCap / 10000;
-  const k = params.sigmoidSlope || 0.0001;
-  const x0 = params.midpoint || 10000;
-  
-  return L / (1 + Math.exp(-k * (supply - x0)));
+): string {
+  const supplyDec = new Decimal(supply);
+  const targetMarketCap = new Decimal(params.targetMarketCap);
+  const L = params.maxPrice ? new Decimal(params.maxPrice) : targetMarketCap.dividedBy(10000);
+  const k = new Decimal(params.sigmoidSlope || '0.0001');
+  const x0 = new Decimal(params.midpoint || '10000');
+
+  // Sigmoid approximation
+  const exponent = k.times(supplyDec.minus(x0)).negated();
+  const expApprox = new Decimal(Math.exp(exponent.toNumber()));
+
+  return L.dividedBy(new Decimal(1).plus(expApprox)).toString();
 }
 
 /**
@@ -77,19 +94,20 @@ function calculateSigmoidPrice(
  * Phase 2 (supply >= transitionPoint): Sigmoid
  */
 function calculateHybridPrice(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
-  const transition = params.transitionPoint || 5000;
-  
-  if (supply < transition) {
+): string {
+  const supplyDec = new Decimal(supply);
+  const transition = new Decimal(params.transitionPoint || '5000');
+
+  if (supplyDec.lessThan(transition)) {
     // Linear phase for fair initial distribution
     return calculateLinearPrice(supply, params);
   } else {
     // Sigmoid phase for stability and growth
     const sigmoidParams = {
       ...params,
-      basePrice: calculateLinearPrice(transition, params), // Smooth transition
+      basePrice: calculateLinearPrice(transition.toString(), params), // Smooth transition
     };
     return calculateSigmoidPrice(supply, sigmoidParams);
   }
@@ -99,37 +117,39 @@ function calculateHybridPrice(
  * Calculate buy price for a given supply
  */
 export function calculateBuyPrice(
-  currentSupply: number,
-  amount: number,
+  currentSupply: string,
+  amount: string,
   params: BondingCurveParams
 ): {
-  pricePerToken: number;
-  totalCost: number;
-  averagePrice: number;
-  newSupply: number;
+  pricePerToken: string;
+  totalCost: string;
+  averagePrice: string;
+  newSupply: string;
 } {
-  let totalCost = 0;
-  const newSupply = currentSupply + amount;
-  
+  const currentSupplyDec = new Decimal(currentSupply);
+  const amountDec = new Decimal(amount);
+  let totalCost = new Decimal(0);
+  const newSupply = currentSupplyDec.plus(amountDec);
+
   // Calculate integral (area under curve)
   // For simplicity, use rectangular approximation
-  const steps = Math.ceil(amount);
-  const stepSize = amount / steps;
-  
+  const steps = Math.ceil(amountDec.toNumber());
+  const stepSize = amountDec.dividedBy(steps);
+
   for (let i = 0; i < steps; i++) {
-    const supply = currentSupply + (i * stepSize);
-    const price = getPriceAtSupply(supply, params);
-    totalCost += price * stepSize;
+    const supply = currentSupplyDec.plus(stepSize.times(i));
+    const price = new Decimal(getPriceAtSupply(supply.toString(), params));
+    totalCost = totalCost.plus(price.times(stepSize));
   }
-  
-  const finalPrice = getPriceAtSupply(newSupply, params);
-  const averagePrice = totalCost / amount;
-  
+
+  const finalPrice = getPriceAtSupply(newSupply.toString(), params);
+  const averagePrice = totalCost.dividedBy(amountDec);
+
   return {
     pricePerToken: finalPrice,
-    totalCost,
-    averagePrice,
-    newSupply,
+    totalCost: totalCost.toString(),
+    averagePrice: averagePrice.toString(),
+    newSupply: newSupply.toString(),
   };
 }
 
@@ -137,43 +157,46 @@ export function calculateBuyPrice(
  * Calculate sell price for a given supply
  */
 export function calculateSellPrice(
-  currentSupply: number,
-  amount: number,
+  currentSupply: string,
+  amount: string,
   params: BondingCurveParams
 ): {
-  pricePerToken: number;
-  totalReturn: number;
-  averagePrice: number;
-  newSupply: number;
+  pricePerToken: string;
+  totalReturn: string;
+  averagePrice: string;
+  newSupply: string;
 } {
-  if (amount > currentSupply) {
+  const currentSupplyDec = new Decimal(currentSupply);
+  const amountDec = new Decimal(amount);
+
+  if (amountDec.greaterThan(currentSupplyDec)) {
     throw new AppError(400, {
       code: 'INSUFFICIENT_POSITION',
       message: 'Cannot sell more than current supply'
     });
   }
-  
-  let totalReturn = 0;
-  const newSupply = currentSupply - amount;
-  
+
+  let totalReturn = new Decimal(0);
+  const newSupply = currentSupplyDec.minus(amountDec);
+
   // Calculate integral (area under curve)
-  const steps = Math.ceil(amount);
-  const stepSize = amount / steps;
-  
+  const steps = Math.ceil(amountDec.toNumber());
+  const stepSize = amountDec.dividedBy(steps);
+
   for (let i = 0; i < steps; i++) {
-    const supply = currentSupply - (i * stepSize);
-    const price = getPriceAtSupply(supply, params);
-    totalReturn += price * stepSize;
+    const supply = currentSupplyDec.minus(stepSize.times(i));
+    const price = new Decimal(getPriceAtSupply(supply.toString(), params));
+    totalReturn = totalReturn.plus(price.times(stepSize));
   }
-  
-  const finalPrice = getPriceAtSupply(newSupply, params);
-  const averagePrice = totalReturn / amount;
-  
+
+  const finalPrice = getPriceAtSupply(newSupply.toString(), params);
+  const averagePrice = totalReturn.dividedBy(amountDec);
+
   return {
     pricePerToken: finalPrice,
-    totalReturn,
-    averagePrice,
-    newSupply,
+    totalReturn: totalReturn.toString(),
+    averagePrice: averagePrice.toString(),
+    newSupply: newSupply.toString(),
   };
 }
 
@@ -181,9 +204,9 @@ export function calculateSellPrice(
  * Get price at specific supply level
  */
 export function getPriceAtSupply(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
+): string {
   switch (params.curveType) {
     case 'linear':
       return calculateLinearPrice(supply, params);
@@ -205,35 +228,42 @@ export function getPriceAtSupply(
  * Calculate current market cap
  */
 export function calculateMarketCap(
-  supply: number,
+  supply: string,
   params: BondingCurveParams
-): number {
-  const currentPrice = getPriceAtSupply(supply, params);
-  return supply * currentPrice;
+): string {
+  const supplyDec = new Decimal(supply);
+  const currentPrice = new Decimal(getPriceAtSupply(supply, params));
+  return supplyDec.times(currentPrice).toString();
 }
 
 /**
  * Calculate progress to graduation target
  */
 export function calculateGraduationProgress(
-  currentMarketCap: number,
-  targetMarketCap: number
-): number {
-  return Math.min((currentMarketCap / targetMarketCap) * 100, 100);
+  currentMarketCap: string,
+  targetMarketCap: string
+): string {
+  const currentDec = new Decimal(currentMarketCap);
+  const targetDec = new Decimal(targetMarketCap);
+  const progress = currentDec.dividedBy(targetDec).times(100);
+
+  return Decimal.min(progress, new Decimal(100)).toString();
 }
 
 /**
  * Get default hybrid curve parameters (Recommended for MVP)
  */
-export function getDefaultHybridParams(targetMarketCap: number): BondingCurveParams {
+export function getDefaultHybridParams(targetMarketCap: string): BondingCurveParams {
+  const targetDec = new Decimal(targetMarketCap);
+
   return {
     curveType: 'hybrid',
-    basePrice: 0.01,              // $0.01 starting price
-    linearSlope: 0.00001,         // Gentle initial slope
-    maxPrice: targetMarketCap / 5000,  // Price cap at 5000 tokens
-    sigmoidSlope: 0.0002,         // Moderate sigmoid steepness
-    midpoint: 7500,               // Inflection at 7500 tokens
-    transitionPoint: 5000,        // Switch to sigmoid at 5000 tokens
+    basePrice: '0.01',              // $0.01 starting price
+    linearSlope: '0.00001',         // Gentle initial slope
+    maxPrice: targetDec.dividedBy(5000).toString(),  // Price cap at 5000 tokens
+    sigmoidSlope: '0.0002',         // Moderate sigmoid steepness
+    midpoint: '7500',               // Inflection at 7500 tokens
+    transitionPoint: '5000',        // Switch to sigmoid at 5000 tokens
     targetMarketCap,
   };
 }
@@ -243,19 +273,24 @@ export function getDefaultHybridParams(targetMarketCap: number): BondingCurvePar
  */
 export function simulatePriceTrajectory(
   params: BondingCurveParams,
-  maxSupply: number,
+  maxSupply: string,
   steps: number = 100
-): Array<{ supply: number; price: number; marketCap: number }> {
-  const trajectory: Array<{ supply: number; price: number; marketCap: number }> = [];
-  const stepSize = maxSupply / steps;
-  
+): Array<{ supply: string; price: string; marketCap: string }> {
+  const trajectory: Array<{ supply: string; price: string; marketCap: string }> = [];
+  const maxSupplyDec = new Decimal(maxSupply);
+  const stepSize = maxSupplyDec.dividedBy(steps);
+
   for (let i = 0; i <= steps; i++) {
-    const supply = i * stepSize;
-    const price = getPriceAtSupply(supply, params);
-    const marketCap = supply * price;
-    
-    trajectory.push({ supply, price, marketCap });
+    const supply = stepSize.times(i);
+    const price = getPriceAtSupply(supply.toString(), params);
+    const marketCap = supply.times(price);
+
+    trajectory.push({
+      supply: supply.toString(),
+      price,
+      marketCap: marketCap.toString()
+    });
   }
-  
+
   return trajectory;
 }

@@ -4,7 +4,7 @@ import {
   getUserBalances,
   getTokenBalance,
   getPortfolioValue
-} from '../services/balance.js';
+} from '../services/balance.supabase.js';
 import { AppError } from '../utils/httpError.js';
 
 export const balanceRouter = Router();

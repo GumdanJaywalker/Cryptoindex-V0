@@ -41,21 +41,24 @@ npm run test
 npm run lint
 ```
 
-### Frontend (Next.js 15 + pnpm)
+### Frontend (Next.js 15)
 ```bash
 cd frontend
 
 # Development server with Turbo
-pnpm dev
+npm run dev
 
 # Build for production
-pnpm build
+npm run build
 
 # Type checking
-pnpm type-check
+npm run type-check
 
 # Run tests
-pnpm test
+npm run test
+
+# Lint code
+npm run lint
 ```
 
 ### Backend (Express + TypeScript)
@@ -74,8 +77,11 @@ npm start
 # Run tests
 npm test
 
-# Lint and fix
-npm run lint:fix
+# Lint code
+npm run lint
+
+# Test Supabase migration
+npm run test:migration
 ```
 
 ### Smart Contracts
@@ -122,22 +128,25 @@ npm run contracts:deploy
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, Framer Motion
 - **Authentication**: Privy for wallet connection and MFA
 - **UI Components**: Aceternity UI, Radix UI primitives
-- **Backend**: Express.js, TypeScript, Redis for caching
+- **Backend**: Express.js, TypeScript, Redis for caching, Supabase (PostgreSQL)
 - **Blockchain**: Solidity contracts, OpenZeppelin libraries
 - **Infrastructure**: Docker Compose, multi-stage builds
 
 ### Environment Configuration
 - Uses `.env` file for configuration (copy from `.env.example`)
-- Requires Privy app credentials
-- Redis configuration for caching
-- HyperCore network endpoints
+- **Required**: Privy app credentials for authentication
+- **Required**: Supabase credentials for database access
+- Redis configuration for caching and session management
+- HyperCore/HyperLiquid API endpoints and network configuration
+- Docker environment variables for service orchestration
 
 ### Development Workflow
-1. The project uses Docker for consistent development environment
-2. Frontend and backend run as separate services
+1. The project uses Docker for consistent development environment (`./docker-dev.sh dev`)
+2. Frontend (Next.js 15) and backend (Express) run as separate services
 3. Redis provides caching and session management
-4. Smart contracts are organized by functional domain
-5. All services are orchestrated through Docker Compose
+4. Supabase serves as the primary database (PostgreSQL)
+5. Smart contracts are organized by functional domain (AMM, tokens, HyperCore integration)
+6. All services are orchestrated through Docker Compose
 
 ## Service URLs
 - Frontend: http://localhost:3000
@@ -155,3 +164,17 @@ npm run contracts:deploy
 - TypeScript strict mode enabled
 - Run `npm run lint` for workspace-wide linting
 - Frontend includes separate `type-check` command
+
+## Key Backend Services and Architecture
+- **Services**: Located in `backend/src/services/` including fundingRound, token management via Supabase
+- **API Routes**: Comprehensive REST API with 50+ endpoints
+- **Database**: Supabase integration with migration scripts
+- **Caching**: Redis for performance optimization
+- **Logging**: Structured logging with Pino
+- **Error Handling**: Centralized error handling and circuit breaker patterns
+
+## Package Manager Notes
+- **Frontend**: Uses npm (not pnpm as originally planned)
+- **Backend**: Uses npm with tsx for TypeScript execution
+- **Root**: npm workspaces for monorepo management
+- **Node.js**: Requires version 22+ as specified in package.json engines

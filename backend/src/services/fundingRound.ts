@@ -1,12 +1,12 @@
 // Funding Round Service - Investment management
 
+import Decimal from 'decimal.js';
 import { AppError } from '../utils/httpError.js';
 import type {
   FundingRound,
   Investment,
   VestingSchedule,
-  DEFAULT_FUNDING_ROUNDS,
-} from '../types/token.ts';
+} from '../types/token.js';
 import { getTokenHolder, lockTokens, mintTokens } from './token.supabase.js';
 
 // Mock database
@@ -22,11 +22,11 @@ export function initializeFundingRounds(): void {
   const rounds: Omit<FundingRound, 'id' | 'currentRaise' | 'status'>[] = [
     {
       name: 'seed',
-      pricePerToken: 0.01,
-      discountPercent: 70,
-      minInvestment: 1_000,
-      maxInvestment: 50_000,
-      targetRaise: 500_000,
+      pricePerToken: '0.01',
+      discountPercent: '70',
+      minInvestment: '1000',
+      maxInvestment: '50000',
+      targetRaise: '500000',
       startTime: Date.now(),
       endTime: Date.now() + 30 * 24 * 60 * 60 * 1000,
       vestingMonths: 12,
@@ -34,11 +34,11 @@ export function initializeFundingRounds(): void {
     },
     {
       name: 'strategic',
-      pricePerToken: 0.02,
-      discountPercent: 40,
-      minInvestment: 10_000,
-      maxInvestment: 500_000,
-      targetRaise: 2_000_000,
+      pricePerToken: '0.02',
+      discountPercent: '40',
+      minInvestment: '10000',
+      maxInvestment: '500000',
+      targetRaise: '2000000',
       startTime: Date.now() + 30 * 24 * 60 * 60 * 1000,
       endTime: Date.now() + 60 * 24 * 60 * 60 * 1000,
       vestingMonths: 18,
@@ -46,11 +46,11 @@ export function initializeFundingRounds(): void {
     },
     {
       name: 'public',
-      pricePerToken: 0.05,
-      discountPercent: 0,
-      minInvestment: 100,
-      maxInvestment: 100_000,
-      targetRaise: 5_000_000,
+      pricePerToken: '0.05',
+      discountPercent: '0',
+      minInvestment: '100',
+      maxInvestment: '100000',
+      targetRaise: '5000000',
       startTime: Date.now() + 60 * 24 * 60 * 60 * 1000,
       endTime: Date.now() + 90 * 24 * 60 * 60 * 1000,
       vestingMonths: 6,
@@ -74,7 +74,7 @@ export function initializeFundingRounds(): void {
     fundingRounds.set(id, {
       id,
       ...round,
-      currentRaise: 0,
+      currentRaise: '0',
       status,
     });
   });
@@ -107,7 +107,7 @@ export function getFundingRound(roundId: string): FundingRound {
   
   if (!round) {
     throw new AppError(404, {
-      code: 'BAD_REQUEST',
+      code: 'NOT_FOUND',
       message: `Funding round ${roundId} not found`
     });
   }
@@ -121,8 +121,8 @@ export function getFundingRound(roundId: string): FundingRound {
 export async function participateInRound(
   userId: string,
   roundId: string,
-  investmentAmount: number
-): Investment {
+  investmentAmount: string
+): Promise<Investment> {
   const round = getFundingRound(roundId);
   const now = Date.now();
   
@@ -141,31 +141,41 @@ export async function participateInRound(
     });
   }
   
-  // Check investment limits
-  if (investmentAmount < round.minInvestment) {
+  // Validate investment amount using Decimal.js
+  const investmentDec = new Decimal(investmentAmount);
+  const minInvestmentDec = new Decimal(round.minInvestment);
+  const maxInvestmentDec = new Decimal(round.maxInvestment);
+  
+  if (investmentDec.lessThan(minInvestmentDec)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
-      message: `Minimum investment is $${round.minInvestment.toLocaleString()}`
+      message: `Minimum investment is $${round.minInvestment}`
     });
   }
   
-  if (investmentAmount > round.maxInvestment) {
+  if (investmentDec.greaterThan(maxInvestmentDec)) {
     throw new AppError(400, {
       code: 'BAD_REQUEST',
-      message: `Maximum investment is $${round.maxInvestment.toLocaleString()}`
+      message: `Maximum investment is $${round.maxInvestment}`
     });
   }
   
-  // Check if target reached
-  if (round.currentRaise + investmentAmount > round.targetRaise) {
+  // Check if target would be exceeded
+  const currentRaiseDec = new Decimal(round.currentRaise);
+  const targetRaiseDec = new Decimal(round.targetRaise);
+  const newRaiseDec = currentRaiseDec.plus(investmentDec);
+  
+  if (newRaiseDec.greaterThan(targetRaiseDec)) {
+    const remaining = targetRaiseDec.minus(currentRaiseDec);
     throw new AppError(400, {
       code: 'BAD_REQUEST',
-      message: 'Funding round target would be exceeded'
+      message: `Funding round target would be exceeded. Only $${remaining.toString()} remaining`
     });
   }
   
-  // Calculate token amount
-  const tokenAmount = investmentAmount / round.pricePerToken;
+  // Calculate token amount with Decimal.js
+  const pricePerTokenDec = new Decimal(round.pricePerToken);
+  const tokenAmount = investmentDec.dividedBy(pricePerTokenDec).toString();
   
   // Create vesting schedule
   const vestingSchedule: VestingSchedule = {
@@ -173,7 +183,7 @@ export async function participateInRound(
     startTime: now,
     cliffEndTime: now + round.cliffMonths * 30 * 24 * 60 * 60 * 1000,
     endTime: now + round.vestingMonths * 30 * 24 * 60 * 60 * 1000,
-    claimedAmount: 0,
+    claimedAmount: '0',
   };
   
   // Create investment record
@@ -187,14 +197,15 @@ export async function participateInRound(
     pricePerToken: round.pricePerToken,
     timestamp: now,
     vestingSchedule,
-    claimedAmount: 0,
+    claimedAmount: '0',
     remainingAmount: tokenAmount,
   };
   
-  // Update round
-  round.currentRaise += investmentAmount;
+  // Update round with Decimal.js
+  round.currentRaise = newRaiseDec.toString();
   
-  if (round.currentRaise >= round.targetRaise) {
+  // Check if round is now completed
+  if (newRaiseDec.greaterThanOrEqualTo(targetRaiseDec)) {
     round.status = 'completed';
   }
   
@@ -227,7 +238,7 @@ export function getInvestment(investmentId: string): Investment {
   
   if (!investment) {
     throw new AppError(404, {
-      code: 'BAD_REQUEST',
+      code: 'NOT_FOUND',
       message: `Investment ${investmentId} not found`
     });
   }
@@ -237,14 +248,15 @@ export function getInvestment(investmentId: string): Investment {
 
 /**
  * Calculate claimable amount from vesting
+ * Returns string for decimal precision
  */
-export function calculateClaimableAmount(investment: Investment): number {
+export function calculateClaimableAmount(investment: Investment): string {
   const now = Date.now();
   const schedule = investment.vestingSchedule;
   
   // Before cliff, nothing is claimable
   if (now < schedule.cliffEndTime) {
-    return 0;
+    return '0';
   }
   
   // After vesting end, everything is claimable
@@ -255,50 +267,81 @@ export function calculateClaimableAmount(investment: Investment): number {
   // During vesting, calculate linear unlock
   const vestingDuration = schedule.endTime - schedule.cliffEndTime;
   const elapsedTime = now - schedule.cliffEndTime;
-  const vestedPercent = elapsedTime / vestingDuration;
+  const vestedPercent = new Decimal(elapsedTime).dividedBy(vestingDuration);
   
-  const totalVested = schedule.totalAmount * vestedPercent;
-  const claimable = totalVested - schedule.claimedAmount;
+  // Calculate total vested amount
+  const totalVested = new Decimal(schedule.totalAmount).times(vestedPercent);
   
-  return Math.max(0, Math.min(claimable, investment.remainingAmount));
+  // Calculate claimable (total vested - already claimed)
+  const claimable = totalVested.minus(schedule.claimedAmount);
+  
+  // Ensure claimable is non-negative and not more than remaining
+  const remainingDec = new Decimal(investment.remainingAmount);
+  
+  if (claimable.lessThanOrEqualTo(0)) {
+    return '0';
+  }
+  
+  if (claimable.greaterThanOrEqualTo(remainingDec)) {
+    return investment.remainingAmount;
+  }
+  
+  return claimable.toString();
 }
 
 /**
  * Get all claimable amounts for user
  */
 export function getUserClaimableTokens(userId: string): {
-  total: number;
+  total: string;
   byInvestment: Array<{
     investmentId: string;
     roundName: string;
-    claimable: number;
-    totalVested: number;
-    totalAmount: number;
+    claimable: string;
+    totalVested: string;
+    totalAmount: string;
   }>;
 } {
   const userInvestments = getUserInvestments(userId);
   const now = Date.now();
   
-  let total = 0;
+  let total = new Decimal(0);
+  
   const byInvestment = userInvestments.map(inv => {
     const claimable = calculateClaimableAmount(inv);
-    total += claimable;
+    total = total.plus(claimable);
     
     const schedule = inv.vestingSchedule;
-    const vestingProgress = now < schedule.cliffEndTime
-      ? 0
-      : Math.min((now - schedule.cliffEndTime) / (schedule.endTime - schedule.cliffEndTime), 1);
+    
+    // Calculate vesting progress
+    let vestingProgress;
+    if (now < schedule.cliffEndTime) {
+      vestingProgress = new Decimal(0);
+    } else if (now >= schedule.endTime) {
+      vestingProgress = new Decimal(1);
+    } else {
+      const elapsed = now - schedule.cliffEndTime;
+      const duration = schedule.endTime - schedule.cliffEndTime;
+      vestingProgress = new Decimal(elapsed).dividedBy(duration);
+    }
+    
+    const totalVested = new Decimal(schedule.totalAmount)
+      .times(vestingProgress)
+      .toString();
     
     return {
       investmentId: inv.id,
       roundName: inv.roundName,
       claimable,
-      totalVested: schedule.totalAmount * vestingProgress,
+      totalVested,
       totalAmount: schedule.totalAmount,
     };
   });
   
-  return { total, byInvestment };
+  return { 
+    total: total.toString(), 
+    byInvestment 
+  };
 }
 
 /**
@@ -307,22 +350,41 @@ export function getUserClaimableTokens(userId: string): {
 export function getFundingRoundStats() {
   const rounds = getAllFundingRounds();
   
-  const totalRaised = rounds.reduce((sum, r) => sum + r.currentRaise, 0);
-  const totalTarget = rounds.reduce((sum, r) => sum + r.targetRaise, 0);
+  // Aggregate totals using Decimal.js
+  let totalRaised = new Decimal(0);
+  let totalTarget = new Decimal(0);
+  
+  rounds.forEach(r => {
+    totalRaised = totalRaised.plus(r.currentRaise);
+    totalTarget = totalTarget.plus(r.targetRaise);
+  });
+  
+  // Calculate overall progress
+  const progress = totalTarget.isZero() 
+    ? '0' 
+    : totalRaised.dividedBy(totalTarget).times(100).toFixed(2);
   
   return {
     totalRounds: rounds.length,
     activeRounds: rounds.filter(r => r.status === 'active').length,
     completedRounds: rounds.filter(r => r.status === 'completed').length,
-    totalRaised,
-    totalTarget,
-    progress: (totalRaised / totalTarget) * 100,
-    rounds: rounds.map(r => ({
-      name: r.name,
-      status: r.status,
-      raised: r.currentRaise,
-      target: r.targetRaise,
-      progress: (r.currentRaise / r.targetRaise) * 100,
-    })),
+    totalRaised: totalRaised.toString(),
+    totalTarget: totalTarget.toString(),
+    progress,
+    rounds: rounds.map(r => {
+      const raised = new Decimal(r.currentRaise);
+      const target = new Decimal(r.targetRaise);
+      const roundProgress = target.isZero()
+        ? '0'
+        : raised.dividedBy(target).times(100).toFixed(2);
+      
+      return {
+        name: r.name,
+        status: r.status,
+        raised: r.currentRaise,
+        target: r.targetRaise,
+        progress: roundProgress,
+      };
+    }),
   };
 }

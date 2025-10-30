@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "unified-mcp": {
+      "command": "python",
+      "args": [
+        "/Users/maengseojun/Documents/Project/HyperIndex/HI/my-fastmcp-server/run.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/maengseojun/Documents/Project/HyperIndex/HI/my-fastmcp-server"
+      }
+    }
+  }
+}
+
