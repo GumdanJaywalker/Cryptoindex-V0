@@ -1,111 +1,113 @@
-# 🚀 HyperIndex (HI) - Integrated Project
+***
 
-> **HyperCore 기반 통합 거래 플랫폼 - Index Token DEX**
+# HyperIndex (HI) - Integrated Project
 
----
+**HyperCore-Based Unified Trading Platform - Index Token DEX**
 
-## 🛠️ 기술 스택
+***
 
-### Backend: **TypeScript** + Express.js
-- Node.js 22+ Runtime
-- Supabase (PostgreSQL) Database
-- Redis 7 Cache
+## Tech Stack
 
-### Smart Contracts: **Solidity** ^0.8.20
-- AMM (Uniswap V2 compatible)
-- Index Tokens (ERC-20)
-- Bonding Curve System
-- ⚠️ **Status**: Code ready, not yet deployed
+### Backend: TypeScript + Express.js
+- Node.js 22+ Runtime  
+- Supabase (PostgreSQL) Database  
+- Redis 7 Cache  
 
-### Frontend: **TypeScript** + Next.js 15
-- React 19
-- Tailwind CSS
-- Privy Auth
+### Smart Contracts: Solidity ^0.8.20
+- AMM (Uniswap V2 compatible)  
+- Index Tokens (ERC-20)  
+- Bonding Curve System  
+- Status: Code ready, not yet deployed  
 
-👉 **[전체 기술 스택 보기](./TECH_STACK.md)**
+### Frontend: TypeScript + Next.js 15
+- React 19  
+- Tailwind CSS  
+- Privy Auth  
 
----
+See full details in **TECH_STACK.md**
 
-## 📁 프로젝트 구조
+***
+
+## Project Structure
 
 ```
 HI/
-├── 📱 frontend/              # Next.js 15 Frontend
-├── 🔧 backend/               # Express API Server
+├── frontend/              # Next.js 15 Frontend
+├── backend/               # Express API Server
 │   ├── src/
-│   │   ├── routes/          # API Endpoints (50개)
-│   │   ├── services/        # Business Logic (8개)
-│   │   ├── lib/             # Supabase Client
-│   │   └── types/           # TypeScript Types
-│   └── supabase/            # Database Migrations
-├── 📝 contracts/             # Smart Contracts (Solidity)
-│   ├── hypercore/           # HyperCore Integration
-│   ├── amm/                 # AMM System
-│   ├── tokens/              # Index Token Management
-│   ├── governance/          # DAO Governance (예정)
-│   └── interfaces/          # Interfaces
-├── 🐳 docker/               # Docker Configuration
-├── 📚 docs/                 # Documentation
-│   ├── api/                # API Docs
-│   ├── contracts/          # Contract Docs
-│   └── setup/              # Setup Guides
-├── 🧪 tests/                # Tests
-└── 🛠️ scripts/              # Deployment Scripts
+│   │   ├── routes/        # API Endpoints (50 total)
+│   │   ├── services/      # Business Logic (8)
+│   │   ├── lib/           # Supabase Client
+│   │   └── types/         # TypeScript Types
+│   └── supabase/          # Database Migrations
+├── contracts/             # Smart Contracts (Solidity)
+│   ├── hypercore/         # HyperCore Integration
+│   ├── amm/               # AMM System
+│   ├── tokens/            # Index Token Management
+│   ├── governance/        # DAO Governance (Planned)
+│   └── interfaces/        # Interfaces
+├── docker/                # Docker Configuration
+├── docs/                  # Documentation
+│   ├── api/               # API Docs
+│   ├── contracts/         # Contract Docs
+│   └── setup/             # Setup Guides
+├── tests/                 # Tests
+└── scripts/               # Deployment Scripts
 ```
 
----
+***
 
-## 🎯 핵심 기능
+## Core Features
 
-### ✅ Phase 1-6 완료
-- **Layer System**: L1 (Major), L2 (Themed), L3 (User-Launched) Indices
-- **Bonding Curve**: Sigmoid Hybrid Model for fair pricing
-- **AMM Integration**: Uniswap V2 compatible DEX
-- **Native Token (HI)**: 1B supply with funding rounds
-- **Graduation Logic**: Automatic L3→L2 migration
-- **Database**: Supabase schema (9 tables)
+### Phase 1–6 Completed
+- **Layer System:** L1 (Major), L2 (Themed), L3 (User-Launched) Indices  
+- **Bonding Curve:** Sigmoid Hybrid Model for fair pricing  
+- **AMM Integration:** Uniswap V2 compatible DEX  
+- **Native Token (HI):** 1B supply with funding rounds  
+- **Graduation Logic:** Automatic L3 → L2 migration  
+- **Database:** Supabase schema (9 tables)  
 
-### 🔄 In Progress
-- Service → Supabase Migration
-- Frontend Development
-- Real-time Subscriptions
+### In Progress
+- Service to Supabase migration  
+- Frontend development  
+- Real-time subscriptions  
 
-### ⏳ Planned
-- Smart Contract Deployment
-- Blockchain Integration
-- L3↔L2 Bridge
+### Planned
+- Smart contract deployment  
+- Blockchain integration  
+- L3↔L2 bridge  
 
----
+***
 
-## 🚀 빠른 시작
+## Quick Start
 
-### 1. 사전 준비
+### 1. Prerequisites
 ```bash
-# 필수 소프트웨어
+# Required software
 - Node.js 22+
 - Docker Desktop
 - Git
 
-# 계정 생성 (선택)
+# Optional accounts
 - Privy (https://privy.io)
 - Supabase (https://supabase.com)
 ```
 
-### 2. 설치
+### 2. Installation
 ```bash
-# 프로젝트 클론
+# Clone the repository
 git clone <repository-url>
 cd HI
 
-# 환경 변수 설정
+# Set environment variables
 cp .env.example .env
-# .env 파일 편집
+# Edit .env file
 
-# Docker로 실행
+# Run with Docker
 ./docker-dev.sh dev
 ```
 
-### 3. 접속
+### 3. Access
 ```bash
 # Frontend
 http://localhost:3000
@@ -113,35 +115,35 @@ http://localhost:3000
 # Backend API
 http://localhost:3001/api/v1/health
 
-# Redis
+# Redis CLI
 docker exec -it hlh-redis redis-cli
 ```
 
----
+***
 
-## 📖 Documentation
+## Documentation
 
-### 시작 가이드
-- 📘 **[Complete Learning Guide](./COMPLETE_LEARNING_GUIDE.md)** - 16시간 학습 로드맵
-- 🔧 **[Tech Stack](./TECH_STACK.md)** - 기술 스택 상세
-- 🚀 **[Developer Onboarding](./DEVELOPER_ONBOARDING_GUIDE.md)** - 개발자 온보딩
+### Getting Started
+- **COMPLETE_LEARNING_GUIDE.md** – 16-hour learning roadmap  
+- **TECH_STACK.md** – Detailed tech stack  
+- **DEVELOPER_ONBOARDING_GUIDE.md** – Onboarding manual  
 
 ### Backend
-- 📖 **[Backend README](./backend/README.md)** - Backend 상세 가이드
-- 📊 **[API Documentation](./backend/API.md)** - 50개 API 엔드포인트
-- 🗄️ **[Supabase Setup](./backend/SUPABASE_SETUP.md)** - DB 설정 가이드
+- **backend/README.md** – Backend reference  
+- **backend/API.md** – 50 API endpoints  
+- **backend/SUPABASE_SETUP.md** – Database setup guide  
 
 ### Phase Reports
-- 🎉 **[Phase 4: Bonding Curve](./backend/PHASE4_COMPLETION_REPORT.md)**
-- 🎉 **[Phase 5: Native Token](./backend/PHASE5_COMPLETION_REPORT.md)**
-- 🎉 **[Phase 6: Supabase](./backend/PHASE6_COMPLETION_REPORT.md)**
+- **PHASE4_COMPLETION_REPORT.md** – Bonding Curve  
+- **PHASE5_COMPLETION_REPORT.md** – Native Token  
+- **PHASE6_COMPLETION_REPORT.md** – Supabase Integration  
 
 ### Analysis
-- 🔍 **[Project Comparison](./backend/PROJECT_COMPARISON_ANALYSIS.md)** - Index Token DEX vs HyperIndex
+- **PROJECT_COMPARISON_ANALYSIS.md** – Index Token DEX vs. HyperIndex  
 
----
+***
 
-## 💎 Native Token (HI)
+## Native Token (HI)
 
 ```
 Symbol: HI
@@ -149,10 +151,10 @@ Total Supply: 1,000,000,000 (1B)
 Base Price: $0.05
 
 Allocation:
-- Team: 20% (36mo vesting, 12mo cliff)
-- Investors: 20% (24mo vesting, 6mo cliff)
-- Community: 35% (48mo vesting)
-- Foundation: 15% (48mo vesting)
+- Team: 20% (36 months vesting, 12-month cliff)
+- Investors: 20% (24 months vesting, 6-month cliff)
+- Community: 35% (48 months vesting)
+- Foundation: 15% (48 months vesting)
 - Treasury: 10% (liquid)
 
 Funding Rounds:
@@ -161,75 +163,75 @@ Funding Rounds:
 - Public: $0.05/token (no discount, $5M target)
 ```
 
----
+***
 
-## 📊 Project Status
+## Project Status
 
 ### Phase Progress
 ```
-✅ Phase 1: Base Infrastructure      100%
-✅ Phase 2: Trading Core              100%
-✅ Phase A: Layer System              100%
-✅ Phase 4: Bonding Curve             100%
-✅ Phase 5: Native Token              100%
-✅ Phase 6: Supabase Integration      80%
-🔄 Phase 6.1: Service Migration       0%
-⏳ Phase 7: Smart Contracts           0%
+Phase 1: Base Infrastructure       100%
+Phase 2: Trading Core              100%
+Phase 3: Layer System              100%
+Phase 4: Bonding Curve             100%
+Phase 5: Native Token              100%
+Phase 6: Supabase Integration       80%
+Phase 6.1: Service Migration         0%
+Phase 7: Smart Contracts             0%
 ```
 
 ### Implementation
 ```
-Backend API:       50 endpoints ✅
-Services:          8 services ✅
-Database:          9 tables ✅
+Backend API:       50 endpoints
+Services:          8 services
+Database:          9 tables
 Smart Contracts:   8 contracts (not deployed)
-Documentation:     100% ✅
+Documentation:     100%
 ```
 
----
+***
 
-## 🛠️ Development
+## Development
 
-### Docker 명령어
+### Docker Commands
 ```bash
-# 모든 서비스 시작
+# Start all services
 ./docker-dev.sh dev
 
-# 로그 확인
+# View logs
 docker compose logs -f
 
-# 특정 서비스 재시작
+# Restart specific service
 docker compose restart backend
 
-# 모든 서비스 중지
+# Stop all services
 ./docker-dev.sh stop
 
-# 완전 초기화 (볼륨 삭제)
+# Full cleanup (remove volumes)
 docker compose down -v
 ```
 
-### Backend 개발
+### Backend Development
 ```bash
 cd backend
 
-# 개발 서버
+# Development server
 pnpm dev
 
-# 빌드
+# Build
 pnpm build
 
-# 프로덕션 실행
+# Production
 pnpm start
 ```
 
----
+***
 
-## 🌐 API Endpoints
+## API Endpoints
 
 **Total: 50 endpoints**
 
 | Category | Count | Examples |
-|----------|-------|----------|
+|-----------|--------|-----------|
 | Health & Monitoring | 3 | `/health`, `/metrics` |
 | Balance | 3 | `/v1/balance` |
 | Trading | 5 | `/v1/trading/swap` |
@@ -237,58 +239,59 @@ pnpm start
 | Bonding Curve | 7 | `/v1/bonding-curve/quote` |
 | Token | 18 | `/v1/token/balance` |
 
-👉 **[Full API Documentation](./backend/API.md)**
+See **backend/API.md** for full documentation.
 
----
+***
 
-## 💰 Cost Estimates
+## Cost Estimates
 
 ### MVP (Current)
-- **Backend**: Supabase Free Tier
-- **Cache**: Redis (Docker)
-- **Total**: **$0/month** ✅
+- Backend: Supabase Free Tier  
+- Cache: Redis (Docker)  
+- Total: $0/month  
 
 ### Growth (1,000+ users)
-- Supabase Pro: $25/month
-- Other services: $150-225/month
-- **Total**: $175-250/month
+- Supabase Pro: $25/month  
+- Other services: $150–225/month  
+- Total: $175–250/month  
 
 ### Scale (10,000+ users)
-- Supabase Pro + Add-ons
-- Infrastructure scaling
-- **Total**: $1,000-1,500/month
+- Supabase Pro + Add-ons  
+- Infrastructure scaling  
+- Total: $1,000–1,500/month  
 
-👉 **[Detailed Cost Breakdown](./backend/ESSENTIAL.md)**
+See **backend/README.md** for details.
 
----
+***
 
-## 🤝 Contributing
+## Contributing
 
-### 개발 시작하기
-1. 📖 [Complete Learning Guide](./COMPLETE_LEARNING_GUIDE.md) 읽기
-2. 🚀 [Developer Onboarding](./DEVELOPER_ONBOARDING_GUIDE.md) 따라하기
-3. 🔧 환경 설정
-4. 💻 개발 시작!
+### Getting Started
+1. Read **COMPLETE_LEARNING_GUIDE.md**  
+2. Follow **DEVELOPER_ONBOARDING_GUIDE.md**  
+3. Set up the environment  
+4. Start development  
 
-### 코드 스타일
-- TypeScript (Backend & Frontend)
-- Solidity ^0.8.20 (Smart Contracts)
-- ESLint + Prettier
+### Code Style
+- TypeScript (Backend & Frontend)  
+- Solidity ^0.8.20 (Smart Contracts)  
+- ESLint + Prettier  
 
----
+***
 
-## 📄 License
+## License
 
-Private - All rights reserved
+Private – All rights reserved.
 
----
+***
 
-## 📞 Support
+## Support
 
-- 📧 Email: support@hyperindex.io
-- 💬 Discord: (예정)
-- 📝 GitHub Issues: (예정)
+- Email: [henry.c@hyperindex.biz]
+- Discord: Pending  
+- GitHub Issues: Pending  
 
----
+***
 
-**Last Updated**: 2025-01-20
+**Last Updated:** October 31, 2025
+***
