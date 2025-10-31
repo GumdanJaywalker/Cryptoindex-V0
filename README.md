@@ -1,172 +1,297 @@
-# CryptoIndex - P2P Trading Platform
+***
 
-**Anonymous P2P cryptocurrency trading platform with Privy authentication**
+# HyperIndex (HI) - Integrated Project
 
-## 🚀 **Features**
+**HyperCore-Based Unified Trading Platform - Index Token DEX**
 
-- **🔐 Privy Authentication**: Email OTP and wallet-based login
-- **🎭 Privacy-First**: Anonymous trading without KYC requirements  
-- **💳 Auto Wallet Creation**: Embedded wallets for email users
-- **🛡 Security**: JWT authentication with rate limiting
-- **📊 Database**: Supabase with Row Level Security (RLS)
+***
 
-## 🛠 **Tech Stack**
+## Tech Stack
 
-- **Frontend**: Next.js 14, TypeScript, TailwindCSS
-- **Authentication**: Privy (Email OTP + Wallet)
-- **Database**: Supabase (PostgreSQL)
-- **UI Components**: Radix UI + shadcn/ui
-- **Styling**: TailwindCSS + CSS Variables
+### Backend: TypeScript + Express.js
+- Node.js 22+ Runtime  
+- Supabase (PostgreSQL) Database  
+- Redis 7 Cache  
 
-## 🚀 **Quick Start**
+### Smart Contracts: Solidity ^0.8.20
+- AMM (Uniswap V2 compatible)  
+- Index Tokens (ERC-20)  
+- Bonding Curve System  
+- Status: Code ready, not yet deployed  
 
-### 1. Clone and Install
+### Frontend: TypeScript + Next.js 15
+- React 19  
+- Tailwind CSS  
+- Privy Auth  
+
+See full details in **TECH_STACK.md**
+
+***
+
+## Project Structure
+
+```
+HI/
+├── frontend/              # Next.js 15 Frontend
+├── backend/               # Express API Server
+│   ├── src/
+│   │   ├── routes/        # API Endpoints (50 total)
+│   │   ├── services/      # Business Logic (8)
+│   │   ├── lib/           # Supabase Client
+│   │   └── types/         # TypeScript Types
+│   └── supabase/          # Database Migrations
+├── contracts/             # Smart Contracts (Solidity)
+│   ├── hypercore/         # HyperCore Integration
+│   ├── amm/               # AMM System
+│   ├── tokens/            # Index Token Management
+│   ├── governance/        # DAO Governance (Planned)
+│   └── interfaces/        # Interfaces
+├── docker/                # Docker Configuration
+├── docs/                  # Documentation
+│   ├── api/               # API Docs
+│   ├── contracts/         # Contract Docs
+│   └── setup/             # Setup Guides
+├── tests/                 # Tests
+└── scripts/               # Deployment Scripts
+```
+
+***
+
+## Core Features
+
+### Phase 1–6 Completed
+- **Layer System:** L1 (Major), L2 (Themed), L3 (User-Launched) Indices  
+- **Bonding Curve:** Sigmoid Hybrid Model for fair pricing  
+- **AMM Integration:** Uniswap V2 compatible DEX  
+- **Native Token (HI):** 1B supply with funding rounds  
+- **Graduation Logic:** Automatic L3 → L2 migration  
+- **Database:** Supabase schema (9 tables)  
+
+### In Progress
+- Service to Supabase migration  
+- Frontend development  
+- Real-time subscriptions  
+
+### Planned
+- Smart contract deployment  
+- Blockchain integration  
+- L3↔L2 bridge  
+
+***
+
+## Quick Start
+
+### 1. Prerequisites
 ```bash
+# Required software
+- Node.js 22+
+- Docker Desktop
+- Git
+
+# Optional accounts
+- Privy (https://privy.io)
+- Supabase (https://supabase.com)
+```
+
+### 2. Installation
+```bash
+# Clone the repository
 git clone <repository-url>
-cd cryptoindex
-npm install
-```
+cd HI
 
-### 2. Environment Setup
-```bash
-# Copy example environment file
+# Set environment variables
 cp .env.example .env
+# Edit .env file
 
-# Add your environment variables:
-NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# Run with Docker
+./docker-dev.sh dev
 ```
 
-### 3. Database Setup
+### 3. Access
 ```bash
-# Run the database schema
-# Execute supabase/schema.sql in your Supabase SQL editor
+# Frontend
+http://localhost:3000
+
+# Backend API
+http://localhost:3001/api/v1/health
+
+# Redis CLI
+docker exec -it hlh-redis redis-cli
 ```
 
-### 4. Run Development Server
+***
+
+## Documentation
+
+### Getting Started
+- **COMPLETE_LEARNING_GUIDE.md** – 16-hour learning roadmap  
+- **TECH_STACK.md** – Detailed tech stack  
+- **DEVELOPER_ONBOARDING_GUIDE.md** – Onboarding manual  
+
+### Backend
+- **backend/README.md** – Backend reference  
+- **backend/API.md** – 50 API endpoints  
+- **backend/SUPABASE_SETUP.md** – Database setup guide  
+
+### Phase Reports
+- **PHASE4_COMPLETION_REPORT.md** – Bonding Curve  
+- **PHASE5_COMPLETION_REPORT.md** – Native Token  
+- **PHASE6_COMPLETION_REPORT.md** – Supabase Integration  
+
+### Analysis
+- **PROJECT_COMPARISON_ANALYSIS.md** – Index Token DEX vs. HyperIndex  
+
+***
+
+## Native Token (HI)
+
+```
+Symbol: HI
+Total Supply: 1,000,000,000 (1B)
+Base Price: $0.05
+
+Allocation:
+- Team: 20% (36 months vesting, 12-month cliff)
+- Investors: 20% (24 months vesting, 6-month cliff)
+- Community: 35% (48 months vesting)
+- Foundation: 15% (48 months vesting)
+- Treasury: 10% (liquid)
+
+Funding Rounds:
+- Seed: $0.01/token (70% discount, $500k target)
+- Strategic: $0.02/token (40% discount, $2M target)
+- Public: $0.05/token (no discount, $5M target)
+```
+
+***
+
+## Project Status
+
+### Phase Progress
+```
+Phase 1: Base Infrastructure       100%
+Phase 2: Trading Core              100%
+Phase 3: Layer System              100%
+Phase 4: Bonding Curve             100%
+Phase 5: Native Token              100%
+Phase 6: Supabase Integration       80%
+Phase 6.1: Service Migration         0%
+Phase 7: Smart Contracts             0%
+```
+
+### Implementation
+```
+Backend API:       50 endpoints
+Services:          8 services
+Database:          9 tables
+Smart Contracts:   8 contracts (not deployed)
+Documentation:     100%
+```
+
+***
+
+## Development
+
+### Docker Commands
 ```bash
-npm run dev
-# Visit http://localhost:3000
+# Start all services
+./docker-dev.sh dev
+
+# View logs
+docker compose logs -f
+
+# Restart specific service
+docker compose restart backend
+
+# Stop all services
+./docker-dev.sh stop
+
+# Full cleanup (remove volumes)
+docker compose down -v
 ```
 
-## 🔐 **Authentication Flow**
-
-### Email OTP Login
-1. User visits `/privy-login`
-2. Enters email address
-3. Receives OTP code via email
-4. Enters OTP to complete login
-5. Embedded wallet automatically created
-
-### Wallet Login
-1. User visits `/privy-login`
-2. Clicks "Connect Wallet"
-3. Connects with MetaMask/WalletConnect
-4. Signs authentication message
-5. Logged in with wallet address
-
-## 📋 **API Routes**
-
-### Authentication
-- `POST /api/auth/sync-user` - Sync user data to Supabase
-- `POST /api/auth/logout` - Logout user
-- `GET /api/health` - Health check
-
-### User Management
-- `GET /api/user/profile` - Get user profile
-- `PUT /api/user/profile` - Update user profile
-
-## 🧪 **Testing**
-
-### Web Browser Testing
-1. Visit **http://localhost:3000**
-2. Click "Login" button
-3. Choose Email OTP or Wallet login
-4. Complete authentication
-5. Access dashboard
-
-### API Testing
+### Backend Development
 ```bash
-# Health check
-curl http://localhost:3000/api/health
+cd backend
 
-# Test authenticated endpoint (requires login)
-curl -H "Authorization: Bearer <token>" \
-  http://localhost:3000/api/user/profile
+# Development server
+pnpm dev
+
+# Build
+pnpm build
+
+# Production
+pnpm start
 ```
 
-## 🛡 **Security Features**
+***
 
-### Privy-Based Authentication
-- **JWT Verification**: Only tokens issued by Privy are accepted
-- **User Identification**: RLS based on `privy_user_id`
-- **Auto Expiration**: Automatic logout on token expiry
-- **Rate Limiting**: Built-in protection against abuse
+## API Endpoints
 
-### Multi-Layer Security
-- **Middleware**: Primary verification at request level
-- **RLS**: Secondary verification at database row level
-- **Anonymous Trading**: No KYC required for privacy
+**Total: 50 endpoints**
 
-## 🔧 **Troubleshooting**
+| Category | Count | Examples |
+|-----------|--------|-----------|
+| Health & Monitoring | 3 | `/health`, `/metrics` |
+| Balance | 3 | `/v1/balance` |
+| Trading | 5 | `/v1/trading/swap` |
+| Indexes | 7 | `/v1/indexes` |
+| Bonding Curve | 7 | `/v1/bonding-curve/quote` |
+| Token | 18 | `/v1/token/balance` |
 
-### Common Issues
+See **backend/API.md** for full documentation.
 
-**1. Authentication Errors**
-```bash
-# Check Privy configuration
-echo $NEXT_PUBLIC_PRIVY_APP_ID
-```
+***
 
-**2. Database Connection Failed**
-```bash
-# Test Supabase connection
-curl http://localhost:3000/api/health
-```
+## Cost Estimates
 
-**3. User Sync Issues**
-```bash
-# Check server logs
-npm run dev
-# Look for sync-user API responses
-```
+### MVP (Current)
+- Backend: Supabase Free Tier  
+- Cache: Redis (Docker)  
+- Total: $0/month  
 
-### Development Logs
-```bash
-# Detailed logging
-LOG_LEVEL=debug npm run dev
+### Growth (1,000+ users)
+- Supabase Pro: $25/month  
+- Other services: $150–225/month  
+- Total: $175–250/month  
 
-# Error logging only
-LOG_LEVEL=error npm run dev
-```
+### Scale (10,000+ users)
+- Supabase Pro + Add-ons  
+- Infrastructure scaling  
+- Total: $1,000–1,500/month  
 
-## 📞 **Support & Documentation**
+See **backend/README.md** for details.
 
-- **Privy Documentation**: https://docs.privy.io
-- **Supabase Documentation**: https://supabase.com/docs
-- **Project Issues**: GitHub Issues
-- **Next.js Documentation**: https://nextjs.org/docs
+***
 
-## 🎯 **Project Status**
+## Contributing
 
-### ✅ **Completed Features**
-- Email OTP Authentication
-- Wallet Connection Support
-- User Management System
-- Database Security (RLS)
-- JWT Middleware Protection
-- Anonymous P2P Trading Ready
+### Getting Started
+1. Read **COMPLETE_LEARNING_GUIDE.md**  
+2. Follow **DEVELOPER_ONBOARDING_GUIDE.md**  
+3. Set up the environment  
+4. Start development  
 
-### 🔄 **Ready for Extension**
-- Multi-wallet Support
-- 2FA Integration
-- Advanced Trading Features
-- Mobile App Integration
+### Code Style
+- TypeScript (Backend & Frontend)  
+- Solidity ^0.8.20 (Smart Contracts)  
+- ESLint + Prettier  
 
----
+***
 
-**🚀 Secure and scalable P2P trading platform authentication system is ready for production!**
+## License
 
-*Built with Privy integration for seamless Web3 authentication*
+Private – All rights reserved.
+
+***
+
+## Support
+
+- Email: [henry.c@hyperindex.biz]
+- Discord: Pending  
+- GitHub Issues: Pending  
+
+***
+
+**Last Updated:** October 31, 2025
+***
