@@ -158,3 +158,4 @@ out/
 # Backup files
 *.backup
 *.bak
+.DS_Store
