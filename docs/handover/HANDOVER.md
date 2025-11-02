@@ -1,13 +1,130 @@
 # HANDOVER - Development Session Summary
 
-**Last Updated**: 2025-10-31
-**Latest Session**: Fee Structure Phase 1 Implementation (Oct 31)
+**Last Updated**: 2025-11-02
+**Latest Session**: YC Demo Development (In Progress)
 
 > For archived sessions, see HANDOVER_ARCHIVE.md
 
 ---
 
-## LATEST SESSION - Fee Structure Phase 1 Implementation (Oct 31)
+## ⚠️ CURRENT WORK IN PROGRESS
+
+**Active Project**: YCOMDEMO (Y Combinator Demo Site)
+**Location**: `/Users/kimhyeon/Desktop/PROJECTS/YCOMDEMO/`
+**Status**: Phase 1.5.1 완료, USER verification 대기 중
+
+**작업 내용**:
+- YCOMDEMO 폴더에서 YC 데모 사이트 개발 진행 중
+- Phase 1.5: Footer 추가 (Sidebar 제거)
+- Phase 1.5.1: VIP-tiered fee system 구현
+- 다음: Phase 2 (14개 불필요한 페이지 삭제)
+
+**참고 문서**: `docs/planning/2025NOV01/2025NOV01_Task_Plan_YC_Demo.md`
+
+**이 프로젝트(Cryptoindex-V0)**: 메인 개발은 일시 중단, YCOMDEMO 작업 완료 후 재개 예정
+
+---
+
+## LATEST SESSION - YC Demo Project Setup (Nov 2)
+
+### Goal
+Create standalone YCOMDEMO folder for Y Combinator application demo video with three core pages (Trading, Launch, Manage Index)
+
+### Completed
+
+**1. Task Plan Document**:
+- Created `docs/planning/2025NOV01/2025NOV01_Task_Plan_YC_Demo.md` (44KB)
+- Sections: UX/Component analysis, References (8 platforms), Usability rationale, Component relationships, Execution plan
+- Analyzed references: Hyperliquid, Binance, dYdX, Balancer, Uniswap, Snapshot, Compound, Polymarket
+- Documented adopted vs. rejected alternatives with technical reasoning
+- Example: Single-page layout (adopted) vs. Multi-tab interface (rejected - breaks trading flow)
+
+**2. YCOMDEMO Folder Structure** (`/Users/kimhyeon/Desktop/PROJECTS/YCOMDEMO/`):
+- Copied ~220 files from main project
+- Included: app/, components/, lib/, hooks/, public/, config files
+- Removed 11 unnecessary pages: discover, portfolio, leaderboard, referrals, settings, notifications, dashboard, test pages
+- Kept 3 core pages: trading, launch, manage-index (renamed from governance)
+- Kept API routes: auth/, launch/assets/, baskets/calculate/
+
+**3. Governance → Manage Index Rename**:
+- Folder: `app/governance/` → `app/manage-index/`
+- Route: `/governance` → `/manage-index`
+- Updated navigation in Header.tsx:
+  ```typescript
+  const navigation = [
+    { name: 'Trading', href: '/trading' },
+    { name: 'Launch', href: '/launch' },
+    { name: 'Manage Index', href: '/manage-index' },
+  ]
+  ```
+
+**4. VS Battles Integration**:
+- Moved `components/discover/vs-battle-section.tsx` to `components/governance/`
+- Updated GovernanceLayout.tsx to include four sections:
+  - GovernanceDashboard (voting power, proposals, participation)
+  - ProposalsSection (protocol changes, fee adjustments)
+  - RebalancingVotesSection (performance-based asset changes)
+  - VsBattleSection (head-to-head asset voting)
+
+**5. Documentation**:
+- Created `YCOMDEMO/HANDOVER.md` (17KB) - usage guide, demo tips, testing checklist
+- Copied `YCOMDEMO/TASK_PLAN.md` (44KB) - design rationale, component analysis
+- Both files ensure YCOMDEMO is self-contained for independent Claude sessions
+
+### Technical Details
+
+**Demo Pages**:
+1. Trading (`/trading`): TradingView chart, orderbook, leverage slider (1-50x), position tracking, whale alerts
+2. Launch (`/launch`): Three-column wizard (Basics → Components → Preview), Layer-3 launch flow, localStorage persistence
+3. Manage Index (`/manage-index`): Governance proposals, rebalancing votes, VS battles, voting dashboard
+
+**Optimizations**:
+- Hardcoded (non-interactive): Recent trades, whale alerts, community feed, Layer-3 launches
+- Dynamic (interactive): Trading calculations (PnL, liquidation, fees), allocation sliders, vote counts, VS battle percentages
+- Why: Demo doesn't need real-time background updates, saves API calls, ensures consistent demo experience
+
+**Key Features Maintained**:
+- Real wallet connection via Privy (MetaMask, Coinbase Wallet, WalletConnect, Email)
+- Dynamic calculations: Position value, liquidation price, PnL, fees (all accurate formulas)
+- Preview chart via `/api/baskets/calculate` (weighted basket performance)
+- Full navigation (not demo-locked) for natural demo flow
+
+### Files Created
+- `docs/planning/2025NOV01/2025NOV01_Task_Plan_YC_Demo.md` (44KB)
+- `/Users/kimhyeon/Desktop/PROJECTS/YCOMDEMO/` folder (~220 files)
+- `YCOMDEMO/HANDOVER.md` (17KB)
+- `YCOMDEMO/TASK_PLAN.md` (44KB)
+
+### Files Modified
+- `YCOMDEMO/components/layout/Header.tsx` (navigation simplified)
+- `YCOMDEMO/components/governance/GovernanceLayout.tsx` (VS Battles integration)
+- `docs/handover/HANDOVER.md` (this file)
+- `docs/handover/HANDOVER_ARCHIVE.md` (moved old sessions)
+
+### Next Steps
+
+**Demo Preparation**:
+1. Test YCOMDEMO: `cd YCOMDEMO && pnpm install && pnpm run dev`
+2. Pre-connect wallet with funded testnet tokens (HYPE + HIIN)
+3. Pre-load Trading page with DOGIDX (visually appealing)
+4. Record demo video (5-10 min) following script in HANDOVER.md
+
+**Post-Demo Options**:
+- Deploy to Vercel for YC reviewers: `vercel --prod` with custom domain
+- Merge useful optimizations back to main repo (calculation functions, UX improvements)
+- Archive demo project: `git tag yc-demo-2025-11` and move to archive folder
+
+### Related Documents
+- `YCOMDEMO/HANDOVER.md` - Complete usage guide, demo tips, testing checklist
+- `YCOMDEMO/TASK_PLAN.md` - UX analysis, references, component dependencies
+- `docs/planning/2025NOV01/2025NOV01_Task_Plan_YC_Demo.md` (same as above)
+
+### Status
+YCOMDEMO folder ready, documentation complete, ready for demo video recording
+
+---
+
+## PREVIOUS SESSION - Fee Structure Phase 1 Implementation (Oct 31)
 
 ### Goal
 Implement Phase 1 (Core Infrastructure) of VIP-tiered fee structure with full state management
@@ -222,112 +339,6 @@ docs: add project documentation structure and launch guide
 
 ### Status
 Git history cleaned, fee task plan created, ready to start Phase 1 implementation
-
----
-
-## PREVIOUS SESSION - Currency System & Discover Page Fixes (Oct 30)
-
-### Goal
-Finalize fee structure implementation decisions, simplify currency display to HYPE-only, fix discover page search/filters, remove emojis from index names
-
-### Completed
-- Deleted duplicate files: `.dockerignore 2`, `.gitignore 3`
-
-### Pending Tasks (10 items)
-
-**Fee Structure (5 tasks)**:
-1. Decide VIP tier integration approach (Mock VIP2 / User store / Backend API)
-2. Add `layer` field to mock index data (`lib/data/mock-indexes.ts`)
-3. Set `isInvited` default value for Phase 0
-4. Update 6 components to use new VIP/Layer fee structure
-5. Test VIP tier calculations and UI display
-
-**Currency System (2 tasks)**:
-6. Remove Preferences section from settings completely (`components/settings/PreferencesSection.tsx`)
-7. Force HYPE display in `useCurrency` hook (keep fee variables HIIN/HIDE intact in code)
-
-**Discover Page (3 tasks)**:
-8. Remove description from search logic (`components/discover/index-list.tsx` line 137-141) - name + symbol only
-9. Fix filters with dynamic criteria:
-   - Hot: `heatScore >= 70`
-   - New: `createdAt >= (now - 7 days)`
-   - Top Gainers: Top 10 by `change24h > 0`
-   - Top Losers: Top 10 by `change24h < 0`
-   - High Volume: Top 10 by `volume24h`
-10. Remove emojis from all index names in `lib/data/mock-indexes.ts` + add emoji validation regex
-
-### Key Decisions
-
-**Currency Display**:
-- Current: Settings > Preferences allows 7 currencies (HYPE, USD, USDC, USDT, BTC, HIIN, HIDE)
-- Current: Mock exchange rates with ±1% random fluctuation every 30 seconds
-- Problem: Misleading users with fake price data
-- Solution: Force HYPE-only display, remove Preferences section
-- Important: Keep fee calculation variables (HIIN/HIDE) intact in `lib/constants/fees.ts`
-
-**Fee Structure Status**:
-- ✅ Constants written: `lib/constants/fees.ts` (VIP tiers, layer fees)
-- ✅ Utils written: `lib/utils/fees.ts` (calculation functions)
-- ❌ Implementation pending: 5 decisions needed
-- ❌ Components not updated: 6 components still use old Phase 0 structure
-
-**Discover Page Issues**:
-- Search: Matches description field causing false positives
-- Filters: Use hardcoded `isHot`/`isNew` flags instead of dynamic criteria
-- Filters: Gainers/Losers show ALL items instead of top N
-- Filters: High Volume case missing entirely
-- Names: All 16 indexes have emojis (e.g., '🐕 Dog Memes Index')
-
-### Related Documents
-- `docs/planning/2025OCT04/FEE_STRUCTURE_SPECIFICATION.md` (900+ lines)
-- `docs/planning/2025OCT04/CURRENCY_SYSTEM_REFACTORING.md` (1,246 lines)
-- `docs/planning/2025OCT04/DISCOVER_PAGE_TASK_PLAN.md` (569 lines)
-
-### Status
-Tasks planned, decisions pending
-
----
-
-## PREVIOUS SESSION - Phase 0 Terminology & UI Consistency (Oct 29)
-
-### Goal
-Clarify Phase 0/1 scope, unify terminology (Futures, Trading Rules/Data), fix component naming, add Phase 0 limitation tooltips
-
-### Implementation
-
-**TASK_PRIORITY.md Updates** (12 changes):
-- Phase 0 Tooltips (3 locations): Portfolio Futures, Trade page Futures, Launch page asset search
-- Share Button Improvements: Complete Share button specification (Feedback #19)
-- Terminology Standardization: "Trading 페이지" → "Trade 페이지", "Trade Data" → "Trading Data", "Perps" → "Futures", `IndexDetailModal` → `IndexDetailsModal`
-- Actions Order Fix: `Trade | ⭐ | View Details` → `Trade | View Details | ⭐`
-- Data Consistency Addition: IndexDetailsModal과 Trade 페이지 Info 탭 간 데이터 일관성
-- Phase 0 Scope Clarification: HyperCore Spot 토큰 인덱스만 지원
-
-**LAUNCH_PAGE_REFACTORING.md Updates** (2 changes):
-- Phase 0 Tooltip Messages: Updated to include "HyperCore Perpetual tokens"
-
-### Technical Details
-
-**Terminology Strategy**:
-```
-General use: "Futures" (포괄적, includes Delivery + Perpetual)
-├─ Delivery Futures (만기 있음) - Phase 1 멀티체인 지원 시 포함 가능
-└─ Perpetual Futures (만기 없음) - HyperCore Perpetuals
-
-Launch tooltip: "HyperCore Perpetual tokens" (명확히 구분)
-
-Page names: "Trade 페이지" (간결)
-Technical terms: "Trading Rules", "Trading Data" (업계 표준)
-```
-
-### Status
-All terminology unified, Phase 0/1 scope clarified, tooltips added, component consistency specified
-
-### Next Steps
-- Implement Phase 0 tooltips (3 locations)
-- Add Share button to Discover page
-- Extract reusable components (`IndexInfoField`, `BasketComposition`, `FeeDisplay`)
-- Ensure data consistency between Trade page and IndexDetailsModal
 
 ---
 

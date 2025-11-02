@@ -7,18 +7,117 @@
 
 ## Table of Contents
 
-- Line 26: Discover Page Complete Implementation (Oct 21)
-- Line 398: Index Modal Enhancement & Spot Trading (Oct 21)
-- Line 583: Portfolio Components Refactoring (Oct 20)
-- Line 749: Overall Project Status - 96 Tasks
-- Line 785: Backend API Integration (Oct 20)
-- Line 903: Discover Page Implementation Plan (Oct 19)
-- Line 1037: TGE Implementation Progress (Oct 19)
-- Line 1195: TGE Implementation Timeline (Oct 19)
-- Line 1302: Launch Page Integration (Oct 19)
-- Line 1582: Settings Security Features (Oct 16)
-- Line 1716: Sidebar & Layout Unification (Oct 14)
-- Line 1808: Currency Display System (Oct 11)
+- Line 26: Currency System & Discover Page Fixes (Oct 30)
+- Line 119: Phase 0 Terminology & UI Consistency (Oct 29)
+- Line 193: Discover Page Complete Implementation (Oct 21)
+- Line 565: Index Modal Enhancement & Spot Trading (Oct 21)
+- Line 750: Portfolio Components Refactoring (Oct 20)
+
+---
+
+## Currency System & Discover Page Fixes (Oct 30)
+
+### Goal
+Finalize fee structure implementation decisions, simplify currency display to HYPE-only, fix discover page search/filters, remove emojis from index names
+
+### Completed
+- Deleted duplicate files: `.dockerignore 2`, `.gitignore 3`
+
+### Pending Tasks (10 items)
+
+**Fee Structure (5 tasks)**:
+1. Decide VIP tier integration approach (Mock VIP2 / User store / Backend API)
+2. Add `layer` field to mock index data (`lib/data/mock-indexes.ts`)
+3. Set `isInvited` default value for Phase 0
+4. Update 6 components to use new VIP/Layer fee structure
+5. Test VIP tier calculations and UI display
+
+**Currency System (2 tasks)**:
+6. Remove Preferences section from settings completely (`components/settings/PreferencesSection.tsx`)
+7. Force HYPE display in `useCurrency` hook (keep fee variables HIIN/HIDE intact in code)
+
+**Discover Page (3 tasks)**:
+8. Remove description from search logic (`components/discover/index-list.tsx` line 137-141) - name + symbol only
+9. Fix filters with dynamic criteria:
+   - Hot: `heatScore >= 70`
+   - New: `createdAt >= (now - 7 days)`
+   - Top Gainers: Top 10 by `change24h > 0`
+   - Top Losers: Top 10 by `change24h < 0`
+   - High Volume: Top 10 by `volume24h`
+10. Remove emojis from all index names in `lib/data/mock-indexes.ts` + add emoji validation regex
+
+### Key Decisions
+
+**Currency Display**:
+- Current: Settings > Preferences allows 7 currencies (HYPE, USD, USDC, USDT, BTC, HIIN, HIDE)
+- Current: Mock exchange rates with ±1% random fluctuation every 30 seconds
+- Problem: Misleading users with fake price data
+- Solution: Force HYPE-only display, remove Preferences section
+- Important: Keep fee calculation variables (HIIN/HIDE) intact in `lib/constants/fees.ts`
+
+**Fee Structure Status**:
+- ✅ Constants written: `lib/constants/fees.ts` (VIP tiers, layer fees)
+- ✅ Utils written: `lib/utils/fees.ts` (calculation functions)
+- ❌ Implementation pending: 5 decisions needed
+- ❌ Components not updated: 6 components still use old Phase 0 structure
+
+**Discover Page Issues**:
+- Search: Matches description field causing false positives
+- Filters: Use hardcoded `isHot`/`isNew` flags instead of dynamic criteria
+- Filters: Gainers/Losers show ALL items instead of top N
+- Filters: High Volume case missing entirely
+- Names: All 16 indexes have emojis (e.g., '🐕 Dog Memes Index')
+
+### Related Documents
+- `docs/planning/2025OCT04/FEE_STRUCTURE_SPECIFICATION.md` (900+ lines)
+- `docs/planning/2025OCT04/CURRENCY_SYSTEM_REFACTORING.md` (1,246 lines)
+- `docs/planning/2025OCT04/DISCOVER_PAGE_TASK_PLAN.md` (569 lines)
+
+### Status
+Tasks planned, decisions pending
+
+---
+
+## Phase 0 Terminology & UI Consistency (Oct 29)
+
+### Goal
+Clarify Phase 0/1 scope, unify terminology (Futures, Trading Rules/Data), fix component naming, add Phase 0 limitation tooltips
+
+### Implementation
+
+**TASK_PRIORITY.md Updates** (12 changes):
+- Phase 0 Tooltips (3 locations): Portfolio Futures, Trade page Futures, Launch page asset search
+- Share Button Improvements: Complete Share button specification (Feedback #19)
+- Terminology Standardization: "Trading 페이지" → "Trade 페이지", "Trade Data" → "Trading Data", "Perps" → "Futures", `IndexDetailModal` → `IndexDetailsModal`
+- Actions Order Fix: `Trade | ⭐ | View Details` → `Trade | View Details | ⭐`
+- Data Consistency Addition: IndexDetailsModal과 Trade 페이지 Info 탭 간 데이터 일관성
+- Phase 0 Scope Clarification: HyperCore Spot 토큰 인덱스만 지원
+
+**LAUNCH_PAGE_REFACTORING.md Updates** (2 changes):
+- Phase 0 Tooltip Messages: Updated to include "HyperCore Perpetual tokens"
+
+### Technical Details
+
+**Terminology Strategy**:
+```
+General use: "Futures" (포괄적, includes Delivery + Perpetual)
+├─ Delivery Futures (만기 있음) - Phase 1 멀티체인 지원 시 포함 가능
+└─ Perpetual Futures (만기 없음) - HyperCore Perpetuals
+
+Launch tooltip: "HyperCore Perpetual tokens" (명확히 구분)
+
+Page names: "Trade 페이지" (간결)
+Technical terms: "Trading Rules", "Trading Data" (업계 표준)
+```
+
+### Status
+All terminology unified, Phase 0/1 scope clarified, tooltips added, component consistency specified
+
+### Next Steps
+- Implement Phase 0 tooltips (3 locations)
+- Add Share button to Discover page
+- Extract reusable components (`IndexInfoField`, `BasketComposition`, `FeeDisplay`)
+- Ensure data consistency between Trade page and IndexDetailsModal
 
 ---
 
