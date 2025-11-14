@@ -16,7 +16,6 @@ import { getActionInfo } from '@/hooks/use-governance'
 import { OPERATOR_ADDRESSES } from '@/lib/mock/operators'
 import { cn } from '@/lib/utils'
 import VoteDialog from '@/components/governance/VoteDialog'
-import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
 export default function ProposalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { proposals, load, getById, quorumReached, supportPercent, passReached, timeLeft } = useGovernance()
@@ -79,18 +78,18 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
   const phaseBadge = (() => {
     const cmap: Record<string, string> = {
-      active: 'text-brand border-brand/30',
+      active: 'text-brand border-white/10',
       queued: 'text-yellow-400 border-yellow-400/30',
       timelocked: 'text-yellow-400 border-yellow-400/30',
-      'awaiting-multisig': 'text-brand border-brand/30',
-      executed: 'text-slate-300 border-slate-600',
-      pending: 'text-slate-300 border-slate-600',
-      succeeded: 'text-brand border-brand/30',
+      'awaiting-multisig': 'text-brand border-white/10',
+      executed: 'text-slate-300 border-teal',
+      pending: 'text-slate-300 border-teal',
+      succeeded: 'text-brand border-white/10',
       defeated: 'text-red-400 border-red-400/30',
-      canceled: 'text-slate-400 border-slate-600',
+      canceled: 'text-slate-400 border-teal',
     }
     const phase = p?.phase ?? 'pending'
-    return cmap[phase] || 'text-slate-300 border-slate-600'
+    return cmap[phase] || 'text-slate-300 border-teal'
   })()
 
   const myAddrs = wallets.map(w => (w.address || '').toLowerCase()).filter(Boolean)
@@ -102,28 +101,22 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
   const [voteOpen, setVoteOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0">
-        <div className="grid grid-cols-1
-          lg:grid-cols-[260px_1fr]
-          xl:grid-cols-[280px_1fr]
-          2xl:grid-cols-[300px_1fr]
-          gap-3 items-start lg:items-stretch">
-          <div className="order-2 lg:order-1"><LeftSidebar /></div>
-          <main className="order-1 lg:order-2 max-w-5xl mx-auto w-full space-y-6">
+    <div className="min-h-screen bg-teal-base text-white">
+      <div className="px-4 lg:px-6 py-8">
+        <main className="max-w-7xl mx-auto w-full space-y-6">
         {!p ? (
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="glass-card-dynamic border-teal">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="text-sm text-slate-300">
                 {loading ? 'Loading proposal…' : 'Proposal not found'}
               </div>
               <div className="flex items-center gap-2">
                 {!loading && (
-                  <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => router.push('/vote')}>
+                  <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => router.push('/vote')}>
                     Back to list
                   </Button>
                 )}
-                <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => load()} disabled={loading}>
+                <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => load()} disabled={loading}>
                   Refresh
                 </Button>
               </div>
@@ -144,21 +137,21 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
             <div className="text-xs text-slate-400 mb-1">{p.indexSymbol}</div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               {p.title}
-              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">Snapshot: Time‑Weighted</Badge>
+              <Badge variant="outline" className="text-xs text-slate-300 border-teal">Snapshot: Time‑Weighted</Badge>
             </h1>
             {p.description && <p className="text-slate-400 mt-1">{p.description}</p>}
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={cn('text-xs', phaseBadge)}>{p.phase}</Badge>
             {readyToQueue && (
-              <Badge variant="outline" className="text-xs text-brand border-brand/30">Queued soon</Badge>
+              <Badge variant="outline" className="text-xs text-brand border-white/10">Queued soon</Badge>
             )}
           </div>
         </div>
 
         {/* Pass state banner */}
         {readyToQueue && (
-          <Card className="bg-brand/10 border-brand/30">
+          <Card className="bg-brand/10 border-white/10">
             <CardContent className="p-3 flex items-center gap-2 text-sm">
               <CheckCircle className="w-4 h-4 text-brand" />
               <span className="text-brand">
@@ -169,11 +162,11 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
         )}
 
         {/* Policy timeline (static skeleton) */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center gap-3 text-xs">
               {['Snapshot', 'Voting', 'Timelock', 'Multisig', 'Execute'].map((s, i) => (
-                <div key={s} className={cn('px-2 py-1 rounded border', 'border-slate-700',
+                <div key={s} className={cn('px-2 py-1 rounded border', 'border-teal',
                   i === 0 && 'bg-slate-800',
                 )}>{s}</div>
               ))}
@@ -183,28 +176,28 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
         {/* Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
             <div className="text-xs text-slate-400 mb-1">Quorum</div>
             <Progress value={Math.min(100, quorumPct)} className="h-2" />
             <div className="text-xs text-slate-400 mt-1">{quorumPct.toFixed(1)}% / target {p.config.quorumPercent}%{quorumReached(p) ? ' (Met)' : ''}</div>
           </CardContent></Card>
 
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
             <div className="text-xs text-slate-400 mb-1">Support</div>
             <Progress value={Math.min(100, support)} className="h-2" />
             <div className="text-xs text-slate-400 mt-1">{support.toFixed(1)}% / pass {p.config.passThresholdPercent}%{pass ? ' (Passing)' : ''}</div>
           </CardContent></Card>
 
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
             <div className="text-xs text-slate-400 mb-1">Time</div>
             <div className="text-sm text-white">{p.phase === 'active' ? (tl || '—') : p.phase}</div>
           </CardContent></Card>
         </div>
 
         {/* Vote Breakdown */}
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-2">
           <div className="text-xs text-slate-400">Vote Breakdown</div>
-          <div className="w-full h-3 bg-slate-800 rounded overflow-hidden flex">
+          <div className="w-full h-3 bg-teal-card rounded overflow-hidden flex">
             <div className="h-full bg-green-500/70" style={{ width: `${breakdown.forPct}%` }} />
             <div className="h-full bg-red-500/70" style={{ width: `${breakdown.againstPct}%` }} />
             <div className="h-full bg-slate-500/70" style={{ width: `${breakdown.abstainPct}%` }} />
@@ -279,11 +272,11 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
         {/* Proposed changes */}
         {p.changes && p.changes.length > 0 && (
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-2">
             <div className="text-xs text-slate-400">Proposed Changes</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {p.changes.map((c, i) => (
-                <div key={i} className="p-3 bg-slate-800/50 rounded border border-slate-700 text-sm">
+                <div key={i} className="p-3 bg-teal-card/50 rounded border border-teal text-sm">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-white">{c.type.toUpperCase()} {c.symbol}</div>
                     {(c.currentPct !== undefined || c.proposedPct !== undefined) && (
@@ -299,7 +292,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
 
         {/* Timelock / Multisig */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-2">
             <div className="text-xs text-slate-400">Timelock</div>
             <div className="text-sm text-white">{p.config.timelockSeconds ? `${Math.round(p.config.timelockSeconds/3600)}h delay` : '—'}</div>
             {p.timelock?.eta && (
@@ -312,7 +305,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
             )}
           </CardContent></Card>
 
-          <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-2">
+          <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-2">
             <div className="text-xs text-slate-400">Operator signatures</div>
             {p.config.multisig ? (
               <div className="space-y-2 text-sm">
@@ -333,7 +326,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
                         key={op}
                         className={cn(
                           'px-2 py-1 rounded border text-xs',
-                          signed ? (isYou ? 'bg-brand text-black border-brand' : 'bg-slate-800 text-slate-200 border-slate-600') : 'bg-slate-900 text-slate-500 border-slate-700'
+                          signed ? (isYou ? 'bg-brand text-black border-brand' : 'bg-teal-card text-slate-200 border-teal') : 'bg-slate-900 text-slate-500 border-teal'
                         )}
                         title={isYou ? 'You' : signed ? 'Signed' : 'Pending'}
                       >
@@ -379,8 +372,7 @@ export default function ProposalDetailsPage({ params }: { params: Promise<{ id: 
         </div>
         </>
         )}
-          </main>
-        </div>
+        </main>
       </div>
     </div>
   )

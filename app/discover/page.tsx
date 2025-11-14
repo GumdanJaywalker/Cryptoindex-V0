@@ -2,29 +2,32 @@
 
 import { useState, useMemo, useEffect, Suspense, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Header } from '@/components/layout/Header'
-import { LeftSidebar } from '@/components/sidebar/LeftSidebar'
-import { StickyFooter } from '@/components/layout/Footer'
 import { IndexList } from '@/components/discover/index-list'
 import { AdvancedFiltersModal, type AdvancedFilters } from '@/components/discover/advanced-filters-modal'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { MemeIndex } from '@/lib/types/index-trading'
-import { allMockIndexes } from '@/lib/data/mock-indexes'
+import { getAllIndexes } from '@/lib/data/unified-indexes'
 
 // Main content component
 function DiscoverPageContent() {
   const router = useRouter()
+  const [allIndexes, setAllIndexes] = useState<MemeIndex[]>([])
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     compositionCoins: [],
     compositionMatchMode: 'any',
   })
 
+  // Load unified indexes on mount
+  useEffect(() => {
+    setAllIndexes(getAllIndexes())
+  }, [])
+
   // Apply advanced filters to indexes
   const filteredIndexes = useMemo(() => {
-    let filtered = [...allMockIndexes]
+    let filtered = [...allIndexes]
 
     // Composition filter
     if (advancedFilters.compositionCoins.length > 0) {
@@ -73,7 +76,7 @@ function DiscoverPageContent() {
     }
 
     return filtered
-  }, [advancedFilters])
+  }, [allIndexes, advancedFilters])
 
   // Count active advanced filters
   const advancedFilterCount = useMemo(() => {
@@ -92,18 +95,9 @@ function DiscoverPageContent() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <Header />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[300px_1fr] 2xl:grid-cols-[320px_1fr] gap-0">
-        {/* Left Sidebar */}
-        <div className="hidden lg:block">
-          <LeftSidebar />
-        </div>
-
-        {/* Main Content */}
-        <main className="pt-16 px-4 lg:px-6 pb-8">
-          <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-teal-base text-white">
+      <main className="px-4 lg:px-6 py-8">
+        <div className="max-w-7xl mx-auto">
             {/* Hero Section */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-white mb-1">
@@ -121,9 +115,8 @@ function DiscoverPageContent() {
               onAdvancedFiltersClick={() => setAdvancedFiltersOpen(true)}
               advancedFilterCount={advancedFilterCount}
             />
-          </div>
-        </main>
-      </div>
+        </div>
+      </main>
 
       {/* Advanced Filters Modal */}
       <AdvancedFiltersModal

@@ -22,7 +22,7 @@ function SearchParamsHandler() {
 
 export default function TradingPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-teal-base text-white">
       <Suspense fallback={null}>
         <SearchParamsHandler />
       </Suspense>

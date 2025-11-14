@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
-// Import mock data and types
-import { allMockIndexes, mockTopTraders } from '@/lib/data/mock-indexes'
+// Import data sources and types
+import { getAllIndexes } from '@/lib/data/unified-indexes'
+import { mockTopTraders } from '@/lib/data/mock-indexes'
 import { MemeIndex, TopTrader } from '@/lib/types/index-trading'
-import LeftSidebar from '@/components/sidebar/LeftSidebar'
+import { IndexData } from '@/lib/types/index'
+import { convertMemeIndexToIndexData } from '@/lib/utils/index-converter'
 import { IndexCarousel } from '@/components/landing/IndexCarousel'
 import { TraderCarousel } from '@/components/landing/TraderCarousel'
-import IndexDetailModal from '@/components/modals/IndexDetailModal'
+import IndexDetailsModal from '@/components/portfolio/IndexDetailsModal'
 
 // Dynamic imports for performance optimization
 const SmartFloatingTradeButton = dynamic(() => import('@/components/mobile/floating-trade-button').then(mod => ({ default: mod.SmartFloatingTradeButton })), {
@@ -20,56 +22,55 @@ const SmartFloatingTradeButton = dynamic(() => import('@/components/mobile/float
 // Main Landing Page Component
 export default function Home() {
   const router = useRouter()
-  const [selectedIndex, setSelectedIndex] = useState<MemeIndex | null>(null)
+  const [allIndexes, setAllIndexes] = useState<MemeIndex[]>([])
+  const [selectedIndex, setSelectedIndex] = useState<IndexData | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
+  // Load unified indexes on mount
+  useEffect(() => {
+    setAllIndexes(getAllIndexes())
+  }, [])
+
   const handleIndexClick = useCallback((index: MemeIndex) => {
-    setSelectedIndex(index)
+    // Convert MemeIndex to IndexData for the modal
+    const indexData = convertMemeIndexToIndexData(index)
+    setSelectedIndex(indexData)
     setModalOpen(true)
   }, [])
 
   const handleQuickTrade = useCallback((type: 'buy' | 'sell') => {
-    const index = selectedIndex || allMockIndexes[0]
-    console.log(`Quick ${type} trade for ${index.symbol}`)
+    if (!selectedIndex) return
+    console.log(`Quick ${type} trade for ${selectedIndex.symbol}`)
     // Navigate to trading page with quick trade action
-    router.push(`/trading?index=${index.id}&action=${type}`)
+    router.push(`/trade?index=${selectedIndex.symbol}&action=${type}`)
   }, [selectedIndex, router])
   
   return (
-    <div className="min-h-screen bg-[#101A1D] text-white relative">
+    <div className="min-h-screen bg-teal-base text-white relative">
       {/* Main Content */}
-      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0 bg-[#101A1D] relative z-10 min-h-screen mt-0">
-        <div className="grid grid-cols-1
-          lg:grid-cols-[260px_1fr_340px]
-          xl:grid-cols-[280px_1fr_360px]
-          2xl:grid-cols-[300px_1fr_380px]
-          gap-4 items-center">
+      <div className="px-4 lg:px-6 py-8 bg-teal-base relative z-10 min-h-screen">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          {/* Left Sidebar - Stats & Quick Access */}
-          <div className="order-2 lg:order-1">
-            <LeftSidebar />
-          </div>
-
-          {/* Center - Trending Indices Carousel (2x2 Grid) */}
-          <div className="space-y-4 order-1 lg:order-2 pb-8">
+          {/* Left - Trending Indices */}
+          <div className="space-y-4">
             <div>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">
                   Trending Indexes
                 </h2>
                 <p className="text-slate-400 text-sm">
-                  Explore the hottest meme coin indexes right now
+                  Explore the hottest crypto indexes right now
                 </p>
               </div>
               <IndexCarousel
-                indexes={allMockIndexes.slice(0, 12)}
+                indexes={allIndexes.slice(0, 12)}
                 onCardClick={handleIndexClick}
               />
             </div>
           </div>
 
-          {/* Right Side - Top Performers Carousel */}
-          <div className="space-y-4 order-3 lg:order-3 lg:sticky lg:top-20 pb-8">
+          {/* Right - Top Performers */}
+          <div className="space-y-4">
             <div>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">
@@ -80,7 +81,7 @@ export default function Home() {
                 </p>
               </div>
               <TraderCarousel
-                traders={mockTopTraders.slice(0, 5)}
+                traders={mockTopTraders.slice(0, 12)}
                 autoRotate={true}
                 autoRotateInterval={5000}
               />
@@ -98,7 +99,7 @@ export default function Home() {
       />
 
       {/* Index details modal */}
-      <IndexDetailModal
+      <IndexDetailsModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         index={selectedIndex}

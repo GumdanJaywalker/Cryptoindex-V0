@@ -2,8 +2,6 @@
 
 import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
-import LeftSidebar from '@/components/sidebar/LeftSidebar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -82,16 +80,9 @@ export default function TradersPage() {
   const tableRows = page === 1 ? pageData.slice(3) : pageData
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <Header />
-      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0">
-        <div className="grid grid-cols-1
-          lg:grid-cols-[260px_1fr]
-          xl:grid-cols-[280px_1fr]
-          2xl:grid-cols-[300px_1fr]
-          gap-3 items-start lg:items-stretch">
-          <div className="order-2 lg:order-1"><LeftSidebar /></div>
-          <div className="order-1 lg:order-2 max-w-6xl mx-auto w-full space-y-6">
+    <div className="min-h-screen bg-teal-base text-white">
+      <div className="px-4 lg:px-6 py-8">
+        <div className="max-w-7xl mx-auto w-full space-y-6">
         {/* Title */}
         <div className="flex items-center justify-between">
           <div>
@@ -102,19 +93,19 @@ export default function TradersPage() {
         </div>
 
         {/* Controls */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-2 items-center">
               <div className="flex items-center gap-1 text-xs text-slate-400 mr-2"><Filter className="w-3 h-3"/>Timeframe:</div>
               {timeframeOptions.map(tf => (
-                <Button key={tf} size="sm" variant={tf === timeframe ? 'default' : 'ghost'} className={cn('h-8 text-xs', tf===timeframe? 'bg-brand text-black hover:bg-brand-hover': 'hover:bg-slate-800')} onClick={()=>setTimeframe(tf)}>{tf.toUpperCase()}</Button>
+                <Button key={tf} size="sm" variant={tf === timeframe ? 'default' : 'ghost'} className={cn('h-8 text-xs', tf===timeframe? 'bg-brand text-black hover:bg-brand-hover': 'hover:bg-teal-card/50')} onClick={()=>setTimeframe(tf)}>{tf.toUpperCase()}</Button>
               ))}
               <div className="mx-2 h-6 w-px bg-slate-800"/>
               {filterOptions.map(f => (
-                <Button key={f.key} size="sm" variant={filter === f.key ? 'default' : 'outline'} className={cn('h-8 text-xs', filter===f.key? 'bg-brand text-black hover:bg-brand-hover': 'border-slate-700 text-slate-300 hover:bg-slate-800')} onClick={()=>setFilter(f.key)}>{f.label}</Button>
+                <Button key={f.key} size="sm" variant={filter === f.key ? 'default' : 'outline'} className={cn('h-8 text-xs', filter===f.key? 'bg-brand text-black hover:bg-brand-hover': 'border-teal text-slate-300 hover:bg-teal-card/50')} onClick={()=>setFilter(f.key)}>{f.label}</Button>
               ))}
               <div className="ml-auto flex items-center gap-2">
-                <Input placeholder="Search trader…" value={q} onChange={(e)=>setQ(e.target.value)} className="h-8 bg-slate-900 border-slate-700 text-sm w-48"/>
+                <Input placeholder="Search trader…" value={q} onChange={(e)=>setQ(e.target.value)} className="h-8 glass-input border-teal text-sm w-48"/>
               </div>
             </div>
           </CardContent>
@@ -126,14 +117,14 @@ export default function TradersPage() {
             {/* Top 1 centered */}
             {podium[0] && (
               <div className="flex justify-center">
-                <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5 hover:border-slate-700 transition-colors">
+                <div className="w-full xl:w-2/3 2xl:w-1/2 glass-card-dynamic border-teal p-5 transition-colors">
                   <button
                     className="w-full text-left"
                     onClick={() => { setSelectedTrader(podium[0]); setTraderModalOpen(true) }}
                     aria-label={`Open ${podium[0].ens || podium[0].address} details`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-800 ring-2 ring-brand/40">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-teal-card ring-2 ring-brand/40">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={podium[0].avatar || getAvatarUrl(podium[0].ens || podium[0].address || podium[0].id)}
@@ -148,8 +139,8 @@ export default function TradersPage() {
                           <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
                         </div>
                         <div className="mt-1 flex items-baseline gap-2">
-                          <span className={cn('text-lg font-bold', (podium[0].pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>${Math.abs(podium[0].pnl24h||0).toLocaleString()}</span>
-                          <span className={cn('text-xs', (podium[0].pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                          <span className={cn('text-lg font-bold', (podium[0].pnl24h||0) >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>${Math.abs(podium[0].pnl24h||0).toLocaleString()}</span>
+                          <span className={cn('text-xs', (podium[0].pnlPercentage24h||0) >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>
                             ({(podium[0].pnlPercentage24h||0) >= 0 ? '+' : ''}{(podium[0].pnlPercentage24h||0).toFixed(1)}%)
                           </span>
                         </div>
@@ -158,7 +149,7 @@ export default function TradersPage() {
                             const m = allMockIndexes.find(x => x.id === idxId)
                             const label = m?.symbol || idxId.toUpperCase()
                             return (
-                              <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>
+                              <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-teal-card text-slate-300 text-[11px] border border-teal hover:border-teal hover:text-white" onClick={(e)=>e.stopPropagation()}>
                                 {label}
                               </Link>
                             )
@@ -173,7 +164,7 @@ export default function TradersPage() {
             {/* 2 and 3 side-by-side */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
               {podium.slice(1,3).map((t, i) => (
-                <div key={t.id} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4 hover:border-slate-700 transition-colors">
+                <div key={t.id} className="glass-card-dynamic border-teal p-4 transition-colors">
                   <button
                     className="w-full text-left"
                     onClick={() => { setSelectedTrader(t); setTraderModalOpen(true) }}
@@ -192,11 +183,11 @@ export default function TradersPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
-                          <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">{i===0 ? '🥈' : '🥉'}</Badge>
+                          <Badge variant="outline" className="text-[10px] text-slate-300 border-teal">{i===0 ? '🥈' : '🥉'}</Badge>
                         </div>
                         <div className="mt-1 flex items-baseline gap-2">
-                          <span className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>${Math.abs(t.pnl24h||0).toLocaleString()}</span>
-                          <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                          <span className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>${Math.abs(t.pnl24h||0).toLocaleString()}</span>
+                          <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>
                             ({(t.pnlPercentage24h||0) >= 0 ? '+' : ''}{(t.pnlPercentage24h||0).toFixed(1)}%)
                           </span>
                         </div>
@@ -205,7 +196,7 @@ export default function TradersPage() {
                             const m = allMockIndexes.find(x => x.id === idxId)
                             const label = m?.symbol || idxId.toUpperCase()
                             return (
-                              <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>
+                              <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-teal-card text-slate-300 text-[11px] border border-teal hover:border-teal hover:text-white" onClick={(e)=>e.stopPropagation()}>
                                 {label}
                               </Link>
                             )
@@ -221,8 +212,8 @@ export default function TradersPage() {
         )}
 
         {/* Rich rows list */}
-        <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
-          <div className="divide-y divide-slate-800">
+        <div className="glass-card rounded-xl border-teal overflow-hidden">
+          <div className="divide-y divide-teal">
             {tableRows.map((t, i) => {
               const displayRank = page === 1 ? (i + 4) : (i + 1)
               const roi = timeframe === '24h' ? (t.pnlPercentage24h||0) : timeframe === '7d' ? (t.pnlPercentage7d||0) : (t.pnlPercentage30d||0)
@@ -249,8 +240,8 @@ export default function TradersPage() {
                       <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
                     </button>
                     <div className="ml-auto flex items-baseline gap-2">
-                      <span className={cn('text-sm font-semibold', pnlUSD >= 0 ? 'text-green-400' : 'text-red-400')}>${Math.abs(pnlUSD).toLocaleString()}</span>
-                      <span className={cn('text-xs', roi >= 0 ? 'text-green-400' : 'text-red-400')}>
+                      <span className={cn('text-sm font-semibold', pnlUSD >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>${Math.abs(pnlUSD).toLocaleString()}</span>
+                      <span className={cn('text-xs', roi >= 0 ? 'hl-accent-green' : 'hl-accent-red')}>
                         ({roi >= 0 ? '+' : ''}{roi.toFixed(1)}%)
                       </span>
                     </div>
@@ -262,7 +253,7 @@ export default function TradersPage() {
                         const m = allMockIndexes.find(x => x.id === idxId)
                         const label = m?.symbol || idxId.toUpperCase()
                         return (
-                          <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white" onClick={(e)=>e.stopPropagation()}>
+                          <Link key={idxId} href={`/trading?index=${idxId}`} className="px-2 py-0.5 rounded bg-teal-card text-slate-300 text-[11px] border border-teal hover:border-teal hover:text-white" onClick={(e)=>e.stopPropagation()}>
                             {label}
                           </Link>
                         )
@@ -284,8 +275,8 @@ export default function TradersPage() {
           <div className="flex items-center justify-between px-4 py-2 text-xs text-slate-400">
             <div>Page {page} / {totalPages}</div>
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" className="h-8 border-slate-700" disabled={page===1} onClick={()=>setPage(p=>Math.max(1,p-1))}><ChevronLeft className="w-4 h-4"/></Button>
-              <Button size="sm" variant="outline" className="h-8 border-slate-700" disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))}><ChevronRight className="w-4 h-4"/></Button>
+              <Button size="sm" variant="outline" className="h-8 glass-button-brand" disabled={page===1} onClick={()=>setPage(p=>Math.max(1,p-1))}><ChevronLeft className="w-4 h-4"/></Button>
+              <Button size="sm" variant="outline" className="h-8 glass-button-brand" disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))}><ChevronRight className="w-4 h-4"/></Button>
             </div>
           </div>
         </div>
@@ -296,7 +287,6 @@ export default function TradersPage() {
           onOpenChange={setTraderModalOpen}
           trader={selectedTrader}
         />
-          </div>
         </div>
       </div>
     </div>

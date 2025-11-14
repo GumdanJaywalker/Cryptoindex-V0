@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Header } from '@/components/layout/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -57,27 +56,26 @@ export default function NotificationsPage() {
   const clearAll = () => setItems([])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <Header />
-      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] max-w-4xl mx-auto">
+    <div className="min-h-screen bg-teal-base text-white">
+      <div className="px-4 lg:px-6 py-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-slate-300" />
             <h1 className="text-2xl font-bold">Notifications</h1>
-            <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">{unreadCount} unread</Badge>
+            <Badge variant="outline" className="text-xs text-slate-300 border-teal">{unreadCount} unread</Badge>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800" onClick={markAllRead}>
+            <Button size="sm" variant="outline" className="text-xs glass-button-brand" onClick={markAllRead}>
               Mark all as read
             </Button>
-            <Button size="sm" variant="outline" className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800" onClick={clearAll}>
+            <Button size="sm" variant="outline" className="text-xs glass-button-brand" onClick={clearAll}>
               Clear all
             </Button>
           </div>
         </div>
 
         {items.length === 0 ? (
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="glass-card border-teal">
             <CardContent className="p-8 text-center text-slate-400">
               No notifications yet.
             </CardContent>
@@ -88,7 +86,7 @@ export default function NotificationsPage() {
               .slice()
               .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
               .map((n) => (
-              <Card key={n.id} className="bg-slate-900/50 border-slate-800">
+              <Card key={n.id} className="glass-card-dynamic border-teal">
                 <CardContent className="p-4 flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -99,7 +97,7 @@ export default function NotificationsPage() {
                     <div className="text-xs text-slate-500 mt-1">{timeAgo(n.createdAt)}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" className="h-7 text-xs border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => toggleRead(n.id)}>
+                    <Button size="sm" variant="outline" className="h-7 text-xs glass-button-brand" onClick={() => toggleRead(n.id)}>
                       {n.read ? 'Mark unread' : 'Mark read'}
                     </Button>
                   </div>

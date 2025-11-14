@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -11,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/notifications/toast-system'
 import { cn } from '@/lib/utils'
 import { Users, Share2, Link as LinkIcon, Copy, Info, Shield, TrendingUp, HandCoins } from 'lucide-react'
-import LeftSidebar from '@/components/sidebar/LeftSidebar'
 
 export default function ReferralsPage() {
   const { addToast } = useToast()
@@ -90,16 +88,9 @@ export default function ReferralsPage() {
   const formatUSD = (v: number) => `$${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <Header />
-      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0">
-        <div className="grid grid-cols-1
-          lg:grid-cols-[260px_1fr]
-          xl:grid-cols-[280px_1fr]
-          2xl:grid-cols-[300px_1fr]
-          gap-3 items-start lg:items-stretch">
-          <div className="order-2 lg:order-1"><LeftSidebar /></div>
-          <main className="order-1 lg:order-2 max-w-6xl mx-auto w-full space-y-6">
+    <div className="min-h-screen bg-teal-base text-white">
+      <div className="px-4 lg:px-6 py-8">
+        <main className="max-w-7xl mx-auto w-full space-y-6">
         {/* Title */}
         <div className="flex items-start justify-between">
           <div>
@@ -116,7 +107,7 @@ export default function ReferralsPage() {
               key={tf}
               size="sm"
               variant={timeframe === tf ? 'default' : 'ghost'}
-              className={cn('h-8 px-3 text-xs', timeframe === tf ? 'bg-brand hover:bg-brand-hover text-black' : 'text-slate-300 hover:text-white hover:bg-slate-800')}
+              className={cn('h-8 px-3 text-xs', timeframe === tf ? 'bg-brand hover:bg-brand-hover text-black' : 'text-slate-300 hover:text-white hover:bg-teal-card/50')}
               onClick={() => setTimeframe(tf)}
             >
               {tf}
@@ -144,8 +135,7 @@ export default function ReferralsPage() {
             eligible={eligible}
           />
         </div>
-          </main>
-        </div>
+        </main>
       </div>
     </div>
   )
@@ -209,16 +199,16 @@ function ReferralBody({
   return (
     <div className="space-y-6">
       {/* Tier & policy */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">Your Tier</Badge>
+            <Badge variant="outline" className="text-xs text-slate-300 border-teal">Your Tier</Badge>
             <div className="text-white font-semibold">{tierLabel}</div>
-            <div className={cn('text-xs px-2 py-0.5 rounded border', approved ? 'text-green-400 border-green-400/30' : 'text-slate-400 border-slate-600')}>
+            <div className={cn('text-xs px-2 py-0.5 rounded border', approved ? 'text-green-400 border-green-400/30' : 'text-slate-400 border-teal')}>
               {approved ? 'Influencer' : 'Individual'}
             </div>
             {!approved && eligible && (
-              <div className="text-xs px-2 py-0.5 rounded border border-brand/30 text-brand">Eligible</div>
+              <div className="text-xs px-2 py-0.5 rounded border border-white/10 text-brand">Eligible</div>
             )}
           </div>
           {!approved && (
@@ -230,19 +220,19 @@ function ReferralBody({
       </Card>
 
       {/* Referral code / link */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-4 space-y-3">
           <div className="text-sm text-slate-300">Referral Code</div>
           <div className="flex items-center gap-2">
-            <Input value={code} readOnly className="bg-slate-900 border-slate-700" />
-            <Button variant="outline" className="border-slate-700" onClick={() => onCopy(code, 'Code copied')}>
+            <Input value={code} readOnly className="glass-input border-teal" />
+            <Button variant="outline" className="glass-button-brand" onClick={() => onCopy(code, 'Code copied')}>
               <Copy className="w-4 h-4 mr-2" /> Copy
             </Button>
           </div>
           <div className="text-sm text-slate-300">Referral Link</div>
           <div className="flex items-center gap-2">
-            <Input value={referralLink} readOnly className="bg-slate-900 border-slate-700" />
-            <Button variant="outline" className="border-slate-700" onClick={() => onCopy(referralLink, 'Link copied')}>
+            <Input value={referralLink} readOnly className="glass-input border-teal" />
+            <Button variant="outline" className="glass-button-brand" onClick={() => onCopy(referralLink, 'Link copied')}>
               <LinkIcon className="w-4 h-4 mr-2" /> Copy
             </Button>
           </div>
@@ -254,11 +244,11 @@ function ReferralBody({
 
       {/* Metrics (aggregated for {timeframe}) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">24H Attributed Volume</div>
           <div className="text-lg font-semibold">{formatUSD(metrics.attributedVolume24h)}</div>
         </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Total Earnings</div>
           <div className="text-lg font-semibold">{formatUSD(metrics.creatorFeeUSD + metrics.lpFeeUSD)}</div>
         </CardContent></Card>
@@ -268,7 +258,7 @@ function ReferralBody({
 
       {/* Export */}
       <div className="flex justify-end">
-        <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={exportCSV}>
+        <Button variant="outline" className="glass-button-brand" onClick={exportCSV}>
           Export CSV
         </Button>
       </div>

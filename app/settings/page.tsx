@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Header } from '@/components/layout/Header'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProfileSection } from '@/components/settings/ProfileSection'
@@ -15,19 +14,18 @@ export default function SettingsPage() {
   const [tab, setTab] = useState('profile')
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-16">
-      <Header />
-      <div className="px-[4vw] lg:px-[3vw] lg:pr-[1.5vw] py-[1.5vw] max-w-6xl mx-auto">
+    <div className="min-h-screen bg-teal-base text-white">
+      <div className="px-4 lg:px-6 py-8 max-w-7xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Settings</h1>
           <p className="text-slate-400 text-sm mt-1">Manage your account, preferences, and security.</p>
         </div>
 
-        <Card className="bg-slate-900/50 border-slate-800 h-[60vh] overflow-hidden">
+        <Card className="glass-card-dynamic border-teal h-[60vh] overflow-hidden">
           <CardContent className="p-0 h-full">
             <Tabs value={tab} onValueChange={setTab} className="flex flex-col lg:flex-row h-[60vh]">
               {/* Left rail */}
-              <div className="lg:w-52 border-b lg:border-b-0 lg:border-r border-slate-800 p-3 lg:p-6 flex lg:flex-col h-full">
+              <div className="lg:w-52 border-b lg:border-b-0 lg:border-r border-teal p-3 lg:p-6 flex lg:flex-col h-full">
                 <div className="flex-1 flex items-center justify-center w-full">
                   <TabsList className="flex lg:flex-col items-center justify-center w-full gap-1 bg-transparent p-0">
                     {[
