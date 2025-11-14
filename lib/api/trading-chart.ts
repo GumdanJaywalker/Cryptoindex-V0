@@ -8,16 +8,29 @@ import type {
   MAData,
   RSIData
 } from '@/lib/types/trading-chart'
+import { useTradingStore } from '@/lib/store/trading-store'
+import { getIndexBasePrice } from '@/lib/utils/market-data-generator'
 
 /**
  * Generate mock OHLCV data for testing
+ * ✅ NEW: Generates BACKWARDS from current price for stability
+ * @param indexSymbol - Index symbol to determine base price
  * @param timeframe - Chart timeframe
  * @param count - Number of candles to generate
+ * @param currentPrice - Current price from Store (optional, uses base price if not provided)
  * @returns Array of OHLCV data
  */
-function generateMockOHLCVData(timeframe: Timeframe, count: number = 500): OHLCVData[] {
+function generateMockOHLCVData(
+  indexSymbol: string,
+  timeframe: Timeframe,
+  count: number = 500,
+  currentPrice?: number
+): OHLCVData[] {
   const data: OHLCVData[] = []
   const now = Math.floor(Date.now() / 1000) // Current time in SECONDS
+
+  // ✅ Use currentPrice from Store if provided, otherwise use base price
+  const endPrice = currentPrice ?? getIndexBasePrice(indexSymbol)
 
   // Timeframe in seconds
   const timeframeSeconds: Record<Timeframe, number> = {
@@ -31,19 +44,51 @@ function generateMockOHLCVData(timeframe: Timeframe, count: number = 500): OHLCV
   }
 
   const intervalSeconds = timeframeSeconds[timeframe]
-  let basePrice = 1.2567
 
-  for (let i = count; i >= 0; i--) {
-    const timestamp = now - (i * intervalSeconds)
-    const open = basePrice + (Math.random() - 0.5) * 0.02
-    const volatility = 0.01 + Math.random() * 0.02
-    const high = open + Math.random() * volatility
-    const low = open - Math.random() * volatility
-    const close = low + Math.random() * (high - low)
-    const volume = 50000 + Math.random() * 200000
+  // Improved candle generation with realistic volatility, wicks, and trends
+  let trendStrength = 0
+  let trendDirection = Math.random() > 0.5 ? 1 : -1
 
-    data.push({
-      time: timestamp,
+  // ✅ Generate BACKWARDS: Start from current price, work backwards to past
+  // This ensures the LAST candle matches the current Store price
+  let runningPrice = endPrice
+
+  // Build array backwards first
+  const backwardsData: OHLCVData[] = []
+
+  for (let i = 0; i <= count; i++) {
+    // Determine if trend changes (10% chance per candle)
+    if (Math.random() < 0.1) {
+      trendDirection = Math.random() > 0.5 ? 1 : -1
+      trendStrength = Math.random() * 0.3 // 0-30% trend bias
+    }
+
+    // Base volatility: ±0.15% (reduced to 30% of original)
+    const baseVolatility = 0.0015
+
+    // REVERSE the price movement (going backwards in time)
+    const trendBias = -trendDirection * trendStrength * baseVolatility
+    const randomMove = (Math.random() - 0.5) * baseVolatility * 2
+    const priceChange = randomMove + trendBias
+
+    // Open is current running price, close is reversed move
+    const close = runningPrice
+    const open = close / (1 + priceChange)
+
+    // Generate realistic wicks (high/low extend beyond open/close)
+    const wickVolatility = baseVolatility * 0.5 // Wicks add extra 0.25% range
+    const upperWick = Math.random() * wickVolatility * close
+    const lowerWick = Math.random() * wickVolatility * close
+
+    const high = Math.max(open, close) + upperWick
+    const low = Math.min(open, close) - lowerWick
+
+    // Realistic volume with trend correlation (higher volume during trends)
+    const volumeMultiplier = 1 + Math.abs(trendStrength) * 2
+    const volume = (50000 + Math.random() * 200000) * volumeMultiplier
+
+    backwardsData.push({
+      time: 0, // Will set timestamp later
       open: Number(open.toFixed(4)),
       high: Number(high.toFixed(4)),
       low: Number(low.toFixed(4)),
@@ -51,7 +96,19 @@ function generateMockOHLCVData(timeframe: Timeframe, count: number = 500): OHLCV
       volume: Math.floor(volume)
     })
 
-    basePrice = close + (Math.random() - 0.5) * 0.01
+    // Move price backwards for next iteration
+    runningPrice = open
+  }
+
+  // ✅ Reverse array and assign timestamps (oldest → newest)
+  backwardsData.reverse()
+
+  for (let i = 0; i < backwardsData.length; i++) {
+    const timestamp = now - ((count - i) * intervalSeconds)
+    data.push({
+      ...backwardsData[i],
+      time: timestamp
+    })
   }
 
   return data
@@ -59,9 +116,11 @@ function generateMockOHLCVData(timeframe: Timeframe, count: number = 500): OHLCV
 
 /**
  * Fetch OHLCV chart data from backend
+ * ✅ NEW: Uses cache and Store's currentPrice for stability
  * @param indexId - Index ID
  * @param timeframe - Chart timeframe
  * @param limit - Maximum number of candles (default: 500)
+ * @param forceRefresh - Force regeneration ignoring cache (default: false)
  * @returns Promise<ChartAPIResponse>
  *
  * TODO: Replace with actual backend API call when ready
@@ -70,16 +129,38 @@ function generateMockOHLCVData(timeframe: Timeframe, count: number = 500): OHLCV
 export async function fetchOHLCVData(
   indexId: string,
   timeframe: Timeframe,
-  limit: number = 500
+  limit: number = 500,
+  forceRefresh: boolean = false
 ): Promise<ChartAPIResponse> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 300))
+
+  // ✅ Check cache first (unless forceRefresh)
+  const store = useTradingStore.getState()
+  const cachedData = store.getCachedChartData(indexId, timeframe)
+
+  if (cachedData && cachedData.length > 0 && !forceRefresh) {
+    // Return cached data
+    return {
+      success: true,
+      data: cachedData,
+      meta: {
+        indexId,
+        timeframe,
+        from: cachedData[0]?.time || 0,
+        to: cachedData[cachedData.length - 1]?.time || 0,
+        count: cachedData.length
+      },
+      timestamp: Date.now(),
+      cached: true
+    }
+  }
 
   // TODO: Uncomment when backend is ready
   /*
   try {
     const response = await fetch(
-      `/api/indices/${indexId}/ohlcv?timeframe=${timeframe}&limit=${limit}`
+      `/api/indices/${indexId}/ohlcv?timeframe={timeframe}&limit=${limit}`
     )
 
     if (!response.ok) {
@@ -87,6 +168,8 @@ export async function fetchOHLCVData(
     }
 
     const data: ChartAPIResponse = await response.json()
+    // Cache the data
+    store.setCachedChartData(indexId, timeframe, data.data)
     return data
   } catch (error) {
     console.error('Failed to fetch OHLCV data:', error)
@@ -94,8 +177,12 @@ export async function fetchOHLCVData(
   }
   */
 
-  // Mock response
-  const mockData = generateMockOHLCVData(timeframe, limit)
+  // ✅ Generate new data using Store's currentPrice
+  const currentPrice = store.currentPrice
+  const mockData = generateMockOHLCVData(indexId, timeframe, limit, currentPrice)
+
+  // ✅ Cache the generated data
+  store.setCachedChartData(indexId, timeframe, mockData)
 
   return {
     success: true,
@@ -107,7 +194,8 @@ export async function fetchOHLCVData(
       to: mockData[mockData.length - 1]?.time || 0,
       count: mockData.length
     },
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    cached: false
   }
 }
 
@@ -193,6 +281,7 @@ export function calculateRSI(data: OHLCVData[], period: number = 14): RSIData[] 
 
 /**
  * Subscribe to real-time price updates via WebSocket
+ * ✅ NEW: Uses Store's currentPrice instead of hardcoded value
  * @param indexId - Index ID to subscribe to
  * @param callback - Callback function for price updates
  * @returns Unsubscribe function
@@ -234,13 +323,15 @@ export function subscribeToRealTimePrice(
   }
   */
 
-  // Mock real-time updates (3 second interval)
+  // ✅ Mock real-time updates using Store's currentPrice (1 second interval)
   const interval = setInterval(() => {
     const now = Math.floor(Date.now() / 1000)
-    const mockPrice = 1.2567 + (Math.random() - 0.5) * 0.1
+    // Get current price from Store (synced with 1-second updates)
+    const store = useTradingStore.getState()
+    const mockPrice = store.currentPrice
     const mockVolume = Math.floor(Math.random() * 5000)
     callback(mockPrice, mockVolume, now)
-  }, 3000)
+  }, 1000) // Sync with Store's 1-second update interval
 
   // Return cleanup function
   return () => {

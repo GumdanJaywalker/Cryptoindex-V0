@@ -27,7 +27,10 @@ export default function NumberTicker({
   });
   
   const displayValue = useTransform(springValue, (latest) =>
-    (latest).toFixed(decimalPlaces)
+    latest.toLocaleString('en-US', {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces
+    })
   );
 
   const prevValueRef = useRef(value);

@@ -68,19 +68,30 @@
 **영향 범위**: 투자자들이 사용자의 인덱스 생성 과정을 봐야 함
 **작업량**: 대 (19개 피드백 항목)
 
-**Phase 1 - 빠른 개선 (먼저 할 것)**:
-- [ ] "Preview" → "Backtesting"으로 이름 변경
-- [ ] Backtesting 차트 하단에 Sharpe Ratio + MDD 추가
-- [ ] 모달의 X 버튼 중복 수정
-- [ ] 체크박스 가시성 개선 (밝은 테두리)
-- [ ] "Total Cost" 용어 통일
+**Phase 1 - 빠른 개선** ✅ COMPLETED:
+- [x] "Preview" → "Backtesting"으로 이름 변경
+- [x] Backtesting 차트 하단에 Sharpe Ratio + MDD 추가
+- [x] 모달의 X 버튼 중복 수정
+- [x] 체크박스 가시성 개선 (밝은 테두리)
+- [x] "Total Cost" 용어 통일
 
-**Phase 2 - 핵심 기능**:
-- [ ] 자산 검색 버그 수정 (assetID 중복)
-- [ ] 전체 자산 목록 토글 추가 (스크롤 가능)
-- [ ] Backtesting 기간 확장: 1일/7일/30일/1년
-- [ ] 수수료 세부 내역 포함 실시간 비용 계산 (**Fee Structure와 통합**)
-- [ ] 문서: `docs/planning/2025OCT04/LAUNCH_PAGE_REFACTORING.md`
+**Phase 2-3 - 핵심 기능** ✅ COMPLETED (Nov 11):
+- [x] Auto-rounding tolerance: ±0.1% → ±0.05% (99.95-100.05%)
+- [x] Backtesting 기간 확장: 1일/7일/30일/1년/전체 (1y, all 추가)
+- [x] Dynamic Y-axis scaling: [totalAmount * 0.2, totalAmount * 3]
+- [x] Chart height increase: 300px → 500px with proper margins
+- [x] Mock data volatility: ±2.6% → ±10% (crypto-realistic)
+- [x] Critical bug fix: baseValue now uses composition.totalAmount
+- [ ] 자산 검색 버그 수정 (assetID 중복) - 보류
+- [ ] 전체 자산 목록 토글 추가 (스크롤 가능) - 보류
+- [ ] 수수료 세부 내역 포함 실시간 비용 계산 (**Fee Structure와 통합**) - 다음 단계
+
+**Phase 4-6 - Trading Integration** ✅ COMPLETED (Nov 11):
+- [x] Phase 4: IndexDetailsModal link fix (index.id → index.symbol, /trading → /trade)
+- [x] Phase 5: Trading page query param handling for automatic index selection
+- [x] Phase 6: Bonding Curve conditional UI (Order Book tab hiding, GraduationProgress display)
+
+**문서**: `docs/planning/2025OCT04/LAUNCH_PAGE_REFACTORING.md`
 
 **Phase 0 Asset Limitations**:
 - [ ] Asset composition search: Add exclamation icon (!) tooltip next to search bar

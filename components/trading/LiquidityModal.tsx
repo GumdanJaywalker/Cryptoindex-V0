@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast, createSuccessToast, createErrorToast } from "@/components/notifications/toast-system"
 import { useCurrency } from "@/lib/hooks/useCurrency"
-import { FEES } from "@/lib/constants/fees"
+import { LAYER_FEES } from "@/lib/constants/fees"
+import { calculateTradingFee } from "@/lib/utils/fee-calculator"
+import { getUserVIPTier, getIsInvitedUser } from "@/lib/mock/user-vip"
 
 interface LiquidityModalProps {
   open: boolean
@@ -33,7 +35,11 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
     const usd = parsedAmount
     const shares = usd > 0 ? usd / 100 : 0
     const apr = 28.4
-    const fees = usd * FEES.HIDE.LP_ADD_FEE
+
+    // LP add/remove fee (using LP_FEE component)
+    // Note: In real implementation, LP providers earn fees, not pay them
+    // This is a simplified mock for demo purposes
+    const fees = usd * LAYER_FEES.L1.LP_FEE // 0.4% LP fee
     const gas = 2.15
     return { usd, shares, apr, fees, gas }
   }, [parsedAmount])
@@ -63,7 +69,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-slate-900/90 border-slate-700">
+      <DialogContent className="sm:max-w-md bg-teal-card/90 border-teal">
         <DialogHeader>
           <DialogTitle className="text-white text-base">
             {mode === "add" ? "Provide Liquidity" : "Remove Liquidity"} — {indexSymbol}
@@ -74,7 +80,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
           <div className="flex gap-2">
             <Button
               size="sm"
-              className={mode === "add" ? "bg-brand text-black hover:bg-brand-hover" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}
+              className={mode === "add" ? "bg-brand text-black hover:bg-brand-hover" : "bg-teal-card text-slate-200 hover:bg-teal-card/70"}
               onClick={() => setMode("add")}
             >
               Add
@@ -82,7 +88,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
             <Button
               size="sm"
               variant="outline"
-              className={mode === "remove" ? "border-brand text-brand hover:bg-brand/10" : "border-slate-700 text-slate-300 hover:bg-slate-800"}
+              className={mode === "remove" ? "border-brand text-brand hover:bg-brand/10" : "border-teal text-slate-300 hover:bg-teal-card/50"}
               onClick={() => setMode("remove")}
             >
               Remove
@@ -97,7 +103,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
             />
           </div>
 
@@ -108,25 +114,25 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
               inputMode="decimal"
               value={slippage}
               onChange={(e) => setSlippage(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
             />
           </div>
 
           {/* Summary */}
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+            <div className="p-3 rounded-lg bg-teal-card/50 border border-teal">
               <div className="text-slate-400">Estimated Shares</div>
               <div className="text-white font-mono">{est.shares.toFixed(4)}</div>
             </div>
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+            <div className="p-3 rounded-lg bg-teal-card/50 border border-teal">
               <div className="text-slate-400">Est. APR</div>
               <div className="text-green-400 font-mono">{est.apr.toFixed(1)}%</div>
             </div>
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+            <div className="p-3 rounded-lg bg-teal-card/50 border border-teal">
               <div className="text-slate-400">Fees</div>
               <div className="text-white font-mono">{formatFee(est.fees)}</div>
             </div>
-            <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+            <div className="p-3 rounded-lg bg-teal-card/50 border border-teal">
               <div className="text-slate-400">Est. Gas</div>
               <div className="text-white font-mono">{formatGas(est.gas)}</div>
             </div>
@@ -136,7 +142,7 @@ export function LiquidityModal({ open, onOpenChange, indexSymbol }: LiquidityMod
           <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-teal text-slate-300 hover:bg-teal-card/50"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >

@@ -1,15 +1,15 @@
-# CLAUDE.md - HyperIndex 개발 환경 정보
+# CLAUDE.md - HyperIndex Development Environment
 
-> 📅 **마지막 업데이트**: 2025-10-28
-> 🔄 **자동 업데이트**: doc-updater agent로 실제 프로젝트 구조 스캔 및 반영
+> 📅 **Last Updated**: 2025-11-12 (Post-Demo Migration)
+> 🔄 **Status**: Production-ready, all demo improvements integrated
 
-이 파일은 Claude Code가 HyperIndex 프로젝트에서 작업할 때 필요한 개발 환경 정보를 제공합니다.
+This file provides development environment information for Claude Code when working on the HyperIndex project.
 
-## 🎯 프로젝트 개요
-**HyperIndex** - Hyper Network 기반 밈코인 인덱스 파생상품 거래 플랫폼
-- Hyperliquid UI 스타일
-- 바이낸스 수준의 정보 밀도
-- 인덱스 특화 거래 및 거버넌스 기능
+## 🎯 Project Overview
+**HyperIndex** - Cryptocurrency Index Trading & Launcher Platform on Hyper Network
+- Hyperliquid-inspired UI design
+- Binance-level information density
+- Index trading, launching, and governance features
 
 ## 🛠️ 기술 스택
 - **Frontend**: Next.js 15.2.4, React 19, TypeScript
@@ -54,20 +54,22 @@ pnpm run dev
 
 # 4. 메인 페이지 확인
 # http://localhost:3000 (메인 랜딩)
-# http://localhost:3000/trading (거래 페이지)
+# http://localhost:3000/trade (거래 페이지)
+# http://localhost:3000/launch (런처 페이지)
+# http://localhost:3000/vote (거버넌스)
 ```
 
-## 📁 프로젝트 구조 (2025-10-20 업데이트 - doc-updater로 스캔됨)
+## 📁 프로젝트 구조 (2025-11-12 업데이트 - Post-Demo Migration)
 
 ```
-/app                          # Next.js App Router (17개 페이지: 14 메인 + 3 테스트)
-  page.tsx                    # 🏠 메인 랜딩 페이지
-  /trading                    # 💹 거래 페이지 (메인 기능)
-  /launch                     # 🚀 인덱스 생성/런칭 페이지 (915 lines - 매우 복잡)
-  /discover                   # 🔍 인덱스 발견 페이지 (NEW - 209 lines)
+/app                          # Next.js App Router (11 active pages)
+  page.tsx                    # 🏠 메인 랜딩 페이지 (Nov 7 updated)
+  /trade                      # 💹 거래 페이지 (공식 라우트)
+  /launch                     # 🚀 인덱스 런처 페이지
+  /vote                       # 🗳️ 거버넌스 (공식 라우트)
+  /vote/[id]                  # 🗳️ 거버넌스 상세 페이지
+  /discover                   # 🔍 인덱스 발견 페이지
   /portfolio                  # 💼 포트폴리오 관리
-  /governance                 # 🗳️ 거버넌스 투표 목록
-  /governance/[id]            # 🗳️ 거버넌스 상세 페이지
   /leaderboard                # 🏆 트레이더 리더보드 (replaces /traders)
   /leaderboard/[id]           # 👤 트레이더 프로필 상세
   /referrals                  # 💸 레퍼럴 프로그램
@@ -80,14 +82,15 @@ pnpm run dev
   /test-utils                 # 🧪 Utils 테스트 페이지
   layout.tsx                  # 공통 레이아웃
 
-/components                   # 총 243개 컴포넌트 (19개 카테고리)
-  /ui                         # shadcn/ui + Aceternity (124 컴포넌트)
-  /trading                    # 거래 인터페이스 (27 파일)
+/components                   # 총 274개 컴포넌트 (post-demo)
+  /ui                         # shadcn/ui + Aceternity (124+ 컴포넌트)
+  /trading                    # 거래 인터페이스 (31 파일 - updated)
+  /launch                     # 인덱스 런처 (12 파일 - sections/shared/steps 추가)
+  /governance                 # 거버넌스 (11 파일 - 4개 신규 추가)
+  /layout                     # Header, Footer, HeaderNav, PriceAlertsPopover (4 파일)
   /magicui                    # MagicUI 효과 (15 파일)
-  /wallet                     # 지갑 연동 (15 파일 - 중복 포함)
+  /wallet                     # 지갑 연동 (10 파일)
   /portfolio                  # 포트폴리오 관리 (13 파일)
-  /launch                     # ⭐ 인덱스 생성 (7 파일)
-  /governance                 # 거버넌스 (7 파일)
   /settings                   # ⭐ 설정 섹션 (7 파일)
   /dialogs                    # 다이얼로그/모달 (5 파일)
   /notifications              # ⭐ 알림 시스템 (5 파일)

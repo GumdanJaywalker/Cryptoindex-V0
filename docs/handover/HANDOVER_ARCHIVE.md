@@ -940,3 +940,140 @@ Dev server: Running at localhost:3001
 ---
 
 **End of Archive**
+
+---
+
+## YC Demo Project Setup (Nov 2)
+
+### Goal
+Create standalone YCOMDEMO folder for Y Combinator application demo video with three core pages (Trading, Launch, Manage Index)
+
+### Completed
+
+**1. Task Plan Document**:
+- Created `docs/planning/2025NOV01/2025NOV01_Task_Plan_YC_Demo.md` (44KB)
+- Sections: UX/Component analysis, References (8 platforms), Usability rationale, Component relationships, Execution plan
+- Analyzed references: Hyperliquid, Binance, dYdX, Balancer, Uniswap, Snapshot, Compound, Polymarket
+- Documented adopted vs. rejected alternatives with technical reasoning
+- Example: Single-page layout (adopted) vs. Multi-tab interface (rejected - breaks trading flow)
+
+**2. YCOMDEMO Folder Structure** (`/Users/kimhyeon/Desktop/PROJECTS/YCOMDEMO/`):
+- Copied ~220 files from main project
+- Included: app/, components/, lib/, hooks/, public/, config files
+- Removed 11 unnecessary pages: discover, portfolio, leaderboard, referrals, settings, notifications, dashboard, test pages
+- Kept 3 core pages: trading, launch, manage-index (renamed from governance)
+- Kept API routes: auth/, launch/assets/, baskets/calculate/
+
+**3. Governance → Manage Index Rename**:
+- Folder: `app/governance/` → `app/manage-index/`
+- Route: `/governance` → `/manage-index`
+- Updated navigation in Header.tsx
+
+**4. VS Battles Integration**:
+- Moved `components/discover/vs-battle-section.tsx` to `components/governance/`
+- Updated GovernanceLayout.tsx to include four sections
+
+**5. Documentation**:
+- Created `YCOMDEMO/HANDOVER.md` (17KB) - usage guide, demo tips, testing checklist
+- Copied `YCOMDEMO/TASK_PLAN.md` (44KB) - design rationale, component analysis
+- Both files ensure YCOMDEMO is self-contained for independent Claude sessions
+
+### Technical Details
+
+**Demo Pages**:
+1. Trading (`/trading`): TradingView chart, orderbook, leverage slider (1-50x), position tracking, whale alerts
+2. Launch (`/launch`): Three-column wizard (Basics → Components → Preview), Layer-3 launch flow, localStorage persistence
+3. Manage Index (`/manage-index`): Governance proposals, rebalancing votes, VS battles, voting dashboard
+
+**Optimizations**:
+- Hardcoded (non-interactive): Recent trades, whale alerts, community feed, Layer-3 launches
+- Dynamic (interactive): Trading calculations (PnL, liquidation, fees), allocation sliders, vote counts, VS battle percentages
+- Why: Demo doesn't need real-time background updates, saves API calls, ensures consistent demo experience
+
+**Key Features Maintained**:
+- Real wallet connection via Privy (MetaMask, Coinbase Wallet, WalletConnect, Email)
+- Dynamic calculations: Position value, liquidation price, PnL, fees (all accurate formulas)
+- Preview chart via `/api/baskets/calculate` (weighted basket performance)
+- Full navigation (not demo-locked) for natural demo flow
+
+### Status
+YCOMDEMO folder ready, documentation complete, ready for demo video recording
+
+---
+
+## Fee Structure Phase 1 Implementation (Oct 31)
+
+### Goal
+Implement Phase 1 (Core Infrastructure) of VIP-tiered fee structure with full state management
+
+### Completed
+
+**Phase 1: Core Infrastructure** (✅ DONE):
+1. `lib/constants/fees.ts` (289 lines)
+   - VIP tier system (VIP0-VIP4: 0.6%-0.3% protocol fee)
+   - Layer-specific fees (L1/L2/L3/VS/Partner/Graduated)
+   - Protocol/Creator/LP fee breakdown
+   - Launcher fee ($5), Rebalancing/Management fees
+
+2. `lib/utils/fees.ts` (459 lines)
+   - `calculateTradingFee()` - VIP + Layer + Invited discount
+   - `calculateRebalancingFee()` - Layer-specific rebalancing
+   - `calculateManagementFee()` - Annual AUM-based fees
+   - `getTotalFeeBreakdown()` - Comprehensive UI display
+   - `compareFeesByVIPTier()` - VIP tier comparison
+   - `estimateAnnualFees()` - Annual fee projection
+
+3. `lib/utils/fee-verification.test.ts` (new)
+   - 7 test scenarios for fee calculations
+   - VIP tier comparison tests
+   - Layer-specific calculation tests
+
+### Technical Details
+
+**VIP Tier Distribution**:
+- VIP0 (0.60%): 20% of users
+- VIP1 (0.50%): 25% of users
+- VIP2 (0.40%): 30% of users (default for testing)
+- VIP3 (0.35%): 15% of users
+- VIP4 (0.30%): 10% of users
+
+**Layer Fee Structures**:
+| Layer | Protocol | Creator | LP | Total (VIP2) |
+|-------|----------|---------|-----|--------------|
+| L1 | 0.4% | 0% | 0.4% | 0.8% |
+| L2 | 0.4% | 0% | 0.4% | 0.8% |
+| L3 | 0.4% | 0.4% | 0% | 0.8% |
+| Partner | 0.5% | 0% | 0% | 0.5% |
+
+**Invited User Discount**: 10% off all fees
+
+### Status
+Phase 1 complete, Phase 2 ready to start after user decisions
+
+---
+
+## Git Commit Cleanup & Fee Implementation Planning (Oct 30)
+
+### Goal
+Clean up 120 Korean commit messages to professional English, create comprehensive fee implementation task plan
+
+### Completed
+
+**1. Git Commit History Cleanup**:
+- Reworded 120 commits from Korean/vague messages to professional English
+- Applied Conventional Commits format (feat:, fix:, refactor:, docs:, chore:)
+- Force pushed to origin/main (ed52616)
+- Kept backup branch (main-backup-20251030)
+
+**2. File Cleanup**:
+- Removed 5 unnecessary files that appeared during git operations
+
+**3. Fee Implementation Task Plan**:
+- Created `docs/planning/2025OCT04/FEE_IMPLEMENTATION_TASK_PLAN.md` (595 lines)
+- Based on FEE_STRUCTURE_SPECIFICATION.md and Canva slides 27-29
+- 8 Phases planned (17h 40m estimated)
+- Detailed execution steps, components list, success criteria
+
+### Status
+Git history cleaned, fee task plan created, ready to start Phase 1 implementation
+

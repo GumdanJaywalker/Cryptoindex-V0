@@ -8,7 +8,8 @@ import { MemeIndex } from '@/lib/types/index-trading'
 import { useTradingActions } from '@/lib/store/trading-store'
 import { useWallet } from '@/hooks/use-wallet'
 import { useCurrency } from '@/lib/hooks/useCurrency'
-import { FEES } from '@/lib/constants/fees'
+import { calculateTradingFee } from '@/lib/utils/fee-calculator'
+import { getUserVIPTier, getIsInvitedUser } from '@/lib/mock/user-vip'
 
 interface TradePanelProps {
   index: MemeIndex | null
@@ -50,7 +51,12 @@ export function TradePanel({
   // 계산된 값들
   const currentPrice = index?.currentPrice || 0
   const totalValue = amount * leverage
-  const estimatedFees = amount * FEES.HIDE.TRADING_FEE * leverage // Phase 0: 0.30% trading fee in $HIDE
+
+  // Calculate fees based on user's VIP tier
+  const userVIPTier = getUserVIPTier()
+  const isInvited = getIsInvitedUser()
+  const feeBreakdown = calculateTradingFee(amount * leverage, userVIPTier, 'L1', isInvited)
+  const estimatedFees = feeBreakdown.totalFee
   const liquidationPrice = currentPrice * (1 - (1 / leverage) * 0.9) // 90% margin
   const maxLoss = amount * 0.9 // 90% of position
   
@@ -105,14 +111,14 @@ export function TradePanel({
     <Drawer.Root open={isOpen} onOpenChange={onClose}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900 rounded-t-2xl border-t border-slate-700 max-h-[90vh] overflow-hidden">
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-teal-card rounded-t-2xl border-t border-teal max-h-[90vh] overflow-hidden">
           {/* Handle */}
           <div className="flex justify-center p-3">
-            <div className="w-10 h-1 bg-slate-600 rounded-full" />
+            <div className="w-10 h-1 bg-teal-card/60 rounded-full" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 pb-4 border-b border-slate-700">
+          <div className="flex items-center justify-between px-6 pb-4 border-b border-teal">
             <div className="flex items-center space-x-3">
               <div className="text-xl font-bold text-white">
                 {tradeType === 'buy' ? '🚀' : '📉'} {tradeType === 'buy' ? 'Buy' : 'Sell'}
@@ -124,13 +130,13 @@ export function TradePanel({
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setIsAdvancedMode(!isAdvancedMode)}
-                className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+                className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-teal-card/50"
               >
                 <Settings className="w-5 h-5" />
               </button>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+                className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-teal-card/50"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -141,7 +147,7 @@ export function TradePanel({
           <div className="overflow-y-auto px-6 py-6 space-y-6">
             
             {/* Trade Type Toggle */}
-            <div className="flex rounded-xl bg-slate-800 p-1">
+            <div className="flex rounded-xl bg-teal-card p-1">
               <button
                 onClick={() => setTradeType('buy')}
                 className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all ${
@@ -182,7 +188,7 @@ export function TradePanel({
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         orderType === type
                           ? 'bg-brand text-slate-900'
-                          : 'bg-slate-700 text-slate-300 hover:text-white'
+                          : 'bg-teal-card/70 text-slate-300 hover:text-white'
                       }`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -207,8 +213,8 @@ export function TradePanel({
                   type="number"
                   value={amount}
                   onChange={(e) => handleAmountChange(Number(e.target.value))}
-                  className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-lg font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors ${
-                    hasInsufficientBalance ? 'border-red-500' : 'border-slate-600'
+                  className={`w-full bg-teal-card border rounded-xl px-4 py-3 text-lg font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors ${
+                    hasInsufficientBalance ? 'border-red-500' : 'border-teal'
                   }`}
                   placeholder="0.00"
                   min="1"
@@ -225,7 +231,7 @@ export function TradePanel({
                   <button
                     key={quickAmount}
                     onClick={() => handleAmountChange(quickAmount)}
-                    className="flex-1 py-2 px-3 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors"
+                    className="flex-1 py-2 px-3 text-xs font-medium bg-teal-card/70 hover:bg-teal-card/60 text-slate-300 hover:text-white rounded-lg transition-colors"
                   >
                     {formatBalance(quickAmount)}
                   </button>
@@ -261,7 +267,7 @@ export function TradePanel({
                     className={`py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
                       leverage === lev
                         ? 'bg-brand text-slate-900'
-                        : 'bg-slate-700 text-slate-300 hover:text-white hover:bg-slate-600'
+                        : 'bg-teal-card/70 text-slate-300 hover:text-white hover:bg-teal-card/60'
                     }`}
                   >
                     {lev}x
@@ -304,7 +310,7 @@ export function TradePanel({
                         type="number"
                         value={limitPrice || ''}
                         onChange={(e) => setLimitPrice(Number(e.target.value))}
-                        className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors"
+                        className="w-full bg-teal-card border border-teal rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors"
                         placeholder={`Current: ${formatPrice(currentPrice)}`}
                         step="0.0001"
                       />
@@ -322,7 +328,7 @@ export function TradePanel({
                           className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                             slippage === slip
                               ? 'bg-brand text-slate-900'
-                              : 'bg-slate-700 text-slate-300 hover:text-white'
+                              : 'bg-teal-card/70 text-slate-300 hover:text-white'
                           }`}
                         >
                           {slip}%
@@ -335,7 +341,7 @@ export function TradePanel({
             </AnimatePresence>
 
             {/* Trade Summary */}
-            <div className="bg-slate-800 rounded-xl p-4 space-y-3">
+            <div className="bg-teal-card rounded-xl p-4 space-y-3">
               <div className="text-sm font-medium text-slate-300 mb-3">Trade Summary</div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -371,7 +377,7 @@ export function TradePanel({
               </div>
 
               {/* Risk Level Indicator */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-700">
+              <div className="flex items-center justify-between pt-3 border-t border-teal">
                 <span className="text-sm text-slate-400">Risk Level</span>
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
@@ -381,7 +387,7 @@ export function TradePanel({
                         className={`w-2 h-2 rounded-full ${
                           i < riskLevel
                             ? riskLevel <= 2 ? 'bg-green-400' : riskLevel <= 4 ? 'bg-yellow-400' : 'bg-red-400'
-                            : 'bg-slate-600'
+                            : 'bg-teal-card/60'
                         }`}
                       />
                     ))}
@@ -397,7 +403,7 @@ export function TradePanel({
           </div>
 
           {/* Bottom Action */}
-          <div className="sticky bottom-0 p-6 bg-slate-900 border-t border-slate-700">
+          <div className="sticky bottom-0 p-6 bg-teal-card border-t border-teal">
             {hasInsufficientBalance ? (
               <div className="text-center text-red-400 text-sm mb-4">
                 Insufficient balance. You need {formatBalance(amount)}.

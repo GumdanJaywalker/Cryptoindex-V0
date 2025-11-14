@@ -7,11 +7,15 @@ export async function GET(request: NextRequest) {
   try {
     const assets = await listAssets();
 
-    // Return only necessary fields for Launch page
+    // Return fields needed for Launch page AssetSearchModal
     const simplifiedAssets = assets.map(asset => ({
       symbol: asset.symbol,
       name: asset.name,
       marketType: asset.marketType,
+      markPx: asset.markPx,
+      prevDayPx: asset.prevDayPx,
+      change24hPct: asset.change24hPct,
+      dayNtlVlm: asset.dayNtlVlm,
     }));
 
     return NextResponse.json(simplifiedAssets);

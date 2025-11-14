@@ -7,18 +7,12 @@ import dynamic from 'next/dynamic'
 // Import mock data and types
 import { allMockIndexes, mockTopTraders } from '@/lib/data/mock-indexes'
 import { MemeIndex, TopTrader } from '@/lib/types/index-trading'
-import { AnimatedBackground } from '@/components/ui/animated-background'
-import { Header } from '@/components/layout/Header'
 import LeftSidebar from '@/components/sidebar/LeftSidebar'
 import { IndexCarousel } from '@/components/landing/IndexCarousel'
 import { TraderCarousel } from '@/components/landing/TraderCarousel'
 import IndexDetailModal from '@/components/modals/IndexDetailModal'
 
 // Dynamic imports for performance optimization
-const Background3DGrid = dynamic(() => import('@/components/ui/3d-effects').then(mod => ({ default: mod.Background3DGrid })), {
-  ssr: false
-})
-
 const SmartFloatingTradeButton = dynamic(() => import('@/components/mobile/floating-trade-button').then(mod => ({ default: mod.SmartFloatingTradeButton })), {
   ssr: false
 })
@@ -42,18 +36,9 @@ export default function Home() {
   }, [selectedIndex, router])
   
   return (
-    <div className="min-h-screen bg-slate-950 text-white relative">
-      {/* Animated Background */}
-      <div className="fixed inset-0 z-0">
-        <AnimatedBackground variant="combined" intensity="medium" />
-        <Background3DGrid />
-      </div>
-
-      {/* Unified Header */}
-      <Header />
-
+    <div className="min-h-screen bg-[#101A1D] text-white relative">
       {/* Main Content */}
-      <div className="px-4 lg:px-4 pt-16 pb-4 lg:pb-0 bg-slate-950 relative z-10 min-h-screen">
+      <div className="px-4 lg:px-4 pt-4 pb-4 lg:pb-0 bg-[#101A1D] relative z-10 min-h-screen mt-0">
         <div className="grid grid-cols-1
           lg:grid-cols-[260px_1fr_340px]
           xl:grid-cols-[280px_1fr_360px]

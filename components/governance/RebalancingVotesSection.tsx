@@ -1,10 +1,20 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 import { RebalancingVoteCard } from './RebalancingVoteCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Clock, AlertTriangle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
+
+type FilterType = 'all' | 'not-voted' | 'voted' | 'ending-soon'
+
+// Helper function to parse time left string (e.g., "4d 8h" -> hours)
+function parseTimeLeft(timeLeft: string): number {
+  const days = timeLeft.match(/(\d+)d/)?.[1] || '0'
+  const hours = timeLeft.match(/(\d+)h/)?.[1] || '0'
+  return parseInt(days) * 24 + parseInt(hours)
+}
 
 // Mock 데이터
 const rebalancingVotes = [
@@ -12,7 +22,7 @@ const rebalancingVotes = [
     id: 'dog-index-rebalancing',
     indexName: 'Doggy Index',
     indexSymbol: 'DOG_INDEX',
-    emoji: '🐕',
+    emoji: '',
     currentComposition: [
       { symbol: 'DOGE', name: 'Dogecoin', percentage: 35, performance7d: 12.4 },
       { symbol: 'SHIB', name: 'Shiba Inu', percentage: 25, performance7d: -8.2 },
@@ -68,7 +78,7 @@ const rebalancingVotes = [
     id: 'cat-index-rebalancing',
     indexName: 'Kitty Index',
     indexSymbol: 'CAT_INDEX',
-    emoji: '🐱',
+    emoji: '',
     currentComposition: [
       { symbol: 'CAT', name: 'Simon\'s Cat', percentage: 30, performance7d: 8.4 },
       { symbol: 'POPCAT', name: 'Popcat', percentage: 25, performance7d: 18.7 },
@@ -120,7 +130,7 @@ const rebalancingVotes = [
     id: 'ai-index-rebalancing',
     indexName: 'AI Revolution Index',
     indexSymbol: 'AI_INDEX',
-    emoji: '🤖',
+    emoji: '',
     currentComposition: [
       { symbol: 'FET', name: 'Fetch.ai', percentage: 25, performance7d: 15.2 },
       { symbol: 'RNDR', name: 'Render', percentage: 20, performance7d: -3.4 },
@@ -158,81 +168,158 @@ const rebalancingVotes = [
     threshold: 65,
     description: 'Emergency rebalancing for AI_INDEX due to significant market movements.',
     nextRebalanceDate: 'March 15, 2024'
+  },
+  {
+    id: 'ai-index-active-rebalancing',
+    indexName: 'AI Revolution Index',
+    indexSymbol: 'AI_INDEX',
+    emoji: '',
+    currentComposition: [
+      { symbol: 'FET', name: 'Fetch.ai', percentage: 25, performance7d: 15.2 },
+      { symbol: 'RNDR', name: 'Render', percentage: 20, performance7d: -3.4 },
+      { symbol: 'TAO', name: 'Bittensor', percentage: 20, performance7d: 28.7 },
+      { symbol: 'OCEAN', name: 'Ocean Protocol', percentage: 15, performance7d: 7.8 },
+      { symbol: 'GRT', name: 'The Graph', percentage: 10, performance7d: -8.9 },
+      { symbol: 'INJ', name: 'Injective', percentage: 10, performance7d: 12.3 }
+    ],
+    proposedChanges: [
+      {
+        type: 'adjust' as const,
+        symbol: 'TAO',
+        name: 'Bittensor',
+        currentPercentage: 20,
+        proposedPercentage: 30,
+        reason: 'Leading AI token with exceptional growth',
+        votes: 4892,
+        percentage: 89.7
+      },
+      {
+        type: 'add' as const,
+        symbol: 'PRIME',
+        name: 'Echelon Prime',
+        proposedPercentage: 8,
+        reason: 'Emerging AI gaming token with strong potential',
+        votes: 2341,
+        percentage: 43.0
+      }
+    ],
+    totalVotes: 5456,
+    totalPower: 52130000,
+    timeLeft: '5d 12h',
+    endDate: '2024-01-20',
+    status: 'active' as const,
+    threshold: 65,
+    description: 'Regular quarterly rebalancing for AI_INDEX based on performance metrics.',
+    nextRebalanceDate: 'March 15, 2024'
   }
 ]
 
 export function RebalancingVotesSection() {
-  const activeVotes = rebalancingVotes.filter(vote => vote.status === 'active')
-  const endingSoonVotes = rebalancingVotes.filter(vote => vote.status === 'ending-soon')
+  const [filterType, setFilterType] = useState<FilterType>('all')
+
+  // Filter and sort votes
+  const filteredVotes = useMemo(() => {
+    let filtered = rebalancingVotes
+
+    // Apply filter
+    if (filterType === 'not-voted') {
+      filtered = filtered.filter(vote => !vote.myVote)
+    } else if (filterType === 'voted') {
+      filtered = filtered.filter(vote => vote.myVote)
+    } else if (filterType === 'ending-soon') {
+      filtered = filtered.filter(vote => vote.status === 'ending-soon')
+    }
+
+    // Sort: not voted first, then by time left
+    return filtered.sort((a, b) => {
+      // Priority 1: Not voted first
+      const aVoted = !!a.myVote
+      const bVoted = !!b.myVote
+      if (aVoted !== bVoted) {
+        return aVoted ? 1 : -1
+      }
+
+      // Priority 2: Less time left first
+      const aTime = parseTimeLeft(a.timeLeft)
+      const bTime = parseTimeLeft(b.timeLeft)
+      return aTime - bTime
+    })
+  }, [filterType])
 
   return (
     <div className="space-y-8">
       {/* 섹션 헤더 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span className="text-2xl">⚖️</span>
-            Rebalancing Votes
-            <RefreshCw className="w-6 h-6 text-purple-400" />
-          </h2>
-          <p className="text-slate-400 mt-1">
-            Vote on index composition changes based on performance and market conditions
-          </p>
-        </div>
-        
-        <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800">
-          Rebalancing History
-        </Button>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white">
+          Index Management Proposals
+        </h2>
+        <p className="text-slate-400 mt-1">
+          Vote on index composition changes based on performance and market conditions
+        </p>
       </div>
 
-      {/* 곧 종료되는 리밸런싱 */}
-      {endingSoonVotes.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-red-400" />
-            <h3 className="text-lg font-semibold text-white">Ending Soon</h3>
-            <Badge variant="outline" className="text-red-400 border-red-400/30">
-              Urgent
-            </Badge>
-          </div>
-          
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {endingSoonVotes.map((vote) => (
-              <RebalancingVoteCard key={vote.id} rebalancing={vote} />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 필터 버튼 */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant={filterType === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterType('all')}
+          className={filterType === 'all' ? 'bg-brand hover:bg-brand/90 text-black' : 'border-teal text-slate-300 hover:bg-teal-elevated'}
+        >
+          All
+        </Button>
+        <Button
+          variant={filterType === 'not-voted' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterType('not-voted')}
+          className={filterType === 'not-voted' ? 'bg-brand hover:bg-brand/90 text-black' : 'border-teal text-slate-300 hover:bg-teal-elevated'}
+        >
+          Not Voted
+        </Button>
+        <Button
+          variant={filterType === 'voted' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterType('voted')}
+          className={filterType === 'voted' ? 'bg-brand hover:bg-brand/90 text-black' : 'border-teal text-slate-300 hover:bg-teal-elevated'}
+        >
+          Voted
+        </Button>
+        <Button
+          variant={filterType === 'ending-soon' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterType('ending-soon')}
+          className={filterType === 'ending-soon' ? 'bg-brand hover:bg-brand/90 text-black' : 'border-teal text-slate-300 hover:bg-teal-elevated'}
+        >
+          Ending Soon
+        </Button>
+      </div>
 
       {/* 활성 리밸런싱 투표들 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-purple-400" />
-            <h3 className="text-lg font-semibold text-white">Active Rebalancing</h3>
-            <Badge variant="outline" className="text-green-400 border-green-400/30">
-              {activeVotes.length} Live
+            <Badge variant="outline" className="text-brand border-brand/30">
+              {filteredVotes.length} Proposals
             </Badge>
           </div>
-          
+
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <AlertTriangle className="w-4 h-4" />
             Changes require community consensus
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {activeVotes.map((vote) => (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+          {filteredVotes.map((vote) => (
             <RebalancingVoteCard key={vote.id} rebalancing={vote} />
           ))}
         </div>
       </div>
 
       {/* 리밸런싱 투표 설명 */}
-      <Card className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-500/20">
+      <Card className="glass-card border-indigo-500/20">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <div className="text-3xl">🎯</div>
             <div>
               <h3 className="text-lg font-bold text-white mb-2">How Rebalancing Works</h3>
               <div className="space-y-2 text-sm text-slate-300">

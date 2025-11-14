@@ -283,7 +283,7 @@ export function IndexList({
           />
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/trading">
+          <Link href="/trade">
             <Button className="bg-brand text-black hover:bg-brand-hover h-9 text-sm">Start Trading</Button>
           </Link>
           <Link href="/launch">

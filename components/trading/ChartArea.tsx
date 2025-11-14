@@ -33,6 +33,7 @@ import {
 import type { OHLCVData, Timeframe, ChartType, TechnicalIndicator } from '@/lib/types/trading-chart'
 import { fetchOHLCVData, calculateMA, calculateRSI, subscribeToRealTimePrice } from '@/lib/api/trading-chart'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { useTradingStore } from '@/lib/store/trading-store'
 
 // Import lightweight-charts dynamically (browser-only library)
 import type { IChartApi, ISeriesApi, CandlestickSeriesPartialOptions, LineSeriesPartialOptions, AreaSeriesPartialOptions, HistogramSeriesPartialOptions } from 'lightweight-charts'
@@ -47,13 +48,16 @@ interface ChartAreaProps {
 
 export function ChartArea({ indexId = 'default-index', className }: ChartAreaProps) {
   const { formatPrice, formatVolume } = useCurrency()
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+  const selectedTimeframe = useTradingStore(state => state.selectedTimeframe)
+  const setSelectedTimeframe = useTradingStore(state => state.setSelectedTimeframe)
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | ISeriesApi<'Line'> | ISeriesApi<'Area'> | ISeriesApi<'Histogram'> | null>(null)
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
+  const indicatorSeriesRefs = useRef<Map<string, ISeriesApi<'Line'>>>(new Map())
 
   const [activeTab, setActiveTab] = useState<'Chart' | 'Info' | 'Trading Data'>('Chart')
-  const [selectedTimeframe, setSelectedTimeframe] = useState<Timeframe>('1h')
   const [selectedChartType, setSelectedChartType] = useState<ChartType>('Candlestick')
   const [loading, setLoading] = useState(true)
   const [isChartReady, setIsChartReady] = useState(false)
@@ -78,7 +82,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         width: chartContainerRef.current!.clientWidth,
         height: chartContainerRef.current!.clientHeight || 400,
         layout: {
-          background: { color: '#0f172a' },
+          background: { color: '#101A1D' },
           textColor: '#94a3b8'
         },
         localization: {
@@ -86,17 +90,17 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           dateFormat: 'dd MMM \'yy'
         },
         grid: {
-          vertLines: { color: '#1e293b' },
-          horzLines: { color: '#1e293b' }
+          vertLines: { color: '#1A2428' },
+          horzLines: { color: '#1A2428' }
         },
         crosshair: {
           mode: CrosshairMode.Normal
         },
         rightPriceScale: {
-          borderColor: '#334155'
+          borderColor: '#2D3F45'
         },
         timeScale: {
-          borderColor: '#334155',
+          borderColor: '#2D3F45',
           timeVisible: true,
           secondsVisible: false
         }
@@ -139,7 +143,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
     const loadData = async () => {
       setLoading(true)
       try {
-        const response = await fetchOHLCVData(indexId, selectedTimeframe)
+        const response = await fetchOHLCVData(selectedIndexSymbol, selectedTimeframe)
         if (response.success && response.data.length > 0) {
           setChartData(response.data)
 
@@ -163,7 +167,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
     }
 
     loadData()
-  }, [indexId, selectedTimeframe])
+  }, [selectedIndexSymbol, selectedTimeframe])
 
   // Update chart series when data or type changes
   useEffect(() => {
@@ -188,12 +192,12 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
       // Create new series based on chart type
       if (selectedChartType === 'Candlestick') {
         const candlestickSeries = chartRef.current.addSeries(lc.CandlestickSeries, {
-          upColor: '#22c55e',
-          downColor: '#ef4444',
-          borderUpColor: '#22c55e',
-          borderDownColor: '#ef4444',
-          wickUpColor: '#22c55e',
-          wickDownColor: '#ef4444'
+          upColor: '#52a49a',
+          downColor: '#dd5e56',
+          borderUpColor: '#52a49a',
+          borderDownColor: '#dd5e56',
+          wickUpColor: '#52a49a',
+          wickDownColor: '#dd5e56'
         })
 
         candlestickSeries.setData(chartData)
@@ -247,14 +251,22 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
       const volumeData = chartData.map(d => ({
         time: d.time,
         value: d.volume,
-        color: d.close >= d.open ? '#22c55e40' : '#ef444440'
+        color: d.close >= d.open ? '#30625a' : '#7a3b40'
       }))
 
       volumeSeries.setData(volumeData)
       volumeSeriesRef.current = volumeSeries
 
-      // Fit content
-      chartRef.current.timeScale().fitContent()
+      // Set visible range to show last 125 candles (between 100-150 as requested)
+      if (chartData.length > 125) {
+        chartRef.current.timeScale().setVisibleLogicalRange({
+          from: chartData.length - 125,
+          to: chartData.length - 1
+        })
+      } else {
+        // If less than 125 candles, show all
+        chartRef.current.timeScale().fitContent()
+      }
     }
 
     updateSeries()
@@ -267,14 +279,28 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
     const addIndicators = async () => {
       if (!chartRef.current) return
 
-      // Clear all indicator series (except main and volume)
-      // TODO: Implement indicator series management
-
       // Import series types for v5 API
       const lc = await import('lightweight-charts')
 
+      // Get current indicator IDs
+      const currentIndicatorIds = new Set(indicators.filter(ind => ind.visible).map(ind => ind.id))
+
+      // Remove indicator series that are no longer in the indicators list
+      const seriesToRemove: string[] = []
+      indicatorSeriesRefs.current.forEach((series, id) => {
+        if (!currentIndicatorIds.has(id)) {
+          chartRef.current!.removeSeries(series)
+          seriesToRemove.push(id)
+        }
+      })
+      seriesToRemove.forEach(id => indicatorSeriesRefs.current.delete(id))
+
+      // Add new indicator series
       indicators.forEach(indicator => {
         if (!indicator.visible) return
+
+        // Skip if already added
+        if (indicatorSeriesRefs.current.has(indicator.id)) return
 
         if (indicator.type === 'MA') {
           const period = indicator.params.period || 20
@@ -287,6 +313,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           })
 
           maSeries.setData(maData)
+          indicatorSeriesRefs.current.set(indicator.id, maSeries)
         }
 
         if (indicator.type === 'RSI') {
@@ -305,7 +332,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
   // Real-time updates
   useEffect(() => {
-    const unsubscribe = subscribeToRealTimePrice(indexId, (price, volume, time) => {
+    const unsubscribe = subscribeToRealTimePrice(selectedIndexSymbol, (price, volume, time) => {
       setCurrentPrice(price)
 
       // Update chart with new price
@@ -331,7 +358,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
     })
 
     return unsubscribe
-  }, [indexId, chartData, selectedChartType])
+  }, [selectedIndexSymbol, chartData, selectedChartType])
 
   // Toggle indicator
   const toggleIndicator = (type: 'MA' | 'RSI', params: Record<string, number>) => {
@@ -355,19 +382,17 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
   }
 
   return (
-    <Card className={`h-full flex flex-col bg-slate-900/50 border-slate-800 ${className || ''}`}>
+    <Card className={`h-full flex flex-col bg-teal-card/50 border-teal ${className || ''}`}>
       <CardContent className="p-0 flex-1 flex flex-col min-h-0">
         {/* Tab Navigation */}
-        <div className="h-10 bg-slate-900 border-b border-slate-700 flex items-center flex-shrink-0">
+        <div className="h-10 bg-teal-card border-b border-teal flex items-center flex-shrink-0">
           <div className="flex space-x-1 px-4">
             {(['Chart', 'Info', 'Trading Data'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1 text-sm whitespace-nowrap rounded transition-colors ${
-                  activeTab === tab
-                    ? 'bg-slate-700 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                className={`glass-tab-small-brand px-3 py-1 text-sm whitespace-nowrap rounded ${
+                  activeTab === tab ? 'active text-white' : 'text-slate-400'
                 }`}
               >
                 {tab}
@@ -378,37 +403,44 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
         {/* Chart Tab Content */}
         {activeTab === 'Chart' && (
-          <div className="flex-1 flex flex-col p-4 overflow-auto min-h-0">
-            {/* Chart Header */}
+          <div className="tab-content-animate flex-1 flex flex-col p-4 overflow-auto min-h-0">
+            {/* Chart Header - All Controls in Single Row */}
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
-          {/* Price Info */}
+          {/* Left: Timeframe + Chart Type Selectors */}
           <div className="flex items-center gap-4">
-            <div>
-              <div className="text-xs text-slate-400">DOG_INDEX • {selectedTimeframe}</div>
-              <div className="text-2xl font-bold text-white">
-                {formatPrice(currentPrice)}
-              </div>
+            {/* Timeframe Selector */}
+            <div className="flex gap-1">
+              {timeframes.map(tf => (
+                <Button
+                  key={tf}
+                  variant={selectedTimeframe === tf ? 'default' : 'outline'}
+                  size="sm"
+                  className={selectedTimeframe === tf ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
+                  onClick={() => setSelectedTimeframe(tf)}
+                >
+                  {tf}
+                </Button>
+              ))}
             </div>
-            <div className={`flex items-center gap-1 ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {priceChange >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-              <div className="text-sm font-semibold">
-                {priceChange >= 0 ? '+' : ''}{formatPrice(Math.abs(priceChange))}
-              </div>
-              <div className="text-xs">
-                ({priceChange >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%)
-              </div>
-            </div>
-            <div className="text-xs text-slate-400">
-              <div>24h Vol</div>
-              <div className="text-sm font-semibold text-white">
-                {formatVolume(volume24h)}
-              </div>
+
+            {/* Chart Type Selector */}
+            <div className="flex gap-1">
+              {chartTypes.map(type => (
+                <Button
+                  key={type}
+                  variant={selectedChartType === type ? 'default' : 'outline'}
+                  size="sm"
+                  className={selectedChartType === type ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
+                  onClick={() => setSelectedChartType(type)}
+                >
+                  {type}
+                </Button>
+              ))}
             </div>
           </div>
 
-          {/* Chart Controls */}
+          {/* Right: MA & Indicators */}
           <div className="flex items-center gap-2">
-            {/* Indicators */}
             <Button
               variant="outline"
               size="sm"
@@ -427,44 +459,10 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
               <BarChart3 className="w-3 h-3" />
               <span className="text-xs">MA(50)</span>
             </Button>
-
-            {/* More indicators button */}
             <Button variant="outline" size="sm" className="gap-1">
               <Plus className="w-3 h-3" />
               <span className="text-xs">Indicators</span>
             </Button>
-          </div>
-        </div>
-
-        {/* Timeframe Selector */}
-        <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-          <Clock className="w-4 h-4 text-slate-400" />
-          <div className="flex gap-1">
-            {timeframes.map(tf => (
-              <Button
-                key={tf}
-                variant={selectedTimeframe === tf ? 'default' : 'outline'}
-                size="sm"
-                className={selectedTimeframe === tf ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
-                onClick={() => setSelectedTimeframe(tf)}
-              >
-                {tf}
-              </Button>
-            ))}
-          </div>
-
-          <div className="ml-4 flex gap-1">
-            {chartTypes.map(type => (
-              <Button
-                key={type}
-                variant={selectedChartType === type ? 'default' : 'outline'}
-                size="sm"
-                className={selectedChartType === type ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
-                onClick={() => setSelectedChartType(type)}
-              >
-                {type}
-              </Button>
-            ))}
           </div>
         </div>
 
@@ -476,7 +474,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
               <Badge
                 key={ind.id}
                 variant="outline"
-                className="cursor-pointer hover:bg-slate-800"
+                className="cursor-pointer hover:bg-teal-card/50"
                 onClick={() => setIndicators(prev => prev.filter(i => i.id !== ind.id))}
               >
                 {ind.name}
@@ -488,52 +486,24 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         {/* Chart Container */}
         <div className="relative flex-1 min-h-0">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/50 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-teal-base/50 z-10">
               <div className="text-slate-400">Loading chart...</div>
             </div>
           )}
           <div ref={chartContainerRef} className="rounded-lg overflow-hidden h-full" />
-        </div>
-
-        {/* Chart Info */}
-        <div className="mt-4 grid grid-cols-4 gap-4 text-xs flex-shrink-0">
-          <div>
-            <div className="text-slate-400">Open</div>
-            <div className="text-white font-semibold">
-              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].open) : formatPrice(0)}
-            </div>
-          </div>
-          <div>
-            <div className="text-slate-400">High</div>
-            <div className="text-white font-semibold">
-              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].high) : formatPrice(0)}
-            </div>
-          </div>
-          <div>
-            <div className="text-slate-400">Low</div>
-            <div className="text-white font-semibold">
-              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].low) : formatPrice(0)}
-            </div>
-          </div>
-          <div>
-            <div className="text-slate-400">Close</div>
-            <div className="text-white font-semibold">
-              {chartData[chartData.length - 1] ? formatPrice(chartData[chartData.length - 1].close) : formatPrice(0)}
-            </div>
-          </div>
         </div>
           </div>
         )}
 
         {/* Info Tab Content */}
         {activeTab === 'Info' && (
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
+          <div className="tab-content-animate flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
             {/* Basic Index Information */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Info className="w-4 h-4 text-blue-400" />
-                  <h4 className="text-sm font-semibold text-white">DOG_INDEX</h4>
+                  <h4 className="text-sm font-semibold text-white">{selectedIndexSymbol}</h4>
                   <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
                     👑 No.1
                   </Badge>
@@ -566,7 +536,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-700">
+                <div className="mt-4 pt-3 border-t border-teal-light">
                   <h5 className="text-xs font-semibold text-white mb-2">Description</h5>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     The DOG_INDEX tracks the performance of the most popular dog-themed meme cryptocurrencies.
@@ -589,7 +559,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </Card>
 
             {/* Composition */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <PieChart className="w-4 h-4 text-purple-400" />
@@ -621,7 +591,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </Card>
 
             {/* Trading Rules */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Shield className="w-4 h-4 text-green-400" />
@@ -657,7 +627,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
         {/* Trading Data Tab Content */}
         {activeTab === 'Trading Data' && (
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
+          <div className="tab-content-animate flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-brand" />
               Trading Data Analytics
@@ -665,7 +635,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
 
             {/* Market Statistics */}
             <div className="grid grid-cols-2 gap-3">
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-teal-elevated/50 border-teal">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="w-4 h-4 text-green-400" />
@@ -676,7 +646,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-teal-elevated/50 border-teal">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Waves className="w-4 h-4 text-blue-400" />
@@ -687,7 +657,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-teal-elevated/50 border-teal">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Users className="w-4 h-4 text-purple-400" />
@@ -698,7 +668,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
                 </CardContent>
               </Card>
 
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="bg-teal-elevated/50 border-teal">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <ArrowUpDown className="w-4 h-4 text-orange-400" />
@@ -711,7 +681,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </div>
 
             {/* Order Book Depth */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Layers className="w-4 h-4 text-blue-400" />
@@ -723,13 +693,13 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
                     <span className="text-slate-400">Bid Depth (1%)</span>
                     <span className="text-green-400 font-semibold">$1.2M</span>
                   </div>
-                  <Progress value={65} className="h-2 bg-slate-700" />
+                  <Progress value={65} className="h-2 bg-teal-base" />
 
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-400">Ask Depth (1%)</span>
                     <span className="text-red-400 font-semibold">$890K</span>
                   </div>
-                  <Progress value={45} className="h-2 bg-slate-700" />
+                  <Progress value={45} className="h-2 bg-teal-base" />
 
                   <div className="flex items-center justify-between text-xs pt-2">
                     <span className="text-slate-400">Bid/Ask Ratio</span>
@@ -740,7 +710,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </Card>
 
             {/* Funding Rate */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-4 h-4 text-purple-400" />
@@ -769,7 +739,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </Card>
 
             {/* Market Sentiment */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Brain className="w-4 h-4 text-orange-400" />
@@ -811,7 +781,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             </Card>
 
             {/* Top Traders Activity */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-elevated/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Radar className="w-4 h-4 text-yellow-400" />

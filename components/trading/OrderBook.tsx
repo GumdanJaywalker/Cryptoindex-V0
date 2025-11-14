@@ -63,21 +63,21 @@ export function OrderBook() {
   }
 
   return (
-    <div className="h-full bg-slate-950 flex flex-col relative">
+    <div className="h-full bg-teal-base flex flex-col relative font-[Arial,sans-serif]">
       {/* Header */}
-      <div className="h-8 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3">
+      <div className="h-8 bg-teal-card border-b border-teal flex items-center justify-between px-3">
         <h3 className="text-sm font-medium text-white flex items-center">
           <BarChart3 className="w-3 h-3 mr-1" />
           Order Book
         </h3>
         <div className="flex items-center gap-2">
           <Select value={grouping} onValueChange={setGrouping}>
-            <SelectTrigger className="h-6 w-16 bg-slate-800 border-slate-700 text-xs">
+            <SelectTrigger className="h-6 w-16 bg-teal-card border-teal text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectContent className="bg-teal-card border-teal">
               {groupingOptions.map((option) => (
-                <SelectItem key={option} value={option} className="text-white focus:bg-slate-700 text-xs">
+                <SelectItem key={option} value={option} className="text-white focus:bg-teal-card/70 text-xs">
                   {option}
                 </SelectItem>
               ))}
@@ -95,9 +95,9 @@ export function OrderBook() {
       </div>
 
       {/* Settings Bar */}
-      <div className="h-6 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-3 text-xs">
+      <div className="h-6 glass-card-dynamic border-b border-teal flex items-center justify-between px-3 text-xs">
         <div className="flex items-center gap-2 text-slate-400">
-          <span>Mid: <span className="text-white font-mono">{formatPrice(parseFloat(midPrice))}</span></span>
+          <span>Mid: <span className="text-white">{formatPrice(parseFloat(midPrice))}</span></span>
           <Badge variant="outline" className="text-xs px-1 py-0 h-4">
             {grouping}
           </Badge>
@@ -109,7 +109,7 @@ export function OrderBook() {
       </div>
 
       {/* Column Headers */}
-      <div className="h-6 bg-slate-900 border-b border-slate-800 flex items-center px-3 text-xs text-slate-400">
+      <div className="h-6 bg-teal-card border-b border-teal flex items-center px-3 text-xs text-slate-400">
         <div className="flex-1">Price ({currency})</div>
         <div className="flex-1 text-right">Size</div>
         <div className="flex-1 text-right">Total</div>
@@ -124,7 +124,7 @@ export function OrderBook() {
             return (
               <div 
                 key={index} 
-                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0 rounded cursor-pointer group"
+                className="relative flex items-center text-xs hover:bg-teal-card/50 py-0 rounded cursor-pointer group"
                 onClick={() => handlePriceClick(ask.price)}
               >
                 {/* Depth bar */}
@@ -133,20 +133,20 @@ export function OrderBook() {
                   style={{ width: `${depth}%` }}
                 />
                 
-                <div className={`flex-1 font-mono ${ask.isMyOrder ? 'text-blue-400 font-semibold' : 'text-red-400'}`}>
+                <div className={`flex-1 ${ask.isMyOrder ? 'text-blue-400 font-semibold' : 'text-[#dd7789]'}`}>
                   {formatPrice(ask.price)}
                 </div>
-                <div className="flex-1 text-right text-slate-300 font-mono">
+                <div className="flex-1 text-right text-slate-300">
                   {ask.size.toFixed(1)}
                   {ask.isLarge && <Zap className="w-3 h-3 inline ml-1 text-orange-400" />}
                 </div>
-                <div className="flex-1 text-right text-slate-400 font-mono">{ask.total.toFixed(1)}</div>
+                <div className="flex-1 text-right text-slate-400">{ask.total.toFixed(1)}</div>
                 <div className="w-8 flex justify-center">
                   {ask.isMyOrder && <Target className="w-3 h-3 text-blue-400" />}
                 </div>
                 
                 {/* Hover tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-teal-card text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
                   <div>Click to set price</div>
                   <div className="text-slate-400">Est. slippage: ~0.02%</div>
                   {/* Arrow */}
@@ -158,10 +158,10 @@ export function OrderBook() {
         </div>
 
         {/* Spread */}
-        <div className="h-8 flex items-center justify-center border-y border-slate-800 bg-slate-900">
+        <div className="h-8 flex items-center justify-center border-y border-teal bg-teal-card">
           <div className="text-xs text-slate-400 flex items-center gap-3">
             <div>
-              Spread: <span className="text-white font-mono">{formatPrice(spread)}</span>
+              Spread: <span className="text-white">{formatPrice(spread)}</span>
               <span className="text-slate-500 ml-1">({spreadPercentage}%)</span>
             </div>
             <div className="flex items-center gap-1">
@@ -182,7 +182,7 @@ export function OrderBook() {
             return (
               <div 
                 key={index} 
-                className="relative flex items-center text-xs hover:bg-slate-800/50 py-0 rounded cursor-pointer group"
+                className="relative flex items-center text-xs hover:bg-teal-card/50 py-0 rounded cursor-pointer group"
                 onClick={() => handlePriceClick(bid.price)}
               >
                 {/* Depth bar */}
@@ -191,20 +191,20 @@ export function OrderBook() {
                   style={{ width: `${depth}%` }}
                 />
                 
-                <div className={`flex-1 font-mono ${bid.isMyOrder ? 'text-blue-400 font-semibold' : 'text-green-400'}`}>
+                <div className={`flex-1 ${bid.isMyOrder ? 'text-blue-400 font-semibold' : 'text-[#4fa480]'}`}>
                   {formatPrice(bid.price)}
                 </div>
-                <div className="flex-1 text-right text-slate-300 font-mono">
+                <div className="flex-1 text-right text-slate-300">
                   {bid.size.toFixed(1)}
                   {bid.isLarge && <Zap className="w-3 h-3 inline ml-1 text-orange-400" />}
                 </div>
-                <div className="flex-1 text-right text-slate-400 font-mono">{bid.total.toFixed(1)}</div>
+                <div className="flex-1 text-right text-slate-400">{bid.total.toFixed(1)}</div>
                 <div className="w-8 flex justify-center">
                   {bid.isMyOrder && <Target className="w-3 h-3 text-blue-400" />}
                 </div>
                 
                 {/* Hover tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-slate-800 text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-teal-card text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none whitespace-nowrap">
                   <div>Click to set price</div>
                   <div className="text-slate-400">Est. slippage: ~0.02%</div>
                   {/* Arrow */}
@@ -218,7 +218,7 @@ export function OrderBook() {
 
       {/* Whale Alerts Section */}
       {showWhaleAlerts && (
-        <div className="h-12 border-t border-slate-800 bg-slate-900/50 p-1.5 flex-shrink-0">
+        <div className="h-12 border-t border-teal glass-card-dynamic p-1.5 flex-shrink-0">
           <div className="flex items-center gap-1 mb-1">
             <AlertTriangle className="w-3 h-3 text-orange-400" />
             <span className="text-xs font-medium text-white">Whale Alert</span>
@@ -238,7 +238,7 @@ export function OrderBook() {
                   >
                     {alert.type}
                   </Badge>
-                  <span className="text-white font-mono">{alert.amount}</span>
+                  <span className="text-white">{alert.amount}</span>
                 </div>
                 <Badge variant="outline" className="text-orange-400 border-orange-400/30 text-xs px-1 py-0 h-3">
                   {alert.impact}

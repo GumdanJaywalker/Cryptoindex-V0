@@ -1,17 +1,19 @@
 'use client'
 
+import { useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { IndexInfoBar } from './IndexInfoBar'
 import { ChartArea } from './ChartArea'
 import { TradingPanel } from './TradingPanelSimple'
 import { OrderBookTrades } from './OrderBookTrades'
-import { PresetPanel } from './PresetPanel'
 import { WhaleAlert } from './WhaleAlert'
+import { useTradingStore } from '@/lib/store/trading-store'
+import { getAllIndexes } from '@/lib/data/unified-indexes'
 
 // Dynamic import to prevent hydration issues
 const TradingBottomTabs = dynamic(
   () => import('./TradingBottomTabs').then(mod => ({ default: mod.TradingBottomTabs })),
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="min-h-[50vh] bg-background flex items-center justify-center">
@@ -22,55 +24,41 @@ const TradingBottomTabs = dynamic(
 )
 
 export function TradingLayout() {
+  const setIndices = useTradingStore(state => state.setIndices)
+
+  // Initialize indices from unified data source on mount
+  useEffect(() => {
+    const unifiedIndexes = getAllIndexes()
+    setIndices(unifiedIndexes)
+  }, [setIndices])
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* 최상단 바 (Full Width) - 인덱스 정보 헤더 */}
-      <div className="w-full border-b border-border sticky top-0 z-10 bg-background">
-        <IndexInfoBar />
-      </div>
+      {/* CSS Grid 3x3 Layout */}
+      <div className="grid grid-cols-[60%_20%_20%] grid-rows-[auto_60vh_auto]">
 
-      {/* 메인 거래 영역 */}
-      <div className="flex">
-        {/* 좌측+중간 영역 (80%) */}
-        <div className="w-[80%] flex flex-col bg-background">
-          {/* 상단: 차트 + 오더북 - 고정 높이 */}
-          <div className="flex h-[60vh] min-h-0">
-            {/* 차트 영역 (68.75% of 80%) */}
-            <div className="w-[68.75%] border-r border-border bg-background overflow-hidden">
-              <ChartArea />
-            </div>
-
-            {/* 오더북 영역 (31.25% of 80%) */}
-            <div className="w-[31.25%] bg-background overflow-auto">
-              <OrderBookTrades />
-            </div>
-          </div>
-
-          {/* 하단: Bottom Tabs - 자동 높이, 페이지 스크롤 */}
-          <div className="border-t-2 border-slate-700 bg-background">
-            <TradingBottomTabs />
-          </div>
+        {/* Row 1 - Full width index info bar */}
+        <div className="col-span-3 border-b border-teal">
+          <IndexInfoBar />
         </div>
 
-        {/* 우측 거래창 영역 (20%) */}
-        <div className="w-[20%] min-h-[calc(100vh-64px)] flex flex-col border-l border-border bg-background px-3">
-          {/* Trading Panel - 자연스러운 크기 */}
-          <div className="flex-shrink-0">
-            <TradingPanel />
-          </div>
+        {/* Row 2 - Main content area */}
+        <div className="border-r border-teal overflow-hidden h-[60vh]">
+          <ChartArea />
+        </div>
+        <div className="border-r border-teal h-[60vh]">
+          <OrderBookTrades />
+        </div>
+        <div className="border-l border-teal overflow-y-auto h-[60vh]">
+          <TradingPanel />
+        </div>
 
-          {/* Preset Panel - 거래 프리셋 */}
-          <div className="mt-3 pt-3 border-t border-muted-foreground/20 flex-shrink-0">
-            <PresetPanel />
-          </div>
-
-          {/* Whale Alert - 고정 높이로 독립적인 섹션 */}
-          <div className="mt-3 pt-3 border-t border-muted-foreground/20 flex-shrink-0">
-            <WhaleAlert />
-          </div>
-
-          {/* 여백 공간 */}
-          <div className="flex-1"></div>
+        {/* Row 3 - Bottom section */}
+        <div className="col-span-2 border-t border-teal">
+          <TradingBottomTabs />
+        </div>
+        <div className="border-t border-l border-teal">
+          <WhaleAlert />
         </div>
       </div>
     </div>

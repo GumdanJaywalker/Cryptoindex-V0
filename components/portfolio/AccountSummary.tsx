@@ -37,7 +37,7 @@ export function AccountSummary() {
 
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Portfolio Dashboard</h1>
@@ -45,28 +45,28 @@ export function AccountSummary() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Badge 
-            variant="outline" 
-            className="text-slate-300 border-slate-600"
+          <Badge
+            variant="outline"
+            className="text-slate-300 border-teal"
           >
             <Shield className="w-3 h-3 mr-1 text-slate-400" />
             {accountData.riskScore} Risk
           </Badge>
-          <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
+          <Button variant="outline" size="sm" className="glass-button-brand">
             <Activity className="w-4 h-4 mr-2 text-slate-400" />
             Live
           </Button>
         </div>
       </div>
 
-      {/* 메인 통계 카드들 */}
+      {/* Main Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* 총 자산 */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Total Equity */}
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Wallet className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">
                 {currency}
               </Badge>
             </div>
@@ -79,12 +79,12 @@ export function AccountSummary() {
           </CardContent>
         </Card>
 
-        {/* 일일 PnL */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Daily PnL */}
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
+              <Badge variant="outline" className="text-xs text-slate-300 border-teal">
                 24h
               </Badge>
             </div>
@@ -97,12 +97,12 @@ export function AccountSummary() {
           </CardContent>
         </Card>
 
-        {/* 미실현 PnL */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Unrealized PnL */}
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">
                 Open
               </Badge>
             </div>
@@ -115,12 +115,12 @@ export function AccountSummary() {
           </CardContent>
         </Card>
 
-        {/* 마진 사용률 */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Margin Utilization */}
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Zap className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
+              <Badge variant="outline" className="text-xs text-slate-300 border-teal">
                 {marginUtilization.toFixed(1)}%
               </Badge>
             </div>
@@ -134,8 +134,8 @@ export function AccountSummary() {
         </Card>
       </div>
 
-      {/* 상세 통계 */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      {/* Detailed Statistics */}
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="text-center">

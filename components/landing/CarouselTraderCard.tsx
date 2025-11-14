@@ -58,7 +58,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
   const minValue = Math.min(...sparklineData)
 
   return (
-    <Card className="bg-slate-900/50 border-slate-800 hover:border-brand/50 transition-all group overflow-hidden h-full">
+    <Card className="glass-card-dynamic border-teal hover:border-white/10 transition-all group overflow-hidden h-full">
       <CardContent className="p-6">
         {/* Header with Avatar and Rank */}
         <Link href={`/traders/${trader.id}`} className="block mb-6">
@@ -70,7 +70,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
                     src={trader.avatar || getAvatarUrl(trader.ens || trader.address || trader.id)}
                     alt="avatar"
                   />
-                  <AvatarFallback className="bg-slate-800 text-white">
+                  <AvatarFallback className="bg-teal-card text-white">
                     {(trader.ens || trader.address).slice(2, 4).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -100,7 +100,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
                       trader.rank === 1 && 'border-yellow-400 text-yellow-400',
                       trader.rank === 2 && 'border-gray-400 text-gray-400',
                       trader.rank === 3 && 'border-orange-400 text-orange-400',
-                      trader.rank > 3 && 'border-slate-700 text-slate-400'
+                      trader.rank > 3 && 'border-teal text-slate-400'
                     )}
                   >
                     Rank #{trader.rank}
@@ -119,7 +119,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
         </Link>
 
         {/* Total PnL - Large Display */}
-          <div className="text-center py-6 px-4 bg-slate-800/30 rounded-lg border border-slate-700 mb-6">
+          <div className="text-center py-6 px-4 bg-teal-card/30 rounded-lg border border-teal mb-6">
             <div className="text-sm text-slate-400 mb-2">Total P&L</div>
             <div
               className={cn(
@@ -157,7 +157,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
                     className="block"
                   >
                     <div
-                      className="p-2 bg-slate-800/40 rounded-lg border border-slate-700/50 hover:border-brand/50 hover:bg-slate-800/60 transition-all cursor-pointer"
+                      className="p-2 bg-teal-card/40 rounded-lg border border-teal/50 hover:border-white/10 hover:bg-teal-card/50/60 transition-all cursor-pointer"
                     >
                       <div className="text-xs font-semibold text-white mb-1 truncate">
                         {index.symbol}
@@ -183,7 +183,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
           </div>
 
           {/* 7d Performance Chart */}
-          <div className="mb-6 p-4 bg-slate-800/20 rounded-lg">
+          <div className="mb-6 p-4 bg-teal-card/20 rounded-lg">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-slate-400">7-Day Performance</span>
               <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="text-center p-3 bg-slate-800/30 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/30 rounded-lg">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <Target className="w-3.5 h-3.5 text-slate-500" />
                 <span className="text-xs text-slate-500">Win Rate</span>
@@ -230,7 +230,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
               </p>
             </div>
 
-            <div className="text-center p-3 bg-slate-800/30 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/30 rounded-lg">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
                 <span className="text-xs text-slate-500">Total Trades</span>
@@ -240,7 +240,7 @@ export function CarouselTraderCard({ trader }: CarouselTraderCardProps) {
               </p>
             </div>
 
-            <div className="text-center p-3 bg-slate-800/30 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/30 rounded-lg">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <Users className="w-3.5 h-3.5 text-slate-500" />
                 <span className="text-xs text-slate-500">Followers</span>

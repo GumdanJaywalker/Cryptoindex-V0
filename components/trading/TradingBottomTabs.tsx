@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { useTradingStore } from '@/lib/store/trading-store'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -50,64 +51,7 @@ import {
   Search
 } from 'lucide-react'
 
-// Mock data for each tab
-const mockPositions = [
-  {
-    id: '1',
-    symbol: 'MEME_INDEX',
-    side: 'Buy',
-    size: 1.5,
-    entryPrice: 2.45,
-    currentPrice: 2.67,
-    pnl: 330.00,
-    pnlPercent: 8.98,
-    margin: 245.25,
-    leverage: '10x',
-    liquidationPrice: 2.21,
-    adlRank: 2,
-    fundingRate: 0.0123
-  },
-  {
-    id: '2', 
-    symbol: 'DOG_INDEX',
-    side: 'Sell',
-    size: 0.8,
-    entryPrice: 1.82,
-    currentPrice: 1.73,
-    pnl: 72.00,
-    pnlPercent: 4.95,
-    margin: 145.60,
-    leverage: '5x',
-    liquidationPrice: 2.01,
-    adlRank: 3,
-    fundingRate: -0.0087
-  }
-]
-
-const mockOrders = [
-  {
-    id: '1',
-    symbol: 'CAT_INDEX',
-    side: 'Buy',
-    type: 'Limit',
-    size: 2.0,
-    price: 1.45,
-    filled: 0,
-    status: 'Open',
-    time: '14:23:15'
-  },
-  {
-    id: '2',
-    symbol: 'AI_INDEX', 
-    side: 'Sell',
-    type: 'Stop',
-    size: 1.2,
-    price: 3.21,
-    filled: 0,
-    status: 'Pending',
-    time: '14:20:08'
-  }
-]
+// 🆕 Phase 5: Removed mock data - now using Trading Store SSOT
 
 const mockIndexComposition = [
   { 
@@ -243,153 +187,93 @@ const mockMarketData = {
 
 
 
-// Mock data for order history
-const mockOrderHistory = [
-  {
-    id: 'ORD001',
-    time: '2024-01-20 14:23:15',
-    symbol: 'MEME_INDEX',
-    type: 'Limit',
-    side: 'Buy',
-    requestedPrice: 2.45,
-    filledPrice: 2.44,
-    quantity: 1.5,
-    filled: 1.5,
-    fillRate: 100,
-    status: 'Filled',
-    fee: 3.66,
-    feeType: 'maker',
-    slippage: -0.41, // negative = better execution
-    marketImpact: 0.12
-  },
-  {
-    id: 'ORD002',
-    time: '2024-01-20 13:45:08',
-    symbol: 'DOG_INDEX',
-    type: 'Market',
-    side: 'Sell',
-    requestedPrice: null, // market order
-    filledPrice: 1.73,
-    quantity: 0.8,
-    filled: 0.8,
-    fillRate: 100,
-    status: 'Filled',
-    fee: 1.38,
-    feeType: 'taker',
-    slippage: 0.58, // positive = worse execution
-    marketImpact: 0.08
-  },
-  {
-    id: 'ORD003',
-    time: '2024-01-20 12:30:22',
-    symbol: 'CAT_INDEX',
-    type: 'Limit',
-    side: 'Buy',
-    requestedPrice: 1.45,
-    filledPrice: 0,
-    quantity: 2.0,
-    filled: 0,
-    fillRate: 0,
-    status: 'Cancelled',
-    fee: 0,
-    feeType: null,
-    slippage: null,
-    marketImpact: null
-  },
-  {
-    id: 'ORD004',
-    time: '2024-01-19 16:15:45',
-    symbol: 'AI_INDEX',
-    type: 'Stop',
-    side: 'Sell',
-    requestedPrice: 3.21,
-    filledPrice: 3.19,
-    quantity: 1.2,
-    filled: 1.2,
-    fillRate: 100,
-    status: 'Filled',
-    fee: 3.83,
-    feeType: 'taker',
-    slippage: 0.62,
-    marketImpact: 0.15
-  },
-  {
-    id: 'ORD005',
-    time: '2024-01-19 10:20:18',
-    symbol: 'MEME_INDEX',
-    type: 'Limit',
-    side: 'Buy',
-    requestedPrice: 2.30,
-    filledPrice: 0,
-    quantity: 3.0,
-    filled: 0,
-    fillRate: 0,
-    status: 'Expired',
-    fee: 0,
-    feeType: null,
-    slippage: null,
-    marketImpact: null
-  }
-];
+// 🆕 Phase 5: Removed mockOrderHistory - now using Trading Store orderHistory
 
 export function TradingBottomTabs() {
   const { formatPrice, formatBalance, formatPnL, formatVolume, currency } = useCurrency()
   const [activeTab, setActiveTab] = useState('positions')
 
-  // 서버와 클라이언트에서 동일한 값 사용
-  const totalPnL = mockPositions.reduce((sum, pos) => sum + pos.pnl, 0);
-  const totalMargin = mockPositions.reduce((sum, pos) => sum + pos.margin, 0);
-  const winningPositions = mockPositions.filter(p => p.pnl > 0).length;
-  const avgReturn = mockPositions.length > 0 ? mockPositions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / mockPositions.length : 0;
+  // 🆕 Phase 5: Subscribe to Trading Store SSOT
+  const positions = useTradingStore(state => state.positions)
+  const openOrders = useTradingStore(state => state.openOrders)
+  const orderHistory = useTradingStore(state => state.orderHistory)
+
+  // Debug: Log when data changes
+  useEffect(() => {
+    console.log('TradingBottomTabs data updated', {
+      positionsCount: positions.length,
+      openOrdersCount: openOrders.length,
+      orderHistoryCount: orderHistory.length,
+      positions,
+      orderHistory
+    })
+  }, [positions, openOrders, orderHistory])
+
+  // 🆕 Calculate metrics from Store data
+  const totalPnL = positions.reduce((sum, pos) => sum + pos.pnl, 0);
+  const totalMargin = positions.reduce((sum, pos) => sum + pos.margin, 0);
+  const winningPositions = positions.filter(p => p.pnl > 0).length;
+  const avgReturn = positions.length > 0 ? positions.reduce((sum, pos) => sum + pos.pnlPercent, 0) / positions.length : 0;
 
   return (
     <div className="bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 bg-secondary border-b border-slate-700 rounded-none w-full">
-          <TabsTrigger value="positions" className="text-xs data-[state=active]:bg-brand">
+        <TabsList className="flex justify-start border-b rounded-none w-full gap-0 pl-4 bg-teal-card">
+          <TabsTrigger value="positions" className="glass-tab-small-brand text-xs data-[state=active]:active px-6">
             Positions
           </TabsTrigger>
-          <TabsTrigger value="orders" className="text-xs data-[state=active]:bg-brand">
+          <TabsTrigger value="orders" className="glass-tab-small-brand text-xs data-[state=active]:active px-6">
             Open Orders
           </TabsTrigger>
-          <TabsTrigger value="orderHistory" className="text-xs data-[state=active]:bg-brand">
+          <TabsTrigger value="orderHistory" className="glass-tab-small-brand text-xs data-[state=active]:active px-6">
             Order History
           </TabsTrigger>
-          <TabsTrigger value="market" className="text-xs data-[state=active]:bg-brand">
+          <TabsTrigger value="market" className="glass-tab-small-brand text-xs data-[state=active]:active px-6">
             Market Data
           </TabsTrigger>
-          <TabsTrigger value="assets" className="text-xs data-[state=active]:bg-brand">
+          <TabsTrigger value="assets" className="glass-tab-small-brand text-xs data-[state=active]:active px-6">
             Assets
           </TabsTrigger>
         </TabsList>
         
         <div className="bg-background">
           {/* Positions Tab - Enhanced with detailed information */}
-          <TabsContent value="positions" className="h-auto m-0 p-4">
+          <TabsContent value="positions" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Active Positions</h3>
-                <Badge variant="outline" className="text-green-400 border-green-400/30">
-                  {mockPositions.length} Open
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-[#4fa480] border-[#4fa480]/30">
+                    {positions.length} Open
+                  </Badge>
+                  {/* 🆕 Phase 5: Overall P&L badge */}
+                  <Badge
+                    variant="outline"
+                    className={`${totalPnL >= 0 ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}`}
+                  >
+                    Total P&L: {formatPnL(totalPnL).text}
+                  </Badge>
+                </div>
               </div>
               
               <div className="space-y-2">
-                {/* Table Header */}
-                <div className="grid grid-cols-9 gap-2 text-xs text-slate-400 px-2 py-1 border-b border-slate-700">
-                  <div>Symbol</div>
-                  <div className="text-center">Side/Size</div>
-                  <div className="text-center">Entry</div>
-                  <div className="text-center">Mark</div>
-                  <div className="text-center">P&L</div>
-                  <div className="text-center">Margin</div>
-                  <div className="text-center">Liq. Price</div>
-                  <div className="text-center">ADL</div>
-                  <div className="text-center">Funding</div>
-                </div>
+                {positions.length > 0 ? (
+                  <>
+                    {/* Table Header */}
+                    <div className="grid grid-cols-9 gap-2 text-xs text-slate-400 px-2 py-1 border-b border-teal">
+                      <div>Symbol</div>
+                      <div className="text-center">Side/Size</div>
+                      <div className="text-center">Entry</div>
+                      <div className="text-center">Mark</div>
+                      <div className="text-center">P&L</div>
+                      <div className="text-center">Margin</div>
+                      <div className="text-center">Liq. Price</div>
+                      <div className="text-center">ADL</div>
+                      <div className="text-center">Funding</div>
+                    </div>
 
-                {/* Position Rows */}
-                {mockPositions.map((position) => {
+                    {/* Position Rows - 🆕 Using Store data */}
+                    {positions.map((position) => {
                   const getADLColor = (rank: number) => {
                     switch (rank) {
                       case 1: return 'text-green-400 bg-green-400/10 border-green-400/30'
@@ -402,21 +286,21 @@ export function TradingBottomTabs() {
                   }
 
                   return (
-                    <Card key={position.id} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
+                    <Card key={position.id} className="glass-card">
                       <CardContent className="p-3">
                         <div className="grid grid-cols-9 gap-2 items-center text-xs">
                           {/* Symbol */}
                           <div>
-                            <div className="font-semibold text-white">{position.symbol}</div>
-                            <div className="text-slate-400">{position.leverage}</div>
+                            <div className="font-semibold text-white">{position.symbol.replace('_INDEX', '')}</div>
+                            <div className="text-slate-400">-</div>
                           </div>
 
                           {/* Side/Size */}
                           <div className="text-center">
-                            <Badge 
-                              variant="outline" 
+                            <Badge
+                              variant="outline"
                               className={`text-xs mb-1 ${
-                                position.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'
+                                position.side === 'Buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'
                               }`}
                             >
                               {position.side}
@@ -434,20 +318,33 @@ export function TradingBottomTabs() {
                             <div className="text-white font-medium">{formatPrice(position.currentPrice)}</div>
                             <div className={`text-xs ${
                               position.currentPrice > position.entryPrice
-                                ? (position.side === 'Buy' ? 'text-green-400' : 'text-red-400')
-                                : (position.side === 'Buy' ? 'text-red-400' : 'text-green-400')
+                                ? (position.side === 'Buy' ? 'text-[#4fa480]' : 'text-[#dd7789]')
+                                : (position.side === 'Buy' ? 'text-[#dd7789]' : 'text-[#4fa480]')
                             }`}>
                               {((position.currentPrice - position.entryPrice) / position.entryPrice * 100).toFixed(2)}%
                             </div>
                           </div>
 
-                          {/* P&L */}
+                          {/* P&L - 🆕 Enhanced with visual badges */}
                           <div className="text-center">
-                            <div className={`font-semibold ${formatPnL(position.pnl).colorClass}`}>
-                              {formatPnL(position.pnl).text}
+                            <div className="flex items-center gap-1 justify-center mb-1">
+                              <div className={`font-semibold ${formatPnL(position.pnl).colorClass}`}>
+                                {formatPnL(position.pnl).text}
+                              </div>
+                              {/* Visual profit/loss indicator badge */}
+                              {position.pnl >= 100 && (
+                                <Badge variant="outline" className="text-xs text-[#4fa480] border-[#4fa480]/30 px-1 py-0">
+                                  🔥
+                                </Badge>
+                              )}
+                              {position.pnl < -50 && (
+                                <Badge variant="outline" className="text-xs text-[#dd7789] border-[#dd7789]/30 px-1 py-0">
+                                  ⚠️
+                                </Badge>
+                              )}
                             </div>
                             <div className={`text-xs ${
-                              position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                              position.pnl >= 0 ? 'text-[#4fa480]' : 'text-[#dd7789]'
                             }`}>
                               {position.pnl >= 0 ? '+' : ''}{position.pnlPercent.toFixed(1)}%
                             </div>
@@ -458,61 +355,46 @@ export function TradingBottomTabs() {
                             <div className="text-white font-medium">{formatBalance(position.margin)}</div>
                           </div>
 
-                          {/* Liquidation Price */}
+                          {/* Liquidation Price - Phase 0: Spot only */}
                           <div className="text-center">
-                            <div className="text-white font-medium">{formatPrice(position.liquidationPrice)}</div>
-                            <div className="text-xs text-slate-400">
-                              {position.currentPrice !== 0 ? (Math.abs((position.liquidationPrice - position.currentPrice) / position.currentPrice) * 100).toFixed(1) : '0.0'}%
-                            </div>
+                            <div className="text-slate-400">-</div>
                           </div>
 
-                          {/* ADL Rank */}
+                          {/* ADL Rank - Phase 0: Spot only */}
                           <div className="text-center">
-                            <Badge variant="outline" className={`text-xs ${getADLColor(position.adlRank)}`}>
-                              {position.adlRank}
-                            </Badge>
+                            <div className="text-slate-400">-</div>
                           </div>
 
-                          {/* Funding */}
+                          {/* Funding - Phase 0: Spot only */}
                           <div className="text-center">
-                            <div className={`text-xs font-medium ${
-                              position.fundingRate >= 0 ? 'text-red-400' : 'text-green-400'
-                            }`}>
-                              {position.fundingRate >= 0 ? '+' : ''}{(position.fundingRate * 100).toFixed(4)}%
-                            </div>
-                            {/* Next funding time not tracked in mock; hide sublabel */}
+                            <div className="text-slate-400">-</div>
                           </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-slate-700">
-                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-green-400 hover:bg-green-400/10">
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-red-400 hover:bg-red-400/10">
-                            <Minus className="w-3 h-3 mr-1" />
-                            Reduce
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-slate-400 hover:bg-slate-400/10">
-                            <X className="w-3 h-3 mr-1" />
-                            Close
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-blue-400 hover:bg-blue-400/10">
-                            <Target className="w-3 h-3 mr-1" />
-                            TP/SL
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>
                   )
-                })}
+                    })}
+                  </>
+                ) : (
+                  /* 🆕 Empty state for no positions */
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center mb-4">
+                      <Activity className="w-8 h-8 text-slate-500" />
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg text-slate-400 mb-2">No active positions</div>
+                      <div className="text-sm text-slate-500">
+                        Open a position to start trading.
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
 
           {/* Transaction History Tab */}
-          <TabsContent value="transactionHistory" className="h-auto m-0 p-4">
+          <TabsContent value="transactionHistory" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Transaction History</h3>
@@ -526,7 +408,7 @@ export function TradingBottomTabs() {
 
               {/* Empty State */}
               <div className="flex flex-col items-center justify-center py-16">
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center mb-4">
                   <Activity className="w-8 h-8 text-slate-500" />
                 </div>
                 <div className="text-center">
@@ -540,7 +422,7 @@ export function TradingBottomTabs() {
           </TabsContent>
 
           {/* Position History Tab */}
-          <TabsContent value="positionHistory" className="h-auto m-0 p-4">
+          <TabsContent value="positionHistory" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Position History</h3>
@@ -592,17 +474,17 @@ export function TradingBottomTabs() {
                     duration: '1d 4h 15m'
                   }
                 ].map((position, index) => (
-                  <Card key={index} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
+                  <Card key={index} className="glass-card">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline" 
-                            className={position.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}
+                          <Badge
+                            variant="outline"
+                            className={position.side === 'Buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}
                           >
                             {position.side}
                           </Badge>
-                          <span className="font-semibold text-white">{position.symbol}</span>
+                          <span className="font-semibold text-white">{position.symbol.replace('_INDEX', '')}</span>
                         </div>
                         
                         <div className="text-right">
@@ -622,7 +504,7 @@ export function TradingBottomTabs() {
           </TabsContent>
 
           {/* Assets Tab */}
-          <TabsContent value="assets" className="h-auto m-0 p-4">
+          <TabsContent value="assets" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Assets Overview</h3>
@@ -636,7 +518,7 @@ export function TradingBottomTabs() {
 
 
               {/* Asset List */}
-              <Card className="bg-slate-800/50 border-slate-700">
+              <Card className="glass-card">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="w-4 h-4 text-purple-400" />
@@ -646,11 +528,11 @@ export function TradingBottomTabs() {
                   <div className="space-y-2">
                     {[
                       { asset: 'USDC', balance: 8234.12, locked: 1234.56, total: 9468.68 },
-                      { asset: 'MEME_INDEX', balance: 1.5, locked: 0, total: 1.5 },
-                      { asset: 'DOG_INDEX', balance: 0, locked: 0.8, total: 0.8 },
-                      { asset: 'CAT_INDEX', balance: 2.0, locked: 0, total: 2.0 }
+                      { asset: 'MEME', balance: 1.5, locked: 0, total: 1.5 },
+                      { asset: 'DOG', balance: 0, locked: 0.8, total: 0.8 },
+                      { asset: 'CAT', balance: 2.0, locked: 0, total: 2.0 }
                     ].map((asset, index) => (
-                      <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                      <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                             {asset.asset[0]}
@@ -674,56 +556,71 @@ export function TradingBottomTabs() {
           </TabsContent>
           
           {/* Open Orders Tab */}
-          <TabsContent value="orders" className="h-auto m-0 p-4">
+          <TabsContent value="orders" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Open Orders</h3>
                 <Badge variant="outline" className="text-blue-400 border-blue-400/30">
-                  {mockOrders.length} Orders
+                  {openOrders.length} Orders
                 </Badge>
               </div>
-              
+
               <div className="space-y-2">
-                {mockOrders.map((order) => (
-                  <Card key={order.id} className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline" 
-                            className={order.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}
-                          >
-                            {order.side}
-                          </Badge>
-                          <span className="font-semibold text-white">{order.symbol}</span>
-                          <span className="text-xs text-slate-400">{order.type}</span>
-                        </div>
-                        
-                        <div className="text-right">
-                          <div className="text-sm text-white">
-                            {order.size} @ {formatPrice(order.price)}
+                {openOrders.length > 0 ? (
+                  openOrders.map((order) => (
+                    <Card key={order.id} className="glass-card">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Badge
+                              variant="outline"
+                              className={order.side === 'Buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}
+                            >
+                              {order.side}
+                            </Badge>
+                            <span className="font-semibold text-white">{order.symbol.replace('_INDEX', '')}</span>
+                            <span className="text-xs text-slate-400">{order.type}</span>
                           </div>
-                          <div className="text-xs text-slate-400">
-                            {order.time} • {order.status}
+
+                          <div className="text-right">
+                            <div className="text-sm text-white">
+                              {order.size} @ {formatPrice(order.price)}
+                            </div>
+                            <div className="text-xs text-slate-400">
+                              {order.time} • {order.status}
+                            </div>
                           </div>
                         </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  /* 🆕 Empty state for no open orders */
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center mb-4">
+                      <Clock className="w-8 h-8 text-slate-500" />
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg text-slate-400 mb-2">No open orders</div>
+                      <div className="text-sm text-slate-500">
+                        Place a limit or stop order to see it here.
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
 
           {/* Order History Tab */}
-          <TabsContent value="orderHistory" className="h-auto m-0 p-4">
+          <TabsContent value="orderHistory" className="tab-content-animate h-auto m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Order History</h3>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-blue-400 border-blue-400/30">
                     <Clock className="w-3 h-3 mr-1" />
-                    {mockOrderHistory.length} Orders
+                    {orderHistory.length} Orders
                   </Badge>
                   <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
                     <ExternalLink className="w-3 h-3 mr-1" />
@@ -732,148 +629,140 @@ export function TradingBottomTabs() {
                 </div>
               </div>
 
-              {/* Order Statistics Summary */}
+              {/* Order Statistics Summary - 🆕 Using Store data */}
               <div className="grid grid-cols-4 gap-2">
-                <div className="bg-slate-800/50 border border-slate-700 rounded p-2">
+                <div className="glass-inner rounded p-2">
                   <div className="text-xs text-slate-400">Filled Orders</div>
-                  <div className="text-sm font-semibold text-green-400">
-                    {mockOrderHistory.filter(o => o.status === 'Filled').length}
+                  <div className="text-sm font-semibold text-[#4fa480]">
+                    {orderHistory.filter(o => o.status === 'Filled').length}
                   </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded p-2">
+                <div className="glass-inner rounded p-2">
                   <div className="text-xs text-slate-400">Cancelled</div>
                   <div className="text-sm font-semibold text-orange-400">
-                    {mockOrderHistory.filter(o => o.status === 'Cancelled').length}
+                    {orderHistory.filter(o => o.status === 'Cancelled').length}
                   </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded p-2">
-                  <div className="text-xs text-slate-400">Expired</div>
-                  <div className="text-sm font-semibold text-red-400">
-                    {mockOrderHistory.filter(o => o.status === 'Expired').length}
+                <div className="glass-inner rounded p-2">
+                  <div className="text-xs text-slate-400">Total</div>
+                  <div className="text-sm font-semibold text-white">
+                    {orderHistory.length}
                   </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded p-2">
+                <div className="glass-inner rounded p-2">
                   <div className="text-xs text-slate-400">Fill Rate</div>
                   <div className="text-sm font-semibold text-white">
-                    {mockOrderHistory.length > 0 ? ((mockOrderHistory.filter(o => o.status === 'Filled').length / mockOrderHistory.length) * 100).toFixed(1) : '0.0'}%
+                    {orderHistory.length > 0 ? ((orderHistory.filter(o => o.status === 'Filled').length / orderHistory.length) * 100).toFixed(1) : '0.0'}%
                   </div>
                 </div>
               </div>
 
-              {/* Order History Table */}
+              {/* Order History Table - 🆕 Using Store data */}
               <div className="space-y-2">
-                {mockOrderHistory.map((order) => (
-                  <Card key={order.id} className="bg-slate-800/50 border-slate-700 hover:bg-slate-800/70 transition-colors">
+                {orderHistory.length > 0 ? (
+                  orderHistory.map((order) => (
+                  <Card key={order.id} className="glass-card">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={`text-xs ${
-                              order.status === 'Filled' ? 'text-green-400 border-green-400/30' :
+                              order.status === 'Filled' ? 'text-[#4fa480] border-[#4fa480]/30' :
                               order.status === 'Cancelled' ? 'text-orange-400 border-orange-400/30' :
-                              'text-red-400 border-red-400/30'
+                              'text-[#dd7789] border-[#dd7789]/30'
                             }`}
                           >
                             {order.status}
                           </Badge>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${order.side === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${order.side === 'Buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}`}
                           >
                             {order.side}
                           </Badge>
-                          <span className="font-semibold text-white text-sm">{order.symbol}</span>
+                          <span className="font-semibold text-white text-sm">{order.symbol.replace('_INDEX', '')}</span>
                           <span className="text-xs text-slate-400">{order.type}</span>
                         </div>
-                        
+
                         <div className="text-right">
                           <div className="text-xs text-slate-400">{order.time}</div>
                           <div className="text-xs text-slate-300">ID: {order.id}</div>
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Requested Price</div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                        <div className="glass-inner rounded p-2">
+                          <div className="text-slate-400">Price</div>
                           <div className="text-white font-medium">
-                            {order.requestedPrice ? formatPrice(order.requestedPrice) : 'Market'}
+                            {formatPrice(order.price)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Filled Price</div>
+                        <div className="glass-inner rounded p-2">
+                          <div className="text-slate-400">Size</div>
                           <div className="text-white font-medium">
-                            {order.filledPrice > 0 ? formatPrice(order.filledPrice) : '-'}
+                            {order.size.toFixed(2)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">Quantity</div>
+                        <div className="glass-inner rounded p-2">
+                          <div className="text-slate-400">Filled</div>
                           <div className="text-white font-medium">
-                            {order.filled}/{order.quantity} ({order.fillRate}%)
-                          </div>
-                        </div>
-                        <div className="bg-slate-900/50 rounded p-2">
-                          <div className="text-slate-400">
-                            {order.status === 'Filled' ? 'Fee' : 'Status'}
-                          </div>
-                          <div className="text-white font-medium">
-                            {order.status === 'Filled' ? (
-                              <div className="flex items-center gap-1">
-                                <span>{formatBalance(order.fee)}</span>
-                                <Badge variant="outline" className={`text-xs ${
-                                  order.feeType === 'maker' ? 'text-blue-400 border-blue-400/30' : 'text-purple-400 border-purple-400/30'
-                                }`}>
-                                  {order.feeType}
-                                </Badge>
-                              </div>
-                            ) : order.status}
+                            {order.filled.toFixed(2)} / {order.size.toFixed(2)}
                           </div>
                         </div>
                       </div>
 
-                      {/* Execution Analysis (only for filled orders) */}
-                      {order.status === 'Filled' && (
-                        <div className="mt-3 pt-2 border-t border-slate-700">
+                      {/* P&L Display (only for filled orders with pnl data) */}
+                      {order.status === 'Filled' && order.pnl !== undefined && (
+                        <div className="mt-3 pt-2 border-t border-teal">
                           <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-1">
-                                <span className="text-slate-400">Slippage:</span>
-                                <span className={`font-medium ${
-                                  (order.slippage ?? 0) < 0 ? 'text-green-400' : 
-                                  (order.slippage ?? 0) > 0.5 ? 'text-red-400' : 'text-yellow-400'
-                                }`}>
-                                  {(order.slippage ?? 0) > 0 ? '+' : ''}{order.slippage ?? 0}%
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-400">P&L:</span>
+                              <span className={`font-medium ${order.pnl >= 0 ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
+                                {formatPnL(order.pnl).text}
+                              </span>
+                              {order.pnlPercent !== undefined && (
+                                <span className={`text-xs ${order.pnlPercent >= 0 ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
+                                  ({order.pnlPercent >= 0 ? '+' : ''}{order.pnlPercent.toFixed(2)}%)
                                 </span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <span className="text-slate-400">Impact:</span>
-                                <span className="text-white font-medium">{order.marketImpact}%</span>
-                              </div>
+                              )}
                             </div>
-                            <Button size="sm" variant="ghost" className="text-xs text-blue-400 hover:text-blue-300 h-5 px-2">
-                              <ExternalLink className="w-2 h-2 mr-1" />
-                              Details
-                            </Button>
                           </div>
                         </div>
                       )}
                     </CardContent>
                   </Card>
-                ))}
+                  ))
+                ) : (
+                  /* 🆕 Empty state for no order history */
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center mb-4">
+                      <History className="w-8 h-8 text-slate-500" />
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg text-slate-400 mb-2">No order history</div>
+                      <div className="text-sm text-slate-500">
+                        Your completed and cancelled orders will appear here.
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Load More Button */}
-              <div className="flex justify-center pt-2">
-                <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
-                  Load More Orders
-                </Button>
-              </div>
+              {/* Load More Button - Only show if there are orders */}
+              {orderHistory.length > 0 && (
+                <div className="flex justify-center pt-2">
+                  <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs">
+                    Load More Orders
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
 
 
           {/* Market Data Tab with Sub-tabs */}
-          <TabsContent value="market" className="h-full m-0 p-4">
+          <TabsContent value="market" className="tab-content-animate h-full m-0 p-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Market Data Analysis</h3>
@@ -887,7 +776,7 @@ export function TradingBottomTabs() {
 
               {/* Market Data Sub-tabs */}
               <Tabs defaultValue="orderbook" className="w-full">
-                <TabsList className="grid grid-cols-4 bg-muted/30 rounded-md w-full max-w-lg">
+                <TabsList className="grid grid-cols-4 glass-tabs rounded-md w-full max-w-lg">
                   <TabsTrigger value="orderbook" className="text-xs data-[state=active]:bg-brand">
                     Order Book
                   </TabsTrigger>
@@ -905,7 +794,7 @@ export function TradingBottomTabs() {
                 {/* Order Book & Volume Sub-tab */}
                 <TabsContent value="orderbook" className="mt-4 space-y-4">
                   {/* Depth Analysis */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Layers className="w-4 h-4 text-blue-400" />
@@ -913,11 +802,11 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Bid/Ask Spread</div>
                           <div className={`text-sm font-semibold ${
-                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'tightening' ? 'text-green-400' :
-                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'widening' ? 'text-red-400' :
+                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'tightening' ? 'text-[#4fa480]' :
+                            mockMarketData.orderBookDepth.spreadInfo.spreadTrend === 'widening' ? 'text-[#dd7789]' :
                             'text-yellow-400'
                           }`}>
                             {(mockMarketData.orderBookDepth.spreadInfo.bidAskSpread * 100).toFixed(3)}%
@@ -926,24 +815,24 @@ export function TradingBottomTabs() {
                             {mockMarketData.orderBookDepth.spreadInfo.spreadTrend}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Mid Price</div>
                           <div className="text-sm font-semibold text-white">
                             {formatPrice(mockMarketData.orderBookDepth.spreadInfo.midPrice)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">5L Depth</div>
                           <div className="text-sm font-semibold text-white">
                             {formatVolume(mockMarketData.orderBookDepth.depthAnalysis.bid5Depth)}
                           </div>
                           <div className="text-xs text-slate-400">Bid side</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Imbalance</div>
                           <div className={`text-sm font-semibold ${
-                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio > 1.2 ? 'text-green-400' :
-                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio < 0.8 ? 'text-red-400' :
+                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio > 1.2 ? 'text-[#4fa480]' :
+                            mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio < 0.8 ? 'text-[#dd7789]' :
                             'text-yellow-400'
                           }`}>
                             {mockMarketData.orderBookDepth.depthAnalysis.imbalanceRatio.toFixed(2)}
@@ -955,7 +844,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Volume Analysis */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Volume2 className="w-4 h-4 text-green-400" />
@@ -964,41 +853,41 @@ export function TradingBottomTabs() {
                       
                       {/* Volume Statistics */}
                       <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">24h Volume</div>
                           <div className="text-sm font-semibold text-white">
                             {formatVolume(mockMarketData.volumeAnalysis.volumeStats.total24h)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Buy Volume</div>
-                          <div className="text-sm font-semibold text-green-400">
+                          <div className="text-sm font-semibold text-[#4fa480]">
                             {formatVolume(mockMarketData.volumeAnalysis.volumeStats.buyVolume)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Sell Volume</div>
-                          <div className="text-sm font-semibold text-red-400">
+                          <div className="text-sm font-semibold text-[#dd7789]">
                             {formatVolume(mockMarketData.volumeAnalysis.volumeStats.sellVolume)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Buy Ratio</div>
                           <div className={`text-sm font-semibold ${
-                            mockMarketData.volumeAnalysis.volumeStats.buyRatio > 55 ? 'text-green-400' :
-                            mockMarketData.volumeAnalysis.volumeStats.buyRatio < 45 ? 'text-red-400' :
+                            mockMarketData.volumeAnalysis.volumeStats.buyRatio > 55 ? 'text-[#4fa480]' :
+                            mockMarketData.volumeAnalysis.volumeStats.buyRatio < 45 ? 'text-[#dd7789]' :
                             'text-yellow-400'
                           }`}>
                             {mockMarketData.volumeAnalysis.volumeStats.buyRatio.toFixed(1)}%
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Avg Size</div>
                           <div className="text-sm font-semibold text-white">
                             {formatBalance(mockMarketData.volumeAnalysis.volumeStats.avgTradeSize)}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Median</div>
                           <div className="text-sm font-semibold text-white">
                             {formatBalance(mockMarketData.volumeAnalysis.volumeStats.medianTradeSize)}
@@ -1011,7 +900,7 @@ export function TradingBottomTabs() {
                         <div className="text-xs font-medium text-white mb-2">Hourly Volume (Last 6h)</div>
                         <div className="space-y-1">
                           {mockMarketData.volumeAnalysis.hourlyVolume.map((hour, index) => (
-                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                            <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-slate-400 w-12">{hour.hour}</span>
                                 <Progress value={(hour.volume / 2.5e6) * 100} className="h-2 w-20" />
@@ -1020,9 +909,9 @@ export function TradingBottomTabs() {
                                 <span className="text-xs text-white">
                                   {formatVolume(hour.volume)}
                                 </span>
-                                <Badge 
-                                  variant="outline" 
-                                  className={`text-xs ${hour.buyRatio > 0.5 ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${hour.buyRatio > 0.5 ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}`}
                                 >
                                   {(hour.buyRatio * 100).toFixed(0)}% Buy
                                 </Badge>
@@ -1035,7 +924,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Volatility Metrics */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Waves className="w-4 h-4 text-purple-400" />
@@ -1043,11 +932,11 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Historical Vol</div>
                           <div className={`text-sm font-semibold ${
-                            mockMarketData.volatilityMetrics.historicalVol.trend === 'increasing' ? 'text-red-400' :
-                            mockMarketData.volatilityMetrics.historicalVol.trend === 'decreasing' ? 'text-green-400' :
+                            mockMarketData.volatilityMetrics.historicalVol.trend === 'increasing' ? 'text-[#dd7789]' :
+                            mockMarketData.volatilityMetrics.historicalVol.trend === 'decreasing' ? 'text-[#4fa480]' :
                             'text-yellow-400'
                           }`}>
                             {(mockMarketData.volatilityMetrics.historicalVol.current * 100).toFixed(1)}%
@@ -1056,25 +945,25 @@ export function TradingBottomTabs() {
                             {mockMarketData.volatilityMetrics.historicalVol.trend}
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Implied Vol</div>
                           <div className="text-sm font-semibold text-orange-400">
                             {(mockMarketData.volatilityMetrics.impliedVol * 100).toFixed(1)}%
                           </div>
                           <div className="text-xs text-slate-400">Options based</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Vol Rank</div>
                           <div className={`text-sm font-semibold ${
-                            mockMarketData.volatilityMetrics.volatilityRank > 70 ? 'text-red-400' :
+                            mockMarketData.volatilityMetrics.volatilityRank > 70 ? 'text-[#dd7789]' :
                             mockMarketData.volatilityMetrics.volatilityRank > 30 ? 'text-yellow-400' :
-                            'text-green-400'
+                            'text-[#4fa480]'
                           }`}>
                             {mockMarketData.volatilityMetrics.volatilityRank}th
                           </div>
                           <div className="text-xs text-slate-400">percentile</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2">
+                        <div className="glass-inner rounded p-2">
                           <div className="text-xs text-slate-400">Week Range</div>
                           <div className="text-sm font-semibold text-white">
                             {(mockMarketData.volatilityMetrics.historicalVol.weekLow * 100).toFixed(1)}% - {(mockMarketData.volatilityMetrics.historicalVol.weekHigh * 100).toFixed(1)}%
@@ -1092,19 +981,19 @@ export function TradingBottomTabs() {
                           </Badge>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="glass-inner rounded p-2 text-center">
                             <div className="text-xs text-slate-400">Next Hour</div>
                             <div className="text-sm font-semibold text-cyan-400">
                               {(mockMarketData.volatilityMetrics.garchPrediction.nextHour * 100).toFixed(1)}%
                             </div>
                           </div>
-                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="glass-inner rounded p-2 text-center">
                             <div className="text-xs text-slate-400">Next 4h</div>
                             <div className="text-sm font-semibold text-cyan-400">
                               {(mockMarketData.volatilityMetrics.garchPrediction.next4Hours * 100).toFixed(1)}%
                             </div>
                           </div>
-                          <div className="bg-slate-900/50 rounded p-2 text-center">
+                          <div className="glass-inner rounded p-2 text-center">
                             <div className="text-xs text-slate-400">Next Day</div>
                             <div className="text-sm font-semibold text-cyan-400">
                               {(mockMarketData.volatilityMetrics.garchPrediction.nextDay * 100).toFixed(1)}%
@@ -1120,7 +1009,7 @@ export function TradingBottomTabs() {
                 {/* Top Traders Sub-tab */}
                 <TabsContent value="toptraders" className="mt-4 space-y-4">
                   {/* Top Index Derivatives Traders */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-purple-400" />
@@ -1128,31 +1017,31 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Active Traders</div>
                           <div className="text-sm font-semibold text-white">2,847</div>
-                          <div className="text-xs text-green-400">+127 (24h)</div>
+                          <div className="text-xs text-[#4fa480]">+127 (24h)</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Pro Traders</div>
                           <div className="text-sm font-semibold text-orange-400">8.3%</div>
                           <div className="text-xs text-slate-400">&gt;$50K volume</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Medium Traders</div>
                           <div className="text-sm font-semibold text-blue-400">24.7%</div>
                           <div className="text-xs text-slate-400">$5K-50K volume</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Retail Traders</div>
-                          <div className="text-sm font-semibold text-green-400">67.0%</div>
+                          <div className="text-sm font-semibold text-[#4fa480]">67.0%</div>
                           <div className="text-xs text-slate-400">&lt;$5K volume</div>
                         </div>
                       </div>
                       
                       {/* Top Traders by Performance */}
                       <div className="space-y-3">
-                        <div className="text-xs font-medium text-white mb-2">Top MEME_INDEX Traders (24h)</div>
+                        <div className="text-xs font-medium text-white mb-2">Top MEME Traders (24h)</div>
                         <div className="space-y-1">
                           {[
                             { rank: 1, address: '0xA1b2...F8d9', volume: '$324.5K', pnl: '+$32.4K', pnlPercent: '+11.1%', winRate: '78%' },
@@ -1161,7 +1050,7 @@ export function TradingBottomTabs() {
                             { rank: 4, address: '0xG7h8...E6f0', volume: '$215.2K', pnl: '+$19.8K', pnlPercent: '+10.2%', winRate: '71%' },
                             { rank: 5, address: '0xI9j0...G8h2', volume: '$198.9K', pnl: '+$14.2K', pnlPercent: '+7.7%', winRate: '69%' }
                           ].map((trader, index) => (
-                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                            <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                                   {trader.rank}
@@ -1173,7 +1062,7 @@ export function TradingBottomTabs() {
                               </div>
                               <div className="text-right">
                                 <div className="text-xs text-white font-medium">{trader.volume}</div>
-                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
                                   {trader.pnl} ({trader.pnlPercent})
                                 </div>
                                 <div className="text-xs text-slate-400">Win: {trader.winRate}</div>
@@ -1182,14 +1071,14 @@ export function TradingBottomTabs() {
                           ))}
                         </div>
                         
-                        <div className="text-xs font-medium text-white mb-2 mt-4">Top AI_INDEX Traders (24h)</div>
+                        <div className="text-xs font-medium text-white mb-2 mt-4">Top AI Traders (24h)</div>
                         <div className="space-y-1">
                           {[
                             { rank: 1, address: '0xB2c3...H9e1', volume: '$298.7K', pnl: '+$35.6K', pnlPercent: '+13.5%', winRate: '85%' },
                             { rank: 2, address: '0xD4e5...J1f3', volume: '$267.2K', pnl: '+$31.2K', pnlPercent: '+13.2%', winRate: '76%' },
                             { rank: 3, address: '0xF6g7...L3h5', volume: '$231.5K', pnl: '+$16.8K', pnlPercent: '+7.8%', winRate: '72%' },
                           ].map((trader, index) => (
-                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                            <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                                   {trader.rank}
@@ -1201,7 +1090,7 @@ export function TradingBottomTabs() {
                               </div>
                               <div className="text-right">
                                 <div className="text-xs text-white font-medium">{trader.volume}</div>
-                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+                                <div className={`text-xs ${trader.pnl.startsWith('+') ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
                                   {trader.pnl} ({trader.pnlPercent})
                                 </div>
                                 <div className="text-xs text-slate-400">Win: {trader.winRate}</div>
@@ -1214,7 +1103,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Trading Activity & Strategies */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <BarChart3 className="w-4 h-4 text-cyan-400" />
@@ -1231,10 +1120,10 @@ export function TradingBottomTabs() {
                               { strategy: 'Dog vs Cat Pair', traders: 67, avgPnl: '+3.4%', volume: '$1.8M' },
                               { strategy: 'Multi-Index Hedge', traders: 34, avgPnl: '+12.1%', volume: '$1.2M' }
                             ].map((item, index) => (
-                              <div key={index} className="bg-slate-900/50 rounded p-2">
+                              <div key={index} className="glass-inner rounded p-2">
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-xs text-white font-medium">{item.strategy}</span>
-                                  <span className="text-xs text-green-400">{item.avgPnl}</span>
+                                  <span className="text-xs text-[#4fa480]">{item.avgPnl}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-xs text-slate-400">
                                   <span>{item.traders} traders</span>
@@ -1249,19 +1138,19 @@ export function TradingBottomTabs() {
                           <div className="text-xs font-medium text-white mb-2">Recent Big Trades</div>
                           <div className="space-y-1">
                             {[
-                              { time: '14:23', trader: '0xA1b2...F8d9', action: 'Buy MEME_INDEX', size: '$145.2K', leverage: '5x' },
-                              { time: '13:57', trader: '0xB2c3...H9e1', action: 'Sell AI_INDEX', size: '$132.8K', leverage: '3x' },
-                              { time: '13:12', trader: '0xC3e4...A2b6', action: 'Buy DOG_INDEX', size: '$98.5K', leverage: '10x' },
-                              { time: '12:45', trader: '0xD4e5...J1f3', action: 'Buy MEME_INDEX', size: '$167.3K', leverage: '2x' }
+                              { time: '14:23', trader: '0xA1b2...F8d9', action: 'Buy MEME', size: '$145.2K', leverage: '5x' },
+                              { time: '13:57', trader: '0xB2c3...H9e1', action: 'Sell AI', size: '$132.8K', leverage: '3x' },
+                              { time: '13:12', trader: '0xC3e4...A2b6', action: 'Buy DOG', size: '$98.5K', leverage: '10x' },
+                              { time: '12:45', trader: '0xD4e5...J1f3', action: 'Buy MEME', size: '$167.3K', leverage: '2x' }
                             ].map((trade, index) => (
-                              <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                              <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xs text-slate-400">{trade.time}</span>
                                   <span className="text-xs text-slate-400 font-mono">{trade.trader}</span>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-xs text-white font-medium">{trade.size}</div>
-                                  <div className={`text-xs ${trade.action.startsWith('Buy') ? 'text-green-400' : 'text-red-400'}`}>
+                                  <div className={`text-xs ${trade.action.startsWith('Buy') ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
                                     {trade.action} {trade.leverage}
                                   </div>
                                 </div>
@@ -1277,7 +1166,7 @@ export function TradingBottomTabs() {
                 {/* Holders Sub-tab */}
                 <TabsContent value="holders" className="mt-4 space-y-4">
                   {/* Holder Analysis */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-purple-400" />
@@ -1285,32 +1174,32 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Total Holders</div>
                           <div className="text-sm font-semibold text-white">
     12,456
                           </div>
-                          <div className="text-xs text-green-400">
+                          <div className="text-xs text-[#4fa480]">
                             +234 (24h)
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Whales</div>
                           <div className="text-sm font-semibold text-orange-400">
                             15.2%
                           </div>
                           <div className="text-xs text-slate-400">&gt;$100K</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Medium</div>
                           <div className="text-sm font-semibold text-blue-400">
                             35.8%
                           </div>
                           <div className="text-xs text-slate-400">$10K-100K</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Small</div>
-                          <div className="text-sm font-semibold text-green-400">
+                          <div className="text-sm font-semibold text-[#4fa480]">
                             49.0%
                           </div>
                           <div className="text-xs text-slate-400">&lt;$10K</div>
@@ -1327,7 +1216,7 @@ export function TradingBottomTabs() {
                             { address: '0xc3d4e5...', balance: 1.4e6, percentage: 4.9, change: 8900 },
                             { address: '0xd4e5f6...', balance: 1.1e6, percentage: 3.8, change: 0 }
                           ].map((holder, index) => (
-                            <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-2">
+                            <div key={index} className="flex items-center justify-between glass-inner rounded p-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                                   {index + 1}
@@ -1340,8 +1229,8 @@ export function TradingBottomTabs() {
                                   ${(holder.balance / 1e6).toFixed(1)}M
                                 </div>
                                 <div className={`text-xs ${
-                                  holder.change > 0 ? 'text-green-400' : 
-                                  holder.change < 0 ? 'text-red-400' : 'text-slate-400'
+                                  holder.change > 0 ? 'text-[#4fa480]' :
+                                  holder.change < 0 ? 'text-[#dd7789]' : 'text-slate-400'
                                 }`}>
                                   {holder.change > 0 ? '+' : ''}{holder.change.toLocaleString()}
                                 </div>
@@ -1354,7 +1243,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Flow Analysis */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <ArrowUpDown className="w-4 h-4 text-cyan-400" />
@@ -1362,10 +1251,10 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Net Flow 24h</div>
                           <div className={`text-sm font-semibold ${
-                            'text-green-400'
+                            'text-[#4fa480]'
                           }`}>
                             +$1.2M
                           </div>
@@ -1373,19 +1262,19 @@ export function TradingBottomTabs() {
                             accumulation
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Inflow</div>
-                          <div className="text-sm font-semibold text-green-400">
+                          <div className="text-sm font-semibold text-[#4fa480]">
                             $2.8M
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Outflow</div>
-                          <div className="text-sm font-semibold text-red-400">
+                          <div className="text-sm font-semibold text-[#dd7789]">
                             $1.6M
                           </div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Exchange Flow</div>
                           <div className="text-sm font-semibold text-white">
                             +$0.35M
@@ -1400,7 +1289,7 @@ export function TradingBottomTabs() {
                 {/* Whale Alert Sub-tab */}
                 <TabsContent value="whales" className="mt-4 space-y-4">
                   {/* Large Order Detection */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Scale className="w-4 h-4 text-orange-400" />
@@ -1409,11 +1298,11 @@ export function TradingBottomTabs() {
                       
                       <div className="space-y-2">
                         {mockMarketData.orderBookDepth.whaleOrders.map((order, index) => (
-                          <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-3">
+                          <div key={index} className="flex items-center justify-between glass-inner rounded p-3">
                             <div className="flex items-center gap-3">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${order.side === 'buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${order.side === 'buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}`}
                               >
                                 {order.side.toUpperCase()}
                               </Badge>
@@ -1433,7 +1322,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Large Transactions */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Radar className="w-4 h-4 text-cyan-400" />
@@ -1446,11 +1335,11 @@ export function TradingBottomTabs() {
                           { hash: '0x2b3c4d...', amount: 89000, type: 'Sell', wallet: '0x5e6f7a...', time: '8m ago', impact: 0.32 },
                           { hash: '0x3c4d5e...', amount: 234000, type: 'Buy', wallet: '0x6f7a8b...', time: '15m ago', impact: 0.78 }
                         ].map((tx, index) => (
-                          <div key={index} className="flex items-center justify-between bg-slate-900/50 rounded p-3">
+                          <div key={index} className="flex items-center justify-between glass-inner rounded p-3">
                             <div className="flex items-center gap-3">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${tx.type === 'Buy' ? 'text-green-400 border-green-400/30' : 'text-red-400 border-red-400/30'}`}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${tx.type === 'Buy' ? 'text-[#4fa480] border-[#4fa480]/30' : 'text-[#dd7789] border-[#dd7789]/30'}`}
                               >
                                 {tx.type}
                               </Badge>
@@ -1467,7 +1356,7 @@ export function TradingBottomTabs() {
                         ))}
                       </div>
                       
-                      <div className="mt-3 pt-2 border-t border-slate-700">
+                      <div className="mt-3 pt-2 border-t border-teal">
                         <Button size="sm" variant="ghost" className="text-slate-400 hover:text-white text-xs w-full">
                           <ExternalLink className="w-3 h-3 mr-1" />
                           View All Transactions
@@ -1477,7 +1366,7 @@ export function TradingBottomTabs() {
                   </Card>
 
                   {/* Whale Activity Summary */}
-                  <Card className="bg-slate-800/50 border-slate-700">
+                  <Card className="glass-card">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Activity className="w-4 h-4 text-purple-400" />
@@ -1485,28 +1374,28 @@ export function TradingBottomTabs() {
                       </div>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Large Buys</div>
-                          <div className="text-sm font-semibold text-green-400">
+                          <div className="text-sm font-semibold text-[#4fa480]">
                             2
                           </div>
                           <div className="text-xs text-slate-400">Last 24h</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Large Sells</div>
-                          <div className="text-sm font-semibold text-red-400">
+                          <div className="text-sm font-semibold text-[#dd7789]">
                             1
                           </div>
                           <div className="text-xs text-slate-400">Last 24h</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Total Volume</div>
                           <div className="text-sm font-semibold text-white">
                             $0.45M
                           </div>
                           <div className="text-xs text-slate-400">Whale trades</div>
                         </div>
-                        <div className="bg-slate-900/50 rounded p-2 text-center">
+                        <div className="glass-inner rounded p-2 text-center">
                           <div className="text-xs text-slate-400">Avg Impact</div>
                           <div className="text-sm font-semibold text-orange-400">
                             0.52%

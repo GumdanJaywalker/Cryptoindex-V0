@@ -17,10 +17,10 @@ export function EarningsSummary() {
   const { formatBalance } = useCurrency()
   return (
     <div className="flex flex-wrap gap-2">
-      <Badge variant="outline" className="text-slate-200 border-slate-600">
+      <Badge variant="outline" className="text-slate-200 border-teal">
         Creator Fees: <span className="ml-1 font-semibold text-white">{formatBalance(creatorTotal)}</span>
       </Badge>
-      <Badge variant="outline" className="text-slate-200 border-slate-600">
+      <Badge variant="outline" className="text-slate-200 border-teal">
         LP Fees: <span className="ml-1 font-semibold text-white">{formatBalance(lpTotal)}</span>
       </Badge>
     </div>

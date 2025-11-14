@@ -29,7 +29,7 @@ export const privyConfig: PrivyClientConfig = {
   appearance: {
     theme: 'light',
     accentColor: '#676FFF',
-    logo: 'https://your-logo-url.com/logo.png',
+    logo: '/11.svg',
   },
   
   // Configure embedded wallet

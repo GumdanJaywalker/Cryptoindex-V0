@@ -60,22 +60,62 @@ body {
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
-  
+
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
   }
-  
+
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
-  
+
   @keyframes glow {
     from { box-shadow: 0 0 5px rgba(139, 214, 255, 0.4); }
     to { box-shadow: 0 0 20px rgba(139, 214, 255, 0.8); }
   }
 
-  /* 🎨 CryptoIndex Brand Color Utilities */
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-slideInFromTop {
+    animation: slideInFromTop 0.2s ease-out;
+  }
+
+  /* 🎨 HyperIndex Teal Theme Utilities */
+
+  /* Background Colors (Teal palette) */
+  .bg-teal-darker {
+    background-color: #0A1215; /* Footer - Darkest teal */
+  }
+
+  .bg-teal-base {
+    background-color: #101A1D; /* Base background */
+  }
+
+  .bg-teal-card {
+    background-color: #1A2428; /* Card/Component background */
+  }
+
+  .bg-teal-elevated {
+    background-color: #243339; /* Elevated elements */
+  }
+
+  /* Border Colors (Teal palette) */
+  .border-teal {
+    border-color: #2D3F45; /* Lighter for visibility */
+  }
+
+  .border-teal-light {
+    border-color: #3A4F56; /* Even lighter */
+  }
+
+  .border-teal-subtle {
+    border-color: rgba(45, 63, 69, 0.3); /* Subtle borders */
+  }
+
+  /* Brand Color Utilities */
   .text-brand {
     color: hsl(var(--brand-primary));
   }
@@ -158,7 +198,7 @@ body {
     background-clip: padding-box;
   }
   .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(152, 252, 228, 0.4); /* soft mint */
+    background-color: rgba(117, 207, 193, 0.4); /* soft teal */
   }
   .overscroll-contain {
     overscroll-behavior: contain;
@@ -202,36 +242,36 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* 🎨 HyperIndex Brand Colors — updated palette */
-    /* Primary soft mint: #98FCE4 ≈ hsl(168, 95%, 80%) */
-    --brand-primary: 168 95% 80%;
-    --brand-primary-hover: 168 95% 76%;
-    --brand-primary-light: 168 60% 90%;   /* near #D7EAE8 tint */
-    --brand-primary-dark: 168 95% 70%;
-    --brand-accent: 168 95% 80%;
-    --brand-gradient-start: 168 95% 80%;
-    --brand-gradient-end: 168 95% 72%;
+    /* Primary teal: #75cfc1 ≈ hsl(171, 50%, 63.5%) */
+    --brand-primary: 171 50% 63.5%;
+    --brand-primary-hover: 171 50% 70%;
+    --brand-primary-light: 171 40% 75%;
+    --brand-primary-dark: 171 50% 55%;
+    --brand-accent: 171 50% 63.5%;
+    --brand-gradient-start: 171 50% 63.5%;
+    --brand-gradient-end: 171 50% 58%;
   }
   .dark {
-    /* CryptoIndex Dark Theme - 파스텔톤 남색 계열 */
-    --background: 222 47% 4%;
-    --foreground: 222 84% 93%;
-    --card: 222 47% 6%;
-    --card-foreground: 222 84% 93%;
-    --popover: 222 47% 6%;
-    --popover-foreground: 222 84% 93%;
-    --primary: 222 47% 15%;
-    --primary-foreground: 222 84% 93%;
-    --secondary: 222 47% 8%;
-    --secondary-foreground: 222 84% 93%;
-    --muted: 222 47% 10%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 222 47% 12%;
-    --accent-foreground: 222 84% 93%;
+    /* HyperIndex Dark Teal Theme */
+    --background: 194 29% 9%; /* #101A1D - Base */
+    --foreground: 168 10% 90%; /* Light teal text */
+    --card: 194 29% 12%; /* #1A2428 - Card background */
+    --card-foreground: 168 10% 90%;
+    --popover: 194 29% 12%;
+    --popover-foreground: 168 10% 90%;
+    --primary: 194 29% 18%; /* #243339 - Primary elements */
+    --primary-foreground: 168 10% 90%;
+    --secondary: 194 29% 14%;
+    --secondary-foreground: 168 10% 90%;
+    --muted: 194 29% 15%;
+    --muted-foreground: 168 10% 60%; /* Muted teal text */
+    --accent: 194 29% 16%;
+    --accent-foreground: 168 10% 90%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 222 47% 12%;
-    --input: 222 47% 10%;
-    --ring: 222 84% 80%;
+    --border: 194 29% 25%; /* #2D3F45 - Lighter borders for visibility */
+    --input: 194 29% 15%;
+    --ring: 168 95% 80%; /* Brand primary teal */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -247,13 +287,13 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* 🎨 HyperIndex Brand Colors — updated palette (dark) */
-    --brand-primary: 168 95% 80%;
-    --brand-primary-hover: 168 95% 76%;
-    --brand-primary-light: 168 60% 90%;
-    --brand-primary-dark: 168 95% 70%;
-    --brand-accent: 168 95% 80%;
-    --brand-gradient-start: 195 100% 76%; /* #8BD6FF */
-    --brand-gradient-end: 195 100% 70%;   /* #6BBDFF */
+    --brand-primary: 171 50% 63.5%;
+    --brand-primary-hover: 171 50% 70%;
+    --brand-primary-light: 171 40% 75%;
+    --brand-primary-dark: 171 50% 55%;
+    --brand-accent: 171 50% 63.5%;
+    --brand-gradient-start: 171 50% 63.5%;
+    --brand-gradient-end: 171 50% 58%;
   }
   .theme {
     --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
@@ -276,8 +316,9 @@ body {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+  html, body {
+    background-color: #101A1D !important;
+    @apply text-foreground;
   }
   /* Consistent, accessible focus ring (light + dark) */
   *:focus-visible {
@@ -389,8 +430,8 @@ body {
   --hl-text-secondary: #9db2bd;
   --hl-accent-primary: #50d2c1;
   --hl-accent-hover: #97fce4;
-  --hl-accent-green: #50d2c1;
-  --hl-accent-red: #f87171;
+  --hl-accent-green: #4ade80;
+  --hl-accent-red: #dd7789;
   --hl-accent-blue: #50d2c1;
 }
 
@@ -541,9 +582,9 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #10b981;
+  background: #183133;
   cursor: pointer;
-  border: 2px solid #065f46;
+  border: 2px solid #75cfc1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -551,9 +592,9 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #10b981;
+  background: #183133;
   cursor: pointer;
-  border: 2px solid #065f46;
+  border: 2px solid #75cfc1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -562,9 +603,9 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #183133;
   cursor: pointer;
-  border: 2px solid #7f1d1d;
+  border: 2px solid #75cfc1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -572,9 +613,9 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #183133;
   cursor: pointer;
-  border: 2px solid #7f1d1d;
+  border: 2px solid #75cfc1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -588,6 +629,22 @@ body {
 .slider-sell::-moz-range-track {
   background: transparent;
   border: none;
+}
+
+/* Remove slider animations for immediate response */
+.slider-buy,
+.slider-sell {
+  transition: none !important;
+}
+
+.slider-buy::-webkit-slider-thumb,
+.slider-sell::-webkit-slider-thumb {
+  transition: none !important;
+}
+
+.slider-buy::-moz-range-thumb,
+.slider-sell::-moz-range-thumb {
+  transition: none !important;
 }
 
 @theme inline {
@@ -634,4 +691,237 @@ body {
     transform: translate(-50%, -50%) scale(0.9);
     }
   }
+}
+
+/* ========================================
+   🪟 HyperIndex Glass Morphism Styles
+   Adapted for #101A1D dark teal theme
+   ======================================== */
+
+/* Glass Navigation (Pill-style nav) */
+.glass-nav {
+  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Glass Input/Button (Wallet button, etc.) */
+.glass-input {
+  background: rgba(16, 26, 29, 0.8); /* #101A1D with 80% opacity */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-out;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-input:hover {
+  background: rgba(255, 255, 255, 0.05); /* Slight white tint */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.glass-input:focus-within {
+  background: rgba(16, 26, 29, 0.95); /* #101A1D with 95% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.4);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(117, 207, 193, 0.3); /* Brand teal ring */
+}
+
+/* Glass Card - Static (for modals, dialogs, static containers) */
+.glass-card {
+  background: rgba(16, 26, 29, 0.75); /* #101A1D with 75% opacity */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card:hover {
+  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.2);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 8px 20px rgba(117, 207, 193, 0.1);
+  /* No transform - static */
+}
+
+/* Glass Card Dynamic - With hover animation (for interactive cards) */
+.glass-card-dynamic {
+  background: rgba(16, 26, 29, 0.75); /* #101A1D with 75% opacity */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card-dynamic:hover {
+  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.2);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 8px 20px rgba(117, 207, 193, 0.1);
+  transform: translateY(-2px); /* Dynamic hover animation */
+}
+
+/* Glass Dropdown (Optional) */
+.glass-dropdown {
+  background: rgba(16, 26, 29, 0.98); /* #101A1D with 98% opacity */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.2s ease-out, slideInFromTop 0.2s ease-out;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Glass Button Variants - Reusable hover effects */
+/* Teal variant - for secondary actions */
+.glass-button-teal {
+  border: 1px solid rgba(20, 184, 166, 0.3); /* teal-500 with 30% opacity */
+  color: rgb(45, 212, 191); /* teal-400 */
+  background: transparent;
+  transition: all 0.2s ease-out;
+}
+
+.glass-button-teal:hover {
+  background: rgba(20, 184, 166, 0.1); /* teal-500 with 10% opacity */
+  border: 1px solid rgba(20, 184, 166, 0.5); /* teal-500 with 50% opacity */
+  transform: translateY(-1px);
+}
+
+/* Brand (teal) variant - for primary actions */
+.glass-button-brand {
+  border: 1px solid rgba(117, 207, 193, 0.3); /* #75cfc1 with 30% opacity */
+  color: hsl(var(--brand-primary));
+  background: transparent;
+  transition: all 0.2s ease-out;
+}
+
+.glass-button-brand:hover {
+  background: rgba(117, 207, 193, 0.1); /* #75cfc1 with 10% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.5); /* #75cfc1 with 50% opacity */
+  transform: translateY(-1px);
+}
+
+/* Glass Inner Box - Subtle glass effect for data boxes */
+.glass-inner {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-inner:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Glass Tabs - For sub-tabs within components */
+.glass-tabs {
+  background: rgba(16, 26, 29, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease-out;
+}
+
+/* Animation keyframes for glass effects */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { transform: translateY(-8px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes simpleFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Tab content transition animation */
+.tab-content-animate {
+  animation: simpleFade 0.2s ease-out;
+}
+
+/* Glass tabs for trading components */
+.glass-tab {
+  background: rgba(16, 26, 29, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: none;
+  transition: all 0.2s ease-out;
+}
+
+.glass-tab.active {
+  background: rgba(36, 51, 57, 0.8);
+  border-bottom: 2px solid hsl(var(--brand-primary));
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-tab:hover:not(.active) {
+  background: rgba(36, 51, 57, 0.5);
+}
+
+/* Glass tabs (small) for chart area and bottom tabs */
+.glass-tab-small {
+  background: transparent;
+  border: none;
+  transition: all 0.15s ease-out;
+}
+
+.glass-tab-small.active {
+  background: rgba(36, 51, 57, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(117, 207, 193, 0.15);
+}
+
+.glass-tab-small:hover:not(.active) {
+  background: rgba(36, 51, 57, 0.4);
+}
+
+/* Glass tabs (small) with brand color for bottom tabs */
+.glass-tab-small-brand {
+  background: transparent;
+  border: none;
+  transition: all 0.15s ease-out;
+}
+
+.glass-tab-small-brand.active {
+  background: rgba(152, 252, 228, 0.15);
+  border: 1px solid rgba(152, 252, 228, 0.5);
+  box-shadow: 0 2px 8px rgba(152, 252, 228, 0.3);
+  color: #98FCE4;
+}
+
+.glass-tab-small-brand:not(.active):not([data-state="active"]):hover {
+  background: rgba(36, 51, 57, 0.4);
 }

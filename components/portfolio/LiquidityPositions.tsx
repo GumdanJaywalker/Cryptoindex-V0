@@ -38,7 +38,7 @@ export function LiquidityPositions() {
   return (
     <div className="space-y-4">
       {/* Summary */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 text-sm">
           <div>
             <div className="text-slate-400">Deposited</div>
@@ -68,9 +68,9 @@ export function LiquidityPositions() {
       </Card>
 
       {/* Positions list */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-0">
-          <div className="grid grid-cols-7 px-4 py-3 text-xs text-slate-400 border-b border-slate-800">
+          <div className="grid grid-cols-7 px-4 py-3 text-xs text-slate-400 border-b border-teal">
             <div>Index</div>
             <div className="text-right">Shares</div>
             <div className="text-right">Deposited</div>
@@ -82,7 +82,7 @@ export function LiquidityPositions() {
                   <TooltipTrigger asChild>
                     <Info className="w-3.5 h-3.5 text-slate-500" />
                   </TooltipTrigger>
-                  <TooltipContent className="bg-slate-900 border-slate-700 text-slate-200">
+                  <TooltipContent className="bg-teal-card border-teal text-slate-200">
                     <div className="text-xs max-w-[220px]">
                       APR = Annual Percentage Rate (indicative, non-compounded)
                     </div>
@@ -94,7 +94,7 @@ export function LiquidityPositions() {
             <div className="text-center">Actions</div>
           </div>
           {mockPositions.map((p) => (
-            <div key={p.indexSymbol} className="grid grid-cols-7 px-4 py-3 text-sm border-b border-slate-800/50">
+            <div key={p.indexSymbol} className="grid grid-cols-7 px-4 py-3 text-sm border-b border-teal/50">
               <div className="font-medium text-white">{p.indexSymbol}</div>
               <div className="text-right font-mono">{p.shares.toFixed(4)}</div>
               <div className="text-right">{formatBalance(p.depositedUSD)}</div>

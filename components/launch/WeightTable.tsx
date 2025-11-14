@@ -121,7 +121,7 @@ export function WeightTable({
   }, [])
 
   return (
-    <Card className="bg-slate-900/50 border-slate-800">
+    <Card className="bg-teal-card/50 border-teal">
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ export function WeightTable({
             )}
             <Button
               variant="outline"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-teal text-slate-300 hover:bg-teal-elevated"
               onClick={distributeEqual}
               disabled={symbols.length === 0}
             >
@@ -174,7 +174,7 @@ export function WeightTable({
             <div className="text-sm text-slate-400">No assets selected.</div>
           )}
           {symbols.map((sym) => (
-            <div key={sym} className="p-3 rounded-lg bg-slate-800/50 border border-slate-700 relative">
+            <div key={sym} className="p-3 rounded-lg bg-teal-elevated/50 border border-teal relative">
               <div className="text-xs text-slate-400 mb-1 pr-6">{sym}</div>
               <button
                 type="button"

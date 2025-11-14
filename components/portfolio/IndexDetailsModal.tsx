@@ -51,7 +51,7 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900/95 backdrop-blur-md border-slate-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-teal-base/95 backdrop-blur-md border-teal">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -80,8 +80,8 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
           {/* Quick Stats */}
           <QuickStats index={index} />
 
-          {/* Graduation Progress */}
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          {/* Graduation Progress - Show for all user-created indexes (L3 launching and L2 graduated) */}
+          <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
             <GraduationProgress data={getGraduationData()} variant="full" />
           </div>
 
@@ -98,10 +98,10 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
           <div className="flex justify-center pt-4">
             <TradeButton
               size="lg"
-              className="bg-brand text-slate-950 font-medium hover:bg-brand/90 px-8"
+              className="bg-brand text-black font-medium hover:bg-brand/90 px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-brand/50"
               asChild
             >
-              <Link href={`/trading?index=${index.id}`}>
+              <Link href={`/trade?index=${index.symbol}`}>
                 Start Trading
               </Link>
             </TradeButton>
@@ -109,7 +109,7 @@ export default function IndexDetailsModal({ open, onClose, index }: Props) {
 
           {/* Social Link */}
           {index.socialLink && (
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
               <h3 className="text-white font-semibold mb-2">Social</h3>
               <a
                 href={index.socialLink}

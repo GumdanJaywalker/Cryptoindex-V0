@@ -97,18 +97,18 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
 
   const getADLColor = (rank: number) => {
     switch (rank) {
-      case 1: return 'text-green-400 bg-green-400/10'
-      case 2: return 'text-green-400 bg-green-400/10'
+      case 1: return 'hl-accent-green bg-green-400/10'
+      case 2: return 'hl-accent-green bg-green-400/10'
       case 3: return 'text-yellow-400 bg-yellow-400/10'
       case 4: return 'text-orange-400 bg-orange-400/10'
-      case 5: return 'text-red-400 bg-red-400/10'
+      case 5: return 'hl-accent-red bg-red-400/10'
       default: return 'text-slate-400 bg-slate-400/10'
     }
   }
 
   if (compact) {
     return (
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
@@ -119,8 +119,8 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
               variant="outline"
               className={`${
                 totalUnrealizedPnL >= 0
-                  ? 'text-green-400 border-green-400/30'
-                  : 'text-red-400 border-red-400/30'
+                  ? 'hl-accent-green border-green-400/30'
+                  : 'hl-accent-red border-red-400/30'
               }`}
             >
               {formatPnL(totalUnrealizedPnL).text}
@@ -130,11 +130,11 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
         <CardContent className="pt-0">
           <div className="space-y-3">
             {positions.slice(0, 3).map((position, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-3 bg-teal-card/50 rounded-lg">
                 <div>
                   <div className="font-medium text-white">{position.symbol}</div>
                   <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className={position.side === 'Buy' ? 'text-green-400' : 'text-red-400'}>
+                    <span className={position.side === 'Buy' ? 'hl-accent-green' : 'hl-accent-red'}>
                       {position.side}
                     </span>
                     <span>{Math.abs(position.size)}</span>
@@ -142,7 +142,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                 </div>
                 <div className="text-right">
                   <div className={`font-semibold ${
-                    position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                    position.pnl >= 0 ? 'hl-accent-green' : 'hl-accent-red'
                   }`}>
                     {formatPnL(position.pnl).text}
                   </div>
@@ -153,7 +153,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
               </div>
             ))}
           </div>
-          <Button variant="outline" size="sm" className="w-full mt-3 border-slate-700 text-slate-300 hover:bg-slate-800">
+          <Button variant="outline" size="sm" className="w-full mt-3 glass-button-brand">
             View All Positions
           </Button>
         </CardContent>
@@ -163,7 +163,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
 
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -178,26 +178,26 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
             variant="outline"
             className={`${
               totalUnrealizedPnL >= 0
-                ? 'text-green-400 border-green-400/30'
-                : 'text-red-400 border-red-400/30'
+                ? 'hl-accent-green border-green-400/30'
+                : 'hl-accent-red border-red-400/30'
             }`}
           >
             Total P&L: {formatPnL(totalUnrealizedPnL).text}
           </Badge>
-          <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
+          <Button variant="outline" size="sm" className="glass-button-brand">
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
         </div>
       </div>
 
-      {/* 포지션 테이블 */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      {/* Positions Table */}
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800">
+                <TableRow className="border-teal">
                   <TableHead className="text-slate-400">Symbol</TableHead>
                   <TableHead className="text-slate-400">Side/Size</TableHead>
                   <TableHead className="text-slate-400">Entry/Mark</TableHead>
@@ -211,9 +211,9 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
               </TableHeader>
               <TableBody>
                 {positions.map((position, index) => (
-                  <TableRow 
-                    key={index} 
-                    className="border-slate-800 hover:bg-slate-800/30"
+                  <TableRow
+                    key={index}
+                    className="border-teal hover:bg-teal-card/50/30"
                   >
                     <TableCell>
                       <div className="font-medium text-white">{position.symbol}</div>
@@ -222,7 +222,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     <TableCell>
                       <div className="space-y-1">
                         <div className={`text-sm font-medium ${
-                          position.side === 'Buy' ? 'text-green-400' : 'text-red-400'
+                          position.side === 'Buy' ? 'hl-accent-green' : 'hl-accent-red'
                         }`}>
                           {position.side}
                         </div>
@@ -242,12 +242,12 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     <TableCell>
                       <div className="space-y-1">
                         <div className={`text-sm font-semibold ${
-                          position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                          position.pnl >= 0 ? 'hl-accent-green' : 'hl-accent-red'
                         }`}>
                           {formatPnL(position.pnl).text}
                         </div>
                         <div className={`text-xs ${
-                          position.pnl >= 0 ? 'text-green-400' : 'text-red-400'
+                          position.pnl >= 0 ? 'hl-accent-green' : 'hl-accent-red'
                         }`}>
                           {position.pnl >= 0 ? '+' : ''}{position.pnlPercent}%
                         </div>
@@ -278,7 +278,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
                     <TableCell>
                       <div className="space-y-1">
                         <div className={`text-xs ${
-                          position.fundingRate >= 0 ? 'text-red-400' : 'text-green-400'
+                          position.fundingRate >= 0 ? 'hl-accent-red' : 'hl-accent-green'
                         }`}>
                           {position.fundingRate >= 0 ? '+' : ''}{(position.fundingRate * 100).toFixed(4)}%
                         </div>
@@ -319,9 +319,9 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
         </CardContent>
       </Card>
 
-      {/* 포지션 통계 */}
+      {/* Position Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-white mb-1">
               {positions.length}
@@ -330,10 +330,10 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
           </CardContent>
         </Card>
         
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4 text-center">
             <div className={`text-2xl font-bold mb-1 ${
-              totalUnrealizedPnL >= 0 ? 'text-green-400' : 'text-red-400'
+              totalUnrealizedPnL >= 0 ? 'hl-accent-green' : 'hl-accent-red'
             }`}>
               {formatPnL(totalUnrealizedPnL).text}
             </div>
@@ -341,7 +341,7 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-white mb-1">
               {formatBalance(totalMargin)}
@@ -349,8 +349,8 @@ export function PositionsSection({ compact = false }: PositionsSectionProps) {
             <div className="text-sm text-slate-400">Total Margin</div>
           </CardContent>
         </Card>
-        
-        <Card className="bg-slate-900/50 border-slate-800">
+
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-brand mb-1">
               {positions.filter(p => p.pnl > 0).length}/{positions.length}

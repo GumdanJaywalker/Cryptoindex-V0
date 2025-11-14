@@ -81,8 +81,8 @@ export default function Dropdown({
         onClick={open ? () => setOpen(false) : openMenu}
         className={cn(
           "flex items-center justify-between gap-2 rounded-lg px-3 py-2",
-          "bg-slate-900 border border-slate-700 text-white",
-          "hover:bg-slate-800 transition-colors",
+          "bg-teal-card border border-teal text-white",
+          "hover:bg-teal-elevated transition-colors",
           buttonClassName
         )}
       >
@@ -107,7 +107,7 @@ export default function Dropdown({
             >
               <div className={cn(
                 "w-[220px] max-h-60 overflow-auto rounded-lg p-1",
-                "bg-slate-900/95 backdrop-blur-md border border-slate-700",
+                "bg-teal-card/95 backdrop-blur-md border border-teal",
                 "shadow-lg shadow-black/50"
               )}>
                 {list.map((o) => (
@@ -120,8 +120,8 @@ export default function Dropdown({
                     className={cn(
                       "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
                       o.value === selected?.value
-                        ? "bg-brand text-slate-950 font-medium"
-                        : "text-white hover:bg-slate-800"
+                        ? "bg-brand text-white font-medium"
+                        : "text-white hover:bg-teal-elevated"
                     )}
                   >
                     {o.label}

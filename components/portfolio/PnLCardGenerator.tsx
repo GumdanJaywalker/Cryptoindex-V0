@@ -115,7 +115,7 @@ export function PnLCardGenerator() {
                       className={`${
                         selectedTimeframe === timeframe.value
                           ? 'bg-brand text-black hover:bg-brand-hover'
-                          : 'border-slate-700 text-slate-300 hover:bg-slate-800'
+                          : 'border-teal text-slate-300 hover:bg-teal-card/50'
                       }`}
                     >
                       {timeframe.label}
@@ -125,7 +125,7 @@ export function PnLCardGenerator() {
               </div>
 
               {/* 성과 미리보기 */}
-              <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+              <div className="mt-6 p-4 bg-teal-card/50 rounded-lg border border-teal">
                 <h4 className="text-sm font-medium text-white mb-3">Performance Summary</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="text-center">
@@ -162,7 +162,7 @@ export function PnLCardGenerator() {
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="Enter a custom title..."
-                  className="bg-slate-800 border-slate-700 text-white"
+                  className="bg-teal-card border-teal text-white"
                 />
               </div>
             </div>
@@ -185,7 +185,7 @@ export function PnLCardGenerator() {
                       className={`p-3 rounded-lg cursor-pointer transition-all border-2 ${
                         selectedTemplate === template.id
                           ? 'border-brand bg-brand/10'
-                          : 'border-slate-700 hover:border-slate-600'
+                          : 'border-teal hover:border-teal'
                       }`}
                       onClick={() => setSelectedTemplate(template.id)}
                     >
@@ -214,7 +214,7 @@ export function PnLCardGenerator() {
                       className={`${
                         cardSize === size.id
                           ? 'bg-brand text-black hover:bg-brand-hover'
-                          : 'border-slate-700 text-slate-300 hover:bg-slate-800'
+                          : 'border-teal text-slate-300 hover:bg-teal-card/50'
                       }`}
                     >
                       <span className="mr-2">{size.icon}</span>
@@ -315,7 +315,7 @@ export function PnLCardGenerator() {
                 <Button
                   variant="outline"
                   onClick={() => setStep(2)}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                  className="border-teal text-slate-300 hover:bg-teal-card/50"
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Edit Design
@@ -323,7 +323,7 @@ export function PnLCardGenerator() {
                 <Button
                   variant="outline"
                   onClick={() => setSelectedTemplate(cardTemplates[Math.floor(Math.random() * cardTemplates.length)].id)}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                  className="border-teal text-slate-300 hover:bg-teal-card/50"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Random Style
@@ -347,7 +347,7 @@ export function PnLCardGenerator() {
                 </Button>
                 <Button 
                   variant="outline"
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800 flex items-center justify-center gap-2"
+                  className="border-teal text-slate-300 hover:bg-teal-card/50 flex items-center justify-center gap-2"
                 >
                   <Copy className="w-4 h-4" />
                   Copy Link
@@ -383,10 +383,10 @@ export function PnLCardGenerator() {
               </div>
 
               {/* 카드 갤러리 */}
-              <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+              <div className="mt-8 p-4 bg-teal-card/50 rounded-lg border border-teal">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-white">Your PnL Card Gallery</h4>
-          <Badge variant="outline" className="text-slate-300 border-slate-600">
+          <Badge variant="outline" className="text-slate-300 border-teal">
             12 Cards
           </Badge>
                 </div>
@@ -449,14 +449,14 @@ export function PnLCardGenerator() {
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step >= stepNum 
                   ? 'bg-brand text-black' 
-                  : 'bg-slate-700 text-slate-400'
+                  : 'bg-teal-card/70 text-slate-400'
               }`}
             >
               {stepNum}
             </div>
             {stepNum < 4 && (
               <div className={`w-12 sm:w-24 h-0.5 mx-2 ${
-                step > stepNum ? 'bg-brand' : 'bg-slate-700'
+                step > stepNum ? 'bg-brand' : 'bg-teal-card/70'
               }`} />
             )}
           </div>
@@ -464,7 +464,7 @@ export function PnLCardGenerator() {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-6">
           {renderStepContent()}
           
@@ -474,7 +474,7 @@ export function PnLCardGenerator() {
               variant="outline"
               onClick={() => setStep(Math.max(1, step - 1))}
               disabled={step === 1}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-teal text-slate-300 hover:bg-teal-card/50"
             >
               Previous
             </Button>

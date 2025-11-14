@@ -89,7 +89,7 @@ function CompactSparkline({
   }).join(' ')
   
   const isPositive = data[data.length - 1] > data[0]
-  const strokeColor = isPositive ? "#10b981" : "#ef4444"
+  const strokeColor = isPositive ? "#4ade80" : "#dd7789"
   
   return (
     <div className={cn("w-20 h-8", className)}>
@@ -130,45 +130,41 @@ function RowAnimatedPrice({ price, change }: { price: number, change: number }) 
   )
 }
 
-// Layer badge component
-function LayerBadge({ layerInfo }: { layerInfo?: any }) {
+// Layer badge component (Updated: L1/Partner, L2/VS Battle)
+function LayerBadge({ layerInfo, hasBattle }: { layerInfo?: any, hasBattle?: boolean }) {
   if (!layerInfo) return null
-  
-  const layerConfig = {
-    'layer-1': { 
-      icon: Building2, 
-      color: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
-      label: 'L1'
-    },
-    'layer-2': { 
-      icon: Crown, 
-      color: 'text-orange-400 bg-orange-400/10 border-orange-400/30',
-      label: 'L2'
-    },
-    'layer-3': { 
-      icon: Zap, 
-      color: 'text-red-400 bg-red-400/10 border-red-400/30',
-      label: 'L3'
-    }
-  }
-  
-  const config = layerConfig[layerInfo.layer as keyof typeof layerConfig]
-  if (!config) return null
-  
-  const Icon = config.icon
-  
-  const display = getLayerDisplayInfo(layerInfo.layer)
 
-  return (
-    <div 
-      className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border ${config.color}`}
-      title={display?.description || `${layerInfo.category} - ${layerInfo.riskLevel} risk`}
-    >
-      <Icon className="w-3 h-3" />
-      <span className="font-medium">{config.label}</span>
-      {layerInfo.riskLevel === 'high' && <Shield className="w-2 h-2" />}
-    </div>
-  )
+  // Simplified layer system: L1/Partner, L2/VS Battle
+  const isL1 = layerInfo.layer === 'layer-1'
+  const isL2 = layerInfo.layer === 'layer-2'
+
+  // L1/Partner badge (mint color #98FCE4)
+  if (isL1) {
+    return (
+      <div
+        className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border text-[#98FCE4] bg-[#98FCE4]/10 border-[#98FCE4]/30"
+        title="Layer 1 / Partner Index"
+      >
+        <Building2 className="w-3 h-3" />
+        <span className="font-medium">L1/Partner</span>
+      </div>
+    )
+  }
+
+  // L2/VS Battle badge (teal color #7DD9C8)
+  if (isL2) {
+    return (
+      <div
+        className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs border text-[#7DD9C8] bg-[#7DD9C8]/10 border-[#7DD9C8]/30"
+        title="Layer 2 / VS Battle Index"
+      >
+        <Crown className="w-3 h-3" />
+        <span className="font-medium">L2/VS Battle</span>
+      </div>
+    )
+  }
+
+  return null
 }
 
 // Row badges - more compact (Layer badges removed)
@@ -278,7 +274,7 @@ const IndexRow = memo(function IndexRow({
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-slate-900 border-slate-700 text-white p-2">
+                  <TooltipContent className="bg-teal-card border-teal text-white p-2">
                     <div className="text-xs space-y-1">
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-slate-400">Liquidity:</span>
@@ -369,7 +365,7 @@ const IndexRow = memo(function IndexRow({
             size="icon"
             variant="outline"
             className={cn(
-              "h-6 w-6 border-slate-700 hover:bg-slate-800",
+              "h-6 w-6 border-teal hover:bg-teal-card/50",
               isFavorite && "border-brand/40 bg-brand/10"
             )}
             onClick={(e) => {

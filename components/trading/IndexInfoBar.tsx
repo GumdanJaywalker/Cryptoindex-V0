@@ -1,29 +1,47 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChevronDownIcon, SearchIcon, StarIcon, Droplets } from 'lucide-react'
 import NumberTicker from '@/components/magicui/number-ticker'
 import { CurrencyNumberTicker } from '@/components/ui/currency-number-ticker'
 import BorderBeam from '@/components/magicui/border-beam'
 import LiquidityModal from '@/components/trading/LiquidityModal'
 import GraduationProgress from '@/components/trading/GraduationProgress'
+import { IndexDropdown } from '@/components/trading/IndexDropdown'
+import { IndexLogo } from '@/components/trading/IndexLogo'
 import { useCurrency } from '@/lib/hooks/useCurrency'
-
-const mockIndexes = [
-  { symbol: 'DOG_INDEX', name: 'Doggy Index', isFavorite: true },
-  { symbol: 'CAT_INDEX', name: 'Catty Index', isFavorite: false }, 
-  { symbol: 'MEME_INDEX', name: 'Meme Index', isFavorite: true },
-  { symbol: 'AI_INDEX', name: 'AI Index', isFavorite: false },
-  { symbol: 'PEPE_INDEX', name: 'Pepe Index', isFavorite: false }
-]
+import { getAllTradingIndexes } from '@/lib/data/launched-indexes'
+import { useTradingStore } from '@/lib/store/trading-store'
 
 export function IndexInfoBar() {
   const { formatPrice, formatVolume, formatGas, currency } = useCurrency()
-  const [selectedIndex, setSelectedIndex] = useState('DOG_INDEX')
+
+  // 🆕 Subscribe to Trading Store SSOT
+  const selectedIndex = useTradingStore(state => state.selectedIndexSymbol)
+  const setSelectedIndexSymbol = useTradingStore(state => state.setSelectedIndexSymbol)
+  const selectedTimeframe = useTradingStore(state => state.selectedTimeframe)
+  const currentPrice = useTradingStore(state => state.currentPrice)
+  const priceChange24h = useTradingStore(state => state.priceChange24h)
+  const priceChange24hAbsolute = useTradingStore(state => state.priceChange24hAbsolute)
+  const volume24h = useTradingStore(state => state.volume24h)
+  const marketCap = useTradingStore(state => state.marketCap)
+  const favoritesArray = useTradingStore(state => state.favorites)
+  const toggleFavorite = useTradingStore(state => state.toggleFavorite)
+
+  // Convert favorites array to Set for IndexDropdown compatibility
+  const favorites = new Set(favoritesArray)
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [favorites, setFavorites] = useState(new Set(['DOG_INDEX', 'MEME_INDEX']))
   const [liquidityOpen, setLiquidityOpen] = useState(false)
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Get all indexes (mock + launched)
+  const allIndexes = getAllTradingIndexes()
+
+  // Find currently selected index
+  const currentIndex = allIndexes.find(idx => idx.symbol === selectedIndex)
+  const isLayer3 = currentIndex && (currentIndex as any).layer === 'L3'
+
   // Mock graduation data per selected index (since InfoBar is mock‑driven here)
   const selectedGraduation = (() => {
     const hash = Array.from(selectedIndex).reduce((a, c) => a + c.charCodeAt(0), 0)
@@ -33,32 +51,6 @@ export function IndexInfoBar() {
     const status = avg >= 100 ? 'graduated' : avg >= 70 ? 'near-graduation' : avg >= 30 ? 'recruiting-liquidity' : 'launching'
     return { liquidityProgress: lp, salesProgress: sp, status } as const
   })()
-
-  // Mock price data with dynamic updates for animations
-  const [priceData, setPriceData] = useState({
-    currentPrice: 1.2345,
-    change24h: 5.67,
-    high24h: 1.2890,
-    low24h: 1.1234,
-    volume24h: 2340000,
-    openInterest: 12340000,
-    premium: 0.12
-  })
-
-  // Simulate price updates for NumberTicker animations
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPriceData(prev => ({
-        ...prev,
-        currentPrice: prev.currentPrice + (Math.random() - 0.5) * 0.001,
-        change24h: prev.change24h + (Math.random() - 0.5) * 0.1,
-        volume24h: prev.volume24h + (Math.random() - 0.5) * 10000,
-        premium: prev.premium + (Math.random() - 0.5) * 0.01
-      }))
-    }, 3000) // Update every 3 seconds
-
-    return () => clearInterval(interval)
-  }, [])
 
   // Mock gas fee oracle (for tooltip + est. gas USD)
   const [gasInfo, setGasInfo] = useState({
@@ -81,303 +73,106 @@ export function IndexInfoBar() {
 
 
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen && !(event.target as Element).closest('.index-dropdown')) {
-        setIsDropdownOpen(false)
-        setSearchQuery('')
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isDropdownOpen])
-
-  // Filter indexes based on search
-  const filteredIndexes = mockIndexes.filter(index =>
-    index.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    index.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const toggleFavorite = (symbol: string) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev)
-      if (newFavorites.has(symbol)) {
-        newFavorites.delete(symbol)
-      } else {
-        newFavorites.add(symbol)
-      }
-      return newFavorites
-    })
+  const handleSelectIndex = (symbol: string) => {
+    setSelectedIndexSymbol(symbol)
   }
 
   return (
     <>
-    <div className="h-12 flex items-center px-4 text-sm" style={{ background: 'var(--hl-bg-primary)', borderBottom: '1px solid var(--hl-border)' }}>
-      {/* Index Selector with Border Beam */}
+    <div className="h-[72px] flex items-center px-5 text-sm" style={{ background: 'var(--hl-bg-primary)', borderBottom: '1px solid var(--hl-border)' }}>
+      {/* Index Selector - Opens Dropdown */}
       <div className="relative index-dropdown">
         <button
+          ref={dropdownButtonRef}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center space-x-2 px-3 py-1.5 rounded transition-colors hover:border-brand border border-brand/30"
-          style={{ background: 'var(--hl-bg-tertiary)' }}
+          className="flex items-center space-x-2 transition-opacity hover:opacity-70"
         >
-          <StarIcon 
-            className={`h-3.5 w-3.5 ${favorites.has(selectedIndex) ? 'text-brand fill-current' : 'text-slate-400'}`}
+          <IndexLogo
+            symbol={selectedIndex}
+            logoUrl={(currentIndex as any)?.logoUrl}
+            logoGradient={(currentIndex as any)?.logoGradient}
+            size={20}
           />
-          <span className="font-medium text-white text-sm">{selectedIndex}</span>
+          <div className="flex flex-col items-start">
+            <span className="font-medium text-white text-lg">{selectedIndex.replace('_INDEX', '')}</span>
+            <span className="text-xs text-slate-400">{(currentIndex as any)?.fullName || currentIndex?.name}</span>
+          </div>
           <ChevronDownIcon className="h-3.5 w-3.5 text-slate-400" />
         </button>
-        
-        {isDropdownOpen && (
-          <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-10 w-80" style={{ background: 'var(--hl-bg-secondary)', border: '1px solid var(--hl-border)' }}>
-            {/* Search Box */}
-            <div className="p-3" style={{ borderBottom: '1px solid var(--hl-border)' }}>
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 hl-text-secondary" />
-                <input
-                  type="text"
-                  placeholder="Search indexes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-lg hl-text-primary placeholder-hl-text-secondary focus:outline-none transition-colors"
-                  style={{ background: 'var(--hl-bg-tertiary)', border: '1px solid var(--hl-border)', color: 'var(--hl-text-primary)' }}
-                />
-              </div>
-            </div>
-            
-            {/* Favorites Section */}
-            {Array.from(favorites).length > 0 && (
-              <div className="p-2 border-b border-slate-700">
-                <div className="text-xs text-slate-400 mb-2 px-2">⭐ Favorites</div>
-                {mockIndexes
-                  .filter(index => favorites.has(index.symbol))
-                  .map((index) => (
-                    <div
-                      key={`fav-${index.symbol}`}
-                      className="flex items-center justify-between px-2 py-2 hover:bg-slate-700 rounded transition-colors"
-                    >
-                      <button
-                        onClick={() => {
-                          setSelectedIndex(index.symbol)
-                          setIsDropdownOpen(false)
-                        }}
-                        className="flex-1 text-left"
-                      >
-                        <div className="text-white font-medium">{index.symbol}</div>
-                        <div className="text-xs text-slate-400">{index.name}</div>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleFavorite(index.symbol)
-                        }}
-                        className="p-1 hover:bg-slate-600 rounded"
-                      >
-                        <StarIcon className="h-3 w-3 text-brand fill-current" />
-                      </button>
-                    </div>
-                  ))
-                }
-              </div>
-            )}
-            
-            {/* All Indexes */}
-            <div className="p-2 max-h-60 overflow-y-auto">
-              <div className="text-xs text-slate-400 mb-2 px-2">All Indexes</div>
-              {filteredIndexes.map((index) => (
-                <div
-                  key={index.symbol}
-                  className="flex items-center justify-between px-2 py-2 hover:bg-slate-700 rounded transition-colors"
-                >
-                  <button
-                    onClick={() => {
-                      setSelectedIndex(index.symbol)
-                      setIsDropdownOpen(false)
-                      setSearchQuery('')
-                    }}
-                    className="flex-1 text-left"
-                  >
-                    <div className="text-white font-medium">{index.symbol}</div>
-                    <div className="text-xs text-slate-400">{index.name}</div>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleFavorite(index.symbol)
-                    }}
-                    className="p-1 hover:bg-slate-600 rounded"
-                  >
-                    <StarIcon 
-                      className={`h-3 w-3 ${
-                        favorites.has(index.symbol) 
-                          ? 'text-brand fill-current' 
-                          : 'text-slate-400'
-                      }`}
-                    />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Price Info with NumberTicker animations */}
-      <div className="ml-6 flex items-center space-x-6">
+      {/* Price Info - 🆕 Using SSOT from Store (no animations) */}
+      <div className="ml-8 flex items-center space-x-8">
         <div>
-          <div className="text-sm font-medium text-white">
-            <CurrencyNumberTicker
-              value={priceData.currentPrice}
-              decimalPlaces={4}
-              className="font-mono"
-            />
-          </div>
           <div className="text-xs hl-text-secondary">Current Price</div>
-        </div>
-        
-        <div>
-          <div className={`text-sm font-medium ${priceData.change24h >= 0 ? 'text-brand' : 'text-red-400'}`}>
-            <NumberTicker 
-              value={priceData.change24h} 
-              prefix={priceData.change24h >= 0 ? '+' : ''}
-              suffix="%" 
-              decimalPlaces={2}
-              className="font-mono"
-            />
+          <div className="text-base font-medium text-white tabular-nums" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {formatPrice(currentPrice)}
           </div>
-          <div className="text-xs hl-text-secondary">24h Change</div>
-        </div>
-        
-        <div>
-          <div className="text-sm font-medium text-white">
-            <CurrencyNumberTicker
-              value={priceData.high24h}
-              decimalPlaces={4}
-              className="font-mono"
-            />
-          </div>
-          <div className="text-xs hl-text-secondary">24h High</div>
         </div>
 
         <div>
-          <div className="text-sm font-medium text-white">
-            <CurrencyNumberTicker
-              value={priceData.low24h}
-              decimalPlaces={4}
-              className="font-mono"
-            />
+          <div className="text-xs hl-text-secondary">
+            {selectedTimeframe === '1m' && '1m Change'}
+            {selectedTimeframe === '5m' && '5m Change'}
+            {selectedTimeframe === '15m' && '15m Change'}
+            {selectedTimeframe === '1h' && '1h Change'}
+            {selectedTimeframe === '4h' && '4h Change'}
+            {selectedTimeframe === '1d' && '24h Change'}
+            {selectedTimeframe === '1w' && '7d Change'}
           </div>
-          <div className="text-xs hl-text-secondary">24h Low</div>
+          <div className={`text-base font-medium tabular-nums ${priceChange24h >= 0 ? 'text-brand' : 'text-white'}`} style={{ fontFamily: 'Arial, sans-serif' }}>
+            {formatPrice(priceChange24hAbsolute)}
+            <span className="text-xs ml-1 text-slate-400">
+              ({priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}%)
+            </span>
+          </div>
         </div>
-        
+
         <div>
-          <div className="text-sm font-medium text-white">
-            <CurrencyNumberTicker
-              value={priceData.volume24h}
-              compact={true}
-              decimalPlaces={2}
-              className="font-mono"
-            />
-          </div>
           <div className="text-xs hl-text-secondary">24h Volume</div>
+          <div className="text-base font-medium text-white tabular-nums" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {formatVolume(volume24h)}
+          </div>
         </div>
 
         <div>
-          <div className="text-sm font-medium text-white">
-            <CurrencyNumberTicker
-              value={priceData.openInterest}
-              compact={true}
-              decimalPlaces={2}
-              className="font-mono"
-            />
-          </div>
-          <div className="text-xs hl-text-secondary">Open Interest</div>
-        </div>
-        
-        <div className="relative group">
-          <div className={`text-sm font-medium ${priceData.premium >= 0 ? 'text-brand' : 'text-red-400'}`}>
-            <NumberTicker 
-              value={priceData.premium} 
-              prefix={priceData.premium >= 0 ? '+' : ''}
-              suffix="%" 
-              decimalPlaces={2}
-              className="font-mono"
-            />
-          </div>
-          <div className="text-xs hl-text-secondary">Index Premium</div>
-          {/* Premium/Discount Tooltip */}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-slate-800 border border-slate-700 rounded-lg p-3 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none min-w-max">
-            <div className="text-center">
-              <div className="text-xs text-slate-400 mb-2">Index Performance</div>
-              <div className="space-y-1">
-                <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">NAV Premium:</span>
-                  <span className="text-brand">
-                    <NumberTicker 
-                      value={priceData.premium} 
-                      prefix={priceData.premium >= 0 ? '+' : ''}
-                      suffix="%" 
-                      decimalPlaces={2}
-                      className="font-mono"
-                    />
-                  </span>
-                </div>
-                <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">Tracking Error:</span>
-                  <span className="text-yellow-400">
-                    <NumberTicker 
-                      value={Math.abs(priceData.premium) * 0.3} 
-                      suffix="%" 
-                      decimalPlaces={3}
-                      className="font-mono"
-                    />
-                  </span>
-                </div>
-                <div className="flex justify-between space-x-4 text-xs">
-                  <span className="text-slate-400">Liquidity:</span>
-                  <span className="text-green-400">High</span>
-                </div>
-              </div>
-            </div>
+          <div className="text-xs hl-text-secondary">Market Cap</div>
+          <div className="text-base font-medium text-white tabular-nums" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {(marketCap / 1_000_000_000).toFixed(2)}B
+            <span className="ml-1 text-xs text-slate-400">HYPE</span>
           </div>
         </div>
-        
-        {/* Est. Gas Fees (mock) — aligned with other metric blocks and placed before Market Status */}
-        <div>
-          <div className="text-sm font-medium text-white font-mono">
-            {(() => {
-              const ethPerGas = gasInfo.gasPriceGwei / 1e9
-              const ethCost = ethPerGas * gasInfo.gasLimit
-              const hypeCost = ethCost * 0.5 // Mock conversion to HYPE
-              return formatGas(hypeCost)
-            })()}
-          </div>
-          <div className="text-xs hl-text-secondary">Est. Gas</div>
-        </div>
-        {/* Graduation (compact) + Provide Liquidity CTA */}
-        <GraduationProgress data={selectedGraduation} variant="compact" />
+        {/* Graduation (compact) - Only show for Layer 3 bonding curve indexes */}
+        {isLayer3 && selectedGraduation.status !== 'graduated' && (
+          <GraduationProgress data={selectedGraduation} variant="compact" />
+        )}
+
+        {/* Provide Liquidity CTA - Show for all indexes */}
         <div>
           <button
             onClick={() => setLiquidityOpen(true)}
-            className="px-3 py-1.5 rounded border border-brand/40 text-brand hover:bg-brand hover:text-black transition-colors flex items-center gap-1"
+            className="glass-button-brand px-3 py-1 rounded flex items-center gap-1"
           >
             <Droplets className="h-3.5 w-3.5" />
             <span className="text-sm font-medium">Provide Liquidity</span>
           </button>
         </div>
 
-        <div className="flex items-center">
-          <div className="w-2 h-2 bg-brand rounded-full mr-2 animate-pulse"></div>
-          <div>
-            <div className="text-sm text-brand font-medium">OPEN</div>
-            <div className="text-xs hl-text-secondary">Market Status</div>
-          </div>
-        </div>
       </div>
 
 
     </div>
+
+    {/* Dropdown + Modals */}
+    <IndexDropdown
+      open={isDropdownOpen}
+      onClose={() => setIsDropdownOpen(false)}
+      onSelectIndex={handleSelectIndex}
+      currentSymbol={selectedIndex}
+      favorites={favorites}
+      onToggleFavorite={toggleFavorite}
+      anchorEl={dropdownButtonRef.current}
+    />
     <LiquidityModal open={liquidityOpen} onOpenChange={setLiquidityOpen} indexSymbol={selectedIndex} />
     </>
   )

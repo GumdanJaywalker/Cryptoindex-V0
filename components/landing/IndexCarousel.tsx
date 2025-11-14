@@ -5,7 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MemeIndex } from '@/lib/types/index-trading'
-import { CarouselIndexCard } from './CarouselIndexCard'
+import { CompactIndexCard } from './CompactIndexCard'
 import { cn } from '@/lib/utils'
 
 interface IndexCarouselProps {
@@ -22,10 +22,10 @@ export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
 
-  // Group indexes into pages of 2 (1x2 horizontal)
+  // Group indexes into pages of 6 (3 rows x 2 cols)
   const pages = []
-  for (let i = 0; i < indexes.length; i += 2) {
-    pages.push(indexes.slice(i, i + 2))
+  for (let i = 0; i < indexes.length; i += 6) {
+    pages.push(indexes.slice(i, i + 6))
   }
 
   const scrollPrev = useCallback(() => {
@@ -70,16 +70,16 @@ export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
   }
 
   return (
-    <div className="relative group">
+    <div className="relative">
       {/* Carousel Container */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {pages.map((page, pageIdx) => (
             <div key={pageIdx} className="flex-[0_0_100%] min-w-0 px-1">
-              {/* 1x2 Grid for Desktop, 1 column for Mobile */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* 3 rows x 2 cols Grid */}
+              <div className="grid grid-cols-2 grid-rows-3 gap-4">
                 {page.map((index) => (
-                  <CarouselIndexCard
+                  <CompactIndexCard
                     key={index.id}
                     index={index}
                     onClick={() => onCardClick?.(index)}
@@ -98,9 +98,9 @@ export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
             variant="outline"
             size="icon"
             className={cn(
-              'absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-slate-900/90 border-slate-700 hover:bg-slate-800 hover:border-brand/50 transition-opacity',
-              'opacity-0 group-hover:opacity-50',
-              !canScrollPrev && 'cursor-not-allowed'
+              'absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-teal-card/90 border-teal hover:bg-teal-card/50 hover:border-white/10 transition-opacity',
+              'opacity-20 hover:opacity-100',
+              !canScrollPrev && 'cursor-not-allowed opacity-0'
             )}
             onClick={scrollPrev}
             disabled={!canScrollPrev}
@@ -111,9 +111,9 @@ export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
             variant="outline"
             size="icon"
             className={cn(
-              'absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-slate-900/90 border-slate-700 hover:bg-slate-800 hover:border-brand/50 transition-opacity',
-              'opacity-0 group-hover:opacity-50',
-              !canScrollNext && 'cursor-not-allowed'
+              'absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-teal-card/90 border-teal hover:bg-teal-card/50 hover:border-white/10 transition-opacity',
+              'opacity-20 hover:opacity-100',
+              !canScrollNext && 'cursor-not-allowed opacity-0'
             )}
             onClick={scrollNext}
             disabled={!canScrollNext}
@@ -133,7 +133,7 @@ export function IndexCarousel({ indexes, onCardClick }: IndexCarouselProps) {
                 'h-2 rounded-full transition-all',
                 index === selectedIndex
                   ? 'w-8 bg-brand'
-                  : 'w-2 bg-slate-700 hover:bg-slate-600'
+                  : 'w-2 bg-teal-card/70 hover:bg-teal-card/60'
               )}
               onClick={() => scrollTo(index)}
               aria-label={`Go to page ${index + 1}`}

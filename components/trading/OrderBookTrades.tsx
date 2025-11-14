@@ -1,178 +1,446 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useTradingStore } from '@/lib/store/trading-store'
+import GraduationProgress from './GraduationProgress'
 
-// Mock data for orderbook
-const mockOrderBook = {
-  bids: [
-    { price: 43.237, size: 1.00, total: 506.73 },
-    { price: 43.236, size: 22.42, total: 505.73 },
-    { price: 43.235, size: 152.87, total: 483.31 },
-    { price: 43.233, size: 13.50, total: 330.44 },
-    { price: 43.232, size: 40.90, total: 316.94 },
-    { price: 43.231, size: 12.83, total: 276.04 },
-    { price: 43.230, size: 18.28, total: 263.21 },
-    { price: 43.228, size: 215.75, total: 244.93 },
-    { price: 43.227, size: 10.00, total: 29.18 },
-    { price: 43.225, size: 16.88, total: 19.18 },
-  ],
-  asks: [
-    { price: 43.225, size: 16.88, total: 19.18 },
-    { price: 43.227, size: 10.00, total: 29.18 },
-    { price: 43.228, size: 215.75, total: 244.93 },
-    { price: 43.230, size: 18.28, total: 263.21 },
-    { price: 43.231, size: 12.83, total: 276.04 },
-    { price: 43.232, size: 40.90, total: 316.94 },
-    { price: 43.233, size: 13.50, total: 330.44 },
-    { price: 43.235, size: 152.87, total: 483.31 },
-    { price: 43.236, size: 22.42, total: 505.73 },
-    { price: 43.237, size: 1.00, total: 506.73 },
-  ]
+// Types
+interface OrderBookRow {
+  id: string
+  price: number
+  size: number
+  total: number
 }
 
-// Mock data for recent trades
-const mockTrades = [
-  { price: 43.217, size: 3.04, time: '14:23:07', type: 'sell' },
-  { price: 43.216, size: 1.43, time: '14:23:06', type: 'sell' },
-  { price: 43.216, size: 0.89, time: '14:23:06', type: 'sell' },
-  { price: 43.218, size: 0.81, time: '14:23:05', type: 'buy' },
-  { price: 43.221, size: 2.64, time: '14:23:04', type: 'buy' },
-  { price: 43.220, size: 12.20, time: '14:23:04', type: 'buy' },
-  { price: 43.220, size: 0.81, time: '14:23:04', type: 'buy' },
-  { price: 43.215, size: 0.89, time: '14:23:03', type: 'sell' },
-  { price: 43.220, size: 17.97, time: '14:23:02', type: 'buy' },
-  { price: 43.221, size: 0.81, time: '14:23:02', type: 'buy' },
-  { price: 43.217, size: 0.89, time: '14:23:00', type: 'sell' },
-  { price: 43.217, size: 0.89, time: '14:23:00', type: 'sell' },
-  { price: 43.219, size: 0.80, time: '14:23:00', type: 'buy' },
-  { price: 43.215, size: 26.11, time: '14:22:59', type: 'sell' },
-  { price: 43.218, size: 12.14, time: '14:22:59', type: 'buy' },
-]
+interface RealtimeOrderBook {
+  asks: OrderBookRow[]
+  bids: OrderBookRow[]
+  spread: number
+  spreadPercent: number
+}
 
-export function OrderBookTrades() {
-  const [activeTab, setActiveTab] = useState<'orderbook' | 'trades'>('orderbook')
+// Generate initial static orderbook data for SSR
+function generateStaticOrderBook(
+  basePrice: number,
+  count: number
+): RealtimeOrderBook {
+  const asks: OrderBookRow[] = []
+  const bids: OrderBookRow[] = []
+  const spreadBase = 0.002
+
+  for (let i = 0; i < count; i++) {
+    const price = basePrice + spreadBase + i * 0.001
+    asks.push({
+      id: `ask-static-${i}`,
+      price,
+      size: 5,
+      total: 100,
+    })
+  }
+
+  for (let i = 0; i < count; i++) {
+    const price = basePrice - i * 0.001
+    bids.push({
+      id: `bid-static-${i}`,
+      price,
+      size: 5,
+      total: 100,
+    })
+  }
+
+  const spread = asks[0].price - bids[0].price
+  const spreadPercent = (spread / bids[0].price) * 100
+
+  return { asks, bids, spread, spreadPercent }
+}
+
+// Trade data type
+interface Trade {
+  id: string
+  price: number
+  size: number
+  time: string
+  type: 'buy' | 'sell'
+}
+
+// Generate initial static trades for SSR
+function generateStaticTrades(basePrice: number, count: number = 30): Trade[] {
+  const trades: Trade[] = []
+  const now = new Date()
+
+  for (let i = 0; i < count; i++) {
+    const time = new Date(now.getTime() - i * 2000)
+    const hours = time.getHours().toString().padStart(2, '0')
+    const minutes = time.getMinutes().toString().padStart(2, '0')
+    const seconds = time.getSeconds().toString().padStart(2, '0')
+
+    trades.push({
+      id: `trade-static-${i}`,
+      price: basePrice,
+      size: 5,
+      time: `${hours}:${minutes}:${seconds}`,
+      type: i % 2 === 0 ? 'buy' : 'sell'
+    })
+  }
+
+  return trades
+}
+
+// Generate realtime trades
+function generateRealtimeTrades(basePrice: number, count: number = 30): Trade[] {
+  const trades: Trade[] = []
+  const now = new Date()
+
+  for (let i = 0; i < count; i++) {
+    const time = new Date(now.getTime() - i * 2000)
+    const hours = time.getHours().toString().padStart(2, '0')
+    const minutes = time.getMinutes().toString().padStart(2, '0')
+    const seconds = time.getSeconds().toString().padStart(2, '0')
+
+    const isBuy = Math.random() > 0.5
+    const priceChange = (Math.random() - 0.5) * 0.01
+
+    trades.push({
+      id: `trade-${Date.now()}-${i}`,
+      price: basePrice + priceChange,
+      size: 0.5 + Math.random() * 10,
+      time: `${hours}:${minutes}:${seconds}`,
+      type: isBuy ? 'buy' : 'sell'
+    })
+  }
+
+  return trades
+}
+
+// Generate realtime orderbook data
+function generateRealtimeOrderBook(
+  basePrice: number,
+  count: number
+): RealtimeOrderBook {
+  const asks: OrderBookRow[] = []
+  const bids: OrderBookRow[] = []
+  const spreadBase = 0.002 + Math.random() * 0.001 // 0.2-0.3% spread
+
+  // Generate asks (매도 - 높은 가격부터)
+  for (let i = 0; i < count; i++) {
+    const price = basePrice + spreadBase + i * 0.001
+    const size = 0.5 + Math.random() * 15
+    const total = 10 + Math.random() * 200
+    asks.push({
+      id: `ask-${Date.now()}-${i}`,
+      price,
+      size,
+      total,
+    })
+  }
+
+  // Generate bids (매수 - 높은 가격부터)
+  for (let i = 0; i < count; i++) {
+    const price = basePrice - i * 0.001
+    const size = 0.5 + Math.random() * 15
+    const total = 10 + Math.random() * 200
+    bids.push({
+      id: `bid-${Date.now()}-${i}`,
+      price,
+      size,
+      total,
+    })
+  }
+
+  // Sort by total (거래대금) descending for clean depth visualization
+  asks.sort((a, b) => b.total - a.total)
+  bids.sort((a, b) => b.total - a.total)
+
+  const spread = asks[0].price - bids[0].price
+  const spreadPercent = (spread / bids[0].price) * 100
+
+  return { asks, bids, spread, spreadPercent }
+}
+
+// Shared state for tabs (using module-level state for simplicity)
+let activeTab: 'orderbook' | 'trades' = 'orderbook'
+let setActiveTabListeners: Array<(tab: 'orderbook' | 'trades') => void> = []
+
+function useSharedTabState() {
+  const [tab, setTab] = useState<'orderbook' | 'trades'>(activeTab)
+
+  useEffect(() => {
+    const listener = (newTab: 'orderbook' | 'trades') => setTab(newTab)
+    setActiveTabListeners.push(listener)
+    return () => {
+      setActiveTabListeners = setActiveTabListeners.filter(l => l !== listener)
+    }
+  }, [])
+
+  const updateTab = (newTab: 'orderbook' | 'trades') => {
+    activeTab = newTab
+    setActiveTabListeners.forEach(listener => listener(newTab))
+  }
+
+  return [tab, updateTab] as const
+}
+
+// Tabs component - can be used independently
+export function OrderBookTradesTabs() {
+  const [activeTab, setActiveTab] = useSharedTabState()
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+  const indices = useTradingStore(state => state.indices)
+
+  // Find current index and check if it's bonding curve
+  const currentIndex = useMemo(() =>
+    indices.find(idx => idx.symbol === selectedIndexSymbol),
+    [indices, selectedIndexSymbol]
+  )
+
+  const isBondingCurve = useMemo(() => {
+    if (!currentIndex) return false
+    // Only bonding curve if graduation field exists AND status is not 'graduated'
+    return currentIndex.graduation !== undefined && currentIndex.graduation.status !== 'graduated'
+  }, [currentIndex])
 
   return (
-    <div className="bg-slate-950 h-full flex flex-col">
-      {/* Tab Header */}
-      <div className="flex border-b border-slate-700 bg-slate-900">
+    <div className="h-10 flex items-center border-b border-teal bg-teal-card font-[Arial,sans-serif] flex-shrink-0">
+      {!isBondingCurve && (
         <button
           onClick={() => setActiveTab('orderbook')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'orderbook'
-              ? 'text-white bg-slate-800 border-b-2 border-brand'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+          className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${
+            activeTab === 'orderbook' ? 'active text-white' : 'text-slate-400'
           }`}
         >
           Order Book
         </button>
-        <button
-          onClick={() => setActiveTab('trades')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'trades'
-              ? 'text-white bg-slate-800 border-b-2 border-brand'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          Trades
-        </button>
-      </div>
+      )}
+      <button
+        onClick={() => setActiveTab('trades')}
+        className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${
+          activeTab === 'trades' ? 'active text-white' : 'text-slate-400'
+        }`}
+      >
+        Trades
+      </button>
+    </div>
+  )
+}
 
-      {/* Content - fill remaining space between IndexInfoBar and BottomTabs */}
-      <div className="flex-1 bg-slate-950 min-h-0">
-        {activeTab === 'orderbook' ? (
-          <OrderBookContent />
-        ) : (
-          <TradesContent />
-        )}
+// Body component - can be used independently
+export function OrderBookTradesBody() {
+  const [activeTab] = useSharedTabState()
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+  const indices = useTradingStore(state => state.indices)
+
+  // Find current index and check if it's bonding curve
+  const currentIndex = useMemo(() =>
+    indices.find(idx => idx.symbol === selectedIndexSymbol),
+    [indices, selectedIndexSymbol]
+  )
+
+  const isBondingCurve = useMemo(() => {
+    if (!currentIndex) return false
+    // Only bonding curve if graduation field exists AND status is not 'graduated'
+    return currentIndex.graduation !== undefined && currentIndex.graduation.status !== 'graduated'
+  }, [currentIndex])
+
+  return (
+    <div className="bg-teal-base h-full font-[Arial,sans-serif] overflow-hidden">
+      {activeTab === 'orderbook' && !isBondingCurve ? (
+        <OrderBookContent />
+      ) : (
+        <TradesContent isBondingCurve={isBondingCurve} currentIndex={currentIndex} />
+      )}
+    </div>
+  )
+}
+
+// Combined component - backward compatibility
+export function OrderBookTrades() {
+  return (
+    <div className="bg-teal-base h-full flex flex-col">
+      <OrderBookTradesTabs />
+      <div className="flex-1 bg-teal-base min-h-0">
+        <OrderBookTradesBody />
       </div>
     </div>
   )
 }
 
 function OrderBookContent() {
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+  const cleanSymbol = selectedIndexSymbol.replace('_INDEX', '')
+
+  // Calculate exact row count based on available space
+  const [rowCount, setRowCount] = useState(12)
+
+  useEffect(() => {
+    const calculateRowCount = () => {
+      // Available height: 60vh
+      const viewportHeight = window.innerHeight
+      const containerHeight = viewportHeight * 0.6 // 60vh
+
+      // Fixed heights
+      const headerHeight = 36 // py-2 = 8px top + 8px bottom + text height ~20px
+      const spreadHeight = 32 // py-1.5 = 6px top + 6px bottom + text height ~20px
+      const rowHeight = 23
+
+      // Available space for asks + bids
+      const availableHeight = containerHeight - headerHeight - spreadHeight
+
+      // Each section gets half
+      const sectionHeight = availableHeight / 2
+
+      // Calculate max rows per section
+      const maxRows = Math.floor(sectionHeight / rowHeight)
+
+      setRowCount(maxRows)
+    }
+
+    calculateRowCount()
+    window.addEventListener('resize', calculateRowCount)
+    return () => window.removeEventListener('resize', calculateRowCount)
+  }, [])
+
+  // Realtime orderbook state - start with static data for SSR
+  const [orderbook, setOrderbook] = useState<RealtimeOrderBook>(() =>
+    generateStaticOrderBook(1.2567, rowCount)
+  )
+
+  // Update orderbook every 500ms with realtime data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOrderbook(generateRealtimeOrderBook(1.2567, rowCount))
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [rowCount])
+
   return (
-    <div className="bg-slate-950 h-full flex flex-col">
+    <div className="bg-teal-base h-full flex flex-col">
       {/* Headers */}
-      <div className="px-2 py-2 grid grid-cols-3 text-sm text-slate-400 border-b border-slate-700 bg-slate-950">
-        <div className="text-left">Price</div>
-        <div className="text-left">Size (HYPE)</div>
-        <div className="text-left">Total (HYPE)</div>
+      <div className="px-2 py-2 grid grid-cols-[20%_40%_40%] text-xs text-slate-400 border-b border-teal bg-teal-base flex-shrink-0">
+        <div className="text-left pl-2.5">Price</div>
+        <div className="text-left pl-2.5">Size ({cleanSymbol})</div>
+        <div className="text-left pl-2.5">Total ({cleanSymbol})</div>
       </div>
 
-      {/* Asks (매도) - 위쪽 스크롤 영역 */}
-      <div className="flex-1 overflow-y-auto bg-slate-950">
-        <div className="px-2 py-1 space-y-px">
-          {/* 100개의 asks 데이터 - 역순(높은 가격부터) */}
-          {[...Array(100)].map((_, i) => {
-            const basePrice = 43.400;
-            const price = basePrice - i * 0.001; // 역순으로 높은 가격부터
-            const size = 1.0 + (i * 0.5) % 50;
-            const total = 100.0 + (i * 12.3) % 500;
-            return (
-              <div key={`ask-${i}`} className="grid grid-cols-3 text-sm py-0.5 hover:bg-slate-800/50">
-                <div className="text-left text-red-400 font-mono">${price.toFixed(3)}</div>
-                <div className="text-left text-white font-mono">{size.toFixed(2)}</div>
-                <div className="text-left text-slate-300 font-mono">{total.toFixed(2)}</div>
-              </div>
-            );
-          })}
-        </div>
+      {/* Asks (매도) - 중앙 정렬 */}
+      <div className="bg-teal-base flex-1 overflow-hidden flex flex-col justify-center">
+        {orderbook.asks.slice(0, rowCount).reverse().map((ask, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-[20%_40%_40%] h-[23px] cursor-pointer hover:bg-teal-elevated/50 transition-colors duration-100"
+          >
+            {/* Price */}
+            <div className="pl-2.5 text-[14px] text-[#dd7789]">
+              {ask.price.toFixed(3)}
+            </div>
+
+            {/* Size */}
+            <div className="pl-2.5 text-[14px] text-white">
+              {ask.size.toFixed(2)}
+            </div>
+
+            {/* Total */}
+            <div className="pl-2.5 text-[14px] text-slate-300">
+              {ask.total.toFixed(2)}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Spread - 가운데 고정 */}
-      <div className="px-2 py-3 text-center border-y border-slate-700 bg-slate-800/50 flex-shrink-0">
-        <div className="text-xs text-slate-400">Spread</div>
-        <div className="text-sm text-white font-mono font-bold">$43.200</div>
-        <div className="text-xs text-slate-400">0.002 (0.005%)</div>
+      <div className="px-2 py-1.5 flex items-center justify-center border-y border-teal bg-teal-elevated/50 flex-shrink-0">
+        <div className="text-xs text-slate-400">
+          Spread:{' '}
+          <span className="text-white font-medium">
+            {orderbook.spread.toFixed(3)} ({orderbook.spreadPercent.toFixed(2)}%)
+          </span>
+        </div>
       </div>
 
-      {/* Bids (매수) - 아래쪽 스크롤 영역 */}
-      <div className="flex-1 overflow-y-auto bg-slate-950">
-        <div className="px-2 py-1 space-y-px">
-          {/* 100개의 bids 데이터 - 순서(높은 가격부터) */}
-          {[...Array(100)].map((_, i) => {
-            const basePrice = 43.199;
-            const price = basePrice - i * 0.001; // 높은 가격부터 낮은 가격으로
-            const size = 1.0 + (i * 0.7) % 50;
-            const total = 100.0 + (i * 15.7) % 500;
-            return (
-              <div key={`bid-${i}`} className="grid grid-cols-3 text-sm py-0.5 hover:bg-slate-800/50">
-                <div className="text-left text-green-400 font-mono">${price.toFixed(3)}</div>
-                <div className="text-left text-white font-mono">{size.toFixed(2)}</div>
-                <div className="text-left text-slate-300 font-mono">{total.toFixed(2)}</div>
-              </div>
-            );
-          })}
-        </div>
+      {/* Bids (매수) - 중앙 정렬 */}
+      <div className="bg-teal-base flex-1 overflow-hidden flex flex-col justify-center">
+        {orderbook.bids.slice(0, rowCount).map((bid, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-[20%_40%_40%] h-[23px] cursor-pointer hover:bg-teal-elevated/50 transition-colors duration-100"
+          >
+            {/* Price */}
+            <div className="pl-2.5 text-[14px] text-[#4fa480]">
+              {bid.price.toFixed(3)}
+            </div>
+
+            {/* Size */}
+            <div className="pl-2.5 text-[14px] text-white">
+              {bid.size.toFixed(2)}
+            </div>
+
+            {/* Total */}
+            <div className="pl-2.5 text-[14px] text-slate-300">
+              {bid.total.toFixed(2)}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-function TradesContent() {
+interface TradesContentProps {
+  isBondingCurve: boolean
+  currentIndex: any
+}
+
+function TradesContent({ isBondingCurve, currentIndex }: TradesContentProps) {
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+  const cleanSymbol = selectedIndexSymbol.replace('_INDEX', '')
+
+  // Realtime trades state - start with static data for SSR
+  const [trades, setTrades] = useState<Trade[]>(() =>
+    generateStaticTrades(1.2567, 50)
+  )
+
+  // Update trades every 500ms with realtime data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTrades(generateRealtimeTrades(1.2567, 50))
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <div className="bg-slate-950 h-full">
+    <div className="bg-teal-base h-full flex flex-col">
+      {/* Graduation Progress for Bonding Curve */}
+      {isBondingCurve && currentIndex?.graduation && (
+        <div className="px-3 pt-3 pb-2 border-b border-teal">
+          <GraduationProgress
+            data={{
+              liquidityProgress: currentIndex.graduation.liquidityProgress,
+              salesProgress: currentIndex.graduation.salesProgress,
+              status: currentIndex.graduation.status
+            }}
+            variant="compact"
+          />
+        </div>
+      )}
+
       {/* Headers */}
-      <div className="px-2 py-2 grid grid-cols-3 text-sm text-slate-400 border-b border-slate-700 bg-slate-950">
-        <div className="text-left">Price</div>
-        <div className="text-left">Size (HYPE)</div>
-        <div className="text-left">Time</div>
+      <div className="px-2 py-2 grid grid-cols-3 text-sm text-slate-400 border-b border-teal bg-teal-base flex-shrink-0">
+        <div className="text-left pl-2.5">Price</div>
+        <div className="text-left pl-2.5">Size ({cleanSymbol})</div>
+        <div className="text-left pl-2.5">Time</div>
       </div>
 
       {/* Trades List - 스크롤 가능 */}
-      <div className="overflow-y-auto max-h-[65vh] bg-slate-950">
-        <div className="px-2 py-1">
-          {[...mockTrades, ...mockTrades, ...mockTrades].map((trade, index) => (
-            <div key={index} className="grid grid-cols-3 text-sm py-1 hover:bg-slate-800/50">
-              <div className={`text-left font-mono ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>
-                ${trade.price.toFixed(3)}
-              </div>
-              <div className="text-left text-white font-mono">{trade.size.toFixed(2)}</div>
-              <div className="text-left text-slate-300 font-mono text-xs">{trade.time}</div>
+      <div className="flex-1 overflow-y-auto bg-teal-base">
+        {trades.map((trade, index) => (
+          <div key={trade.id} className="grid grid-cols-3 text-[14px] h-[23px] hover:bg-teal-elevated/50 transition-colors duration-100 cursor-pointer px-2">
+            <div className={`text-left pl-2.5 ${trade.type === 'buy' ? 'text-[#4fa480]' : 'text-[#dd7789]'}`}>
+              {trade.price.toFixed(3)}
             </div>
-          ))}
-        </div>
+            <div className="text-left pl-2.5 text-white">{trade.size.toFixed(2)}</div>
+            <div className="text-left pl-2.5 text-slate-300 text-xs">{trade.time}</div>
+          </div>
+        ))}
       </div>
     </div>
   )

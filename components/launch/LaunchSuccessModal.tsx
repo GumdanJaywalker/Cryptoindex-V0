@@ -63,7 +63,7 @@ export default function LaunchSuccessModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-slate-900/95 backdrop-blur-md border-slate-700">
+      <DialogContent className="max-w-md bg-teal-card/95 backdrop-blur-md border-teal">
         <VisuallyHidden>
           <DialogTitle>Index Launch Success</DialogTitle>
         </VisuallyHidden>
@@ -85,7 +85,7 @@ export default function LaunchSuccessModal({
             <Button
               onClick={handleShare}
               variant="outline"
-              className="w-full border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+              className="w-full border-teal text-slate-400 hover:text-white hover:bg-teal-elevated"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Share Index
@@ -96,7 +96,7 @@ export default function LaunchSuccessModal({
               <Button
                 onClick={handleViewMyIndexes}
                 className={cn(
-                  "flex-1 bg-brand text-slate-950 font-medium hover:bg-brand/90",
+                  "flex-1 bg-brand text-white font-medium hover:bg-brand/90",
                   "transition-all"
                 )}
               >
@@ -105,7 +105,7 @@ export default function LaunchSuccessModal({
               <Button
                 onClick={handleViewPortfolio}
                 variant="outline"
-                className="flex-1 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                className="flex-1 border-teal text-slate-400 hover:text-white hover:bg-teal-elevated"
               >
                 View Portfolio
               </Button>
@@ -115,7 +115,7 @@ export default function LaunchSuccessModal({
             <Button
               onClick={handleCreateAnother}
               variant="outline"
-              className="w-full border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+              className="w-full border-teal text-slate-400 hover:text-white hover:bg-teal-elevated"
             >
               Create Another
             </Button>

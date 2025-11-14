@@ -44,14 +44,14 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
   const phaseBadge = (() => {
     const phase = proposal.phase
     const cmap: Record<string, string> = {
-      active: 'text-green-400 border-green-400/30',
+      active: 'text-brand border-brand/30',
       'ending-soon': 'text-red-400 border-red-400/30',
       queued: 'text-yellow-400 border-yellow-400/30',
       timelocked: 'text-yellow-400 border-yellow-400/30',
-      'awaiting-multisig': 'text-blue-400 border-blue-400/30',
+      'awaiting-multisig': 'text-brand border-brand/30',
       executed: 'text-slate-300 border-slate-600',
       pending: 'text-slate-300 border-slate-600',
-      succeeded: 'text-green-400 border-green-400/30',
+      succeeded: 'text-brand border-brand/30',
       defeated: 'text-red-400 border-red-400/30',
       canceled: 'text-slate-400 border-slate-600',
     }
@@ -62,8 +62,8 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
 
   return (
     <Card
-      className="bg-slate-900/50 border-slate-800 cursor-pointer hover:border-slate-700 transition-colors"
-      onClick={() => router.push(`/governance/${proposal.id}`)}
+      className="bg-slate-900/50 border-slate-800 cursor-pointer transition-all duration-300 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10"
+      onClick={() => router.push(`/vote/${proposal.id}`)}
       role="button"
       tabIndex={0}
       aria-label={`Open proposal ${proposal.title}`}
@@ -87,7 +87,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             {readyToQueue && (
               <Badge
                 variant="outline"
-                className="text-xs text-green-400 border-green-400/30 px-3 py-[2px] whitespace-nowrap"
+                className="text-xs text-brand border-brand/30 px-3 py-[2px] whitespace-nowrap"
               >
                 Queued soon
               </Badge>
@@ -109,7 +109,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             <div className="text-xs text-slate-400 mb-1">Support</div>
             <Progress value={Math.min(100, support)} className="h-2" />
             <div className="text-xs text-slate-400 mt-1">
-              {support.toFixed(1)}% / pass {proposal.config.passThresholdPercent}% {pass ? '✓' : ''}
+              {support.toFixed(1)}% / pass {proposal.config.passThresholdPercent}%{pass ? ' (Passing)' : ''}
             </div>
           </div>
 

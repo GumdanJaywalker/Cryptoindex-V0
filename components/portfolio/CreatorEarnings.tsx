@@ -62,26 +62,26 @@ export function CreatorEarnings() {
         <h2 className="text-xl font-bold">Creator Earnings</h2>
         <div className="flex items-center gap-2">
           {(['24h','7d','30d','all'] as Timeframe[]).map(x=> (
-            <Button key={x} size="sm" variant={tf===x?'default':'ghost'} className={cn('h-8 text-xs', tf===x?'bg-brand text-black hover:bg-brand-hover':'hover:bg-slate-800')} onClick={()=>setTf(x)}>{x.toUpperCase()}</Button>
+            <Button key={x} size="sm" variant={tf===x?'default':'ghost'} className={cn('h-8 text-xs', tf===x?'bg-brand text-black hover:bg-brand-hover':'hover:bg-teal-card/50')} onClick={()=>setTf(x)}>{x.toUpperCase()}</Button>
           ))}
         </div>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Total Creator Fees</div>
           <div className="text-lg font-semibold">{formatBalance(summary.total)}</div>
         </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">{tf==='24h'?'24H': tf==='7d'?'7D': tf==='30d'?'30D':'Pending'}</div>
           <div className="text-lg font-semibold">{tf==='all'? formatBalance(summary.pending): tf==='24h'? formatBalance(summary.d24): tf==='7d'? formatBalance(summary.d7): formatBalance(summary.d30)}</div>
         </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Paid to Date</div>
           <div className="text-lg font-semibold">{formatBalance(summary.paid)}</div>
         </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Pending Payouts</div>
           <div className="text-lg font-semibold">{formatBalance(summary.pending)}</div>
         </CardContent></Card>
@@ -89,18 +89,18 @@ export function CreatorEarnings() {
 
       {/* Breakdown (Creator vs LP) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">Creator Fee (index token fees share)</div>
           <div className="text-lg font-semibold">{formatBalance(Math.round(summary.total * 0.6))}</div>
         </CardContent></Card>
-        <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4">
+        <Card className="glass-card-dynamic border-teal"><CardContent className="p-4">
           <div className="text-xs text-slate-400 mb-1">LP Fee (liquidity pool trading fees)</div>
           <div className="text-lg font-semibold">{formatBalance(Math.round(summary.total * 0.4))}</div>
         </CardContent></Card>
       </div>
 
       {/* Per-index table */}
-      <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+      <div className="bg-teal-card/30 rounded-xl border border-teal overflow-hidden">
         <div className="grid grid-cols-8 px-4 py-2 text-xs text-slate-400">
           <div>Index</div>
           <div className="text-right">TVL</div>
@@ -128,7 +128,7 @@ export function CreatorEarnings() {
       </div>
 
       {/* Payouts */}
-      <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+      <div className="bg-teal-card/30 rounded-xl border border-teal overflow-hidden">
         <div className="px-4 py-2 text-xs text-slate-400">Payouts</div>
         <div className="divide-y divide-slate-800">
           {mockPayouts.map(p => (

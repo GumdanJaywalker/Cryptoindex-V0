@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Clock, Settings, Zap, TrendingUp, TrendingDown, Target, Timer, Shield, AlertTriangle, ArrowDown } from 'lucide-react'
 import { useCurrency } from '@/lib/hooks/useCurrency'
+import { useTradingStore } from '@/lib/store/trading-store'
+import ConfirmTradeModal from '@/components/trading/ConfirmTradeModal'
 
 const orderTypes = ['Market', 'Limit', 'Stop Market', 'Stop Limit', 'OCO', 'TWAP', 'Scale', 'Iceberg', 'Trailing Stop']
 const leverageOptions = [1, 2, 5, 10, 20, 50]
@@ -18,11 +20,16 @@ const timeInForceOptions = ['GTC', 'IOC', 'FOK']
 
 export function TradingPanel() {
   const { formatPrice, formatFee, formatBalance, currency } = useCurrency()
+
+  // 🆕 Subscribe to Trading Store SSOT
+  const currentPrice = useTradingStore(state => state.currentPrice)
+  const selectedIndexSymbol = useTradingStore(state => state.selectedIndexSymbol)
+
   const [side, setSide] = useState<'Buy' | 'Sell'>('Buy')
   const [orderType, setOrderType] = useState('Market')
   const [leverage, setLeverage] = useState(10)
   const [marginMode, setMarginMode] = useState('Cross Margin')
-  const [price, setPrice] = useState('1.2345')
+  const [price, setPrice] = useState(currentPrice.toFixed(4))
   const [size, setSize] = useState('')
   const [sizeMode, setSizeMode] = useState<'USDC' | 'Contracts' | 'Percentage'>('USDC')
   const [takeProfitEnabled, setTakeProfitEnabled] = useState(false)
@@ -36,7 +43,10 @@ export function TradingPanel() {
   const [hiddenOrder, setHiddenOrder] = useState(false)
   const [orderExpiry, setOrderExpiry] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
-  
+
+  // Confirm modal state
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+
   // TWAP specific
   const [twapDuration, setTwapDuration] = useState('60')
   
@@ -50,11 +60,120 @@ export function TradingPanel() {
   // Trailing Stop specific
   const [trailingDistance, setTrailingDistance] = useState('2')
 
+  // 🆕 Sync price with Store currentPrice for Market orders
+  useEffect(() => {
+    if (orderType === 'Market') {
+      setPrice(currentPrice.toFixed(4))
+    }
+  }, [currentPrice, orderType])
+
   const getRiskColor = (percentage: number) => {
     if (percentage < 50) return 'text-emerald-400'
     if (percentage < 80) return 'text-amber-400'
     return 'text-red-400'
   }
+
+  // 🆕 Phase 4.3: Calculate liquidation price based on leverage and side
+  const calculateLiquidationPrice = (entryPrice: number, leverage: number, side: 'Buy' | 'Sell'): number => {
+    // Liquidation occurs when loss equals initial margin (1/leverage)
+    // Long position: liquidationPrice = entryPrice * (1 - 1/leverage)
+    // Short position: liquidationPrice = entryPrice * (1 + 1/leverage)
+
+    if (side === 'Buy') {
+      return entryPrice * (1 - 1 / leverage)
+    } else {
+      return entryPrice * (1 + 1 / leverage)
+    }
+  }
+
+  // 🆕 Phase 4.2: Handle order confirmation and add to Store
+  const addOrder = useTradingStore(state => state.addOrder)
+  const addPosition = useTradingStore(state => state.addPosition)
+
+  const handleOpenConfirmModal = () => {
+    console.log('handleOpenConfirmModal called', { size, orderType, side })
+
+    if (!size || parseFloat(size) <= 0) {
+      console.log('Invalid size, cannot open modal')
+      return
+    }
+
+    setConfirmModalOpen(true)
+  }
+
+  const handleConfirmTrade = useCallback(() => {
+    console.log('handleConfirmTrade called', { size, orderType, side })
+
+    if (!size || parseFloat(size) <= 0) {
+      console.log('Early return: invalid size')
+      setConfirmModalOpen(false)
+      return
+    }
+
+    const orderPrice = orderType === 'Market' ? currentPrice : parseFloat(price)
+    const orderSize = parseFloat(size)
+
+    // Normalize order type for Store compatibility
+    const normalizedType = orderType.includes('Market') ? 'Market' :
+                           orderType.includes('Limit') ? 'Limit' : 'Stop'
+
+    console.log('Creating order...', { normalizedType, orderPrice, orderSize })
+
+    // Create order object
+    const newOrder = {
+      id: `order-${Date.now()}`,
+      symbol: selectedIndexSymbol,
+      side: side,
+      type: normalizedType as 'Market' | 'Limit' | 'Stop',
+      size: orderSize,
+      price: orderPrice,
+      filled: 0,
+      status: normalizedType === 'Market' ? 'Pending' : 'Open' as 'Open' | 'Pending',
+      time: new Date().toLocaleTimeString(),
+      timestamp: new Date()
+    }
+
+    // Add to orders (will auto-fill for Market orders via Store logic)
+    addOrder(newOrder)
+    console.log('Order added:', newOrder)
+
+    // If Market order, immediately create position
+    if (normalizedType === 'Market') {
+      const liquidationPrice = calculateLiquidationPrice(orderPrice, leverage, side)
+      const margin = (orderPrice * orderSize) / leverage
+
+      const newPosition = {
+        id: `pos-${Date.now()}`,
+        symbol: selectedIndexSymbol,
+        side: side,
+        size: orderSize,
+        entryPrice: orderPrice,
+        currentPrice: orderPrice,
+        pnl: 0,
+        pnlPercent: 0,
+        margin,
+        leverage: `${leverage}x`,
+        liquidationPrice,
+        timestamp: new Date()
+      }
+
+      addPosition(newPosition)
+      console.log('Position added:', newPosition)
+
+      // Clear form
+      setSize('')
+      setTakeProfit('')
+      setStopLoss('')
+    }
+
+    // Close modal after successful trade execution
+    setConfirmModalOpen(false)
+  }, [size, orderType, side, currentPrice, price, selectedIndexSymbol, leverage, addOrder, addPosition])
+
+  const handleConfirmFromModal = useCallback(() => {
+    console.log('handleConfirmFromModal called')
+    handleConfirmTrade()
+  }, [handleConfirmTrade])
 
   const renderOrderTypeSpecificFields = () => {
     switch (orderType) {
@@ -125,9 +244,9 @@ export function TradingPanel() {
   }
 
   return (
-    <div className="bg-background border-border">
-      {/* Header */}
-      <div className="h-7 bg-secondary border-b border-border flex items-center justify-between px-3">
+    <div className="bg-background border-border h-full flex flex-col">
+      {/* 🔒 Fixed Header - Phase 7 */}
+      <div className="h-7 bg-secondary border-b border-border flex items-center justify-between px-3 flex-shrink-0">
         <h3 className="text-sm font-medium text-foreground">Trading Panel</h3>
         <Button
           variant="ghost"
@@ -140,8 +259,8 @@ export function TradingPanel() {
         </Button>
       </div>
 
-      <div className="px-3 pt-2.5 space-y-3 bg-background">
-        {/* Buy/Sell Tabs */}
+      {/* 🔒 Fixed Buy/Sell Tabs - Phase 7 */}
+      <div className="px-3 pt-2.5 bg-background flex-shrink-0">
         <Tabs value={side} onValueChange={(value) => setSide(value as 'Buy' | 'Sell')} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-secondary p-1">
             <TabsTrigger value="Buy" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-muted-foreground hover:text-foreground">
@@ -154,6 +273,10 @@ export function TradingPanel() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
+      </div>
+
+      {/* 📜 Scrollable Form Area - Phase 7 */}
+      <div className="flex-1 overflow-y-auto px-3 pt-2.5 space-y-3 bg-background">
 
         {/* Order Type */}
         <div>
@@ -382,19 +505,20 @@ export function TradingPanel() {
           </>
         )}
 
-        {/* Execute Button */}
-        <Button 
+        {/* Execute Button - Opens Confirm Modal */}
+        <Button
+          onClick={handleOpenConfirmModal}
           className={`w-full py-3 h-12 rounded-lg font-semibold transition-all ${
             side === 'Buy'
-              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 border-emerald-600'
-              : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20 border-red-600'
+              ? 'bg-brand hover:bg-brand/90 text-slate-900 shadow-lg shadow-brand/20 border-brand'
+              : 'bg-[#dd5e56] hover:bg-[#dd5e56]/90 text-white shadow-lg shadow-[#dd5e56]/20 border-[#dd5e56]'
           }`}
         >
           <Zap className="w-4 h-4 mr-2" />
-          {side} DOG_INDEX
+          {side} {selectedIndexSymbol.replace('_INDEX', '')}
         </Button>
 
-        {/* Order Preview */}
+        {/* Order Preview - 🆕 Now uses calculated liquidation price */}
         <div className="bg-card rounded-lg p-3 space-y-2 text-xs border border-border">
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Est. Fill Price:</span>
@@ -410,7 +534,9 @@ export function TradingPanel() {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Liq. Price:</span>
-            <span className="text-amber-400 font-medium">{formatPrice(1.1234)}</span>
+            <span className="text-amber-400 font-medium">
+              {formatPrice(calculateLiquidationPrice(parseFloat(price) || currentPrice, leverage, side))}
+            </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Required Margin:</span>
@@ -450,10 +576,34 @@ export function TradingPanel() {
             <div>F4: Cancel All</div>
           </div>
         </div>
-        
+
         {/* 하단 여백 */}
         <div className="pb-4"></div>
       </div>
+      {/* End Scrollable Area */}
+
+      {/* Confirm Trade Modal */}
+      <ConfirmTradeModal
+        open={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={handleConfirmFromModal}
+        tradeData={
+          size && parseFloat(size) > 0
+            ? {
+                symbol: selectedIndexSymbol,
+                type: side.toLowerCase() as "buy" | "sell",
+                orderType: orderType.toLowerCase().includes('market') ? 'market' :
+                           orderType.toLowerCase().includes('limit') ? 'limit' : 'stop-loss',
+                quantity: parseFloat(size),
+                price: orderType === 'Market' ? currentPrice : parseFloat(price),
+                subtotal: (orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size),
+                fee: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 0.001,
+                total: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 1.001,
+              }
+            : null
+        }
+      />
     </div>
+    {/* End Container */}
   )
 }

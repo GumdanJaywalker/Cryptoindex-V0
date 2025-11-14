@@ -77,8 +77,8 @@ function EnhancedSparkline({
   }).join(' ')
   
   const isPositive = displayData[displayData.length - 1] > displayData[0]
-  const strokeColor = isPositive ? "#10b981" : "#ef4444"
-  const glowColor = isPositive ? "#10b981" : "#ef4444"
+  const strokeColor = isPositive ? "#4ade80" : "#dd7789"
+  const glowColor = isPositive ? "#4ade80" : "#dd7789"
   
   return (
     <div className={cn("relative", className)}>
@@ -301,7 +301,7 @@ const IndexCard = memo(function IndexCard({
         onHoverEnd={() => setIsHovered(false)}
         className="perspective-1000"
       >
-      <Card className="bg-slate-900/50 border-slate-800 hover:border-slate-600/50 transition-all duration-500 cursor-pointer hover:bg-slate-900/80 relative overflow-visible group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
+      <Card className="glass-card-dynamic border-teal hover:border-teal/50 transition-all duration-500 cursor-pointer hover:bg-teal-card/80 relative overflow-visible group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
         {/* Border Beam 효과는 카드 전체에 적용됨 */}
 
         <CardContent className="p-4 relative">

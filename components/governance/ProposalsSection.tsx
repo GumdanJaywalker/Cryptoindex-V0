@@ -118,7 +118,7 @@ export function ProposalsSection() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         {items.map(p => (
           <ProposalCard key={p.id} proposal={p} />
         ))}

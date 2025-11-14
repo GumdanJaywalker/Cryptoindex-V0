@@ -15,10 +15,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
     const change = value > 100 ? `+${(value - 100).toFixed(2)}%` : `${(value - 100).toFixed(2)}%`;
-    const changeColor = value > 100 ? "#10b981" : "#ef4444";
+    const changeColor = value > 100 ? "#4ade80" : "#dd7789";
 
     return (
-      <div className="bg-slate-900/95 backdrop-blur-sm border border-slate-700 rounded-lg p-3 shadow-lg">
+      <div className="bg-teal-card/95 backdrop-blur-sm border border-teal rounded-lg p-3 shadow-lg">
         <div className="text-white text-sm font-medium mb-1">{label}</div>
         <div className="text-white text-lg font-semibold">{value.toFixed(2)}</div>
         <div className="text-xs" style={{ color: changeColor }}>
@@ -92,10 +92,10 @@ export function PerformanceChart({ index }: PerformanceChartProps) {
   }, [index, tf]);
 
   return (
-    <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+    <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-white font-semibold">Performance</h3>
-        <div className="inline-flex rounded-lg p-1 bg-slate-900 border border-slate-700">
+        <div className="inline-flex rounded-lg p-1 bg-teal-card border border-teal">
           {(["7d", "30d", "90d"] as const).map((t) => (
             <button
               key={t}
@@ -104,7 +104,7 @@ export function PerformanceChart({ index }: PerformanceChartProps) {
                 "px-3 py-1.5 rounded-md text-xs transition-colors",
                 tf === t
                   ? "bg-brand text-slate-950 font-medium"
-                  : "text-slate-400 hover:bg-slate-800"
+                  : "text-slate-400 hover:bg-teal-card/50"
               )}
             >
               {t.toUpperCase()}

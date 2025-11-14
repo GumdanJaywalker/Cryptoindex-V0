@@ -59,7 +59,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
 
   if (compact) {
     return (
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
             <Target className="w-5 h-5 text-slate-400" />
@@ -84,7 +84,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-slate-400">Monthly P&L</span>
-                <span className="text-green-300">{formatPnL(analyticsData.totalPnL).text}</span>
+                <span className={formatPnL(analyticsData.totalPnL).colorClass}>{formatPnL(analyticsData.totalPnL).text}</span>
               </div>
               <Progress value={75} className="h-2" />
             </div>
@@ -98,7 +98,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
             </div>
           </div>
           
-          <Button variant="outline" size="sm" className="w-full mt-3 border-slate-700 text-slate-300 hover:bg-slate-800">
+          <Button variant="outline" size="sm" className="w-full mt-3 border-teal text-slate-300 hover:bg-teal-card/50">
             View Full Analytics
           </Button>
         </CardContent>
@@ -108,7 +108,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
 
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -128,7 +128,7 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
               className={`h-8 px-3 text-xs ${
                 timeframe === period
                   ? 'bg-brand hover:bg-brand-hover text-black'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-300 hover:text-white hover:bg-teal-card/50'
               }`}
             >
               {period.toUpperCase()}
@@ -137,46 +137,46 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
         </div>
       </div>
 
-      {/* 핵심 메트릭 */}
+      {/* Core Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Trophy className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Win Rate</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Win Rate</Badge>
             </div>
             <div className="text-2xl font-bold text-green-300 mb-1">{analyticsData.winRate}%</div>
             <div className="text-sm text-slate-400">Win Rate</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <BarChart3 className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Profit Factor</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Profit Factor</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{analyticsData.profitFactor}</div>
             <div className="text-sm text-slate-400">Profit Factor</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Sharpe</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Sharpe</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{analyticsData.sharpeRatio}</div>
             <div className="text-sm text-slate-400">Sharpe Ratio</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <AlertTriangle className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Max Drawdown</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Max Drawdown</Badge>
             </div>
             <div className="text-2xl font-bold text-red-300 mb-1">${Math.abs(analyticsData.maxDrawdown).toLocaleString()}</div>
             <div className="text-sm text-slate-400">Max Drawdown</div>
@@ -184,10 +184,10 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
         </Card>
       </div>
 
-      {/* 거래 상세 분석 */}
+      {/* Detailed Trade Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 거래 통계 */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Trade Statistics */}
+        <Card className="glass-card-dynamic border-teal">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Activity className="w-5 h-5 text-slate-400" />
@@ -196,11 +196,11 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+              <div className="text-center p-3 bg-teal-card/50 rounded-lg">
                 <div className="text-xl font-bold text-white">{analyticsData.totalTrades}</div>
                 <div className="text-xs text-slate-400">Total Trades</div>
               </div>
-              <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+              <div className="text-center p-3 bg-teal-card/50 rounded-lg">
                 <div className="text-xl font-bold text-green-300">{analyticsData.winningTrades}</div>
                 <div className="text-xs text-slate-400">Winning</div>
               </div>
@@ -240,8 +240,8 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
           </CardContent>
         </Card>
 
-        {/* 인덱스별 성과 */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        {/* Performance by Index */}
+        <Card className="glass-card-dynamic border-teal">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <PieChart className="w-5 h-5 text-slate-400" />
@@ -251,12 +251,10 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
           <CardContent>
             <div className="space-y-4">
               {analyticsData.tradesByIndex.map((index, i) => (
-                <div key={i} className="p-3 bg-slate-800/50 rounded-lg">
+                <div key={i} className="p-3 bg-teal-card/50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <div className="font-medium text-white">{index.symbol}</div>
-                    <div className={`text-sm font-semibold ${
-                      index.pnl >= 0 ? 'text-green-300' : 'text-red-300'
-                    }`}>
+                    <div className={`text-sm font-semibold ${formatPnL(index.pnl).colorClass}`}>
                       {formatPnL(index.pnl).text}
                     </div>
                   </div>
@@ -274,8 +272,8 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
         </Card>
       </div>
 
-      {/* 월별 성과 차트 */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      {/* Monthly Performance Chart */}
+      <Card className="glass-card-dynamic border-teal">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
             <Calendar className="w-5 h-5 text-slate-400" />
@@ -290,12 +288,12 @@ export function TradingAnalytics({ compact = false }: TradingAnalyticsProps) {
                 const height = (Math.abs(month.pnl) / maxAbs) * 100
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center">
-                    <div className="text-xs text-slate-400 mb-2">
+                    <div className={`text-xs mb-2 ${formatPnL(month.pnl).colorClass}`}>
                       {formatPnL(month.pnl).text}
                     </div>
                     <div className="w-full h-32 flex items-end">
                       <div
-                        className={`w-[20%] mx-auto rounded-t ${month.pnl >= 0 ? 'bg-green-300' : 'bg-red-300'}`}
+                        className={`w-[20%] mx-auto rounded-t ${month.pnl >= 0 ? 'bg-green-400' : 'bg-red-400'}`}
                         style={{ height: `${height}%` }}
                       />
                     </div>

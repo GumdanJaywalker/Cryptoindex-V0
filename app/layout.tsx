@@ -7,14 +7,15 @@ import { PWAProvider } from '@/lib/pwa/pwa-provider'
 import { ToastProvider } from '@/components/notifications/toast-system'
 import { PWAInstallPrompt, NetworkStatus } from '@/components/pwa/install-prompt'
 import StickyFooter from '@/components/layout/Footer'
+import { Header } from '@/components/layout/Header'
 
 export const metadata: Metadata = {
-  title: 'HyperIndex - Meme Coin Index Trading Platform',
-  description: 'Trade meme coin indexes with leverage on Hyper Network',
+  title: 'HyperIndex - Crypto Index Trading & Launcher',
+  description: 'Create and trade crypto indexes with leverage on Hyper Network. Launch custom indexes, participate in governance, and trade with professional-grade tools.',
   generator: 'HyperIndex',
   applicationName: 'HyperIndex',
   referrer: 'origin-when-cross-origin',
-  keywords: ['crypto', 'meme coins', 'index trading', 'defi', 'leverage', 'trading platform', 'hyper network'],
+  keywords: ['crypto', 'cryptocurrency', 'index trading', 'index launcher', 'defi', 'leverage', 'trading platform', 'hyper network', 'governance', 'index creation'],
   authors: [{ name: 'HyperIndex Team' }],
   creator: 'HyperIndex',
   publisher: 'HyperIndex',
@@ -31,8 +32,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://hyperindex.app',
-    title: 'HyperIndex - Meme Coin Index Trading Platform',
-    description: 'Trade meme coin indexes with leverage on Hyper Network',
+    title: 'HyperIndex - Crypto Index Trading & Launcher',
+    description: 'Create and trade crypto indexes with leverage on Hyper Network. Launch custom indexes, participate in governance, and trade with professional-grade tools.',
     siteName: 'HyperIndex',
     images: [
       {
@@ -45,8 +46,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HyperIndex - Meme Coin Index Trading Platform',
-    description: 'Trade meme coin indexes with leverage on Hyper Network',
+    title: 'HyperIndex - Crypto Index Trading & Launcher',
+    description: 'Create and trade crypto indexes with leverage on Hyper Network. Launch custom indexes, participate in governance, and trade with professional-grade tools.',
     images: ['/twitter-image.png'],
     creator: '@hyperindex',
   },
@@ -97,7 +98,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      <body className="bg-[#101A1D]">
         <QueryProvider>
           <PrivyProvider>
             <PWAProvider>
@@ -105,21 +106,32 @@ export default function RootLayout({
               <a href="#main-content" className="skip-link">Skip to content</a>
               {/* Network Status Indicator */}
               <NetworkStatus />
-              
+
+              {/* Desktop Header - hidden on mobile (lg:block) */}
+              <div className="hidden lg:block">
+                <Header />
+              </div>
+
               {/* Mobile Header - only visible on mobile */}
-              <MobileHeader />
-              
+              <div className="lg:hidden">
+                <MobileHeader />
+              </div>
+
               {/* Mobile Status Bar - only visible on mobile */}
-              <MobileStatusBar />
-              
-              {/* Main Content with proper mobile spacing */}
-              <main id="main-content" className="pb-16 md:pb-9 pt-16 md:pt-20">
+              <div className="lg:hidden">
+                <MobileStatusBar />
+              </div>
+
+              {/* Main Content with proper spacing */}
+              <main id="main-content" className="pb-16 md:pb-9 bg-[#101A1D]">
                 {children}
               </main>
-              
+
               {/* Mobile Navigation - only visible on mobile */}
-              <MobileNav />
-              
+              <div className="lg:hidden">
+                <MobileNav />
+              </div>
+
               {/* PWA Install Prompt */}
               <PWAInstallPrompt />
 

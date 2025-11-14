@@ -115,7 +115,7 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
   // Show loading state during SSR
   if (!isClient) {
     return (
-      <div className="w-full h-full bg-slate-950 flex items-center justify-center">
+      <div className="w-full h-full bg-teal-base flex items-center justify-center">
         <div className="text-slate-400">Loading chart...</div>
       </div>
     )
@@ -125,10 +125,10 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
     const pathData = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(d.close)}`).join(' ')
     
     return (
-      <div className="w-full h-full bg-slate-950 relative">
+      <div className="w-full h-full bg-teal-base relative">
         {/* Price Info Header */}
         <div className="absolute top-4 left-4 z-10">
-          <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
+          <div className="flex items-center gap-4 bg-teal-card/80 rounded-lg p-3">
             <div>
               <div className="text-xs text-slate-400">DOG_INDEX • {timeframe}</div>
               <div className="text-2xl font-bold text-white">${currentPrice.toFixed(4)}</div>
@@ -213,10 +213,10 @@ function CandlestickChart({ data, chartType, timeframe }: { data: any[], chartTy
 
   // Candlestick Chart (default)
   return (
-    <div className="w-full h-full bg-slate-950 relative">
+    <div className="w-full h-full bg-teal-base relative">
       {/* Price Info Header */}
       <div className="absolute top-4 left-4 z-10">
-        <div className="flex items-center gap-4 bg-slate-900/80 rounded-lg p-3">
+        <div className="flex items-center gap-4 bg-teal-card/80 rounded-lg p-3">
           <div>
             <div className="text-xs text-slate-400">DOG_INDEX • {timeframe}</div>
             <div className="text-2xl font-bold text-white">${currentPrice.toFixed(4)}</div>
@@ -370,10 +370,10 @@ function TradingDataContent() {
     }
 
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 relative">
+      <div className="bg-teal-card/50 border border-teal rounded-lg p-3 relative">
         {showFullscreen && (
           <button 
-            className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+            className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white hover:bg-teal-card/70 rounded"
             onClick={() => setExpandedChart(expandedChart === title ? null : title)}
           >
             {expandedChart === title ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -436,9 +436,9 @@ function TradingDataContent() {
     const sellVolume = generateMockData(12, 25000000, 5000000).map(d => ({ ...d, type: 'sell' }))
     
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 relative">
+      <div className="bg-teal-card/50 border border-teal rounded-lg p-3 relative">
         <button 
-          className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+          className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white hover:bg-teal-card/70 rounded"
           onClick={() => setExpandedChart(expandedChart === 'volume-dist' ? null : 'volume-dist')}
         >
           {expandedChart === 'volume-dist' ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -477,8 +477,8 @@ function TradingDataContent() {
 
   if (expandedChart) {
     return (
-      <div className="h-full bg-slate-950 flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-slate-700">
+      <div className="h-full bg-teal-base flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-teal">
           <div className="flex items-center gap-4">
             <h3 className="text-lg font-semibold text-white">{expandedChart}</h3>
             <div className="flex gap-1">
@@ -487,7 +487,7 @@ function TradingDataContent() {
                   key={tf}
                   onClick={() => setTimeframe(tf)}
                   className={`px-2 py-1 text-xs rounded transition-colors ${
-                    timeframe === tf ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                    timeframe === tf ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-teal-card/70'
                   }`}
                 >
                   {tf}
@@ -497,14 +497,14 @@ function TradingDataContent() {
           </div>
           <button 
             onClick={() => setExpandedChart(null)}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+            className="p-2 text-slate-400 hover:text-white hover:bg-teal-card/70 rounded"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
         
         <div className="flex-1 p-8">
-          <div className="h-full bg-slate-900/50 rounded-lg p-6">
+          <div className="h-full glass-card-dynamic rounded-lg p-6">
             <div className="text-center text-slate-400 pt-20">
               <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <div className="text-lg font-medium">Expanded Chart View</div>
@@ -517,7 +517,7 @@ function TradingDataContent() {
   }
 
   return (
-    <div className="h-full bg-slate-950 overflow-y-auto">
+    <div className="h-full bg-teal-base overflow-y-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white">Trading Data Analytics</h3>
@@ -527,7 +527,7 @@ function TradingDataContent() {
                 key={tf}
                 onClick={() => setTimeframe(tf)}
                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                  timeframe === tf ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  timeframe === tf ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-teal-card/70'
                 }`}
               >
                 {tf}
@@ -592,9 +592,9 @@ function InfoTabContent() {
   const infoTabs = ['Index Info', 'Token Info', 'Composition', 'Trading Rules', 'Performance']
 
   return (
-    <div className="h-full bg-slate-950 flex flex-col">
+    <div className="h-full bg-teal-base flex flex-col">
       {/* Info Sub-tabs */}
-      <div className="border-b border-slate-700 flex-shrink-0">
+      <div className="border-b border-teal flex-shrink-0">
         <div className="flex px-4">
           {infoTabs.map((tab) => (
             <button
@@ -617,7 +617,7 @@ function InfoTabContent() {
         {activeInfoTab === 'Index Info' && (
           <div className="space-y-4">
             {/* Basic Index Information */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Info className="w-4 h-4 text-blue-400" />
@@ -654,7 +654,7 @@ function InfoTabContent() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-700">
+                <div className="mt-4 pt-3 border-t border-teal">
                   <h5 className="text-xs font-semibold text-white mb-2">Description</h5>
                   <p className="text-xs text-slate-300 leading-relaxed">
                     The DOG_INDEX tracks the performance of the most popular dog-themed meme cryptocurrencies. 
@@ -681,7 +681,7 @@ function InfoTabContent() {
         {activeInfoTab === 'Token Info' && (
           <div className="space-y-4">
             {/* Token Narrative */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Brain className="w-4 h-4 text-orange-400" />
@@ -738,7 +738,7 @@ function InfoTabContent() {
 
                   <div>
                     <h5 className="text-xs font-semibold text-white mb-2">Investment Thesis</h5>
-                    <div className="bg-slate-900/50 rounded-lg p-3">
+                    <div className="glass-card-dynamic rounded-lg p-3">
                       <p className="text-xs text-slate-300 leading-relaxed mb-2">
                         Dog-themed tokens serve as a gateway for new crypto users, often representing their first exposure 
                         to digital assets. The narrative benefits from:
@@ -756,7 +756,7 @@ function InfoTabContent() {
             </Card>
 
             {/* Current Market Sentiment */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Activity className="w-4 h-4 text-cyan-400" />
@@ -765,24 +765,24 @@ function InfoTabContent() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <div className="bg-slate-900/50 rounded p-2">
+                    <div className="glass-card-dynamic rounded p-2">
                       <div className="text-xs text-slate-400">Social Mentions (24h)</div>
                       <div className="text-sm font-semibold text-white">42.3K</div>
                       <div className="text-xs text-green-400">+18.4%</div>
                     </div>
-                    <div className="bg-slate-900/50 rounded p-2">
+                    <div className="glass-card-dynamic rounded p-2">
                       <div className="text-xs text-slate-400">Sentiment Score</div>
                       <div className="text-sm font-semibold text-green-400">Bullish</div>
                       <div className="text-xs text-slate-400">7.2/10</div>
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="bg-slate-900/50 rounded p-2">
+                    <div className="glass-card-dynamic rounded p-2">
                       <div className="text-xs text-slate-400">Trend Strength</div>
                       <div className="text-sm font-semibold text-orange-400">Strong</div>
                       <div className="text-xs text-slate-400">Above average</div>
                     </div>
-                    <div className="bg-slate-900/50 rounded p-2">
+                    <div className="glass-card-dynamic rounded p-2">
                       <div className="text-xs text-slate-400">Narrative Phase</div>
                       <div className="text-sm font-semibold text-blue-400">Growth</div>
                       <div className="text-xs text-slate-400">Expanding utility</div>
@@ -790,7 +790,7 @@ function InfoTabContent() {
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
+                <div className="mt-4 p-3 glass-card-dynamic rounded-lg">
                   <div className="text-xs text-slate-400 mb-2">Recent Catalysts</div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
@@ -811,7 +811,7 @@ function InfoTabContent() {
             </Card>
 
             {/* Risks and Considerations */}
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -845,7 +845,7 @@ function InfoTabContent() {
 
         {activeInfoTab === 'Composition' && (
           <div className="space-y-4">
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -859,7 +859,7 @@ function InfoTabContent() {
                 
                 <div className="space-y-3">
                   {mockIndexComposition.map((asset, index) => (
-                    <div key={asset.symbol} className="bg-slate-900/30 rounded-lg p-3">
+                    <div key={asset.symbol} className="bg-teal-card/30 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
@@ -877,7 +877,7 @@ function InfoTabContent() {
                           </div>
                         </div>
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-1.5">
+                      <div className="w-full bg-teal-card/70 rounded-full h-1.5">
                         <div 
                           className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all"
                           style={{ width: `${asset.weight}%` }}
@@ -887,7 +887,7 @@ function InfoTabContent() {
                   ))}
                 </div>
 
-                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
+                <div className="mt-4 p-3 glass-card-dynamic rounded-lg">
                   <div className="text-xs text-slate-400 mb-2">Rebalancing Information</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
@@ -907,7 +907,7 @@ function InfoTabContent() {
 
         {activeInfoTab === 'Trading Rules' && (
           <div className="space-y-4">
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Shield className="w-4 h-4 text-green-400" />
@@ -953,7 +953,7 @@ function InfoTabContent() {
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
+                <div className="mt-4 p-3 glass-card-dynamic rounded-lg">
                   <div className="text-xs text-slate-400 mb-2">Trading Hours</div>
                   <div className="text-xs text-white">24/7 - Continuous Trading</div>
                 </div>
@@ -968,7 +968,7 @@ function InfoTabContent() {
 
         {activeInfoTab === 'Performance' && (
           <div className="space-y-4">
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-teal-card/50 border-teal">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-4 h-4 text-green-400" />
@@ -1004,7 +1004,7 @@ function InfoTabContent() {
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
+                <div className="mt-4 p-3 glass-card-dynamic rounded-lg">
                   <div className="text-xs text-slate-400 mb-2">Risk Metrics</div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex justify-between">
@@ -1095,9 +1095,9 @@ export function ChartArea() {
   }, [selectedTimeframe, isClient])
 
   return (
-    <div className="flex flex-col bg-slate-950">
+    <div className="flex flex-col bg-teal-base">
       {/* Chart Controls */}
-      <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-4 space-x-4">
+      <div className="h-12 bg-teal-card border-b border-teal flex items-center px-4 space-x-4">
         {/* Timeframe Buttons */}
         <div className="flex space-x-1">
           {timeframes.map((tf) => (
@@ -1107,7 +1107,7 @@ export function ChartArea() {
               className={`px-3 py-1 text-sm rounded transition-colors ${
                 selectedTimeframe === tf
                   ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  : 'text-slate-400 hover:text-white hover:bg-teal-card/70'
               }`}
             >
               {tf}
@@ -1123,8 +1123,8 @@ export function ChartArea() {
               onClick={() => setSelectedChartType(type)}
               className={`px-3 py-1 text-sm rounded transition-colors ${
                 selectedChartType === type
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  ? 'bg-teal-card/70 text-white'
+                  : 'text-slate-400 hover:text-white hover:bg-teal-card/70'
               }`}
             >
               {type}
@@ -1134,9 +1134,9 @@ export function ChartArea() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-col bg-slate-950">
+      <div className="flex flex-col bg-teal-base">
         {/* Tab Headers */}
-        <div className="h-10 bg-slate-900 border-b border-slate-700 flex items-center">
+        <div className="h-10 bg-teal-card border-b border-teal flex items-center">
           <div className="flex space-x-1 px-4">
             {chartTabs.map((tab) => (
               <button
@@ -1144,8 +1144,8 @@ export function ChartArea() {
                 onClick={() => setActiveChartTab(tab)}
                 className={`px-3 py-1 text-sm whitespace-nowrap rounded transition-colors ${
                   activeChartTab === tab
-                    ? 'bg-slate-700 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-teal-card/70 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-teal-card/50'
                 }`}
               >
                 {tab}
@@ -1155,9 +1155,9 @@ export function ChartArea() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 bg-slate-950 overflow-hidden">
+        <div className="flex-1 bg-teal-base overflow-hidden">
           {activeChartTab === 'Chart' && (
-            <div className="h-full bg-slate-950 p-4">
+            <div className="h-full bg-teal-base p-4">
               <CandlestickChart 
                 data={chartData} 
                 chartType={selectedChartType} 

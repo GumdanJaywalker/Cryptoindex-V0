@@ -221,25 +221,25 @@ useEffect(() => {
             <SelectItem value="symbol">Sort: Symbol (A–Z)</SelectItem>
           </SelectContent>
         </Select>
-        <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
+        <div className="flex items-center gap-2 px-2 py-1 rounded border border-teal bg-teal-card/50">
           <Switch checked={hideLowLiquidity} onCheckedChange={(v) => setHideLowLiquidity(!!v)} />
           <span className="text-xs text-slate-300">Hide low liq (&lt; {formatBalance(minLiquidity)})</span>
         </div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
+        <div className="flex items-center gap-2 px-2 py-1 rounded border border-teal bg-teal-card/50">
           <Switch checked={excludeBlacklisted} onCheckedChange={(v) => setExcludeBlacklisted(!!v)} />
           <span className="text-xs text-slate-300">Exclude blacklisted</span>
         </div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
+        <div className="flex items-center gap-2 px-2 py-1 rounded border border-teal bg-teal-card/50">
           <Switch checked={positiveReturnOnly} onCheckedChange={(v) => setPositiveReturnOnly(!!v)} />
           <span className="text-xs text-slate-300">Positive return only</span>
         </div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded border border-slate-700 bg-slate-900/50">
+        <div className="flex items-center gap-2 px-2 py-1 rounded border border-teal bg-teal-card/50">
           <Switch checked={selectedOnly} onCheckedChange={(v) => setSelectedOnly(!!v)} />
           <span className="text-xs text-slate-300">Selected only</span>
         </div>
         <Button
           variant="outline"
-          className="border-slate-700 text-slate-300 hover:bg-slate-800"
+          className="border-teal text-slate-300 hover:bg-teal-elevated"
           onClick={() => { distributeEqual(); addToast(createSuccessToast('All set ✓', undefined, { duration: 1500 })) }}
           disabled={Object.keys(selected).length === 0}
         >
@@ -259,7 +259,7 @@ useEffect(() => {
         </Badge>
         <Button
           variant="outline"
-          className="border-slate-700 text-slate-300 hover:bg-slate-800"
+          className="border-teal text-slate-300 hover:bg-teal-elevated"
           onClick={() => onChange('')}
           disabled={selectedCount === 0}
         >
@@ -295,7 +295,7 @@ useEffect(() => {
                 <Card
                   key={`${asset.symbol}-${idx}`}
                   className={cn(
-                    'bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-colors',
+                    'bg-teal-card/50 border-teal hover:border-teal transition-colors',
                     isSelected && 'border-brand/40',
                     isBlacklisted && 'opacity-70'
                   )}
@@ -358,7 +358,7 @@ useEffect(() => {
                       </div>
                       <Button
                         size="sm"
-                        className={cn('h-8 px-3', isSelected ? 'bg-slate-800 hover:bg-slate-700' : 'bg-brand text-black hover:bg-brand-hover')}
+                        className={cn('h-8 px-3', isSelected ? 'bg-teal-elevated hover:bg-teal-elevated' : 'bg-brand text-black hover:bg-brand-hover')}
                         variant={isSelected ? 'outline' : 'default'}
                         onClick={() => toggle(asset.symbol)}
                         disabled={!isSelected && isGloballyBlocked}

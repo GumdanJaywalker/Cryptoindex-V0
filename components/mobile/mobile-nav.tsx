@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/trading', label: 'Trade', icon: TrendingUp, badge: 'HOT' },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { href: '/governance', label: 'Vote', icon: Vote }
+  { href: '/vote', label: 'Vote', icon: Vote }
 ]
 
 export function MobileNav() {

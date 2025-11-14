@@ -13,14 +13,14 @@ const mockTrades = [
 
 export function RecentTrades() {
   return (
-    <div className="h-full bg-slate-950 flex flex-col">
+    <div className="h-full bg-teal-base flex flex-col">
       {/* Header */}
-      <div className="h-8 bg-slate-900 border-b border-slate-800 flex items-center px-3">
+      <div className="h-8 bg-teal-card border-b border-teal flex items-center px-3">
         <h3 className="text-sm font-medium text-white">Recent Trades</h3>
       </div>
 
       {/* Column Headers */}
-      <div className="h-6 bg-slate-900 border-b border-slate-800 flex items-center px-3 text-xs text-slate-400">
+      <div className="h-6 bg-teal-card border-b border-teal flex items-center px-3 text-xs text-slate-400">
         <div className="flex-1">Price</div>
         <div className="flex-1 text-right">Size</div>
         <div className="w-16 text-right">Time</div>
@@ -31,7 +31,7 @@ export function RecentTrades() {
         {mockTrades.map((trade, index) => (
           <div
             key={index}
-            className="flex items-center px-2 py-0.5 hover:bg-slate-800/50 text-xs"
+            className="flex items-center px-2 py-0.5 hover:bg-teal-card/50 text-xs"
           >
             <div className={`flex-1 font-mono ${
               trade.side === 'buy' ? 'text-green-400' : 'text-red-400'
@@ -49,7 +49,7 @@ export function RecentTrades() {
       </div>
 
       {/* Volume Stats */}
-      <div className="h-8 bg-slate-900 border-t border-slate-800 flex items-center px-2 text-xs">
+      <div className="h-8 bg-teal-card border-t border-teal flex items-center px-2 text-xs">
         <div className="flex space-x-4">
           <div>
             <span className="text-slate-400">Vol:</span>

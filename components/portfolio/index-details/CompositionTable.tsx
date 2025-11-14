@@ -6,7 +6,7 @@
 import { IndexData } from "@/lib/types/index";
 import { cn } from "@/lib/utils";
 
-const COLORS = ["#98FCE4", "#8BD6FF", "#6BBDFF", "#72a59a", "#5a8a7f"];
+const COLORS = ["#75cfc1", "#8BD6FF", "#6BBDFF", "#72a59a", "#5a8a7f"];
 
 interface CompositionTableProps {
   index: IndexData;
@@ -14,10 +14,10 @@ interface CompositionTableProps {
 
 export function CompositionTable({ index }: CompositionTableProps) {
   return (
-    <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+    <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
       <h3 className="text-white font-semibold mb-4">Composition</h3>
       <div className="space-y-2">
-        <div className="grid grid-cols-12 text-xs text-slate-400 pb-2 border-b border-slate-700">
+        <div className="grid grid-cols-12 text-xs text-slate-400 pb-2 border-b border-teal">
           <div className="col-span-3">Asset</div>
           <div className="col-span-2">Symbol</div>
           <div className="col-span-2">Allocation</div>
@@ -26,7 +26,7 @@ export function CompositionTable({ index }: CompositionTableProps) {
         </div>
         <div className="space-y-2">
           {index.assets.map((item, i) => (
-            <div key={`${item.symbol}-${i}`} className="grid grid-cols-12 items-center py-2 hover:bg-slate-800/50 rounded">
+            <div key={`${item.symbol}-${i}`} className="grid grid-cols-12 items-center py-2 hover:bg-teal-card/50 rounded">
               <div className="col-span-3 flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"

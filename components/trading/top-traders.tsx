@@ -275,31 +275,31 @@ export function TopTraders({
     <div className={cn("space-y-6", className)}>
       {/* Skeletons */}
       {(!mounted || isRefreshing) && variant === 'compact' && (
-        <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+        <div className="bg-teal-card/30 rounded-xl border border-teal overflow-hidden">
           {/* Podium skeleton */}
           <div className="p-4 space-y-3">
             <div className="flex justify-center">
-              <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-slate-800 bg-slate-900/40 p-5">
+              <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-teal bg-teal-card/40 p-5">
                 <div className="flex items-center gap-4 animate-pulse">
-                  <div className="w-12 h-12 rounded-full bg-slate-800"/>
+                  <div className="w-12 h-12 rounded-full bg-teal-card"/>
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-800 rounded w-1/2"/>
-                    <div className="h-3 bg-slate-800 rounded w-1/3"/>
+                    <div className="h-4 bg-teal-card rounded w-1/2"/>
+                    <div className="h-3 bg-teal-card rounded w-1/3"/>
                   </div>
-                  <div className="h-5 bg-slate-800 rounded w-24"/>
+                  <div className="h-5 bg-teal-card rounded w-24"/>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
               {[0,1].map(i => (
-                <div key={i} className="rounded-lg border border-slate-800 bg-slate-900/40 p-4">
+                <div key={i} className="rounded-lg border border-teal bg-teal-card/40 p-4">
                   <div className="flex items-center gap-3 animate-pulse">
-                    <div className="w-10 h-10 rounded-full bg-slate-800"/>
+                    <div className="w-10 h-10 rounded-full bg-teal-card"/>
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-slate-800 rounded w-1/2"/>
-                      <div className="h-3 bg-slate-800 rounded w-1/4"/>
+                      <div className="h-4 bg-teal-card rounded w-1/2"/>
+                      <div className="h-3 bg-teal-card rounded w-1/4"/>
                     </div>
-                    <div className="h-4 bg-slate-800 rounded w-16"/>
+                    <div className="h-4 bg-teal-card rounded w-16"/>
                   </div>
                 </div>
               ))}
@@ -311,18 +311,18 @@ export function TopTraders({
               <div key={`s-${i}`} className="px-4 py-3">
                 <div className="flex items-center gap-3 animate-pulse">
                   <div className="w-6 text-slate-800">&nbsp;</div>
-                  <div className="w-8 h-8 rounded-full bg-slate-800"/>
+                  <div className="w-8 h-8 rounded-full bg-teal-card"/>
                   <div className="flex-1">
-                    <div className="h-4 bg-slate-800 rounded w-1/2"/>
+                    <div className="h-4 bg-teal-card rounded w-1/2"/>
                   </div>
-                  <div className="h-4 bg-slate-800 rounded w-24"/>
+                  <div className="h-4 bg-teal-card rounded w-24"/>
                 </div>
                 <div className="mt-2 pl-9 flex items-center justify-between animate-pulse">
                   <div className="flex gap-1">
-                    <div className="h-4 w-12 bg-slate-800 rounded"/>
-                    <div className="h-4 w-12 bg-slate-800 rounded"/>
+                    <div className="h-4 w-12 bg-teal-card rounded"/>
+                    <div className="h-4 w-12 bg-teal-card rounded"/>
                   </div>
-                  <div className="h-3 w-32 bg-slate-800 rounded"/>
+                  <div className="h-3 w-32 bg-teal-card rounded"/>
                 </div>
               </div>
             ))}
@@ -347,7 +347,7 @@ export function TopTraders({
             disabled={isRefreshing}
             variant="outline"
             size="sm"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="border-teal text-slate-300 hover:bg-teal-card/50"
           >
             <RefreshCw className={cn(
               "w-4 h-4 mr-2",
@@ -360,7 +360,7 @@ export function TopTraders({
               placeholder="Search traders..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500"
+              className="h-8 bg-teal-card border-teal text-slate-200 placeholder:text-slate-500"
               aria-label="Search traders"
             />
           </div>
@@ -370,18 +370,18 @@ export function TopTraders({
 
       {/* Default variant skeletons (list) */}
       {(!mounted || isRefreshing) && variant !== 'compact' && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/30 overflow-hidden">
+        <div className="rounded-xl border border-teal bg-teal-card/30 overflow-hidden">
           <div className="divide-y divide-slate-800">
             {Array.from({length: 8}).map((_, i) => (
               <div key={`d-s-${i}`} className="px-4 py-3">
                 <div className="flex items-center gap-3 animate-pulse">
-                  <div className="w-6 h-4 bg-slate-800 rounded"/>
-                  <div className="w-8 h-8 rounded-full bg-slate-800"/>
+                  <div className="w-6 h-4 bg-teal-card rounded"/>
+                  <div className="w-8 h-8 rounded-full bg-teal-card"/>
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-800 rounded w-1/3"/>
-                    <div className="h-3 bg-slate-800 rounded w-1/4"/>
+                    <div className="h-4 bg-teal-card rounded w-1/3"/>
+                    <div className="h-3 bg-teal-card rounded w-1/4"/>
                   </div>
-                  <div className="h-4 bg-slate-800 rounded w-24"/>
+                  <div className="h-4 bg-teal-card rounded w-24"/>
                 </div>
               </div>
             ))}
@@ -391,7 +391,7 @@ export function TopTraders({
 
       {/* Timeframe Tabs (hidden in compact variant) */}
       {!isCompact && (
-        <div className={cn("flex gap-1 p-1 rounded-lg", 'bg-slate-900/50')}>
+        <div className={cn("flex gap-1 p-1 rounded-lg", 'glass-card-dynamic')}>
           {timeframeOptions.map(({ key, label, description }) => (
             <Button
               key={key}
@@ -401,7 +401,7 @@ export function TopTraders({
                 "flex-1 text-xs h-8 transition-all duration-200",
                 selectedTimeframe === key 
                   ? "bg-brand text-black hover:bg-brand-hover" 
-                  : "hover:bg-slate-800 hover:text-white"
+                  : "hover:bg-teal-card/50 hover:text-white"
               )}
               onClick={() => setSelectedTimeframe(key)}
               title={description}
@@ -414,7 +414,7 @@ export function TopTraders({
 
       {/* Compact table view for landing: Top 3 thick rows (no podium) */}
       {isCompact ? (
-        <div className="bg-slate-900/30 rounded-xl border border-slate-800 overflow-hidden">
+        <div className="bg-teal-card/30 rounded-xl border border-teal overflow-hidden">
           {rankAll.length > 0 && (
             <>
               {/* Top 3 — Thick rows */}
@@ -422,13 +422,13 @@ export function TopTraders({
                 {rankAll.slice(0,3).map((t) => (
                   <button
                     key={t.id}
-                    className="w-full text-left px-4 py-4 hover:bg-slate-900/50 transition-colors"
+                    className="w-full text-left px-4 py-4 hover:glass-card-dynamic transition-colors"
                     onClick={() => onViewPortfolio(t)}
                     aria-label={`Open ${t.ens || t.address} portfolio`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-7 text-slate-500 font-mono pt-1">{t.rank}</div>
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300 ring-1 ring-slate-700">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-teal-card flex items-center justify-center text-slate-300 ring-1 ring-slate-700">
                         {t.avatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
@@ -444,7 +444,7 @@ export function TopTraders({
                             <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
                           )}
                           {t.rank === 2 && (
-                            <Badge variant="outline" className="text-[10px] text-slate-300 border-slate-600">🥈</Badge>
+                            <Badge variant="outline" className="text-[10px] text-slate-300 border-teal">🥈</Badge>
                           )}
                           {t.rank === 3 && (
                             <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-600/30">🥉</Badge>
@@ -467,7 +467,7 @@ export function TopTraders({
                             <Link
                               key={idxId}
                               href={`/trading?index=${idxId}`}
-                              className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                              className="px-2 py-0.5 rounded bg-teal-card text-slate-300 text-[11px] border border-teal hover:border-teal hover:text-white"
                               aria-label={`Trade ${label}`}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -485,7 +485,7 @@ export function TopTraders({
                 ))}
               </div>
               {/* Strong separator between top3 and the rest */}
-              <div className="h-px bg-slate-700/60" role="separator" aria-label="Top 3 separator" />
+              <div className="h-px bg-teal-card/70/60" role="separator" aria-label="Top 3 separator" />
               {/* Rows 4–7 — compact rich rows */}
               <div className="divide-y divide-slate-800">
                 {rankAll.slice(3, 7).map((t, idx) => (
@@ -497,7 +497,7 @@ export function TopTraders({
                         onClick={() => onViewPortfolio(t)}
                         aria-label={`Open ${t.ens || t.address} portfolio`}
                       >
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center text-slate-300">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-teal-card flex items-center justify-center text-slate-300">
                           {t.avatar ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
@@ -523,7 +523,7 @@ export function TopTraders({
                             <Link
                               key={idxId}
                               href={`/trading?index=${idxId}`}
-                              className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] border border-slate-700 hover:border-slate-600 hover:text-white"
+                              className="px-2 py-0.5 rounded bg-teal-card text-slate-300 text-[11px] border border-teal hover:border-teal hover:text-white"
                               aria-label={`Trade ${label}`}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -563,7 +563,7 @@ export function TopTraders({
                   "text-xs transition-all duration-200",
                   selectedFilter === key 
                     ? "bg-brand text-black hover:bg-brand-hover" 
-                    : "border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white"
+                    : "border-teal text-slate-400 hover:bg-teal-card/50 hover:text-white"
                 )}
                 onClick={() => setSelectedFilter(key)}
                 title={description}
@@ -581,7 +581,7 @@ export function TopTraders({
               onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
+              className="h-7 w-7 p-0 text-slate-400 hover:text-white hover:bg-teal-card/50"
               title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
             >
               {sortDirection === 'desc' ? 
@@ -592,15 +592,15 @@ export function TopTraders({
 
             {/* Sort By Dropdown */}
             <Select value={sortBy} onValueChange={handleSortChange}>
-              <SelectTrigger className="h-7 w-24 text-xs border-slate-700 bg-slate-800/50 text-slate-300">
+              <SelectTrigger className="h-7 w-24 text-xs border-teal bg-teal-card/50 text-slate-300">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent className="bg-teal-card border-teal">
                 {sortOptions.map(({ key, label, description }) => (
                   <SelectItem 
                     key={key} 
                     value={key}
-                    className="text-xs text-slate-300 focus:bg-slate-700 focus:text-white"
+                    className="text-xs text-slate-300 focus:bg-teal-card/70 focus:text-white"
                   >
                     {label}
                   </SelectItem>
@@ -670,10 +670,10 @@ export function TopTraders({
             exit={{ opacity: 0, scale: 0.95 }}
             className="text-center py-12"
           >
-            <Card className="bg-slate-900/30 border-slate-800">
+            <Card className="bg-teal-card/30 border-teal">
               <CardContent className="p-8">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center">
                     <Users className="w-6 h-6 text-slate-400" />
                   </div>
                   <div>
@@ -708,7 +708,7 @@ export function TopTraders({
           <Button
             onClick={() => setExpandedView(!expandedView)}
             variant="outline"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="border-teal text-slate-300 hover:bg-teal-card/50"
           >
             <Eye className="w-4 h-4 mr-2" />
             {expandedView ? 'Show Less' : `Show All ${traders.length} Traders`}

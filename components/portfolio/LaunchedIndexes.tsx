@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Rocket, TrendingUp, Clock, ExternalLink } from 'lucide-react'
+import { TrendingUp, Clock, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import IndexDetailsModal from './IndexDetailsModal'
@@ -58,10 +58,9 @@ export function LaunchedIndexes() {
 
   if (launchedIndexes.length === 0) {
     return (
-      <Card className="bg-slate-900/40 border-slate-800">
+      <Card className="glass-card-dynamic">
         <CardContent className="p-6">
           <div className="text-center py-8">
-            <Rocket className="w-12 h-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-white font-semibold mb-2">No Launched Indexes Yet</h3>
             <p className="text-slate-400 text-sm mb-4">
               Create and launch your first index to see it here
@@ -78,13 +77,12 @@ export function LaunchedIndexes() {
   }
 
   return (
-    <Card className="bg-slate-900/40 border-slate-800" data-section="launched-indexes">
+    <Card className="glass-card-dynamic" data-section="launched-indexes">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Rocket className="w-5 h-5 text-brand" />
             <h3 className="text-white font-semibold text-lg">My Launched Indexes</h3>
-            <Badge variant="outline" className="text-xs border-slate-700 text-slate-400">
+            <Badge variant="outline" className="text-xs border-teal text-slate-400">
               {launchedIndexes.length}
             </Badge>
           </div>
@@ -92,7 +90,7 @@ export function LaunchedIndexes() {
             <Button
               variant="outline"
               size="sm"
-              className="border-brand/30 bg-brand/10 text-brand hover:bg-brand/20"
+              className="border-white/10 bg-brand/10 text-brand hover:bg-brand/20"
             >
               Launch New
             </Button>
@@ -103,7 +101,7 @@ export function LaunchedIndexes() {
           {launchedIndexes.map((index) => (
             <Card
               key={index.id}
-              className="bg-slate-900 border-slate-700 hover:border-brand/30 transition-colors"
+              className="glass-card-dynamic hover:border-white/10 transition-all"
             >
               <CardContent className="p-4">
                 {/* Header */}
@@ -144,7 +142,7 @@ export function LaunchedIndexes() {
                 </div>
 
                 {/* Graduation Progress */}
-                <div className="mb-3 pb-3 border-b border-slate-700">
+                <div className="mb-3 pb-3 border-b border-teal">
                   <GraduationProgress data={getGraduationData(index)} variant="compact" />
                 </div>
 
@@ -153,13 +151,13 @@ export function LaunchedIndexes() {
                   {index.assets.slice(0, 5).map((asset, idx) => (
                     <div
                       key={idx}
-                      className="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-slate-300"
+                      className="px-2 py-1 rounded bg-teal-elevated border border-teal text-xs text-slate-300"
                     >
                       {asset.symbol}
                       <span
                         className={cn(
                           'ml-1',
-                          asset.side === 'long' ? 'text-green-400' : 'text-red-400'
+                          asset.side === 'long' ? 'hl-accent-green' : 'hl-accent-red'
                         )}
                       >
                         {asset.side === 'long' ? '↑' : '↓'}
@@ -170,7 +168,7 @@ export function LaunchedIndexes() {
                     </div>
                   ))}
                   {index.assets.length > 5 && (
-                    <div className="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-slate-400">
+                    <div className="px-2 py-1 rounded bg-teal-elevated border border-teal text-xs text-slate-400">
                       +{index.assets.length - 5} more
                     </div>
                   )}
@@ -181,7 +179,7 @@ export function LaunchedIndexes() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="flex-1 border-teal text-slate-400 hover:text-white hover:bg-teal-elevated"
                     onClick={() => {
                       setSelectedIndex(index)
                       setShowModal(true)
@@ -194,7 +192,7 @@ export function LaunchedIndexes() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                      className="border-teal text-slate-400 hover:text-white hover:bg-teal-elevated"
                       asChild
                     >
                       <a href={index.socialLink} target="_blank" rel="noopener noreferrer">

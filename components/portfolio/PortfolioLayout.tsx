@@ -16,14 +16,14 @@ export function PortfolioLayout() {
   const [activeTab, setActiveTab] = useState('positions')
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-teal-base">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* 계정 요약 */}
+        {/* Account Summary */}
         <AccountSummary />
-        
-        {/* 메인 탭 */}
+
+        {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 bg-slate-900 border border-slate-800">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 glass-card-dynamic border-teal">
             <TabsTrigger
               value="positions"
               className="data-[state=active]:bg-brand data-[state=active]:text-black text-slate-300 text-xs sm:text-sm"

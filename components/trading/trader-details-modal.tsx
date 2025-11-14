@@ -41,7 +41,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl bg-slate-950 border-slate-800">
+      <DialogContent className="sm:max-w-2xl bg-teal-base border-teal">
         <DialogHeader>
           <DialogTitle className="text-white">Trader Details</DialogTitle>
         </DialogHeader>
@@ -65,7 +65,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
               )}
             </div>
             <div className="mt-1 flex items-center gap-3 text-xs text-slate-400">
-              <span className="px-2 py-0.5 rounded bg-slate-800/60 border border-slate-700 text-slate-300"># {trader.rank}</span>
+              <span className="px-2 py-0.5 rounded bg-teal-card/60 border border-teal text-slate-300"># {trader.rank}</span>
               <span className="flex items-center gap-1"><Users className="w-3 h-3" />{trader.followersCount.toLocaleString()} followers</span>
               <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{trader.totalTrades} trades</span>
             </div>
@@ -81,7 +81,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mt-4">
-          <Card className="bg-slate-900/40 border-slate-800">
+          <Card className="bg-teal-card/40 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400 flex items-center gap-1"><Percent className="w-3 h-3" />ROI 24H</div>
               <div className={cn('text-sm font-semibold', roi24 >= 0 ? 'text-green-400' : 'text-red-400')}>
@@ -92,7 +92,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-900/40 border-slate-800">
+          <Card className="bg-teal-card/40 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400 flex items-center gap-1"><Percent className="w-3 h-3" />ROI 7D</div>
               <div className={cn('text-sm font-semibold', roi7 >= 0 ? 'text-green-400' : 'text-red-400')}>
@@ -103,7 +103,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-900/40 border-slate-800">
+          <Card className="bg-teal-card/40 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400 flex items-center gap-1"><Percent className="w-3 h-3" />ROI 30D</div>
               <div className={cn('text-sm font-semibold', roi30 >= 0 ? 'text-green-400' : 'text-red-400')}>
@@ -118,14 +118,14 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
 
         {/* Win rate and totals */}
         <div className="grid grid-cols-3 gap-3">
-          <Card className="bg-slate-900/30 border-slate-800">
+          <Card className="bg-teal-card/30 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400 flex items-center gap-1"><Target className="w-3 h-3" />Win rate</div>
               <div className="text-sm font-semibold text-white">{trader.winRate.toFixed(1)}%</div>
               <div className="text-[11px] text-slate-400">{Math.round((trader.winRate/100) * trader.totalTrades)} wins</div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-900/30 border-slate-800">
+          <Card className="bg-teal-card/30 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400">Total PnL</div>
               <div className={cn('text-sm font-semibold', (trader.totalPnl||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
@@ -136,7 +136,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-900/30 border-slate-800">
+          <Card className="bg-teal-card/30 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400">Followers</div>
               <div className="text-sm font-semibold text-white">{trader.followersCount.toLocaleString()}</div>
@@ -155,7 +155,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
               <Link
                 key={id}
                 href={`/trading?index=${id}`}
-                className="px-2 py-1 rounded bg-slate-800 text-slate-200 text-xs border border-slate-700 hover:border-slate-600 hover:text-white"
+                className="px-2 py-1 rounded bg-teal-card text-slate-200 text-xs border border-teal hover:border-teal hover:text-white"
               >
                 {meta?.symbol || id.toUpperCase()}
               </Link>
@@ -167,7 +167,7 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
 
         {/* Footer actions */}
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => onOpenChange(false)}>
             Close
           </Button>
           <Button

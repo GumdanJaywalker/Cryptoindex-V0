@@ -68,7 +68,7 @@ function PnLSparkline({
     return `${x},${y}`
   }).join(' ')
   
-  const strokeColor = isPositive ? "#10b981" : "#ef4444"
+  const strokeColor = isPositive ? "#4ade80" : "#dd7789"
   
   return (
     <div className={cn("relative", className)}>
@@ -117,7 +117,7 @@ function PnLSparkline({
 function RankBadge({ rank, className }: { rank: number, className?: string }) {
   return (
     <div className={cn(
-      "w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white",
+      "w-8 h-8 bg-teal-card/70 rounded-full flex items-center justify-center text-xs font-bold text-white",
       className
     )}>
       #{rank}
@@ -204,7 +204,7 @@ export function TraderCard({
         className={`perspective-1000 ${className}`}
         style={{ transformStyle: "preserve-3d" }}
       >
-        <Card className="bg-slate-900/50 border-slate-800 hover:border-slate-600/50 transition-all duration-300 backdrop-blur-sm shadow-md hover:shadow-xl hover:shadow-brand/10">
+        <Card className="glass-card-dynamic border-teal hover:border-teal/50 transition-all duration-300 backdrop-blur-sm shadow-md hover:shadow-xl hover:shadow-brand/10">
           <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -260,7 +260,7 @@ export function TraderCard({
       className={`perspective-1000 ${className}`}
       style={{ transformStyle: "preserve-3d" }}
     >
-      <Card className="bg-slate-900/50 border-slate-800 hover:border-slate-600/50 transition-all duration-300 hover:bg-slate-900/80 relative overflow-hidden group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
+      <Card className="glass-card-dynamic border-teal hover:border-teal/50 transition-all duration-300 hover:bg-teal-card/80 relative overflow-hidden group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
         {/* 배경 그라데이션 효과 */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -412,7 +412,7 @@ export function TraderCard({
           )}
           
           {/* 포트폴리오 정보 */}
-          <div className="bg-slate-800/30 rounded-lg p-2 mb-3">
+          <div className="bg-teal-card/30 rounded-lg p-2 mb-3">
             <div className="flex items-center justify-between text-xs">
               <div className="text-slate-400">Portfolio Value</div>
               <div className="text-white font-medium">
@@ -447,7 +447,7 @@ export function TraderCard({
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="px-2 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 h-8"
+                className="px-2 border-teal text-slate-400 hover:text-white hover:bg-teal-card/50 h-8"
                 onClick={(e) => {
                   e.stopPropagation()
                   onViewProfile(trader)
@@ -465,7 +465,7 @@ export function TraderCard({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="border-t border-slate-700 pt-2 mt-2"
+                className="border-t border-teal pt-2 mt-2"
               >
                 <div className="text-xs text-slate-400">
                   <div className="flex justify-between">

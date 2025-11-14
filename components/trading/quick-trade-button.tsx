@@ -18,7 +18,8 @@ import {
 import { MemeIndex } from '@/lib/types/index-trading'
 import { cn } from '@/lib/utils'
 import { useCurrency } from '@/lib/hooks/useCurrency'
-import { FEES } from '@/lib/constants/fees'
+import { calculateTradingFee } from '@/lib/utils/fee-calculator'
+import { getUserVIPTier, getIsInvitedUser } from '@/lib/mock/user-vip'
 
 interface QuickTradeButtonProps {
   index: MemeIndex
@@ -58,8 +59,12 @@ function calculateTrade(
   const grossReturn = type === 'buy'
     ? (exitPrice - entryPrice) / entryPrice * positionSize
     : (entryPrice - exitPrice) / entryPrice * positionSize
-  
-  const fees = positionSize * FEES.HIDE.TRADING_FEE // Phase 0: 0.30% trading fee in $HIDE
+
+  // Calculate fees based on user's VIP tier
+  const userVIPTier = getUserVIPTier()
+  const isInvited = getIsInvitedUser()
+  const feeBreakdown = calculateTradingFee(positionSize, userVIPTier, 'L1', isInvited)
+  const fees = feeBreakdown.totalFee
   const netReturn = grossReturn - fees
   const returnPercentage = (netReturn / amount) * 100
   
@@ -127,7 +132,7 @@ function PortalTooltip({
             transform: 'translate(-50%, -100%)'
           }}
         >
-          <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 shadow-xl backdrop-blur-sm">
+          <div className="bg-teal-card border border-teal rounded-lg p-3 shadow-xl backdrop-blur-sm">
             {/* 화살표 */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
               <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-700"></div>
@@ -152,7 +157,7 @@ function PortalTooltip({
                 </div>
               </div>
               
-              <div className="border-t border-slate-700 pt-2">
+              <div className="border-t border-teal pt-2">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-xs">Est. Return</span>
                   <div className={cn(

@@ -35,12 +35,12 @@ export function BuySellAnalysis() {
 
   return (
     <div 
-      className="h-full bg-slate-900 border border-slate-800 rounded-lg flex flex-col overflow-hidden"
+      className="h-full bg-teal-card border border-teal rounded-lg flex flex-col overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header */}
-      <div className="p-3 border-b border-slate-700">
+      <div className="p-3 border-b border-teal">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-white">Buy & Sell Analysis</h3>
           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-white">
@@ -62,7 +62,7 @@ export function BuySellAnalysis() {
               className={`h-8 text-xs transition-all ${
                 activeTimeFrame === frame.id
                   ? 'bg-blue-600/20 border border-blue-500/30 text-blue-400'
-                  : 'border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-300'
+                  : 'border border-teal hover:border-teal text-slate-400 hover:text-slate-300'
               }`}
             >
               <div className="flex flex-col items-center">
@@ -77,19 +77,19 @@ export function BuySellAnalysis() {
 
         {/* Bought/Sold/Holding/PnL Stats */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-slate-800/50 rounded p-2 text-center">
+          <div className="bg-teal-card/50 rounded p-2 text-center">
             <div className="text-xs text-slate-400">Bought</div>
             <div className="text-sm text-white font-medium">--</div>
           </div>
-          <div className="bg-slate-800/50 rounded p-2 text-center">
+          <div className="bg-teal-card/50 rounded p-2 text-center">
             <div className="text-xs text-slate-400">Sold</div>
             <div className="text-sm text-white font-medium">--</div>
           </div>
-          <div className="bg-slate-800/50 rounded p-2 text-center">
+          <div className="bg-teal-card/50 rounded p-2 text-center">
             <div className="text-xs text-slate-400">Holding</div>
             <div className="text-sm text-white font-medium">--</div>
           </div>
-          <div className="bg-slate-800/50 rounded p-2 text-center">
+          <div className="bg-teal-card/50 rounded p-2 text-center">
             <div className="text-xs text-slate-400">PnL</div>
             <div className="text-sm text-white font-medium">--</div>
           </div>
@@ -128,7 +128,7 @@ export function BuySellAnalysis() {
             </div>
 
             {isHovered && (
-              <div className="space-y-2 pt-2 border-t border-slate-700 animate-in slide-in-from-top-2 duration-200">
+              <div className="space-y-2 pt-2 border-t border-teal animate-in slide-in-from-top-2 duration-200">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">DEV H.</span>
                   <span className="text-slate-500">{tokenInfo.devHolders}</span>
@@ -145,7 +145,7 @@ export function BuySellAnalysis() {
                 </div>
 
                 {/* AI Token Narrative - only show on hover */}
-                <div className="pt-2 border-t border-slate-700">
+                <div className="pt-2 border-t border-teal">
                   <div className="flex items-center gap-1 mb-2">
                     <Zap className="w-3 h-3 text-purple-400" />
                     <span className="text-xs font-semibold text-white">AI Token Narrative</span>
@@ -160,7 +160,7 @@ export function BuySellAnalysis() {
         </div>
 
         {/* Price Analysis Visualization */}
-        <div className="bg-slate-800/30 rounded p-2">
+        <div className="bg-teal-card/30 rounded p-2">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs text-slate-400">Price Movement</span>
             <Badge variant="outline" className="text-xs text-red-400 border-red-400/30">
@@ -185,7 +185,7 @@ export function BuySellAnalysis() {
           </div>
           
           {/* Visual price bar */}
-          <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div className="mt-2 h-2 bg-teal-card/70 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded-full relative">
               <div 
                 className="absolute top-0 w-1 h-full bg-white rounded-full shadow-sm"

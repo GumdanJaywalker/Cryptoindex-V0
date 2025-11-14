@@ -115,7 +115,7 @@ export function CommunityFeed() {
       case 'legend': return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
       case 'expert': return 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
       case 'pro': return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
-      default: return 'bg-slate-700 text-slate-300'
+      default: return 'bg-teal-card/70 text-slate-300'
     }
   }
 
@@ -129,10 +129,10 @@ export function CommunityFeed() {
   }
 
   return (
-    <div className="h-full bg-slate-950 flex flex-col">
+    <div className="h-full bg-teal-base flex flex-col">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
         {/* Tab Headers */}
-        <TabsList className="grid grid-cols-4 bg-slate-900 border-b border-slate-800 rounded-none h-8">
+        <TabsList className="grid grid-cols-4 bg-teal-card border-b border-teal rounded-none h-8">
           <TabsTrigger value="feed" className="text-xs data-[state=active]:bg-blue-600 px-1">
             <MessageSquare className="w-3 h-3 mr-1" />
             Feed
@@ -156,7 +156,7 @@ export function CommunityFeed() {
           <TabsContent value="feed" className="h-full m-0">
             <div className="h-full flex flex-col">
               {/* Market Sentiment Bar */}
-              <div className="bg-slate-900 border-b border-slate-800 p-2">
+              <div className="bg-teal-card border-b border-teal p-2">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-slate-400">Market Sentiment</span>
                   <Badge className="bg-green-600 text-white text-xs">Bullish 78%</Badge>
@@ -169,7 +169,7 @@ export function CommunityFeed() {
                 {mockFeedItems.map((item, index) => (
                   <div
                     key={index}
-                    className="bg-slate-900 rounded-lg p-2 hover:bg-slate-800 transition-colors"
+                    className="bg-teal-card rounded-lg p-2 hover:bg-teal-card/50 transition-colors"
                   >
                     <div className="flex items-start justify-between mb-1">
                       <div className="flex items-center space-x-2">
@@ -208,7 +208,7 @@ export function CommunityFeed() {
               </div>
               
               {mockTopHolders.map((holder) => (
-                <div key={holder.rank} className="bg-slate-900 rounded-lg p-2">
+                <div key={holder.rank} className="bg-teal-card rounded-lg p-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
@@ -248,7 +248,7 @@ export function CommunityFeed() {
               </div>
               
               {mockWhaleAlerts.map((alert, index) => (
-                <div key={index} className="bg-slate-900 rounded-lg p-2">
+                <div key={index} className="bg-teal-card rounded-lg p-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
@@ -298,7 +298,7 @@ export function CommunityFeed() {
               </div>
               
               {mockPnlLeaderboard.map((trader) => (
-                <div key={trader.rank} className="bg-slate-900 rounded-lg p-2">
+                <div key={trader.rank} className="bg-teal-card rounded-lg p-2">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
@@ -337,7 +337,7 @@ export function CommunityFeed() {
         </div>
 
         {/* Bottom Stats Bar */}
-        <div className="h-8 bg-slate-900 border-t border-slate-800 flex items-center px-2 text-xs">
+        <div className="h-8 bg-teal-card border-t border-teal flex items-center px-2 text-xs">
           <div className="flex space-x-3">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>

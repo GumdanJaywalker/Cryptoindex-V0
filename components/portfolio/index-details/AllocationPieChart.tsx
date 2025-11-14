@@ -6,7 +6,7 @@
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { IndexData } from "@/lib/types/index";
 
-const COLORS = ["#98FCE4", "#8BD6FF", "#6BBDFF", "#72a59a", "#5a8a7f"];
+const COLORS = ["#75cfc1", "#8BD6FF", "#6BBDFF", "#72a59a", "#5a8a7f"];
 
 interface AllocationPieChartProps {
   index: IndexData;
@@ -14,7 +14,7 @@ interface AllocationPieChartProps {
 
 export function AllocationPieChart({ index }: AllocationPieChartProps) {
   return (
-    <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+    <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
       <h3 className="text-white font-semibold mb-4">Allocation Breakdown</h3>
       <div className="flex items-center gap-6">
         <div className="w-48 h-48 flex-shrink-0">

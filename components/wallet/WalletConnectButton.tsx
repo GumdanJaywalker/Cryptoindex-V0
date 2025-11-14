@@ -183,52 +183,23 @@ export function WalletConnectButton({
           size={size}
           className={cn(
             'relative overflow-hidden transition-all duration-300 ease-out',
-            'border-0 font-medium backdrop-blur-sm',
-            'hover:scale-105 active:scale-95',
-            'focus:outline-none focus:ring-2 focus:ring-offset-2',
-            
-            // Disconnected state - Gradient background
-            connectionState === WalletConnectionState.DISCONNECTED && [
-              'bg-gradient-to-r from-blue-500 to-purple-600 text-white',
-              'hover:from-blue-600 hover:to-purple-700',
-              'shadow-lg hover:shadow-xl',
-              'focus:ring-blue-400'
-            ],
-            
-            // Connecting state - Animated blue gradient
+            'border-0 font-medium bg-transparent text-white',
+            'active:scale-95',
+
+            // Connecting state
             connectionState === WalletConnectionState.CONNECTING && [
-              'bg-gradient-to-r from-blue-400 to-cyan-500 text-white',
               'cursor-not-allowed',
-              'shadow-lg',
               'animate-pulse'
             ],
-            
-            // Error state - Red gradient
+
+            // Error state
             connectionState === WalletConnectionState.ERROR && [
-              'bg-gradient-to-r from-red-500 to-pink-600 text-white',
-              'hover:from-red-600 hover:to-pink-700',
-              'shadow-lg hover:shadow-xl',
-              'focus:ring-red-400'
+              'text-red-400'
             ],
-            
+
             className
           )}
         >
-          {/* Ripple effect for disconnected state */}
-          {connectionState === WalletConnectionState.DISCONNECTED && (
-            <Ripple 
-              mainCircleSize={80} 
-              mainCircleOpacity={0.2} 
-              numCircles={3}
-              className="absolute inset-0" 
-            />
-          )}
-          
-          {/* Shimmer effect for connecting state */}
-          {connectionState === WalletConnectionState.CONNECTING && (
-            <div className="absolute inset-0 -top-1 -bottom-1 bg-slate-700/30 rounded-md" />
-          )}
-          
           {/* Content */}
           <div className="relative z-10">
             {renderButtonContent()}

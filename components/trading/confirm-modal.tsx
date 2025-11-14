@@ -20,7 +20,8 @@ import {
 import { MemeIndex } from '@/lib/types/index-trading'
 import { useWallet } from '@/hooks/use-wallet'
 import { useCurrency } from '@/lib/hooks/useCurrency'
-import { FEES } from '@/lib/constants/fees'
+import { calculateTradingFee } from '@/lib/utils/fee-calculator'
+import { getUserVIPTier, getIsInvitedUser } from '@/lib/mock/user-vip'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -77,7 +78,12 @@ export function ConfirmModal({
     const currentPrice = index.currentPrice
     const positionSize = amount
     const totalValue = amount * leverage
-    const estimatedFees = amount * FEES.HIDE.TRADING_FEE * leverage // Phase 0: 0.30% trading fee in $HIDE
+
+    // Calculate fees based on user's VIP tier
+    const userVIPTier = getUserVIPTier()
+    const isInvited = getIsInvitedUser()
+    const feeBreakdown = calculateTradingFee(amount * leverage, userVIPTier, 'L1', isInvited)
+    const estimatedFees = feeBreakdown.totalFee
     const slippageCost = (amount * tradeData.slippage / 100) * leverage
     
     const liquidationPrice = type === 'buy'
@@ -199,14 +205,14 @@ export function ConfirmModal({
     <Drawer.Root open={isOpen} onOpenChange={onClose} onAnimationEnd={resetModal}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 z-50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900 rounded-t-2xl border-t border-slate-700 max-h-[90vh] overflow-hidden">
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-teal-card rounded-t-2xl border-t border-teal max-h-[90vh] overflow-hidden">
           {/* Handle */}
           <div className="flex justify-center p-3">
-            <div className="w-10 h-1 bg-slate-600 rounded-full" />
+            <div className="w-10 h-1 bg-teal-card/60 rounded-full" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 pb-4 border-b border-slate-700">
+          <div className="flex items-center justify-between px-6 pb-4 border-b border-teal">
             <div className="flex items-center space-x-3">
               <div className={`p-2 rounded-lg ${
                 tradeData.type === 'buy' 
@@ -224,7 +230,7 @@ export function ConfirmModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+              className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-teal-card/50"
             >
               <X className="w-5 h-5" />
             </button>
@@ -234,7 +240,7 @@ export function ConfirmModal({
           <div className="overflow-y-auto px-6 py-6 space-y-6">
             
             {/* Trade Summary */}
-            <div className="bg-slate-800 rounded-xl p-4 space-y-4">
+            <div className="bg-teal-card rounded-xl p-4 space-y-4">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5 text-brand" />
                 <h3 className="text-lg font-semibold text-white">Trade Summary</h3>
@@ -342,7 +348,7 @@ export function ConfirmModal({
             </div>
 
             {/* Potential Outcomes */}
-            <div className="bg-slate-800 rounded-xl p-4 space-y-4">
+            <div className="bg-teal-card rounded-xl p-4 space-y-4">
               <div className="flex items-center space-x-2">
                 <Target className="w-5 h-5 text-brand" />
                 <h3 className="text-lg font-semibold text-white">24h Potential Outcomes</h3>
@@ -412,7 +418,7 @@ export function ConfirmModal({
           </div>
 
           {/* Bottom Actions */}
-          <div className="sticky bottom-0 p-6 bg-slate-900 border-t border-slate-700 space-y-3">
+          <div className="sticky bottom-0 p-6 bg-teal-card border-t border-teal space-y-3">
             {!isHighRisk && (
               <div className="flex items-center space-x-2 text-sm text-green-400 bg-green-900/20 p-3 rounded-lg">
                 <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -424,7 +430,7 @@ export function ConfirmModal({
               <button
                 onClick={onClose}
                 disabled={isConfirming}
-                className="flex-1 py-4 px-6 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-colors disabled:opacity-50"
+                className="flex-1 py-4 px-6 bg-teal-card/70 hover:bg-teal-card/60 text-white rounded-xl font-semibold transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -434,8 +440,8 @@ export function ConfirmModal({
                 disabled={!canProceed}
                 className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
                   tradeData.type === 'buy'
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-red-600 hover:bg-red-700 text-white'
+                    ? 'bg-brand hover:bg-brand/90 text-slate-900'
+                    : 'bg-[#dd5e56] hover:bg-[#dd5e56]/90 text-white'
                 } ${
                   !canProceed
                     ? 'opacity-50 cursor-not-allowed'

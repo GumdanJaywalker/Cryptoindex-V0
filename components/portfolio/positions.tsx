@@ -84,7 +84,7 @@ function PositionCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-slate-900 border border-slate-700 rounded-xl p-6 space-y-4"
+      className="bg-teal-card border border-teal rounded-xl p-6 space-y-4"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -97,8 +97,8 @@ function PositionCard({
               <span className="text-white font-semibold">{index.symbol}</span>
               <span className={`text-xs px-2 py-1 rounded border ${
                 trade.type === 'long' 
-                  ? 'border-slate-600 text-slate-300' 
-                  : 'border-slate-600 text-slate-300'
+                  ? 'border-teal text-slate-300' 
+                  : 'border-teal text-slate-300'
               }`}>
                 {trade.leverage}x {trade.type.toUpperCase()}
               </span>
@@ -111,14 +111,14 @@ function PositionCard({
         
         <div className="flex items-center space-x-2">
           {/* Risk Indicator */}
-          <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded bg-slate-800 text-slate-300`}>
+          <div className={`flex items-center space-x-1 text-xs px-2 py-1 rounded bg-teal-card text-slate-300`}>
             <AlertTriangle className={`w-3 h-3 ${riskLevel==='high'?'text-red-300': riskLevel==='medium'?'text-yellow-300':'text-slate-400'}`} />
             <span>{riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk'}</span>
           </div>
           
           <button
             onClick={() => setShowActions(!showActions)}
-            className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+            className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-teal-card/50"
           >
             <MoreHorizontal className="w-4 h-4" />
           </button>
@@ -158,7 +158,7 @@ function PositionCard({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className={`flex items-center space-x-2 p-3 rounded-lg bg-slate-900/40 border border-slate-700`}
+          className={`flex items-center space-x-2 p-3 rounded-lg bg-teal-card/40 border border-teal`}
         >
           <AlertTriangle className={`w-4 h-4 ${riskLevel === 'high' ? 'text-red-300' : 'text-yellow-300'}`} />
           <div className="text-sm">
@@ -176,7 +176,7 @@ function PositionCard({
       {(trade.stopLoss || trade.takeProfit) && (
         <div className="grid grid-cols-2 gap-3 text-sm">
           {trade.stopLoss && (
-            <div className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg border border-slate-700">
+            <div className="flex items-center space-x-2 p-2 bg-teal-card rounded-lg border border-teal">
               <Shield className="w-4 h-4 text-slate-400" />
               <div>
                 <div className="text-slate-400 text-xs">Stop Loss</div>
@@ -186,7 +186,7 @@ function PositionCard({
           )}
 
           {trade.takeProfit && (
-            <div className="flex items-center space-x-2 p-2 bg-slate-800 rounded-lg border border-slate-700">
+            <div className="flex items-center space-x-2 p-2 bg-teal-card rounded-lg border border-teal">
               <Target className="w-4 h-4 text-slate-400" />
               <div>
                 <div className="text-slate-400 text-xs">Take Profit</div>
@@ -204,14 +204,14 @@ function PositionCard({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-t border-slate-700 pt-4 space-y-4"
+            className="border-t border-teal pt-4 space-y-4"
           >
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => onPartialClose(trade.id, 50)}
                 disabled={isClosing}
-                className="flex items-center justify-center space-x-2 py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center justify-center space-x-2 py-2 px-4 bg-teal-card/70 hover:bg-teal-card/60 text-white rounded-lg transition-colors disabled:opacity-50"
               >
                 <Minus className="w-4 h-4" />
                 <span>Close 50%</span>
@@ -254,7 +254,7 @@ function PositionCard({
               <button
                 onClick={() => onPartialClose(trade.id, partialClosePercentage)}
                 disabled={isClosing}
-                className="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="w-full py-2 px-4 bg-teal-card/70 hover:bg-teal-card/60 text-white rounded-lg transition-colors disabled:opacity-50"
               >
                 Close {partialClosePercentage}%
               </button>
@@ -270,7 +270,7 @@ function PositionCard({
                     placeholder={`Current: ${formatPrice(currentPrice)}`}
                     value={stopLossPrice}
                     onChange={(e) => setStopLossPrice(e.target.value)}
-                    className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
+                    className="flex-1 bg-teal-card border border-teal rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
                     step="0.0001"
                   />
                   <button
@@ -291,7 +291,7 @@ function PositionCard({
                     placeholder={`Current: ${formatPrice(currentPrice)}`}
                     value={takeProfitPrice}
                     onChange={(e) => setTakeProfitPrice(e.target.value)}
-                    className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
+                    className="flex-1 bg-teal-card border border-teal rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500"
                     step="0.0001"
                   />
                   <button
@@ -417,7 +417,7 @@ export function Positions({
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
-                className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
+                className="bg-teal-card border border-teal rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="all">All Positions</option>
                 <option value="long">Buy Only</option>
@@ -427,7 +427,7 @@ export function Positions({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
+                className="bg-teal-card border border-teal rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="pnl">Sort by PnL</option>
                 <option value="size">Sort by Size</option>

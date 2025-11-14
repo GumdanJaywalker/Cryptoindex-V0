@@ -69,7 +69,7 @@ export function IndexBuilderWizard() {
             'text-xs',
             i === step
               ? 'bg-brand text-black hover:bg-brand-hover'
-              : 'border-slate-700 text-slate-300 hover:bg-slate-800'
+              : 'border-teal text-slate-300 hover:bg-teal-elevated'
           )}
           onClick={() => setStep(i)}
         >
@@ -107,7 +107,7 @@ export function IndexBuilderWizard() {
               Saved <span className="text-slate-300 ml-1">{formatRelative(lastSavedAt)}</span>
             </span>
           ) : null}
-          <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={reset}>
+          <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-elevated" onClick={reset}>
             Reset
           </Button>
         </div>
@@ -117,7 +117,7 @@ export function IndexBuilderWizard() {
 
       {/* Basics */}
       {step === 0 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-teal-card/50 border-teal">
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -210,13 +210,13 @@ export function IndexBuilderWizard() {
                       }
                       reader.readAsDataURL(f)
                     }}
-                    className="block text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700"
+                    className="block text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-teal-elevated file:text-slate-200 hover:file:bg-teal-elevated"
                   />
                 </div>
               </div>
               <div className="md:col-span-1">
                 <div className="text-sm text-slate-400 mb-2">Preview</div>
-                <div className="w-full aspect-square rounded-lg border border-slate-800 bg-slate-900/50 overflow-hidden flex items-center justify-center">
+                <div className="w-full aspect-square rounded-lg border border-teal bg-teal-card/50 overflow-hidden flex items-center justify-center">
                   {data.basics.thumbnail ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={data.basics.thumbnail} alt="thumbnail preview" className="w-full h-full object-cover" />
@@ -232,12 +232,12 @@ export function IndexBuilderWizard() {
 
       {/* Chain / Settlement */}
       {step === 1 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-teal-card/50 border-teal">
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm text-slate-400">Chain</label>
-                <div className="p-2 h-10 flex items-center rounded-md border border-slate-700 bg-slate-900/50 text-slate-300">
+                <div className="p-2 h-10 flex items-center rounded-md border border-teal bg-teal-card/50 text-slate-300">
                   L3
                   <span className="ml-2 text-xs text-slate-500">(fixed)</span>
                 </div>
@@ -281,7 +281,7 @@ export function IndexBuilderWizard() {
 
       {/* Constituents */}
       {step === 3 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-teal-card/50 border-teal">
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-slate-300 text-sm">Select assets and assign equal weights (or adjust later).</div>
@@ -289,7 +289,7 @@ export function IndexBuilderWizard() {
                 <DialogTrigger asChild>
                   <Button className="bg-brand text-black hover:bg-brand-hover">Select Assets</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl bg-slate-950 border-slate-800 text-white">
+                <DialogContent className="max-w-4xl bg-teal-base border-teal text-white">
                   <DialogHeader>
                     <DialogTitle>Asset Selector</DialogTitle>
                   </DialogHeader>
@@ -325,7 +325,7 @@ export function IndexBuilderWizard() {
 
       {/* Rules (L3 indexes: no rebalance schedule) */}
       {step === 2 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-teal-card/50 border-teal">
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -351,7 +351,7 @@ export function IndexBuilderWizard() {
 
       {/* Simulation */}
       {step === 4 && (
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-teal-card/50 border-teal">
           <CardContent className="p-6 space-y-2">
             {(() => {
               const parseRaw = (raw: string) => raw
@@ -377,14 +377,14 @@ export function IndexBuilderWizard() {
               const maxW = parts.reduce((m, p) => Math.max(m, p.weight), 0)
               return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-slate-900/60 border-slate-800">
+                  <Card className="bg-teal-card/60 border-teal">
                     <CardContent className="p-4">
                       <div className="text-xs text-slate-400 mb-1">Composition</div>
                       <div className="text-sm text-white">Assets: {n || 0}</div>
                       <div className="text-sm text-white">Max weight: {maxW.toFixed(2)}%</div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-slate-900/60 border-slate-800">
+                  <Card className="bg-teal-card/60 border-teal">
                     <CardContent className="p-4">
                       <div className="text-xs text-slate-400 mb-1">Estimated Return</div>
                       <div className="text-sm text-white">1w: {r1w.toFixed(1)}%</div>
@@ -392,7 +392,7 @@ export function IndexBuilderWizard() {
                       <div className="text-sm text-white">1y: {r1y.toFixed(1)}%</div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-slate-900/60 border-slate-800">
+                  <Card className="bg-teal-card/60 border-teal">
                     <CardContent className="p-4">
                       <div className="text-xs text-slate-400 mb-1">Notes</div>
                       <div className="text-xs text-slate-400">Mock calculation based on catalog meta; not investment advice.</div>
@@ -467,12 +467,12 @@ export function IndexBuilderWizard() {
           }
         }
         return (
-          <Card className="bg-slate-900/50 border-slate-800">
+          <Card className="bg-teal-card/50 border-teal">
             <CardContent className="p-6 space-y-4">
               <div className="text-slate-300">Review your index details before submitting for governance review.</div>
 
               {/* Validation checklist summary */}
-              <div className="bg-slate-900/60 border border-slate-800 rounded p-3">
+              <div className="bg-teal-card/60 border border-teal rounded p-3">
                 <div className="text-xs text-slate-400 mb-2">Validation checklist</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div className="space-y-1">
@@ -539,7 +539,7 @@ export function IndexBuilderWizard() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="bg-slate-900/60 border-slate-800">
+                <Card className="bg-teal-card/60 border-teal">
                   <CardContent className="p-4 space-y-2">
                     <div className="text-xs text-slate-400">Basics</div>
                     <div className="text-sm text-white">Name: {data.basics.name || '—'}</div>
@@ -547,35 +547,35 @@ export function IndexBuilderWizard() {
                     <div className="text-sm text-white">Category: {data.basics.category || '—'}</div>
                     <div className="text-xs text-slate-400">{data.basics.description || ''}</div>
                     <div>
-                      <Button size="sm" variant="outline" className="mt-2 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setStep(0)}>Edit</Button>
+                      <Button size="sm" variant="outline" className="mt-2 border-teal text-slate-300 hover:bg-teal-elevated" onClick={() => setStep(0)}>Edit</Button>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-900/60 border-slate-800">
+                <Card className="bg-teal-card/60 border-teal">
                   <CardContent className="p-4 space-y-2">
                     <div className="text-xs text-slate-400">Chain / Settlement</div>
                     <div className="text-sm text-white">Chain: {data.chain.chain || '—'}</div>
                     <div className="text-sm text-white">Settlement: {data.chain.settlementToken || '—'}</div>
                     <div className="text-sm text-white">Fee: {data.chain.feeToken || '—'}</div>
                     <div>
-                      <Button size="sm" variant="outline" className="mt-2 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setStep(1)}>Edit</Button>
+                      <Button size="sm" variant="outline" className="mt-2 border-teal text-slate-300 hover:bg-teal-elevated" onClick={() => setStep(1)}>Edit</Button>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-slate-900/60 border-slate-800">
+                <Card className="bg-teal-card/60 border-teal">
                   <CardContent className="p-4 space-y-2">
                     <div className="text-xs text-slate-400">Rules (L3)</div>
                     <div className="text-sm text-white">Max per asset: {data.rules.maxPerAsset || '—'}%</div>
                     <div className="text-sm text-white">Min liquidity: ${data.rules.minLiquidity || '—'}</div>
                     <div className="text-xs text-slate-400">No rebalancing on L3 indexes.</div>
                     <div>
-                      <Button size="sm" variant="outline" className="mt-2 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setStep(2)}>Edit</Button>
+                      <Button size="sm" variant="outline" className="mt-2 border-teal text-slate-300 hover:bg-teal-elevated" onClick={() => setStep(2)}>Edit</Button>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              <Card className="bg-slate-900/60 border-slate-800">
+              <Card className="bg-teal-card/60 border-teal">
                 <CardContent className="p-4">
                   <div className="text-xs text-slate-400 mb-2">Constituents (Total {total.toFixed(2)}%)</div>
                   {items.length === 0 ? (
@@ -586,7 +586,7 @@ export function IndexBuilderWizard() {
                     </div>
                   )}
                   <div>
-                    <Button size="sm" variant="outline" className="mt-2 border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setStep(3)}>Edit</Button>
+                    <Button size="sm" variant="outline" className="mt-2 border-teal text-slate-300 hover:bg-teal-elevated" onClick={() => setStep(3)}>Edit</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -603,7 +603,7 @@ export function IndexBuilderWizard() {
                 {!allValid && (
                   <Button
                     variant="outline"
-                    className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                    className="border-teal text-slate-300 hover:bg-teal-elevated"
                     onClick={() => {
                       if (firstInvalidStep !== null) setStep(firstInvalidStep)
                     }}
@@ -620,7 +620,7 @@ export function IndexBuilderWizard() {
       <div className="flex items-center justify-between">
         <Button
           variant="outline"
-          className="border-slate-700 text-slate-300 hover:bg-slate-800"
+          className="border-teal text-slate-300 hover:bg-teal-elevated"
           onClick={() => setStep(Math.max(0, step - 1))}
           disabled={step === 0}
         >

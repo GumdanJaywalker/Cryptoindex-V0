@@ -18,8 +18,8 @@ export function NotificationsButton({ className }: NotificationsButtonProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Notifications" aria-haspopup="menu" className={`relative inline-flex items-center justify-center rounded-md border border-slate-700 px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-800 ${className ?? ''}`}>
-        <Bell className="w-4.5 h-4.5" />
+      <DropdownMenuTrigger aria-label="Notifications" aria-haspopup="menu" className={`glass-input relative inline-flex items-center justify-center rounded-full px-2.5 py-1.5 text-slate-300 ${className ?? ''}`}>
+        <Bell className="w-[18px] h-[18px]" />
         {unread > 0 && (
           <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-brand text-black text-[10px] leading-4 text-center">
             {unread}

@@ -48,7 +48,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'dog-memes',
     symbol: 'DOGIDX',
-    name: '🐕 Dog Memes Index',
+    name: 'Dog Memes Index',
     theme: 'dog',
     description: 'A curated index of the most popular dog-themed meme coins including DOGE, SHIB, and emerging pups',
     layerInfo: {
@@ -82,7 +82,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'ai-memes',
     symbol: 'AIIDX',
-    name: '🤖 AI Memes Index',
+    name: 'AI Memes Index',
     theme: 'ai',
     description: 'Revolutionary AI-powered meme coins that blend artificial intelligence with viral internet culture',
     currentPrice: 3.8921,
@@ -109,7 +109,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'political-memes',
     symbol: 'POLIDX',
-    name: '🏛️ Political Memes Index',
+    name: 'Political Memes Index',
     theme: 'political',
     description: 'Politically-charged meme coins that capture the zeitgeist of democratic discourse',
     currentPrice: 1.7834,
@@ -134,7 +134,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'gaming-memes',
     symbol: 'GMEIDX',
-    name: '🎮 Gaming Memes Index',
+    name: 'Gaming Memes Index',
     theme: 'gaming',
     description: 'Gaming culture meets meme economics in this high-octane index of play-to-earn tokens',
     currentPrice: 2.9456,
@@ -161,7 +161,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'frog-memes',
     symbol: 'FROGIDX',
-    name: '🐸 Frog Memes Index',
+    name: 'Frog Memes Index',
     theme: 'frog',
     description: 'Ribbit your way to profits with the most meme-worthy frog tokens in the swamp',
     currentPrice: 1.5623,
@@ -188,7 +188,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'space-memes',
     symbol: 'SPACEIDX',
-    name: '🌙 Space Memes Index',
+    name: 'Space Memes Index',
     theme: 'space',
     description: 'To the moon and beyond! Cosmic meme coins that are literally out of this world',
     currentPrice: 4.2356,
@@ -214,7 +214,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'food-memes',
     symbol: 'FOODIDX',
-    name: '🍔 Food Memes Index',
+    name: 'Food Memes Index',
     theme: 'food',
     description: 'Satisfy your appetite for gains with delicious food-themed meme tokens',
     currentPrice: 1.8945,
@@ -239,7 +239,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'diamond-hands',
     symbol: 'DIAMONDIDX',
-    name: '💎 Diamond Hands Index',
+    name: 'Diamond Hands Index',
     theme: 'diamond-hands',
     description: 'For the diamond-handed legends who never sell and always HODL to the moon',
     currentPrice: 5.6789,
@@ -264,7 +264,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'moon-index',
     symbol: 'MOONIDX',
-    name: '🚀 To The Moon Index',
+    name: 'To The Moon Index',
     theme: 'moon',
     description: 'High-risk, high-reward rockets that are destined for lunar landing',
     currentPrice: 3.4567,
@@ -291,7 +291,7 @@ export const mockIndices: MemeIndex[] = [
   {
     id: 'ape-together',
     symbol: 'APEIDX',
-    name: '🦍 Ape Together Index',
+    name: 'Ape Together Index',
     theme: 'ape',
     description: 'Apes strong together! Community-driven tokens that embody the spirit of collective diamond hands',
     currentPrice: 2.7890,
@@ -320,7 +320,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'cat-memes',
     symbol: 'CATIDX',
-    name: '🐱 Cat Memes Index',
+    name: 'Cat Memes Index',
     theme: 'dog', // Using dog theme as closest match
     description: 'Purrfect profits with feline-inspired meme tokens',
     currentPrice: 1.2345,
@@ -345,7 +345,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'chinese-memes',
     symbol: 'CNIDX',
-    name: '🐲 Dragon Memes Index',
+    name: 'Dragon Memes Index',
     theme: 'political',
     description: 'Eastern wisdom meets Western memes in this Asia-focused index',
     currentPrice: 0.8765,
@@ -370,7 +370,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'sports-memes',
     symbol: 'SPORTIDX',
-    name: '⚽ Sports Memes Index',
+    name: 'Sports Memes Index',
     theme: 'gaming',
     description: 'Game on! Sports-themed tokens that score big in the meme league',
     currentPrice: 1.9876,
@@ -396,7 +396,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'music-memes',
     symbol: 'MUSICIDX',
-    name: '🎵 Music Memes Index',
+    name: 'Music Memes Index',
     theme: 'space',
     description: 'Drop the beat and pump the bags with music-inspired meme tokens',
     currentPrice: 2.1234,
@@ -421,7 +421,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'weather-memes',
     symbol: 'WEATHERIDX',
-    name: '🌪️ Weather Memes Index',
+    name: 'Weather Memes Index',
     theme: 'space',
     description: 'Storm the markets with weather-themed tokens that bring the perfect conditions for gains',
     currentPrice: 0.6789,
@@ -446,7 +446,7 @@ export const additionalIndices: MemeIndex[] = [
   {
     id: 'robot-memes',
     symbol: 'ROBOTIDX',
-    name: '🤖 Robot Memes Index',
+    name: 'Robot Memes Index',
     theme: 'space',
     description: 'Automated gains with AI and robot-themed tokens leading the future',
     currentPrice: 0.8912,

@@ -26,22 +26,16 @@ export function GraduationProgress({
 
   if (variant === 'compact') {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
-        <div className="text-xs text-slate-400">Graduation</div>
-        <div className="flex items-center gap-3">
-          <div className="w-24">
-            <div className="flex items-center justify-between text-[11px] text-[#D7EAE8] mb-1">
-              <span>Liquidity</span>
-              <span className="text-[#D7EAE8] font-medium">{data.liquidityProgress}%</span>
-            </div>
-            <Progress value={data.liquidityProgress} className="h-1.5" />
+      <div className={cn("", className)}>
+        <div className="text-xs hl-text-secondary">Graduation</div>
+        <div className="flex items-center gap-3 mt-1">
+          <div className="flex items-center gap-1.5">
+            <div className="text-[10px] text-slate-400 whitespace-nowrap">Liq {data.liquidityProgress}%</div>
+            <Progress value={data.liquidityProgress} className="h-1 w-12" indicatorClassName="bg-brand" />
           </div>
-          <div className="w-24">
-            <div className="flex items-center justify-between text-[11px] text-[#D7EAE8] mb-1">
-              <span>Sales</span>
-              <span className="text-[#D7EAE8] font-medium">{data.salesProgress}%</span>
-            </div>
-            <Progress value={data.salesProgress} className="h-1.5" />
+          <div className="flex items-center gap-1.5">
+            <div className="text-[10px] text-slate-400 whitespace-nowrap">Sales {data.salesProgress}%</div>
+            <Progress value={data.salesProgress} className="h-1 w-12" indicatorClassName="bg-brand" />
           </div>
         </div>
       </div>
@@ -64,7 +58,7 @@ export function GraduationProgress({
             <TooltipTrigger asChild>
               <Info className="w-3.5 h-3.5 text-slate-400" />
             </TooltipTrigger>
-            <TooltipContent className="bg-slate-900 border-slate-700 text-slate-200">
+            <TooltipContent className="bg-teal-card border-teal text-slate-200">
               <div className="text-xs max-w-[260px]">
                 Dual goals to graduate from L3: Liquidity target and Sales target. Execution moves to L2 when both goals are met and governance approves.
               </div>
@@ -79,14 +73,14 @@ export function GraduationProgress({
             <span>Liquidity</span>
             <span className="text-[#D7EAE8] font-medium">{data.liquidityProgress}%</span>
           </div>
-          <Progress value={data.liquidityProgress} className="h-2" />
+          <Progress value={data.liquidityProgress} className="h-2" indicatorClassName="bg-brand" />
         </div>
         <div>
           <div className="flex items-center justify-between text-xs text-[#D7EAE8] mb-1">
             <span>Sales</span>
             <span className="text-[#D7EAE8] font-medium">{data.salesProgress}%</span>
           </div>
-          <Progress value={data.salesProgress} className="h-2" />
+          <Progress value={data.salesProgress} className="h-2" indicatorClassName="bg-brand" />
         </div>
       </div>
     </div>

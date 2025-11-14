@@ -257,8 +257,8 @@ export function formatBalance(amount: number, currency: Currency, exchangeRates?
  * @returns Object with formatted string and color class
  *
  * Examples:
- * - formatPnL(342.18, 'HYPE', rates) => { text: "+342.18 HYPE", colorClass: "text-green-400" }
- * - formatPnL(-123.45, 'USD', rates) => { text: "-$154.31", colorClass: "text-red-400" }
+ * - formatPnL(342.18, 'HYPE', rates) => { text: "+342.18 HYPE", colorClass: "hl-accent-green" }
+ * - formatPnL(-123.45, 'USD', rates) => { text: "-$154.31", colorClass: "hl-accent-red" }
  */
 export function formatPnL(
   amount: number,
@@ -269,6 +269,6 @@ export function formatPnL(
     ? convertCurrency(amount, 'HYPE', currency, exchangeRates)
     : amount
   const formatted = formatCurrency(convertedAmount, currency, { decimals: 2, forceSign: true })
-  const colorClass = amount >= 0 ? 'text-green-400' : 'text-red-400'
+  const colorClass = amount >= 0 ? 'hl-accent-green' : 'hl-accent-red'
   return { text: formatted, colorClass }
 }

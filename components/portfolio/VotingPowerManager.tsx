@@ -133,7 +133,7 @@ export function VotingPowerManager() {
           >
             Rank #{votingData.votingRank}
           </Badge>
-          <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
+          <Button variant="outline" size="sm" className="border-teal text-slate-300 hover:bg-teal-card/50">
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
@@ -142,11 +142,11 @@ export function VotingPowerManager() {
 
       {/* 투표권 요약 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Zap className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Total</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Total</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {votingData.totalVotingPower.toLocaleString()}
@@ -155,11 +155,11 @@ export function VotingPowerManager() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Available</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Available</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {votingData.availableVotingPower.toLocaleString()}
@@ -168,22 +168,22 @@ export function VotingPowerManager() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Trophy className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">This Week</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">This Week</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">${votingData.weeklyRewards}</div>
             <div className="text-sm text-slate-400">Rewards Earned</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-slate-400" />
-              <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">Success</Badge>
+              <Badge variant="outline" className="text-slate-300 border-teal text-xs">Success</Badge>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{votingData.successRate}%</div>
             <div className="text-sm text-slate-400">Win Rate</div>
@@ -192,7 +192,7 @@ export function VotingPowerManager() {
       </div>
 
       {/* 투표권 사용률 */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">Power Utilization</h3>
@@ -212,19 +212,19 @@ export function VotingPowerManager() {
 
           {/* 수익 분해 */}
           <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/50 rounded-lg">
               <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.battle}
               </div>
               <div className="text-xs text-slate-400">Battle Votes</div>
             </div>
-            <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/50 rounded-lg">
               <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.rebalancing}
               </div>
               <div className="text-xs text-slate-400">Rebalancing</div>
             </div>
-            <div className="text-center p-3 bg-slate-800/50 rounded-lg">
+            <div className="text-center p-3 bg-teal-card/50 rounded-lg">
               <div className="text-lg font-bold text-white">
                 ${votingData.weeklyEarnings.bonus}
               </div>
@@ -236,7 +236,7 @@ export function VotingPowerManager() {
 
       {/* 인덱스별 투표권 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-slate-400" />
@@ -246,7 +246,7 @@ export function VotingPowerManager() {
           <CardContent>
             <div className="space-y-4">
               {indexHoldings.map((index, i) => (
-                <div key={i} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                <div key={i} className="p-4 bg-teal-card/50 rounded-lg border border-teal">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="text-2xl">{index.emoji}</div>
@@ -261,7 +261,7 @@ export function VotingPowerManager() {
                         {index.votingPower.toLocaleString()} VP
                       </div>
                       <div className={`text-xs ${
-                        index.performance >= 0 ? 'text-green-400' : 'text-red-400'
+                        index.performance >= 0 ? 'hl-accent-green' : 'hl-accent-red'
                       }`}>
                         {index.performance >= 0 ? '+' : ''}{index.performance}%
                       </div>
@@ -281,7 +281,7 @@ export function VotingPowerManager() {
                     </div>
                     <div>
                       <div className="text-slate-400">Earnings</div>
-                      <div className="text-green-400 font-medium">
+                      <div className="hl-accent-green font-medium">
                         +${index.recentEarnings}
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export function VotingPowerManager() {
         </Card>
 
         {/* 예정된 투표 */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="glass-card-dynamic border-teal">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Calendar className="w-5 h-5 text-purple-400" />
@@ -303,7 +303,7 @@ export function VotingPowerManager() {
           <CardContent>
             <div className="space-y-4">
               {upcomingVotes.map((vote, i) => (
-                <div key={i} className="p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                <div key={i} className="p-4 bg-teal-card/50 rounded-lg border border-teal">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="font-medium text-white">{vote.title}</div>
@@ -350,7 +350,7 @@ export function VotingPowerManager() {
                     </div>
                     <div>
                       <div className="text-slate-400">Potential Reward</div>
-                      <div className="text-green-400 font-medium">
+                      <div className="hl-accent-green font-medium">
                         ${vote.potentialReward}
                       </div>
                     </div>

@@ -43,7 +43,7 @@ export function LeftSidebar() {
     <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
       <div className="flex flex-col gap-3 p-3">
         {/* Market Stats Card */}
-        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+        <div className="bg-teal-card rounded-lg border border-teal p-3">
           <h3 className="text-sm font-semibold text-white mb-2.5">Market Overview</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
@@ -66,7 +66,7 @@ export function LeftSidebar() {
         </div>
 
         {/* Top Gainers Card */}
-        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+        <div className="bg-teal-card rounded-lg border border-teal p-3">
           <div className="flex items-center justify-between mb-2.5">
             <h3 className="text-sm font-semibold text-white">Top Gainers (1h)</h3>
             <button
@@ -77,15 +77,15 @@ export function LeftSidebar() {
             </button>
           </div>
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/30 transition-colors">
+            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-teal-elevated/50 transition-colors border border-teal-light">
               <span className="text-white text-xs">DOG_INDEX</span>
               <span className="text-green-400 text-xs font-semibold">+24.8%</span>
             </div>
-            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/30 transition-colors">
+            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-teal-elevated/50 transition-colors border border-teal-light">
               <span className="text-white text-xs">PEPE_INDEX</span>
               <span className="text-green-400 text-xs font-semibold">+18.2%</span>
             </div>
-            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/30 transition-colors">
+            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-teal-elevated/50 transition-colors border border-teal-light">
               <span className="text-white text-xs">CAT_INDEX</span>
               <span className="text-red-400 text-xs font-semibold">-12.4%</span>
             </div>
@@ -93,7 +93,7 @@ export function LeftSidebar() {
         </div>
 
         {/* Mini Portfolio Card */}
-        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+        <div className="bg-teal-card rounded-lg border border-teal p-3">
           <div className="flex items-center justify-between mb-2.5">
             <h3 className="text-sm font-semibold text-white">Portfolio</h3>
             <a href="/portfolio" className="text-brand text-xs hover:text-brand/80 transition-colors">View All</a>
@@ -117,7 +117,7 @@ export function LeftSidebar() {
                 <div className="text-green-400 text-[10px]">+14.0%</div>
               </div>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-slate-700/50">
+            <div className="flex items-center justify-between pt-2 border-t border-teal-light">
               <span className="text-slate-400 text-xs">Win Rate</span>
               <span className="text-brand text-xs font-semibold">68.5%</span>
             </div>
@@ -132,14 +132,14 @@ export function LeftSidebar() {
         </div>
 
         {/* Price Alerts Card */}
-        <div className="bg-slate-900/50 rounded-lg border border-slate-800 p-3">
+        <div className="bg-teal-card rounded-lg border border-teal p-3">
           <h3 className="text-sm font-semibold text-white mb-2.5">Price Alerts</h3>
           <div className="space-y-1.5 text-xs">
             {alerts.length === 0 ? (
               <div className="text-slate-400 text-xs">No alerts yet. Create your first alert.</div>
             ) : (
               alerts.slice(0, 6).map((a) => (
-                <div key={a.id} className="flex items-center justify-between p-2 bg-slate-800/20 rounded-lg hover:bg-slate-800/30 transition-colors">
+                <div key={a.id} className="flex items-center justify-between p-2 bg-teal-elevated/30 rounded-lg hover:bg-teal-elevated/50 transition-colors border border-teal-light">
                   <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-white font-medium text-xs truncate">{a.symbol}</span>
@@ -158,7 +158,7 @@ export function LeftSidebar() {
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
-                      className="text-[10px] px-1.5 py-0.5 rounded border border-slate-600 text-slate-300 hover:bg-slate-700 transition-colors"
+                      className="text-[10px] px-1.5 py-0.5 rounded border border-teal-light text-slate-300 hover:bg-teal-elevated transition-colors"
                       onClick={() => toggleActive(a.id)}
                     >
                       {a.active ? 'Pause' : 'Resume'}

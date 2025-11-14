@@ -6,7 +6,7 @@ import Autoplay from 'embla-carousel-autoplay'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TopTrader } from '@/lib/types/index-trading'
-import { CarouselTraderCard } from './CarouselTraderCard'
+import { CompactTraderCard } from './CompactTraderCard'
 import { cn } from '@/lib/utils'
 
 interface TraderCarouselProps {
@@ -30,6 +30,12 @@ export function TraderCarousel({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
+
+  // Group traders into pages of 6 (3 rows x 2 cols)
+  const pages = []
+  for (let i = 0; i < traders.length; i += 6) {
+    pages.push(traders.slice(i, i + 6))
+  }
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -73,28 +79,33 @@ export function TraderCarousel({
   }
 
   return (
-    <div className="relative group">
+    <div className="relative">
       {/* Carousel Container */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {traders.map((trader) => (
-            <div key={trader.id} className="flex-[0_0_100%] min-w-0 px-1">
-              <CarouselTraderCard trader={trader} />
+          {pages.map((page, pageIdx) => (
+            <div key={pageIdx} className="flex-[0_0_100%] min-w-0 px-1">
+              {/* 3 rows x 2 cols Grid */}
+              <div className="grid grid-cols-2 grid-rows-3 gap-4">
+                {page.map((trader) => (
+                  <CompactTraderCard key={trader.id} trader={trader} />
+                ))}
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Navigation Arrows - Show on Hover */}
-      {traders.length > 1 && (
+      {pages.length > 1 && (
         <>
           <Button
             variant="outline"
             size="icon"
             className={cn(
-              'absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-slate-900/90 border-slate-700 hover:bg-slate-800 hover:border-brand/50 transition-opacity',
-              'opacity-0 group-hover:opacity-50',
-              !canScrollPrev && 'cursor-not-allowed'
+              'absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-teal-card/90 border-teal hover:bg-teal-card/50 hover:border-white/10 transition-opacity',
+              'opacity-20 hover:opacity-100',
+              !canScrollPrev && 'cursor-not-allowed opacity-0'
             )}
             onClick={scrollPrev}
             disabled={!canScrollPrev}
@@ -105,9 +116,9 @@ export function TraderCarousel({
             variant="outline"
             size="icon"
             className={cn(
-              'absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-slate-900/90 border-slate-700 hover:bg-slate-800 hover:border-brand/50 transition-opacity',
-              'opacity-0 group-hover:opacity-50',
-              !canScrollNext && 'cursor-not-allowed'
+              'absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-teal-card/90 border-teal hover:bg-teal-card/50 hover:border-white/10 transition-opacity',
+              'opacity-20 hover:opacity-100',
+              !canScrollNext && 'cursor-not-allowed opacity-0'
             )}
             onClick={scrollNext}
             disabled={!canScrollNext}
@@ -118,19 +129,19 @@ export function TraderCarousel({
       )}
 
       {/* Dot Navigation */}
-      {traders.length > 1 && (
+      {pages.length > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
-          {traders.map((_, index) => (
+          {pages.map((_, index) => (
             <button
               key={index}
               className={cn(
                 'h-2 rounded-full transition-all',
                 index === selectedIndex
                   ? 'w-8 bg-brand'
-                  : 'w-2 bg-slate-700 hover:bg-slate-600'
+                  : 'w-2 bg-teal-card/70 hover:bg-teal-card/60'
               )}
               onClick={() => scrollTo(index)}
-              aria-label={`Go to trader ${index + 1}`}
+              aria-label={`Go to page ${index + 1}`}
             />
           ))}
         </div>

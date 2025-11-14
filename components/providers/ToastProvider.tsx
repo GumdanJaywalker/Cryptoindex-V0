@@ -28,21 +28,21 @@ export function ToastProvider() {
         // Success toast styling
         success: {
           iconTheme: {
-            primary: '#10b981', // green-500
+            primary: '#4ade80', // green-400
             secondary: '#f9fafb', // gray-50
           },
           style: {
-            border: '1px solid #10b981',
+            border: '1px solid #4ade80',
           },
         },
         // Error toast styling
         error: {
           iconTheme: {
-            primary: '#ef4444', // red-500
+            primary: '#dd7789', // red-600
             secondary: '#f9fafb', // gray-50
           },
           style: {
-            border: '1px solid #ef4444',
+            border: '1px solid #dd7789',
           },
         },
         // Loading toast styling
