@@ -45,7 +45,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900/95 backdrop-blur-md border-slate-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-teal-base/95 backdrop-blur-md border-teal">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -67,7 +67,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
                   </Badge>
                 )}
                 {index.isHot && (
-                  <Badge className="text-xs border border-brand text-brand">
+                  <Badge className="text-xs border border-white/10 text-brand">
                     🔥 HOT
                   </Badge>
                 )}
@@ -90,7 +90,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
             <h3 className="text-white font-semibold mb-3">Trading Statistics</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* 24h Volume */}
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="w-4 h-4 text-slate-400" />
                   <span className="text-xs text-slate-400">24h Volume</span>
@@ -101,7 +101,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
               </div>
 
               {/* TVL */}
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="w-4 h-4 text-slate-400" />
                   <span className="text-xs text-slate-400">Total Value Locked</span>
@@ -112,7 +112,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
               </div>
 
               {/* Market Cap */}
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
                 <div className="flex items-center gap-2 mb-2">
                   <BarChart3 className="w-4 h-4 text-slate-400" />
                   <span className="text-xs text-slate-400">Market Cap</span>
@@ -123,7 +123,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
               </div>
 
               {/* 24h Change */}
-              <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
                 <div className="flex items-center gap-2 mb-2">
                   {index.change24h >= 0 ? (
                     <TrendingUp className="w-4 h-4 text-green-400" />
@@ -146,7 +146,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
 
           {/* Graduation Progress (L3 only) */}
           {isLayer3 && index.graduation && (
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
               <h3 className="text-white font-semibold mb-3">Graduation Progress</h3>
               <GraduationProgress data={getGraduationData()} variant="full" />
             </div>
@@ -155,15 +155,15 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
           {/* Composition Breakdown */}
           <div>
             <h3 className="text-white font-semibold mb-3">Asset Composition</h3>
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
               <div className="space-y-3">
                 {index.assets.map((asset, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-teal last:border-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-teal-card/70 flex items-center justify-center text-xs font-bold">
                         {asset.symbol.slice(0, 2)}
                       </div>
                       <div>
@@ -188,7 +188,7 @@ export default function IndexDetailModal({ open, onClose, index }: Props) {
 
           {/* Rebalancing Info */}
           {index.nextRebalancing && (
-            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <div className="bg-teal-card/50 rounded-lg p-4 border border-teal">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-brand" />
                 <h3 className="text-white font-semibold">Next Rebalancing</h3>

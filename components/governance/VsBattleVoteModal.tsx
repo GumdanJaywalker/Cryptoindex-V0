@@ -60,7 +60,7 @@ export function VsBattleVoteModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-slate-900 border-purple-500/30">
+      <DialogContent className="sm:max-w-md bg-teal-card border-purple-500/30">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-xl">
             <Flame className="w-6 h-6 text-orange-400" />
@@ -83,7 +83,7 @@ export function VsBattleVoteModal({
                 <div className="mt-3">
                   <Badge
                     variant="outline"
-                    className="text-brand border-brand/30"
+                    className="text-brand border-white/10"
                   >
                     <TrendingUp className="w-3 h-3 mr-1" />
                     Winner Takes All
@@ -94,7 +94,7 @@ export function VsBattleVoteModal({
           </div>
 
           {/* Index Info */}
-          <div className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
+          <div className="p-3 bg-teal-card/50 border border-teal rounded-lg">
             <div className="text-xs text-slate-400 mb-1">Theme Battle</div>
             <div className="font-medium text-white">{indexSymbol}</div>
             <div className="text-xs text-slate-500 mt-1">
@@ -134,7 +134,7 @@ export function VsBattleVoteModal({
             <Button
               variant="outline"
               onClick={handleCancel}
-              className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="flex-1 border-teal text-slate-300 hover:bg-teal-card/50"
             >
               Cancel
             </Button>

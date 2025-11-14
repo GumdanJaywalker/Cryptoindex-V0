@@ -58,7 +58,7 @@ export function GovernanceDashboard() {
           <h1 className="text-3xl font-bold text-white">Votes Hub</h1>
           <p className="text-slate-400 mt-1">Shape the future of meme coin indexes</p>
         </div>
-        <Badge variant="outline" className="text-brand border-brand/30">
+        <Badge variant="outline" className="text-brand border-white/10">
           <Vote className="w-3 h-3 mr-1" />
           Active Voter
         </Badge>
@@ -66,11 +66,11 @@ export function GovernanceDashboard() {
 
       {/* 투표권 요약 카드들 - 브랜드 색상 통일 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
-        <Card className="glass-card-dynamic border-brand/30">
+        <Card className="glass-card-dynamic border-white/10">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Vote className="w-5 h-5 text-brand" />
-              <Badge variant="outline" className="text-brand border-brand/30 text-xs">
+              <Badge variant="outline" className="text-brand border-white/10 text-xs">
                 Live
               </Badge>
             </div>
@@ -83,11 +83,11 @@ export function GovernanceDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card-dynamic border-brand/30">
+        <Card className="glass-card-dynamic border-white/10">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Target className="w-5 h-5 text-brand" />
-              <Badge variant="outline" className="text-brand border-brand/30 text-xs">
+              <Badge variant="outline" className="text-brand border-white/10 text-xs">
                 {participationRate}%
               </Badge>
             </div>
@@ -100,11 +100,11 @@ export function GovernanceDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card-dynamic border-brand/30">
+        <Card className="glass-card-dynamic border-white/10">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-brand" />
-              <Badge variant="outline" className="text-brand border-brand/30 text-xs">
+              <Badge variant="outline" className="text-brand border-white/10 text-xs">
                 Coming Soon
               </Badge>
             </div>
@@ -132,11 +132,11 @@ export function GovernanceDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card-dynamic border-brand/30">
+        <Card className="glass-card-dynamic border-white/10">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Trophy className="w-5 h-5 text-brand" />
-              <Badge variant="outline" className="text-brand border-brand/30 text-xs">
+              <Badge variant="outline" className="text-brand border-white/10 text-xs">
                 Top 2%
               </Badge>
             </div>

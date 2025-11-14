@@ -21,8 +21,6 @@ const nextConfig = {
       'recharts'
     ],
   },
-  // 성능 최적화
-  swcMinify: true,
   // Cross-Origin-Opener-Policy 헤더 설정
   async headers() {
     return [

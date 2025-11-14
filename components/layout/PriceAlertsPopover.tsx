@@ -10,25 +10,44 @@ import {
 import { Button } from '@/components/ui/button'
 import { mockPriceAlerts, PriceAlert } from '@/lib/mock/price-alerts'
 
-export function PriceAlertsPopover() {
+export function PriceAlertsPopover({
+  showAsText = false,
+  hasActiveAlerts
+}: {
+  showAsText?: boolean
+  hasActiveAlerts?: boolean
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const activeAlerts = mockPriceAlerts.filter((alert) => alert.isActive)
+  const showDot = hasActiveAlerts !== undefined ? hasActiveAlerts : activeAlerts.length > 0
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <button
-          className="relative p-2 hover:bg-slate-800/50 rounded-lg transition-colors"
-          aria-label="Price Alerts"
-        >
-          <Megaphone className="w-5 h-5 text-slate-400 hover:text-brand transition-colors" />
-          {activeAlerts.length > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 bg-brand rounded-full" />
-          )}
-        </button>
+        {showAsText ? (
+          <button
+            className="relative px-2 py-1 hover:text-brand transition-colors text-brand text-xs font-medium"
+            aria-label="Price Alerts"
+          >
+            Price Alerts
+            {showDot && (
+              <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-brand rounded-full" />
+            )}
+          </button>
+        ) : (
+          <button
+            className="relative p-2 hover:bg-teal-card/50 rounded-lg transition-colors"
+            aria-label="Price Alerts"
+          >
+            <Megaphone className="w-5 h-5 text-slate-400 hover:text-brand transition-colors" />
+            {activeAlerts.length > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-brand rounded-full" />
+            )}
+          </button>
+        )}
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 bg-slate-900 border-slate-800 p-0"
+        className="w-80 glass-card-dynamic border-teal p-0"
         align="end"
         side="top"
         sideOffset={8}
@@ -59,7 +78,7 @@ export function PriceAlertsPopover() {
 
           <Button
             variant="outline"
-            className="w-full mt-4 border-slate-700 hover:bg-slate-800"
+            className="w-full mt-4 glass-button-brand"
             onClick={() => setIsOpen(false)}
           >
             Manage Alerts
@@ -81,7 +100,7 @@ function AlertCard({ alert }: { alert: PriceAlert }) {
       className={`p-3 rounded-lg border transition-colors ${
         isClose
           ? 'bg-yellow-500/10 border-yellow-500/30'
-          : 'bg-slate-800/50 border-slate-700'
+          : 'bg-teal-card/50 border-teal'
       }`}
     >
       <div className="flex items-start justify-between mb-2">

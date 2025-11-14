@@ -65,7 +65,7 @@ export function ProposalsSection() {
             variant={filter === key ? 'default' : 'outline'}
             className={cn(
               'text-xs',
-              filter === key ? 'bg-brand text-black hover:bg-brand-hover' : 'border-slate-700 text-slate-300 hover:bg-slate-800'
+              filter === key ? 'bg-brand text-black hover:bg-brand-hover' : 'border-teal text-slate-300 hover:bg-teal-card/50'
             )}
             onClick={() => setFilter(key)}
             title={
@@ -79,7 +79,7 @@ export function ProposalsSection() {
             {label}
           </Button>
         ))}
-        <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
+        <Badge variant="outline" className="text-xs text-slate-300 border-teal">
           {items.length} proposals
         </Badge>
         <Input
@@ -91,7 +91,7 @@ export function ProposalsSection() {
         <Button
           size="sm"
           variant="outline"
-          className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800"
+          className="text-xs border-teal text-slate-300 hover:bg-teal-card/50"
           onClick={() => load()}
           disabled={loading}
         >
@@ -110,9 +110,9 @@ export function ProposalsSection() {
       )}
 
       {!loading && !error && items.length === 0 && (
-        <div className="text-sm text-slate-400 p-4 bg-slate-900/50 border border-slate-800 rounded">
+        <div className="text-sm text-slate-400 p-4 glass-card-dynamic border border-teal rounded">
           <div className="mb-2">No proposals match the current filter.</div>
-          <Button size="sm" variant="outline" className="text-xs border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setFilter('all')}>
+          <Button size="sm" variant="outline" className="text-xs border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => setFilter('all')}>
             Clear filters
           </Button>
         </div>

@@ -29,7 +29,7 @@ export function MyActiveVotes({ votes }: MyActiveVotesProps) {
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <h3 className="text-xl font-bold text-white">My Active Votes</h3>
-        <Badge variant="secondary" className="bg-brand/20 text-brand border-brand/30">
+        <Badge variant="secondary" className="bg-brand/20 text-brand border-white/10">
           {votes.length} Active
         </Badge>
       </div>
@@ -53,7 +53,7 @@ export function MyActiveVotes({ votes }: MyActiveVotesProps) {
                     "text-xs",
                     vote.status === 'ending-soon'
                       ? 'text-red-400 border-red-400/30'
-                      : 'text-brand border-brand/30'
+                      : 'text-brand border-white/10'
                   )}
                 >
                   {vote.status === 'ending-soon' ? 'Ending Soon' : 'Active'}

@@ -95,7 +95,7 @@ export const OptimizedImage = memo(function OptimizedImage({
     return (
       <div
         className={cn(
-          "flex items-center justify-center bg-slate-800 text-slate-400 text-sm",
+          "flex items-center justify-center bg-teal-card text-slate-400 text-sm",
           className
         )}
         style={{ width, height }}
@@ -113,7 +113,7 @@ Image failed to load
       {/* 플레이스홀더 */}
       {!isLoaded && (
         <div
-          className="absolute inset-0 bg-slate-800 animate-pulse flex items-center justify-center"
+          className="absolute inset-0 bg-teal-card animate-pulse flex items-center justify-center"
           style={{
             backgroundImage: placeholder ? `url(${placeholder})` : undefined,
             backgroundSize: 'cover',
@@ -121,7 +121,7 @@ Image failed to load
           }}
         >
           {!placeholder && (
-            <div className="w-8 h-8 border-2 border-slate-600 border-t-brand rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-teal border-t-brand rounded-full animate-spin" />
           )}
         </div>
       )}
@@ -150,7 +150,7 @@ Image failed to load
 
       {/* 로딩 오버레이 - shimmer effect removed for cleaner UX */}
       {!isLoaded && !error && (
-        <div className="absolute inset-0 bg-slate-800/50" />
+        <div className="absolute inset-0 bg-teal-card/50" />
       )}
     </div>
   )

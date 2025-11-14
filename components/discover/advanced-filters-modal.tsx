@@ -127,7 +127,7 @@ export function AdvancedFiltersModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] bg-teal-card border-teal text-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -199,7 +199,7 @@ export function AdvancedFiltersModal({
                     "text-xs h-8",
                     localFilters.compositionCoins.includes(coin)
                       ? "bg-brand text-black hover:bg-brand/90"
-                      : "border-slate-700 text-slate-300 hover:bg-slate-800"
+                      : "border-teal text-slate-300 hover:bg-teal-card/50"
                   )}
                   onClick={() => toggleCompositionCoin(coin)}
                 >
@@ -224,7 +224,7 @@ export function AdvancedFiltersModal({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                className="text-xs h-7 border-teal hover:bg-teal-card/50"
                 onClick={() => setPresetNAV(undefined, 1000000)}
               >
                 &lt; $1M
@@ -232,7 +232,7 @@ export function AdvancedFiltersModal({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                className="text-xs h-7 border-teal hover:bg-teal-card/50"
                 onClick={() => setPresetNAV(1000000, 10000000)}
               >
                 $1M - $10M
@@ -240,7 +240,7 @@ export function AdvancedFiltersModal({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                className="text-xs h-7 border-teal hover:bg-teal-card/50"
                 onClick={() => setPresetNAV(10000000, undefined)}
               >
                 &gt; $10M
@@ -248,7 +248,7 @@ export function AdvancedFiltersModal({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                className="text-xs h-7 border-teal hover:bg-teal-card/50"
                 onClick={() => setPresetNAV(undefined, undefined)}
               >
                 Clear
@@ -267,7 +267,7 @@ export function AdvancedFiltersModal({
                     ...prev,
                     navMin: e.target.value ? parseFloat(e.target.value) : undefined
                   }))}
-                  className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                  className="bg-teal-card border-teal text-white text-sm h-9"
                 />
               </div>
               <div className="space-y-1">
@@ -280,7 +280,7 @@ export function AdvancedFiltersModal({
                     ...prev,
                     navMax: e.target.value ? parseFloat(e.target.value) : undefined
                   }))}
-                  className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                  className="bg-teal-card border-teal text-white text-sm h-9"
                 />
               </div>
             </div>
@@ -298,7 +298,7 @@ export function AdvancedFiltersModal({
 
             {/* Timeframe Tabs */}
             <Tabs value={performanceTab} onValueChange={(v) => setPerformanceTab(v as any)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+              <TabsList className="grid w-full grid-cols-3 bg-teal-card">
                 <TabsTrigger value="24h" className="text-xs data-[state=active]:bg-brand data-[state=active]:text-black">
                   24h
                 </TabsTrigger>
@@ -316,7 +316,7 @@ export function AdvancedFiltersModal({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                    className="text-xs h-7 border-teal hover:bg-teal-card/50"
                     onClick={() => setPresetPerformance(0, 10)}
                   >
                     0-10%
@@ -324,7 +324,7 @@ export function AdvancedFiltersModal({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                    className="text-xs h-7 border-teal hover:bg-teal-card/50"
                     onClick={() => setPresetPerformance(10, 50)}
                   >
                     10-50%
@@ -332,7 +332,7 @@ export function AdvancedFiltersModal({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                    className="text-xs h-7 border-teal hover:bg-teal-card/50"
                     onClick={() => setPresetPerformance(50)}
                   >
                     &gt; 50%
@@ -340,7 +340,7 @@ export function AdvancedFiltersModal({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                    className="text-xs h-7 border-teal hover:bg-teal-card/50"
                     onClick={() => setPresetPerformance(-50, 0)}
                   >
                     -50% to 0%
@@ -368,7 +368,7 @@ export function AdvancedFiltersModal({
                              { performance30dMin: val })
                         }))
                       }}
-                      className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                      className="bg-teal-card border-teal text-white text-sm h-9"
                     />
                   </div>
                   <div className="space-y-1">
@@ -390,7 +390,7 @@ export function AdvancedFiltersModal({
                              { performance30dMax: val })
                         }))
                       }}
-                      className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                      className="bg-teal-card border-teal text-white text-sm h-9"
                     />
                   </div>
                 </div>
@@ -415,7 +415,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetVolume(100000)}
                 >
                   &gt; $100K
@@ -423,7 +423,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetVolume(1000000)}
                 >
                   &gt; $1M
@@ -431,7 +431,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetVolume(10000000)}
                 >
                   &gt; $10M
@@ -445,7 +445,7 @@ export function AdvancedFiltersModal({
                   ...prev,
                   volumeMin: e.target.value ? parseFloat(e.target.value) : undefined
                 }))}
-                className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                className="bg-teal-card border-teal text-white text-sm h-9"
               />
             </div>
 
@@ -456,7 +456,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetLiquidity(100000)}
                 >
                   &gt; $100K
@@ -464,7 +464,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetLiquidity(1000000)}
                 >
                   &gt; $1M
@@ -472,7 +472,7 @@ export function AdvancedFiltersModal({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7 border-slate-700 hover:bg-slate-800"
+                  className="text-xs h-7 border-teal hover:bg-teal-card/50"
                   onClick={() => setPresetLiquidity(10000000)}
                 >
                   &gt; $10M
@@ -486,18 +486,18 @@ export function AdvancedFiltersModal({
                   ...prev,
                   liquidityMin: e.target.value ? parseFloat(e.target.value) : undefined
                 }))}
-                className="bg-slate-800 border-slate-700 text-white text-sm h-9"
+                className="bg-teal-card border-teal text-white text-sm h-9"
               />
             </div>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-teal">
           <Button
             variant="ghost"
             onClick={handleReset}
-            className="text-slate-400 hover:text-white hover:bg-slate-800"
+            className="text-slate-400 hover:text-white hover:bg-teal-card/50"
           >
             Reset All
           </Button>
@@ -505,7 +505,7 @@ export function AdvancedFiltersModal({
             <Button
               variant="outline"
               onClick={onClose}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="border-teal text-slate-300 hover:bg-teal-card/50"
             >
               Cancel
             </Button>

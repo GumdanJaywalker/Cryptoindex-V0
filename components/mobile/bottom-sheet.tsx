@@ -130,7 +130,7 @@ export function BottomSheet({
             }}
             className={cn(
               "fixed bottom-0 left-0 right-0 z-50",
-              "bg-slate-900 border-t border-slate-800 rounded-t-2xl",
+              "bg-teal-card border-t border-teal rounded-t-2xl",
               "shadow-2xl transform-gpu",
               className
             )}
@@ -142,13 +142,13 @@ export function BottomSheet({
             {/* Handle Bar */}
             {showHandle && (
               <div className="flex items-center justify-center py-3 px-4">
-                <div className="w-12 h-1 bg-slate-600 rounded-full cursor-grab active:cursor-grabbing" />
+                <div className="w-12 h-1 bg-teal-card/60 rounded-full cursor-grab active:cursor-grabbing" />
               </div>
             )}
 
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-teal">
                 <h3 className="text-lg font-semibold text-white">{title}</h3>
                 <div className="flex items-center gap-2">
                   {/* Snap controls */}
@@ -236,7 +236,7 @@ export function TradingBottomSheet({
     >
       <div className="space-y-6">
         {/* Action Selector */}
-        <div className="flex bg-slate-800 rounded-lg p-1">
+        <div className="flex bg-teal-card rounded-lg p-1">
           <button
             onClick={() => setAction('buy')}
             className={cn(
@@ -275,7 +275,7 @@ export function TradingBottomSheet({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="100"
-              className="w-full pl-8 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-brand focus:ring-1 focus:ring-brand"
+              className="w-full pl-8 pr-4 py-3 bg-teal-card border border-teal rounded-lg text-white placeholder-slate-500 focus:border-brand focus:ring-1 focus:ring-brand"
             />
           </div>
         </div>
@@ -294,7 +294,7 @@ export function TradingBottomSheet({
                   "py-2 px-3 rounded-lg text-sm font-medium transition-all",
                   leverage === lev
                     ? "bg-brand text-black"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    : "bg-teal-card text-slate-300 hover:bg-teal-card/70"
                 )}
               >
                 {lev}x
@@ -309,7 +309,7 @@ export function TradingBottomSheet({
             <button
               key={quickAmount}
               onClick={() => setAmount(quickAmount)}
-              className="py-2 px-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-300 transition-colors"
+              className="py-2 px-3 bg-teal-card hover:bg-teal-card/70 rounded-lg text-sm text-slate-300 transition-colors"
             >
               ${quickAmount}
             </button>
@@ -321,7 +321,7 @@ export function TradingBottomSheet({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-slate-800/50 rounded-lg p-4 space-y-2"
+            className="bg-teal-card/50 rounded-lg p-4 space-y-2"
           >
             <div className="flex justify-between text-sm">
               <span className="text-slate-400">Position Size:</span>

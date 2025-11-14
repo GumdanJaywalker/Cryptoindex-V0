@@ -23,18 +23,18 @@ export function ProfileSection() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Profile</h2>
-      <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-3">
+      <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-3">
         <div>
           <div className="text-xs text-slate-400 mb-1">Nickname</div>
-          <Input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Your display name" className="bg-slate-900 border-slate-700" />
+          <Input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Your display name" className="bg-teal-card border-teal" />
         </div>
         <div>
           <div className="text-xs text-slate-400 mb-1">ENS</div>
-          <Input value={ens} onChange={(e)=>setEns(e.target.value)} placeholder="e.g., degen.eth" className="bg-slate-900 border-slate-700" />
+          <Input value={ens} onChange={(e)=>setEns(e.target.value)} placeholder="e.g., degen.eth" className="bg-teal-card border-teal" />
         </div>
         <div>
           <div className="text-xs text-slate-400 mb-1">Email (for notifications)</div>
-          <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" className="bg-slate-900 border-slate-700" />
+          <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" className="bg-teal-card border-teal" />
         </div>
         <div className="flex justify-end">
           <Button

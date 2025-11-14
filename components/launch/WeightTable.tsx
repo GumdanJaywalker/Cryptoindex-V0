@@ -139,7 +139,7 @@ export function WeightTable({
                 variant="outline"
                 className={cn(
                   'text-xs',
-                  overCap.length === 0 ? 'text-slate-300 border-slate-600' : 'text-yellow-400 border-yellow-400/30'
+                  overCap.length === 0 ? 'text-slate-300 border-teal' : 'text-yellow-400 border-yellow-400/30'
                 )}
                 title={overCap.length ? `Over cap: ${overCap.join(', ')}` : undefined}
               >

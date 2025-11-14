@@ -93,7 +93,7 @@ export function IndexBuilderWizard() {
           <p className="text-slate-400 text-sm">Design your custom index spec and request governance review</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-brand border-brand/30">Draft</Badge>
+          <Badge variant="outline" className="text-brand border-white/10">Draft</Badge>
           {saving ? (
             <span className="text-xs text-slate-400">Saving…</span>
           ) : lastSavedAt ? (

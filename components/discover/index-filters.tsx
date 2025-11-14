@@ -83,8 +83,8 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
   }
 
   return (
-    <Card className="bg-slate-900 border-slate-800 max-w-4xl mx-auto">
-      <CardHeader className="border-b border-slate-800">
+    <Card className="bg-teal-card border-teal max-w-4xl mx-auto">
+      <CardHeader className="border-b border-teal">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center">
@@ -131,7 +131,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
             </Badge>
             <Badge
               variant="outline"
-              className="cursor-pointer hover:bg-brand/20 hover:border-brand/50 transition-colors"
+              className="cursor-pointer hover:bg-brand/20 hover:border-white/10 transition-colors"
               onClick={() => {
                 setLocalFilters({
                   ...localFilters,
@@ -180,7 +180,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
               variant="outline"
               size="sm"
               onClick={addCompositionFilter}
-              className="h-7 text-xs border-slate-700 hover:border-brand hover:bg-brand/10"
+              className="h-7 text-xs border-teal hover:border-white/20 hover:bg-brand/10"
             >
               + Add Asset
             </Button>
@@ -195,7 +195,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
           {localFilters.compositionFilters.map((filter, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 p-3 bg-slate-800/50 rounded-lg border border-slate-700"
+              className="flex items-center gap-2 p-3 bg-teal-card/50 rounded-lg border border-teal"
             >
               <Input
                 placeholder="Asset Symbol (e.g., DOGE)"
@@ -203,7 +203,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                 onChange={(e) =>
                   updateCompositionFilter(index, 'assetSymbol', e.target.value.toUpperCase())
                 }
-                className="flex-1 bg-slate-900 border-slate-700 text-white"
+                className="flex-1 bg-teal-card border-teal text-white"
               />
               <Input
                 type="number"
@@ -216,7 +216,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                     e.target.value ? Number(e.target.value) : undefined
                   )
                 }
-                className="w-24 bg-slate-900 border-slate-700 text-white"
+                className="w-24 bg-teal-card border-teal text-white"
               />
               <Input
                 type="number"
@@ -229,7 +229,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                     e.target.value ? Number(e.target.value) : undefined
                   )
                 }
-                className="w-24 bg-slate-900 border-slate-700 text-white"
+                className="w-24 bg-teal-card border-teal text-white"
               />
               <Button
                 variant="ghost"
@@ -267,7 +267,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                 }
               }}
             >
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+              <SelectTrigger className="bg-teal-card border-teal text-white">
                 <SelectValue placeholder="Select timeframe" />
               </SelectTrigger>
               <SelectContent>
@@ -297,7 +297,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                   },
                 })
               }}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
               disabled={!localFilters.performanceFilter}
             />
           </div>
@@ -318,7 +318,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                   },
                 })
               }}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
               disabled={!localFilters.performanceFilter}
             />
           </div>
@@ -347,7 +347,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                     },
                   })
                 }}
-                className="bg-slate-900 border-slate-700 text-white"
+                className="bg-teal-card border-teal text-white"
               />
             </div>
             <div className="space-y-2">
@@ -366,7 +366,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                     },
                   })
                 }}
-                className="bg-slate-900 border-slate-700 text-white"
+                className="bg-teal-card border-teal text-white"
               />
             </div>
           </div>
@@ -391,7 +391,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
               }
             }}
           >
-            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+            <SelectTrigger className="bg-teal-card border-teal text-white">
               <SelectValue placeholder="Select rebalancing window" />
             </SelectTrigger>
             <SelectContent>
@@ -417,7 +417,7 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                   minVolume24h: e.target.value ? Number(e.target.value) : undefined,
                 })
               }}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
             />
           </div>
           <div className="space-y-2">
@@ -432,17 +432,17 @@ export function IndexFilters({ filters, onFilterChange, onClose }: IndexFiltersP
                   minLiquidity: e.target.value ? Number(e.target.value) : undefined,
                 })
               }}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-teal-card border-teal text-white"
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center gap-3 pt-4 border-t border-teal">
           <Button
             onClick={handleResetFilters}
             variant="outline"
-            className="flex-1 border-slate-700 hover:bg-slate-800"
+            className="flex-1 border-teal hover:bg-teal-card/50"
           >
             Reset All
           </Button>

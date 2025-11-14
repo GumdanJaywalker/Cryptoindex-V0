@@ -298,7 +298,7 @@ export function RebalancingVotesSection() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-brand border-brand/30">
+            <Badge variant="outline" className="text-brand border-white/10">
               {filteredVotes.length} Proposals
             </Badge>
           </div>

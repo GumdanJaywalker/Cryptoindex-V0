@@ -44,7 +44,7 @@ export function LaunchSummary({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-white font-medium">Launch Cost Summary</h3>
-        <Badge className="bg-brand/20 text-brand border-brand/30">
+        <Badge className="bg-brand/20 text-brand border-white/10">
           {vipTier} - Layer 3
         </Badge>
       </div>

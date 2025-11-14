@@ -44,25 +44,25 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
   const phaseBadge = (() => {
     const phase = proposal.phase
     const cmap: Record<string, string> = {
-      active: 'text-brand border-brand/30',
+      active: 'text-brand border-white/10',
       'ending-soon': 'text-red-400 border-red-400/30',
       queued: 'text-yellow-400 border-yellow-400/30',
       timelocked: 'text-yellow-400 border-yellow-400/30',
-      'awaiting-multisig': 'text-brand border-brand/30',
-      executed: 'text-slate-300 border-slate-600',
-      pending: 'text-slate-300 border-slate-600',
-      succeeded: 'text-brand border-brand/30',
+      'awaiting-multisig': 'text-brand border-white/10',
+      executed: 'text-slate-300 border-teal',
+      pending: 'text-slate-300 border-teal',
+      succeeded: 'text-brand border-white/10',
       defeated: 'text-red-400 border-red-400/30',
-      canceled: 'text-slate-400 border-slate-600',
+      canceled: 'text-slate-400 border-teal',
     }
-    return cmap[phase] || 'text-slate-300 border-slate-600'
+    return cmap[phase] || 'text-slate-300 border-teal'
   })()
 
   const actionInfo = () => getActionInfo(proposal)
 
   return (
     <Card
-      className="bg-slate-900/50 border-slate-800 cursor-pointer transition-all duration-300 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10"
+      className="glass-card-dynamic border-teal cursor-pointer transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-brand/10"
       onClick={() => router.push(`/vote/${proposal.id}`)}
       role="button"
       tabIndex={0}
@@ -87,7 +87,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             {readyToQueue && (
               <Badge
                 variant="outline"
-                className="text-xs text-brand border-brand/30 px-3 py-[2px] whitespace-nowrap"
+                className="text-xs text-brand border-white/10 px-3 py-[2px] whitespace-nowrap"
               >
                 Queued soon
               </Badge>
@@ -155,7 +155,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             <div className="text-xs text-slate-400 mb-2">Proposed Changes</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {proposal.changes.map((c, i) => (
-                <div key={i} className="p-3 bg-slate-800/50 rounded-lg border border-slate-700 text-sm">
+                <div key={i} className="p-3 bg-teal-card/50 rounded-lg border border-teal text-sm">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-white">{c.type.toUpperCase()} {c.symbol}</div>
                     {(c.currentPct !== undefined || c.proposedPct !== undefined) && (
@@ -213,7 +213,7 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             )
           })()}
           {proposal.config.multisig && (
-            <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
+            <Badge variant="outline" className="text-xs text-slate-300 border-teal">
               Operator signatures {proposal.multisig?.signed.length ?? 0}/4 required
             </Badge>
           )}

@@ -279,7 +279,7 @@ export function IndexList({
             placeholder="Search indexes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 h-9"
+            className="pl-10 glass-card-dynamic border-teal text-white placeholder:text-slate-500 h-9"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export function IndexList({
             <Button className="bg-brand text-black hover:bg-brand-hover h-9 text-sm">Start Trading</Button>
           </Link>
           <Link href="/launch">
-            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800 h-9 text-sm">Launch Index</Button>
+            <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50 h-9 text-sm">Launch Index</Button>
           </Link>
         </div>
       </div>
@@ -309,7 +309,7 @@ export function IndexList({
                     : "bg-brand text-black hover:bg-brand-hover"
                   : key.startsWith('layer-') && color
                     ? `${color} hover:bg-opacity-10`
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    : "text-slate-400 hover:text-white hover:bg-teal-card/50"
               )}
               onClick={() => setSelectedFilter(key as IndexFilter)}
               title={description}
@@ -319,7 +319,7 @@ export function IndexList({
           ))}
 
           {/* Divider */}
-          <div className="h-4 w-px bg-slate-700 mx-1" />
+          <div className="h-4 w-px bg-teal-card/70 mx-1" />
 
           {/* Advanced Filters Button */}
           <Button
@@ -328,8 +328,8 @@ export function IndexList({
             className={cn(
               "text-xs h-6 px-2 transition-all duration-200 relative",
               advancedFilterCount > 0
-                ? "text-brand border border-brand/30 hover:bg-brand/10"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "text-brand border border-white/10 hover:bg-brand/10"
+                : "text-slate-400 hover:text-white hover:bg-teal-card/50"
             )}
             onClick={onAdvancedFiltersClick}
             title="Open advanced filters"
@@ -374,7 +374,7 @@ export function IndexList({
               key={`indices-table-${selectedFilter}-${sortBy}-${sortDirection}`}
               ref={setContainerEl}
               onScroll={onScroll}
-              className="bg-slate-900/20 border border-slate-800 rounded-lg overflow-auto overscroll-contain scrollbar-thin min-h-[320px]"
+              className="bg-teal-card/20 border border-teal rounded-lg overflow-auto overscroll-contain scrollbar-thin min-h-[320px]"
               style={{ height: 'calc(100vh - 16rem)' }}
               variants={staggerContainer}
               initial="initial"
@@ -383,7 +383,7 @@ export function IndexList({
             >
               <Table containerClassName="relative w-full overflow-visible">
                 <TableHeader>
-                  <TableRow className="sticky top-0 z-20 bg-slate-900/80 hover:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
+                  <TableRow className="sticky top-0 z-20 bg-teal-card/80 hover:bg-teal-card/80 backdrop-blur supports-[backdrop-filter]:bg-teal-card/60">
                     <TableHead
                       className="w-[300px] text-xs text-slate-400 font-medium cursor-pointer hover:text-white transition-colors"
                       onClick={() => handleHeaderClick('name')}
@@ -478,12 +478,12 @@ export function IndexList({
               exit={{ opacity: 0, scale: 0.95 }}
               className="text-center py-12"
             >
-              <Card className="bg-slate-900/30 border-slate-800">
+              <Card className="bg-teal-card/30 border-teal">
                 <CardContent className="p-8">
                   <div className="flex flex-col items-center gap-4">
                     {isFavoritesEmpty ? (
                       <>
-                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                        <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center">
                           <Star className="w-6 h-6 text-slate-400" />
                         </div>
                         <div>
@@ -507,7 +507,7 @@ export function IndexList({
                       </>
                     ) : (
                       <>
-                        <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
+                        <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center">
                           <Search className="w-6 h-6 text-slate-400" />
                         </div>
                         <div>

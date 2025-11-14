@@ -21,7 +21,7 @@ export function PWAInstallPrompt() {
           exit={{ opacity: 0, y: 100 }}
           className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50"
         >
-          <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 shadow-2xl backdrop-blur-lg">
+          <div className="bg-teal-card border border-teal rounded-lg p-4 shadow-2xl backdrop-blur-lg">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-brand rounded-lg flex items-center justify-center flex-shrink-0">
                 <Smartphone className="w-5 h-5 text-black" />

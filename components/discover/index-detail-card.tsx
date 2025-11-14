@@ -50,7 +50,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
 
   return (
     <Card
-      className="bg-slate-900/50 border-slate-800 hover:border-brand/50 transition-all cursor-pointer group overflow-hidden"
+      className="glass-card-dynamic border-teal hover:border-white/10 transition-all cursor-pointer group overflow-hidden"
       onClick={onClick}
     >
       <CardContent className="p-5">
@@ -67,7 +67,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                 </Badge>
               )}
               {index.isNew && (
-                <Badge variant="outline" className="text-brand border-brand/30 text-xs px-1.5 py-0.5">
+                <Badge variant="outline" className="text-brand border-white/10 text-xs px-1.5 py-0.5">
                   NEW
                 </Badge>
               )}
@@ -85,7 +85,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                   ? 'text-blue-400 border-blue-400/30'
                   : index.layerInfo.layer === 'layer-2'
                   ? 'text-purple-400 border-purple-400/30'
-                  : 'text-brand border-brand/30'
+                  : 'text-brand border-white/10'
               }`}
             >
               L{index.layerInfo.layer.replace('layer-', '')}
@@ -94,7 +94,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
         </div>
 
         {/* Price & NAV Section */}
-        <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-slate-800/50 rounded-lg">
+        <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-teal-card/50 rounded-lg">
           <div>
             <p className="text-xs text-slate-500 mb-1">Market Price</p>
             <div className="flex items-baseline gap-2">
@@ -138,7 +138,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="text-center p-2 bg-slate-800/30 rounded">
+          <div className="text-center p-2 bg-teal-card/30 rounded">
             <div className="flex items-center justify-center gap-1 mb-1">
               <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
               <span className="text-xs text-slate-500">24h Volume</span>
@@ -148,7 +148,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
             </p>
           </div>
 
-          <div className="text-center p-2 bg-slate-800/30 rounded">
+          <div className="text-center p-2 bg-teal-card/30 rounded">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Users className="w-3.5 h-3.5 text-slate-500" />
               <span className="text-xs text-slate-500">TVL</span>
@@ -158,7 +158,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
             </p>
           </div>
 
-          <div className="text-center p-2 bg-slate-800/30 rounded">
+          <div className="text-center p-2 bg-teal-card/30 rounded">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Clock className="w-3.5 h-3.5 text-slate-500" />
               <span className="text-xs text-slate-500">Rebalance</span>
@@ -173,7 +173,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-semibold text-slate-300">Composition</h4>
-            <Badge variant="outline" className="text-xs text-slate-400 border-slate-700">
+            <Badge variant="outline" className="text-xs text-slate-400 border-teal">
               {index.assets.length} Assets
             </Badge>
           </div>
@@ -182,7 +182,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
             {index.assets.slice(0, isExpanded ? index.assets.length : 5).map((asset, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between text-xs p-2 bg-slate-800/30 rounded hover:bg-slate-800/50 transition-colors"
+                className="flex items-center justify-between text-xs p-2 bg-teal-card/30 rounded hover:bg-teal-card/50 transition-colors"
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-brand/20 to-purple-500/20 flex items-center justify-center shrink-0">
@@ -205,7 +205,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                   </span>
                   <Badge
                     variant="outline"
-                    className="text-xs text-brand border-brand/30 min-w-[3.5rem] justify-center"
+                    className="text-xs text-brand border-white/10 min-w-[3.5rem] justify-center"
                   >
                     {asset.allocation.toFixed(1)}%
                   </Badge>
@@ -223,7 +223,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                 e.stopPropagation()
                 setIsExpanded(!isExpanded)
               }}
-              className="w-full mt-2 text-xs text-slate-400 hover:text-white hover:bg-slate-800/50"
+              className="w-full mt-2 text-xs text-slate-400 hover:text-white hover:bg-teal-card/50"
             >
               {isExpanded ? (
                 <>
@@ -242,13 +242,13 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
 
         {/* Graduation Progress (Layer 3 only) */}
         {index.layerInfo?.layer === 'layer-3' && index.graduation && (
-          <div className="mb-3 p-3 bg-brand/5 border border-brand/20 rounded-lg">
+          <div className="mb-3 p-3 bg-brand/5 border border-white/10 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Rocket className="w-4 h-4 text-brand" />
                 <span className="text-sm font-semibold text-white">Graduation Progress</span>
               </div>
-              <Badge variant="outline" className="text-xs text-brand border-brand/30">
+              <Badge variant="outline" className="text-xs text-brand border-white/10">
                 {index.graduation.status === 'graduated'
                   ? 'Graduated'
                   : index.graduation.status === 'near-graduation'
@@ -267,7 +267,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                     {index.graduation.liquidityProgress}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-teal-card rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-brand to-purple-500 transition-all duration-500"
                     style={{ width: `${index.graduation.liquidityProgress}%` }}
@@ -282,7 +282,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
                     {index.graduation.salesProgress}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-teal-card rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-green-500 to-brand transition-all duration-500"
                     style={{ width: `${index.graduation.salesProgress}%` }}
@@ -294,7 +294,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
         )}
 
         {/* Rebalancing Info */}
-        <div className="mb-4 p-3 bg-slate-800/30 rounded-lg border border-slate-700">
+        <div className="mb-4 p-3 bg-teal-card/30 rounded-lg border border-teal">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-slate-500" />
@@ -312,7 +312,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 border-brand/30 text-brand hover:bg-brand/10"
+            className="flex-1 border-white/10 text-brand hover:bg-brand/10"
             onClick={(e) => {
               e.stopPropagation()
               // Navigate to trading page
@@ -324,7 +324,7 @@ export function IndexDetailCard({ index, onClick }: IndexDetailCardProps) {
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800"
+            className="flex-1 border-teal text-slate-300 hover:bg-teal-card/50"
             onClick={(e) => {
               e.stopPropagation()
               // View full details

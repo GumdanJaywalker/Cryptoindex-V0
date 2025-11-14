@@ -26,7 +26,7 @@ export function NotificationsButton({ className }: NotificationsButtonProps) {
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-slate-900 border border-slate-700 text-white p-1">
+      <DropdownMenuContent align="end" className="w-64 bg-teal-card border border-teal text-white p-1">
         {items.map((n) => (
           <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-0.5 py-2">
             <div className="text-sm">{n.title}</div>

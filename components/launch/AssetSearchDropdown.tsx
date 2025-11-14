@@ -246,7 +246,7 @@ export function AssetSearchDropdown({
       >
         {/* Selected Assets Counter */}
         {selectedSymbols.length > 0 && (
-          <div className="px-4 py-2 bg-brand/10 border-b border-brand/30 text-sm text-brand rounded-t-lg">
+          <div className="px-4 py-2 bg-brand/10 border-b border-white/10 text-sm text-brand rounded-t-lg">
             {selectedSymbols.length} asset{selectedSymbols.length > 1 ? 's' : ''} selected
           </div>
         )}
@@ -282,8 +282,8 @@ export function AssetSearchDropdown({
               className={cn(
                 "px-3 py-1 text-xs font-medium rounded transition-colors",
                 activeTab === tab
-                  ? "bg-brand/20 text-brand border border-brand/50"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent"
+                  ? "bg-brand/20 text-brand border border-white/10"
+                  : "text-slate-400 hover:text-white hover:bg-teal-card/50 border border-transparent"
               )}
             >
               {getTabLabel(tab)}
@@ -411,7 +411,7 @@ export function AssetSearchDropdown({
               {selectedSymbols.map((symbol) => (
                 <div
                   key={symbol}
-                  className="px-2 py-1 bg-brand/20 text-brand rounded text-xs font-medium border border-brand/30"
+                  className="px-2 py-1 bg-brand/20 text-brand rounded text-xs font-medium border border-white/10"
                 >
                   {symbol}
                 </div>

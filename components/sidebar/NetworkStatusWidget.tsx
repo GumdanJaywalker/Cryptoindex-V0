@@ -63,7 +63,7 @@ export function NetworkStatusWidget({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-800 bg-slate-900/50 p-4 text-sm",
+        "rounded-xl border border-teal glass-card-dynamic p-4 text-sm",
         className
       )}
     >

@@ -37,7 +37,7 @@ export function VoteDialog({ open, onOpenChange, proposal }: { open: boolean; on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-md">
+      <DialogContent className="bg-teal-base border-teal text-white max-w-md">
         <DialogHeader>
           <DialogTitle>Cast your vote</DialogTitle>
         </DialogHeader>
@@ -58,7 +58,7 @@ export function VoteDialog({ open, onOpenChange, proposal }: { open: boolean; on
             </div>
           </RadioGroup>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button className="bg-brand text-black hover:bg-brand-hover" onClick={onSubmit} disabled={submitting || power <= 0}>

@@ -86,7 +86,7 @@ export function IndexCreatorOverview() {
             <div className="p-4 rounded border border-teal bg-teal-elevated/30">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-slate-300 font-medium">Creator Fee</div>
-                <Badge variant="outline" className="text-slate-300 border-slate-600 text-xs">{creatorFeeBps} bps</Badge>
+                <Badge variant="outline" className="text-slate-300 border-teal text-xs">{creatorFeeBps} bps</Badge>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>

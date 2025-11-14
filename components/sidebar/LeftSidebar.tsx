@@ -175,11 +175,11 @@ export function LeftSidebar() {
             )}
             <Dialog open={addAlertOpen} onOpenChange={setAddAlertOpen}>
               <DialogTrigger asChild>
-                <button className="w-full px-2.5 py-1.5 text-[11px] text-brand border border-brand/30 rounded-lg hover:bg-brand/10 transition-colors mt-1">
+                <button className="w-full px-2.5 py-1.5 text-[11px] text-brand border border-white/10 rounded-lg hover:bg-brand/10 transition-colors mt-1">
                   + Add Alert
                 </button>
               </DialogTrigger>
-              <DialogContent className="bg-slate-950 border-slate-800 text-white">
+              <DialogContent className="bg-teal-base border-teal text-white">
                 <DialogHeader>
                   <DialogTitle>Add Price Alert</DialogTitle>
                 </DialogHeader>
@@ -188,10 +188,10 @@ export function LeftSidebar() {
                   <div>
                     <Label className="text-slate-300 text-xs mb-2 block">Alert Type</Label>
                     <Select value={alertType} onValueChange={(v) => setAlertType(v as any)}>
-                      <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                      <SelectTrigger className="glass-card-dynamic border-teal text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700">
+                      <SelectContent className="bg-teal-card border-teal">
                         <SelectItem value="percentage" className="text-white">Percentage Change</SelectItem>
                         <SelectItem value="price" className="text-white">Price Target</SelectItem>
                       </SelectContent>
@@ -207,7 +207,7 @@ export function LeftSidebar() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={comboboxOpen}
-                          className="w-full justify-between bg-slate-900/50 border-slate-700 text-white hover:bg-slate-800 hover:text-white"
+                          className="w-full justify-between glass-card-dynamic border-teal text-white hover:bg-teal-card/50 hover:text-white"
                         >
                           {alertSymbol
                             ? allMockIndexes.find((idx) => idx.symbol === alertSymbol)?.symbol
@@ -215,8 +215,8 @@ export function LeftSidebar() {
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[280px] p-0 bg-slate-900 border-slate-700">
-                        <Command className="bg-slate-900">
+                      <PopoverContent className="w-[280px] p-0 bg-teal-card border-teal">
+                        <Command className="bg-teal-card">
                           <CommandInput placeholder="Search index..." className="text-white" />
                           <CommandList>
                             <CommandEmpty className="text-slate-400">No index found.</CommandEmpty>
@@ -229,7 +229,7 @@ export function LeftSidebar() {
                                     setAlertSymbol(currentValue === alertSymbol ? "" : currentValue.toUpperCase())
                                     setComboboxOpen(false)
                                   }}
-                                  className="text-white hover:bg-slate-800"
+                                  className="text-white hover:bg-teal-card/50"
                                 >
                                   <Check
                                     className={cn(
@@ -256,10 +256,10 @@ export function LeftSidebar() {
                       <div>
                         <Label className="text-slate-300 text-xs">Time Frame</Label>
                         <Select value={timeFrame} onValueChange={(v) => setTimeFrame(v as any)}>
-                          <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                          <SelectTrigger className="glass-card-dynamic border-teal text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700">
+                          <SelectContent className="bg-teal-card border-teal">
                             <SelectItem value="5m" className="text-white">5 minutes</SelectItem>
                             <SelectItem value="15m" className="text-white">15 minutes</SelectItem>
                             <SelectItem value="1h" className="text-white">1 hour</SelectItem>
@@ -276,17 +276,17 @@ export function LeftSidebar() {
                           min="0"
                           value={percentageChange}
                           onChange={(e) => setPercentageChange(e.target.value)}
-                          className="bg-slate-900/50 border-slate-700 text-white"
+                          className="glass-card-dynamic border-teal text-white"
                           placeholder="5.0"
                         />
                       </div>
                       <div>
                         <Label className="text-slate-300 text-xs">Direction</Label>
                         <Select value={changeDirection} onValueChange={(v) => setChangeDirection(v as any)}>
-                          <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                          <SelectTrigger className="glass-card-dynamic border-teal text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700">
+                          <SelectContent className="bg-teal-card border-teal">
                             <SelectItem value="both" className="text-white">Both</SelectItem>
                             <SelectItem value="increase" className="text-white">Increase</SelectItem>
                             <SelectItem value="decrease" className="text-white">Decrease</SelectItem>
@@ -302,10 +302,10 @@ export function LeftSidebar() {
                       <div>
                         <Label className="text-slate-300 text-xs">Condition</Label>
                         <Select value={alertCondition} onValueChange={(v) => setAlertCondition(v as any)}>
-                          <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                          <SelectTrigger className="glass-card-dynamic border-teal text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700">
+                          <SelectContent className="bg-teal-card border-teal">
                             <SelectItem value="above" className="text-white">Above</SelectItem>
                             <SelectItem value="below" className="text-white">Below</SelectItem>
                           </SelectContent>
@@ -319,14 +319,14 @@ export function LeftSidebar() {
                           min="0"
                           value={alertPrice}
                           onChange={(e) => setAlertPrice(e.target.value)}
-                          className="bg-slate-900/50 border-slate-700 text-white"
+                          className="glass-card-dynamic border-teal text-white"
                           placeholder="0.00"
                         />
                       </div>
                     </div>
                   )}
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" className="border-slate-700 text-slate-300 hover:bg-slate-800" onClick={() => setAddAlertOpen(false)}>
+                    <Button variant="outline" className="border-teal text-slate-300 hover:bg-teal-card/50" onClick={() => setAddAlertOpen(false)}>
                       Cancel
                     </Button>
                     <Button

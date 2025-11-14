@@ -131,7 +131,7 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
   }
 
   return (
-    <Card className={cn("bg-slate-900/50 border-slate-800", className)}>
+    <Card className={cn("glass-card-dynamic border-teal", className)}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Headphones className="w-5 h-5 text-brand" />
@@ -239,7 +239,7 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
                   onClick={() => testSound(type, label)}
                   disabled={testingSound === type}
                   className={cn(
-                    "h-10 text-xs justify-start gap-2 border-slate-700 hover:border-brand/50 transition-all",
+                    "h-10 text-xs justify-start gap-2 border-teal hover:border-white/10 transition-all",
                     testingSound === type && "border-brand bg-brand/5 scale-95"
                   )}
                 >
@@ -259,7 +259,7 @@ export function SoundSettings({ className, compact = false }: SoundSettingsProps
               ))}
             </div>
 
-            <div className="text-xs text-slate-500 bg-slate-800/30 rounded-lg p-2">
+            <div className="text-xs text-slate-500 bg-teal-card/30 rounded-lg p-2">
               💡 Sounds will only play if your browser allows audio playback. 
               Some browsers require user interaction first.
             </div>

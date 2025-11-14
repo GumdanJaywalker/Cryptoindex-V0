@@ -18,7 +18,7 @@ const LAYER_CONFIGS = {
     description: 'View all indexes',
     color: 'text-slate-400',
     activeColor: 'text-brand',
-    borderColor: 'border-brand/50',
+    borderColor: 'border-white/10',
     bgColor: 'bg-brand/10',
   },
   'layer-1': {
@@ -50,7 +50,7 @@ const LAYER_CONFIGS = {
     badge: 'High Risk',
     color: 'text-brand',
     activeColor: 'text-brand',
-    borderColor: 'border-brand/50',
+    borderColor: 'border-white/10',
     bgColor: 'bg-brand/10',
     features: ['Bonding Curve', 'Graduation System', 'Early Access'],
   },
@@ -74,7 +74,7 @@ export function LayerTabs({ selectedLayer, onLayerChange, className }: LayerTabs
                 'hover:scale-[1.02] active:scale-[0.98]',
                 isActive
                   ? `${config.borderColor} ${config.bgColor} shadow-lg`
-                  : 'border-slate-800 bg-slate-900/30 hover:bg-slate-900/50 hover:border-slate-700'
+                  : 'border-teal bg-teal-card/30 hover:glass-card-dynamic hover:border-teal'
               )}
             >
               <div className="flex items-start justify-between mb-3">
@@ -89,7 +89,7 @@ export function LayerTabs({ selectedLayer, onLayerChange, className }: LayerTabs
                     variant="outline"
                     className={cn(
                       'text-xs border-0 px-2 py-0',
-                      isActive ? config.bgColor : 'bg-slate-800/50',
+                      isActive ? config.bgColor : 'bg-teal-card/50',
                       isActive ? config.activeColor : 'text-slate-500'
                     )}
                   >
@@ -121,7 +121,7 @@ export function LayerTabs({ selectedLayer, onLayerChange, className }: LayerTabs
                   <div className="mt-3 space-y-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {config.features.map((feature, index) => (
                       <div key={index} className="text-xs text-slate-600 flex items-center gap-1">
-                        <div className="w-1 h-1 rounded-full bg-slate-700" />
+                        <div className="w-1 h-1 rounded-full bg-teal-card/70" />
                         {feature}
                       </div>
                     ))}

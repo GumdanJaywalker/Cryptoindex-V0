@@ -70,7 +70,7 @@ export function MobileNav() {
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
       {/* Background with blur */}
-      <div className="bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-2 py-2">
+      <div className="glass-card-dynamic backdrop-blur-lg border-t border-teal px-2 py-2">
         <div className="flex items-center justify-around max-w-md mx-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href || 
@@ -92,7 +92,7 @@ export function MobileNav() {
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-brand/10 border border-brand/20 rounded-lg"
+                      className="absolute inset-0 bg-brand/10 border border-white/10 rounded-lg"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
@@ -148,7 +148,7 @@ export function MobileHeader() {
       animate={{ y: 0 }}
       className="fixed top-0 left-0 right-0 z-40 md:hidden"
     >
-      <div className="bg-slate-900/95 backdrop-blur-lg border-b border-slate-800 px-4 py-3">
+      <div className="glass-card-dynamic backdrop-blur-lg border-b border-teal px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/">
@@ -169,7 +169,7 @@ export function MobileHeader() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsWalletOpen(!isWalletOpen)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-teal-card hover:bg-teal-card/70 px-3 py-2 rounded-lg transition-colors"
             >
               <Wallet className="w-4 h-4 text-brand" />
               <span className="text-sm font-medium text-white">{formatBalance(2400)}</span>
@@ -178,7 +178,7 @@ export function MobileHeader() {
             {/* Profile/Settings */}
             <motion.button
               whileTap={{ scale: 0.95 }}
-              className="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors"
+              className="w-9 h-9 bg-teal-card hover:bg-teal-card/70 rounded-lg flex items-center justify-center transition-colors"
             >
               <User className="w-4 h-4 text-slate-300" />
             </motion.button>
@@ -192,7 +192,7 @@ export function MobileHeader() {
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute top-full left-4 right-4 mt-1 bg-slate-800 border border-slate-700 rounded-lg p-4 shadow-xl"
+              className="absolute top-full left-4 right-4 mt-1 bg-teal-card border border-teal rounded-lg p-4 shadow-xl"
             >
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
@@ -207,7 +207,7 @@ export function MobileHeader() {
                   <span className="text-sm text-slate-400">In Positions</span>
                   <span className="text-sm text-orange-400">{formatBalance(1222.22)}</span>
                 </div>
-                <div className="pt-2 border-t border-slate-700">
+                <div className="pt-2 border-t border-teal">
                   <button className="w-full bg-brand text-black font-semibold py-2 rounded-lg text-sm">
                     Deposit Funds
                   </button>
@@ -233,7 +233,7 @@ export function MobileStatusBar() {
         height: isExpanded ? 'auto' : '40px'
       }}
     >
-      <div className="bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 overflow-hidden">
+      <div className="bg-teal-card/90 backdrop-blur-sm border-b border-teal overflow-hidden">
         {/* Compact view */}
         <motion.div
           onClick={() => setIsExpanded(!isExpanded)}

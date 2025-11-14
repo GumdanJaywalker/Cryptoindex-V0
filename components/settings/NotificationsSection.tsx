@@ -22,14 +22,14 @@ export function NotificationsSection() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Notifications</h2>
-      <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-3">
+      <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-3">
         {[
           { key: 'price', label: 'Price Alerts', state: price, set: setPrice },
           { key: 'governance', label: 'Governance Updates', state: governance, set: setGovernance },
           { key: 'trades', label: 'Trade Executions', state: trades, set: setTrades },
           { key: 'email', label: 'Email Notifications', state: email, set: setEmail },
         ].map((t) => (
-          <label key={t.key} className="flex items-center justify-between p-3 rounded-lg border border-slate-700 bg-slate-900">
+          <label key={t.key} className="flex items-center justify-between p-3 rounded-lg border border-teal bg-teal-card">
             <span className="text-slate-200 text-sm">{t.label}</span>
             <input type="checkbox" checked={t.state as boolean} onChange={(e)=> (t.set as any)(e.target.checked)} className="h-4 w-4" />
           </label>

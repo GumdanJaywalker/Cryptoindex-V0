@@ -139,7 +139,7 @@ export function FloatingTradeButton({
               >
                 <Badge 
                   variant="outline" 
-                  className="bg-slate-900/80 text-brand border-brand/50 px-3 py-1"
+                  className="bg-teal-card/80 text-brand border-white/10 px-3 py-1"
                 >
                   {selectedIndex}
                 </Badge>

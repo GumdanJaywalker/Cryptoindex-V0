@@ -276,8 +276,8 @@ export function AssetSearchModal({
                 className={cn(
                   "px-3 py-1 text-xs font-medium rounded transition-colors",
                   activeTab === tab
-                    ? "bg-brand/20 text-brand border border-brand/50"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent"
+                    ? "bg-brand/20 text-brand border border-white/10"
+                    : "text-slate-400 hover:text-white hover:bg-teal-card/50 border border-transparent"
                 )}
               >
                 {getTabLabel(tab)}
@@ -405,7 +405,7 @@ export function AssetSearchModal({
                 {Array.from(pendingAssets.values()).map((asset) => (
                   <div
                     key={asset.symbol}
-                    className="px-2 py-1 bg-brand/20 text-brand rounded text-xs font-medium border border-brand/30 flex items-center gap-2"
+                    className="px-2 py-1 bg-brand/20 text-brand rounded text-xs font-medium border border-white/10 flex items-center gap-2"
                   >
                     <span>{asset.symbol}</span>
                     <button
@@ -422,7 +422,7 @@ export function AssetSearchModal({
               <div className="flex justify-end gap-2 px-3">
                 <button
                   onClick={handleCancel}
-                  className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded transition-colors"
+                  className="px-6 py-2 bg-teal-card/70 hover:bg-teal-card/60 text-white font-medium rounded transition-colors"
                 >
                   Cancel
                 </button>

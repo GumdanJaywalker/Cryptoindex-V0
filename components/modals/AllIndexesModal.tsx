@@ -151,7 +151,7 @@ export function AllIndexesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] bg-slate-950 border-slate-800 text-white">
+      <DialogContent className="max-w-6xl max-h-[90vh] bg-teal-base border-teal text-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">All Indices</DialogTitle>
         </DialogHeader>
@@ -164,7 +164,7 @@ export function AllIndexesModal({
               placeholder="Search indexes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500"
+              className="pl-10 glass-card-dynamic border-teal text-white placeholder:text-slate-500"
             />
           </div>
 
@@ -183,7 +183,7 @@ export function AllIndexesModal({
                       : "bg-brand text-black hover:bg-brand-hover"
                     : key.startsWith('layer-') && color
                       ? `${color} hover:bg-opacity-10`
-                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                      : "text-slate-400 hover:text-white hover:bg-teal-card/50"
                 )}
                 onClick={() => setSelectedFilter(key as IndexFilter)}
               >
@@ -194,11 +194,11 @@ export function AllIndexesModal({
           </div>
 
           {/* Table */}
-          <div className="border border-slate-800 rounded-lg overflow-hidden">
+          <div className="border border-teal rounded-lg overflow-hidden">
             <div className="max-h-[calc(90vh-300px)] overflow-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="sticky top-0 z-10 bg-slate-900/95 hover:bg-slate-900/95">
+                  <TableRow className="sticky top-0 z-10 glass-card-dynamic hover:glass-card-dynamic">
                     <TableHead 
                       className="w-[300px] text-xs text-slate-400 font-medium cursor-pointer hover:text-white transition-colors"
                       onClick={() => handleHeaderClick('name')}

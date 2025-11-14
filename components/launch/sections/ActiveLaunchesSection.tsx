@@ -61,7 +61,7 @@ export function ActiveLaunchesSection() {
           return (
             <div
               key={launch.id}
-              className="bg-teal-card border border-teal rounded-lg p-4 space-y-3 hover:border-brand/50 transition-colors cursor-pointer"
+              className="bg-teal-card border border-teal rounded-lg p-4 space-y-3 hover:border-white/10 transition-colors cursor-pointer"
             >
               {/* Header */}
               <div className="flex items-start justify-between">

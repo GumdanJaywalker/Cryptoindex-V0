@@ -38,7 +38,7 @@ export function NotificationsFilters() {
         <SelectTrigger className="w-[170px] bg-transparent border-cryptoindex-medium/40">
           <SelectValue placeholder="Category" />
         </SelectTrigger>
-        <SelectContent className="bg-slate-900 border-cryptoindex-medium/40">
+        <SelectContent className="bg-teal-card border-cryptoindex-medium/40">
           {categoryOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}

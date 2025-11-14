@@ -68,7 +68,7 @@ export function SecuritySection() {
       <h2 className="text-lg font-semibold">Security</h2>
 
       {/* Two-Factor Authentication */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="glass-card-dynamic border-teal">
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export function SecuritySection() {
               <Button
                 variant={twoFactorEnabled ? "outline" : "default"}
                 className={twoFactorEnabled
-                  ? "border-slate-700 text-slate-300 hover:bg-slate-800"
+                  ? "border-teal text-slate-300 hover:bg-teal-card/50"
                   : "bg-brand text-black hover:bg-brand-hover"}
                 onClick={() => twoFactorEnabled ? handleDisable2FA() : setShowSetup(true)}
               >
@@ -97,7 +97,7 @@ export function SecuritySection() {
 
           {/* Setup Flow */}
           {showSetup && !twoFactorEnabled && (
-            <div className="space-y-4 pt-4 border-t border-slate-800">
+            <div className="space-y-4 pt-4 border-t border-teal">
               <div className="text-sm text-slate-300">
                 1. Scan this QR code with your authenticator app
               </div>
@@ -112,17 +112,17 @@ export function SecuritySection() {
               </div>
 
               {/* Manual Entry */}
-              <div className="bg-slate-800/50 rounded-lg p-3">
+              <div className="bg-teal-card/50 rounded-lg p-3">
                 <div className="text-xs text-slate-400 mb-2">Or enter this key manually:</div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-sm font-mono bg-slate-900 px-3 py-2 rounded border border-slate-700">
+                  <code className="flex-1 text-sm font-mono bg-teal-card px-3 py-2 rounded border border-teal">
                     {secretKey}
                   </code>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={handleCopySecret}
-                    className="hover:bg-slate-700"
+                    className="hover:bg-teal-card/70"
                   >
                     {copiedCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                   </Button>
@@ -140,7 +140,7 @@ export function SecuritySection() {
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="000000"
-                  className="bg-slate-900 border-slate-700 text-center text-lg tracking-widest font-mono"
+                  className="bg-teal-card border-teal text-center text-lg tracking-widest font-mono"
                 />
               </div>
 
@@ -152,7 +152,7 @@ export function SecuritySection() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {backupCodes.map((code, i) => (
-                    <code key={i} className="text-xs font-mono bg-slate-900 px-2 py-1 rounded">
+                    <code key={i} className="text-xs font-mono bg-teal-card px-2 py-1 rounded">
                       {code}
                     </code>
                   ))}
@@ -167,7 +167,7 @@ export function SecuritySection() {
                     setShowSetup(false)
                     setVerificationCode('')
                   }}
-                  className="border-slate-700 hover:bg-slate-800"
+                  className="border-teal hover:bg-teal-card/50"
                 >
                   Cancel
                 </Button>
@@ -184,7 +184,7 @@ export function SecuritySection() {
 
           {/* When Enabled - Show Status */}
           {twoFactorEnabled && (
-            <div className="pt-4 border-t border-slate-800 space-y-3">
+            <div className="pt-4 border-t border-teal space-y-3">
               <div className="flex items-center gap-2 text-sm text-green-400">
                 <Check className="w-4 h-4" />
                 <span>2FA is protecting your account</span>
@@ -198,15 +198,15 @@ export function SecuritySection() {
       </Card>
 
       {/* Password Change */}
-      <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-3">
+      <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-3">
         <div>
           <div className="text-xs text-slate-400 mb-1">New Password</div>
-          <Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••" className="bg-slate-900 border-slate-700" />
+          <Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••" className="bg-teal-card border-teal" />
           <div className="mt-1 text-xs text-slate-400">Strength: <span className="text-slate-200">{strengthLabel}</span></div>
         </div>
         <div>
           <div className="text-xs text-slate-400 mb-1">Confirm Password</div>
-          <Input type="password" value={confirm} onChange={(e)=>setConfirm(e.target.value)} placeholder="••••••••" className="bg-slate-900 border-slate-700" />
+          <Input type="password" value={confirm} onChange={(e)=>setConfirm(e.target.value)} placeholder="••••••••" className="bg-teal-card border-teal" />
         </div>
         <div className="flex justify-end">
           <Button

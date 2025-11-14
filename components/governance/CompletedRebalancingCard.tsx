@@ -35,7 +35,7 @@ export function CompletedRebalancingCard({ rebalancing }: CompletedRebalancingCa
   const isPassed = rebalancing.result === 'passed'
 
   return (
-    <Card className="glass-card-dynamic hover:border-brand/30 transition-all">
+    <Card className="glass-card-dynamic hover:border-white/10 transition-all">
       <CardContent className="p-4">
         {/* Collapsed View - Header */}
         <div
@@ -46,7 +46,7 @@ export function CompletedRebalancingCard({ rebalancing }: CompletedRebalancingCa
             {/* Index Name & Type */}
             <div className="flex items-center gap-2 mb-2">
               <h4 className="text-sm font-semibold text-white">{rebalancing.indexName}</h4>
-              <Badge variant="outline" className="text-xs text-slate-400 border-slate-600">
+              <Badge variant="outline" className="text-xs text-slate-400 border-teal">
                 {rebalancing.type === 'proposal' ? 'Proposal' : 'VS Battle'}
               </Badge>
             </div>
@@ -105,7 +105,7 @@ export function CompletedRebalancingCard({ rebalancing }: CompletedRebalancingCa
                       "p-2 rounded text-xs border",
                       change.type === 'add' && "bg-green-500/10 border-green-500/20",
                       change.type === 'remove' && "bg-red-500/10 border-red-500/20",
-                      change.type === 'adjust' && "bg-brand/10 border-brand/20"
+                      change.type === 'adjust' && "bg-brand/10 border-white/10"
                     )}
                   >
                     <div className="flex items-center justify-between">

@@ -60,7 +60,7 @@ export function BattleCard({
   const getStatusColor = () => {
     switch (status) {
       case 'active':
-        return 'text-brand border-brand/30 bg-brand/10'
+        return 'text-brand border-white/10 bg-brand/10'
       case 'upcoming':
         return 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'
       case 'completed':
@@ -88,7 +88,7 @@ export function BattleCard({
   }
 
   return (
-    <Card className="glass-card-dynamic hover:border-brand/50 transition-all overflow-hidden group">
+    <Card className="glass-card-dynamic hover:border-white/10 transition-all overflow-hidden group">
       <CardContent className="p-5">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -114,7 +114,7 @@ export function BattleCard({
             <div
               className={`text-center p-3 rounded-lg border-2 transition-all ${
                 isWinningA
-                  ? 'border-brand/50 bg-brand/10'
+                  ? 'border-white/10 bg-brand/10'
                   : 'border-teal bg-teal-elevated/30'
               }`}
             >
@@ -139,7 +139,7 @@ export function BattleCard({
             <div
               className={`text-center p-3 rounded-lg border-2 transition-all ${
                 isWinningB
-                  ? 'border-brand/50 bg-brand/10'
+                  ? 'border-white/10 bg-brand/10'
                   : 'border-teal bg-teal-elevated/30'
               }`}
             >
@@ -223,7 +223,7 @@ export function BattleCard({
               variant="outline"
               size="sm"
               onClick={() => handleVote(themeB)}
-              className="border-brand/30 text-brand hover:bg-brand/10 hover:border-brand/50"
+              className="border-white/10 text-brand hover:bg-brand/10 hover:border-white/10"
             >
               <span className="mr-1.5">{themeB.emoji}</span>
               {themeB.name}

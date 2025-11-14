@@ -254,7 +254,7 @@ useEffect(() => {
         >
           Total {total.toFixed(2)}%
         </Badge>
-        <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">
+        <Badge variant="outline" className="text-xs text-slate-300 border-teal">
           Selected {selectedCount}
         </Badge>
         <Button

@@ -246,7 +246,7 @@ export function Background3DGrid() {
         <div className="absolute inset-0" style={{ perspective: '1000px' }}>
           <div className="grid grid-cols-12 grid-rows-8 h-full w-full">
             {Array.from({ length: 96 }, (_, i) => (
-              <div key={i} className="border border-brand/20" />
+              <div key={i} className="border border-white/10" />
             ))}
           </div>
         </div>
@@ -276,7 +276,7 @@ export function Background3DGrid() {
           {gridData.map((item) => (
             <motion.div
               key={item.id}
-              className="border border-brand/20"
+              className="border border-white/10"
               style={{
                 transformStyle: "preserve-3d",
                 translateZ: item.initialZ

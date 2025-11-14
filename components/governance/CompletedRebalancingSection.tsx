@@ -295,7 +295,7 @@ export function CompletedRebalancingSection() {
 
       {/* Results Count */}
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-brand border-brand/30">
+        <Badge variant="outline" className="text-brand border-white/10">
           {filteredData.length} Results
         </Badge>
       </div>

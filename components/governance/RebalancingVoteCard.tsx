@@ -94,15 +94,15 @@ export function RebalancingVoteCard({ rebalancing }: RebalancingVoteCardProps) {
     switch (rebalancing.status) {
       case 'ending-soon': return 'text-red-400 border-red-400/30'
       case 'ended': return 'text-slate-400 border-slate-400/30'
-      default: return 'text-brand border-brand/30'
+      default: return 'text-brand border-white/10'
     }
   }
 
   const getChangeColor = (type: string) => {
     switch (type) {
       case 'remove': return 'border-red-500/30 bg-red-500/10'
-      case 'add': return 'border-brand/30 bg-brand/10'
-      case 'adjust': return 'border-brand/30 bg-brand/10'
+      case 'add': return 'border-white/10 bg-brand/10'
+      case 'adjust': return 'border-white/10 bg-brand/10'
       default: return 'border-teal'
     }
   }
@@ -130,7 +130,7 @@ export function RebalancingVoteCard({ rebalancing }: RebalancingVoteCardProps) {
                rebalancing.status === 'ended' ? 'Ended' : 'Active'}
             </Badge>
             {myVote && (
-              <Badge className="bg-brand/20 text-brand border-brand/30">
+              <Badge className="bg-brand/20 text-brand border-white/10">
                 Voted
               </Badge>
             )}
@@ -340,7 +340,7 @@ export function RebalancingVoteCard({ rebalancing }: RebalancingVoteCardProps) {
 
         {/* 이미 투표한 경우 */}
         {myVote && (
-          <div className="p-4 bg-brand/10 rounded-lg border border-brand/20">
+          <div className="p-4 bg-brand/10 rounded-lg border border-white/10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-brand" />
@@ -428,12 +428,12 @@ export function RebalancingVoteCard({ rebalancing }: RebalancingVoteCardProps) {
             {!myVote ? (
               <Button
                 onClick={() => setIsExpanded(true)}
-                className="w-full bg-brand/20 hover:bg-brand/30 text-brand border border-brand/30"
+                className="w-full bg-brand/20 hover:bg-brand/30 text-brand border border-white/10"
               >
                 View Details & Vote
               </Button>
             ) : (
-              <div className="p-3 bg-brand/10 rounded-lg border border-brand/20">
+              <div className="p-3 bg-brand/10 rounded-lg border border-white/10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-brand" />

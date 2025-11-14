@@ -36,27 +36,12 @@ export function PreferencesSection() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Preferences</h2>
-      <Card className="bg-slate-900/50 border-slate-800"><CardContent className="p-4 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div className="text-xs text-slate-400 mb-1">Currency</div>
-            <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700"><SelectValue placeholder="Currency" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="HYPE">HYPE (Default)</SelectItem>
-                <SelectItem value="USD">USD</SelectItem>
-                <SelectItem value="USDC">USDC</SelectItem>
-                <SelectItem value="USDT">USDT</SelectItem>
-                <SelectItem value="BTC">BTC</SelectItem>
-                <SelectItem value="HIIN">$HIIN (Index Token)</SelectItem>
-                <SelectItem value="HIDE">$HIDE (DEX Token)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <Card className="glass-card-dynamic border-teal"><CardContent className="p-4 space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <div className="text-xs text-slate-400 mb-1">Time Format</div>
             <Select value={timefmt} onValueChange={setTimefmt}>
-              <SelectTrigger className="bg-slate-900 border-slate-700"><SelectValue placeholder="Time Format" /></SelectTrigger>
+              <SelectTrigger className="bg-teal-card border-teal"><SelectValue placeholder="Time Format" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="24h">24‑hour</SelectItem>
                 <SelectItem value="12h">12‑hour</SelectItem>
