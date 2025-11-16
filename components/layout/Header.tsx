@@ -19,7 +19,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#101A1D]">
-      <div className="flex flex-row items-center justify-between px-6 py-3">
+      <div className="relative flex flex-row items-center px-6 py-3">
         {/* Left Section - Logo */}
         <div className="flex items-center flex-1">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
@@ -32,8 +32,8 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Center Section - Navigation (glass-nav pill) */}
-        <div className="flex items-center justify-center flex-shrink-0">
+        {/* Center Section - Navigation (absolute positioned for perfect center) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <HeaderNav />
         </div>
 
