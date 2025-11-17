@@ -19,7 +19,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#101A1D]">
-      <div className="relative flex flex-row items-center px-6 py-3">
+      <div className="relative mx-auto flex w-full max-w-[100vw] flex-row items-center px-6 py-3">
         {/* Left Section - Logo */}
         <div className="flex items-center flex-1">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
