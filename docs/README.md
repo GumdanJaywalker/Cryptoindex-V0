@@ -37,6 +37,15 @@
     BACKEND_INTEGRATION_CHECKLIST.md
     BACKEND_DATA_REQUIREMENTS.md
 
+  /SSOT              # Single Source of Truth (Project Vision)
+    SSOT Index.md            # Master index for all SSOT docs
+    HyperIndex-SSOT Files & Docs/  # Notion exports
+
+  /Fullstack Cooperation Docs  # FE/BE collaboration documentation
+    README.md                # Fullstack docs overview
+    Manuals/                 # Documentation writing plans
+    Fullstack Cooperation Docs/  # Notion template exports
+
   README.md          # This file
 ```
 
@@ -230,6 +239,13 @@
 **Planning**:
 - [November 2025 Planning](./planning/2025NOV01/)
 - [October 2025 Planning](./planning/2025OCT04/)
+
+**Project Vision (SSOT)**:
+- [SSOT Index](./SSOT/SSOT%20Index.md)
+- [Business Overview](./SSOT/HyperIndex-SSOT%20Files%20&%20Docs%202af944d7795680a8aa75ceac49a59134.md)
+
+**Collaboration**:
+- [Fullstack Cooperation Docs](./Fullstack%20Cooperation%20Docs/README.md)
 
 **Archive**:
 - [Historical Sessions](./handover/HANDOVER_ARCHIVE.md)
