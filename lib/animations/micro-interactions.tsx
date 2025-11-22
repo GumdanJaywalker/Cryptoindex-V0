@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion } from 'motion/react'
 
-// 숫자 카운트업 훅
+// Number count-up hook
 export function useCountUp(
   target: number,
   duration: number = 1000,
@@ -55,7 +55,7 @@ export function useCountUp(
   }
 }
 
-// 가격 플래시 효과 훅
+// Price flash effect hook
 export function usePriceFlash(value: number, duration: number = 1000) {
   const [flashState, setFlashState] = useState<'none' | 'up' | 'down'>('none')
   const [previousValue, setPreviousValue] = useState(value)
@@ -113,7 +113,7 @@ export function usePriceFlash(value: number, duration: number = 1000) {
   }
 }
 
-// 스프링 애니메이션 숫자 컴포넌트
+// Spring animation number component
 interface AnimatedNumberProps {
   value: number
   decimals?: number
@@ -138,7 +138,7 @@ export function AnimatedNumber({
   const countUp = useCountUp(value, duration, decimals, false)
   const flash = usePriceFlash(value, 600)
   
-  // 값이 변경될 때 애니메이션 시작
+  // Start animation when value changes
   useEffect(() => {
     countUp.animate(value)
   }, [value])
@@ -154,7 +154,7 @@ export function AnimatedNumber({
   )
 }
 
-// 퍼센트 변화 애니메이션 컴포넌트
+// Percent change animation component
 interface AnimatedPercentageProps {
   value: number
   showSign?: boolean
@@ -191,7 +191,7 @@ export function AnimatedPercentage({
   )
 }
 
-// 펄스 애니메이션
+// Pulse animation
 export const pulseAnimation = {
   scale: [1, 1.05, 1],
   transition: {
@@ -201,7 +201,7 @@ export const pulseAnimation = {
   }
 }
 
-// 바운스 애니메이션
+// Bounce animation
 export const bounceAnimation = {
   y: [0, -10, 0],
   transition: {
@@ -211,7 +211,7 @@ export const bounceAnimation = {
   }
 }
 
-// 흔들림 애니메이션
+// Shake animation
 export const shakeAnimation = {
   x: [0, -5, 5, -5, 5, 0],
   transition: {
@@ -220,7 +220,7 @@ export const shakeAnimation = {
   }
 }
 
-// 로딩 스피너 애니메이션
+// Loading spinner animation
 export const spinAnimation = {
   rotate: 360,
   transition: {
@@ -230,14 +230,14 @@ export const spinAnimation = {
   }
 }
 
-// 스케일 호버 애니메이션
+// Scale hover animation
 export const scaleHover = {
   whileHover: { scale: 1.05 },
   whileTap: { scale: 0.95 },
   transition: { type: "spring", stiffness: 400, damping: 17 }
 }
 
-// 타입라이터 효과 훅
+// Typewriter effect hook
 export function useTypewriter(text: string, speed: number = 50) {
   const [displayText, setDisplayText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -265,7 +265,7 @@ export function useTypewriter(text: string, speed: number = 50) {
   return { displayText, isTyping }
 }
 
-// 카운터 배지 애니메이션
+// Counter badge animation
 interface AnimatedBadgeProps {
   count: number
   maxDisplay?: number
@@ -310,7 +310,7 @@ export function AnimatedBadge({
   )
 }
 
-// 프로그레스 바 애니메이션
+// Progress bar animation
 interface AnimatedProgressProps {
   value: number
   max?: number
@@ -342,7 +342,7 @@ export function AnimatedProgress({
   )
 }
 
-// 부드러운 스크롤 애니메이션
+// Smooth scroll animation
 export function useSmoothScroll() {
   const scrollTo = (elementId: string, offset: number = 0) => {
     const element = document.getElementById(elementId)
@@ -355,7 +355,7 @@ export function useSmoothScroll() {
   return { scrollTo }
 }
 
-// 요소 등장 애니메이션 설정
+// Element appearance animation settings
 export const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -384,7 +384,7 @@ export const slideInRight = {
   transition: { duration: 0.4, ease: "easeOut" }
 }
 
-// Stagger 애니메이션 컨테이너
+// Stagger animation container
 export const staggerContainer = {
   initial: {},
   animate: {
@@ -401,7 +401,7 @@ export const staggerContainer = {
   }
 }
 
-// 인터섹션 옵저버 훅 (스크롤 트리거용)
+// Intersection observer hook (for scroll trigger)
 export function useIntersectionObserver(
   ref: React.RefObject<Element>,
   options: IntersectionObserverInit = {}

@@ -2,7 +2,7 @@
 
 import { Variants } from 'motion/react'
 
-// 페이지 전환 애니메이션 variants
+// Page transition animation variants
 export const pageVariants: Variants = {
   initial: {
     opacity: 0,
@@ -31,7 +31,7 @@ export const pageVariants: Variants = {
   }
 }
 
-// 스크롤 기반 애니메이션 variants
+// Scroll-based animation variants
 export const scrollVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -49,7 +49,7 @@ export const scrollVariants: Variants = {
   }
 }
 
-// 카드 스태거 애니메이션
+// Card stagger animation
 export const cardStaggerVariants: Variants = {
   hidden: {
     opacity: 0
@@ -83,7 +83,7 @@ export const cardChildVariants: Variants = {
   }
 }
 
-// 모달/드로어 애니메이션
+// Modal/drawer animation
 export const modalVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -110,7 +110,7 @@ export const modalVariants: Variants = {
   }
 }
 
-// 드로어 슬라이드업
+// Drawer slide-up
 export const drawerVariants: Variants = {
   hidden: {
     y: "100%",
@@ -135,7 +135,7 @@ export const drawerVariants: Variants = {
   }
 }
 
-// 사이드바 슬라이드
+// Sidebar slide
 export const sidebarVariants: Variants = {
   closed: {
     x: "-100%",
@@ -153,7 +153,7 @@ export const sidebarVariants: Variants = {
   }
 }
 
-// 탭 전환 애니메이션
+// Tab transition animation
 export const tabVariants: Variants = {
   inactive: {
     opacity: 0,
@@ -172,7 +172,7 @@ export const tabVariants: Variants = {
   }
 }
 
-// 알림/토스트 애니메이션
+// Notification/toast animation
 export const toastVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -199,7 +199,7 @@ export const toastVariants: Variants = {
   }
 }
 
-// 리스트 아이템 등장 애니메이션
+// List item appearance animation
 export const listItemVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -226,7 +226,7 @@ export const listItemVariants: Variants = {
   }
 }
 
-// 로딩 스켈레톤 애니메이션
+// Loading skeleton animation
 export const skeletonVariants: Variants = {
   loading: {
     opacity: [0.5, 1, 0.5],
@@ -238,7 +238,7 @@ export const skeletonVariants: Variants = {
   }
 }
 
-// 오류 상태 애니메이션
+// Error state animation
 export const errorVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -261,7 +261,7 @@ export const errorVariants: Variants = {
   }
 }
 
-// 성공 상태 애니메이션
+// Success state animation
 export const successVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -278,7 +278,7 @@ export const successVariants: Variants = {
   }
 }
 
-// 복합 페이지 레이아웃 애니메이션
+// Composite page layout animation
 export const layoutVariants: Variants = {
   hidden: {
     opacity: 0
@@ -301,7 +301,7 @@ export const layoutVariants: Variants = {
   }
 }
 
-// 섹션별 애니메이션 (헤더, 사이드바, 메인)
+// Animation by section (header, sidebar, main)
 export const headerVariants: Variants = {
   hidden: {
     y: -50,
@@ -333,7 +333,7 @@ export const mainContentVariants: Variants = {
   }
 }
 
-// 검색 결과 애니메이션
+// Search result animation
 export const searchResultVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -359,21 +359,21 @@ export const searchResultVariants: Variants = {
   }
 }
 
-// 스크롤 트리거 애니메이션 설정
+// Scroll trigger animation settings
 export const scrollAnimationSettings = {
   threshold: 0.1,
   triggerOnce: true,
   rootMargin: "-50px 0px"
 }
 
-// 페이지 전체 전환 컨테이너
+// Full page transition container
 export const pageTransitionSettings = {
   type: "tween",
   ease: "anticipate",
   duration: 0.5
 }
 
-// 사전정의된 easing 함수들
+// Predefined easing functions
 export const easingFunctions = {
   easeInOut: [0.4, 0.0, 0.2, 1],
   easeOut: [0.0, 0.0, 0.2, 1],
@@ -383,12 +383,12 @@ export const easingFunctions = {
   snappy: { type: "spring", stiffness: 500, damping: 25 }
 }
 
-// 애니메이션 지연 계산 함수
+// Animation delay calculation function
 export const calculateStaggerDelay = (index: number, baseDelay: number = 0.1, maxDelay: number = 1) => {
   return Math.min(index * baseDelay, maxDelay)
 }
 
-// 화면 크기별 애니메이션 설정
+// Animation settings by screen size
 export const getResponsiveAnimation = (isMobile: boolean) => ({
   initial: isMobile ? { opacity: 0, y: 10 } : { opacity: 0, y: 20, scale: 0.95 },
   animate: { opacity: 1, y: 0, scale: 1 },
@@ -397,9 +397,9 @@ export const getResponsiveAnimation = (isMobile: boolean) => ({
     : { duration: 0.4, ease: "easeOut", type: "spring", stiffness: 300 }
 })
 
-// 프리셋 애니메이션 조합
+// Preset animation combinations
 export const presetAnimations = {
-  // 카드 호버 효과
+  // Card hover effect
   cardHover: {
     rest: { scale: 1, y: 0 },
     hover: { 
@@ -410,13 +410,13 @@ export const presetAnimations = {
     }
   },
   
-  // 버튼 클릭 효과
+  // Button click effect
   buttonTap: {
     whileTap: { scale: 0.95 },
     whileHover: { scale: 1.05 }
   },
   
-  // 로딩 펄스
+  // Loading pulse
   loadingPulse: {
     scale: [1, 1.05, 1],
     opacity: [0.5, 1, 0.5],
@@ -427,7 +427,7 @@ export const presetAnimations = {
     }
   },
   
-  // 알림 배지 바운스
+  // Notification badge bounce
   notificationBounce: {
     scale: [1, 1.3, 1],
     transition: {
