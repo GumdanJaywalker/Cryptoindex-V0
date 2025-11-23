@@ -49,14 +49,14 @@ export function TradingPanel() {
 
   // TWAP specific
   const [twapDuration, setTwapDuration] = useState('60')
-  
+
   // Scale specific
   const [scaleOrders, setScaleOrders] = useState('5')
   const [scaleRange, setScaleRange] = useState('5')
-  
+
   // Iceberg specific
   const [icebergVisible, setIcebergVisible] = useState('10')
-  
+
   // Trailing Stop specific
   const [trailingDistance, setTrailingDistance] = useState('2')
 
@@ -115,7 +115,7 @@ export function TradingPanel() {
 
     // Normalize order type for Store compatibility
     const normalizedType = orderType.includes('Market') ? 'Market' :
-                           orderType.includes('Limit') ? 'Limit' : 'Stop'
+      orderType.includes('Limit') ? 'Limit' : 'Stop'
 
     console.log('Creating order...', { normalizedType, orderPrice, orderSize })
 
@@ -313,11 +313,10 @@ export function TradingPanel() {
                   variant={leverage === lev ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setLeverage(lev)}
-                  className={`text-xs h-8 ${
-                    leverage === lev
-                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary'
-                      : 'bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent'
-                  }`}
+                  className={`text-xs h-8 ${leverage === lev
+                    ? 'bg-primary hover:bg-primary/90 text-primary-foreground border-primary'
+                    : 'bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent'
+                    }`}
                 >
                   {lev}x
                 </Button>
@@ -391,7 +390,7 @@ export function TradingPanel() {
         {/* TP/SL */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               checked={takeProfitEnabled}
               onCheckedChange={(checked) => setTakeProfitEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
@@ -409,7 +408,7 @@ export function TradingPanel() {
           )}
 
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               checked={stopLossEnabled}
               onCheckedChange={(checked) => setStopLossEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
@@ -427,7 +426,7 @@ export function TradingPanel() {
           )}
 
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               checked={trailingStopEnabled}
               onCheckedChange={(checked) => setTrailingStopEnabled(Boolean(checked))}
               className="border-border data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
@@ -446,19 +445,19 @@ export function TradingPanel() {
                 <Settings className="w-3 h-3 mr-1" />
                 Advanced Options
               </h4>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
+                  <Checkbox
                     checked={postOnly}
                     onCheckedChange={(checked) => setPostOnly(Boolean(checked))}
                     className="border-border"
                   />
                   <label className="text-xs text-muted-foreground">Post Only</label>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
+                  <Checkbox
                     checked={reduceOnly}
                     onCheckedChange={(checked) => setReduceOnly(Boolean(checked))}
                     className="border-border"
@@ -484,7 +483,7 @@ export function TradingPanel() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox 
+                <Checkbox
                   checked={hiddenOrder}
                   onCheckedChange={(checked) => setHiddenOrder(Boolean(checked))}
                   className="border-border"
@@ -508,11 +507,10 @@ export function TradingPanel() {
         {/* Execute Button - Opens Confirm Modal */}
         <Button
           onClick={handleOpenConfirmModal}
-          className={`w-full py-3 h-12 rounded-lg font-semibold transition-all ${
-            side === 'Buy'
-              ? 'bg-brand hover:bg-brand/90 text-slate-900 shadow-lg shadow-brand/20 border-brand'
-              : 'bg-[#dd5e56] hover:bg-[#dd5e56]/90 text-white shadow-lg shadow-[#dd5e56]/20 border-[#dd5e56]'
-          }`}
+          className={`w-full py-3 h-12 rounded-lg font-semibold transition-all ${side === 'Buy'
+            ? 'bg-brand hover:bg-brand/90 text-slate-900 shadow-lg shadow-brand/20 border-brand'
+            : 'bg-[#dd5e56] hover:bg-[#dd5e56]/90 text-white shadow-lg shadow-[#dd5e56]/20 border-[#dd5e56]'
+            }`}
         >
           <Zap className="w-4 h-4 mr-2" />
           {side} {selectedIndexSymbol.replace('_INDEX', '')}
@@ -577,7 +575,7 @@ export function TradingPanel() {
           </div>
         </div>
 
-        {/* 하단 여백 */}
+        {/* Bottom padding */}
         <div className="pb-4"></div>
       </div>
       {/* End Scrollable Area */}
@@ -590,20 +588,20 @@ export function TradingPanel() {
         tradeData={
           size && parseFloat(size) > 0
             ? {
-                symbol: selectedIndexSymbol,
-                type: side.toLowerCase() as "buy" | "sell",
-                orderType: orderType.toLowerCase().includes('market') ? 'market' :
-                           orderType.toLowerCase().includes('limit') ? 'limit' : 'stop-loss',
-                quantity: parseFloat(size),
-                price: orderType === 'Market' ? currentPrice : parseFloat(price),
-                subtotal: (orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size),
-                fee: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 0.001,
-                total: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 1.001,
-              }
+              symbol: selectedIndexSymbol,
+              type: side.toLowerCase() as "buy" | "sell",
+              orderType: orderType.toLowerCase().includes('market') ? 'market' :
+                orderType.toLowerCase().includes('limit') ? 'limit' : 'stop-loss',
+              quantity: parseFloat(size),
+              price: orderType === 'Market' ? currentPrice : parseFloat(price),
+              subtotal: (orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size),
+              fee: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 0.001,
+              total: ((orderType === 'Market' ? currentPrice : parseFloat(price)) * parseFloat(size)) * 1.001,
+            }
             : null
         }
       />
     </div>
-    {/* End Container */}
+
   )
 }

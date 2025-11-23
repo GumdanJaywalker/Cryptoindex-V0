@@ -1,35 +1,35 @@
 /**
- * 사운드 이펙트 시스템
- * 거래소 특화 사운드 이펙트와 볼륨 제어 기능
+ * Sound Effect System
+ * Exchange-specific sound effects and volume control features
  */
 
 import React from 'react'
 
 export enum SoundType {
-  // 거래 관련
+  // Trading Related
   TRADE_SUCCESS = 'trade_success',
   TRADE_ERROR = 'trade_error',
   ORDER_FILL = 'order_fill',
   ORDER_CANCEL = 'order_cancel',
-  
-  // 알림 관련  
+
+  // Notification Related  
   PRICE_ALERT = 'price_alert',
   WHALE_ALERT = 'whale_alert',
   NEW_TRADER = 'new_trader',
-  
-  // UI 상호작용
+
+  // UI Interaction
   BUTTON_CLICK = 'button_click',
   BUTTON_HOVER = 'button_hover',
   TAB_SWITCH = 'tab_switch',
   MODAL_OPEN = 'modal_open',
   MODAL_CLOSE = 'modal_close',
-  
-  // 가격 변동
+
+  // Price Movement
   PRICE_UP = 'price_up',
   PRICE_DOWN = 'price_down',
   BIG_MOVE = 'big_move',
-  
-  // 시스템
+
+  // System
   NOTIFICATION = 'notification',
   ERROR = 'error',
   SUCCESS = 'success'
@@ -80,7 +80,7 @@ class SoundManager {
 
   private loadConfig() {
     if (typeof window === 'undefined') return
-    
+
     const saved = localStorage.getItem('cryptoindex_sound_config')
     if (saved) {
       try {
@@ -93,7 +93,7 @@ class SoundManager {
 
   private saveConfig() {
     if (typeof window === 'undefined') return
-    
+
     try {
       localStorage.setItem('cryptoindex_sound_config', JSON.stringify(this.config))
     } catch (error) {
@@ -104,7 +104,7 @@ class SoundManager {
   private generateSounds() {
     if (!this.audioContext) return
 
-    // 사운드 생성 함수들
+    // Sound generation functions
     const generateTone = (frequency: number, duration: number, type: OscillatorType = 'sine'): AudioBuffer => {
       const sampleRate = this.audioContext!.sampleRate
       const length = sampleRate * duration
@@ -189,30 +189,30 @@ class SoundManager {
       return buffer
     }
 
-    // 거래 관련 사운드
+    // Trading related sounds
     this.sounds.set(SoundType.TRADE_SUCCESS, generateChord([523.25, 659.25, 783.99], 0.3)) // C5-E5-G5 major chord
     this.sounds.set(SoundType.TRADE_ERROR, generateTone(200, 0.3, 'sawtooth'))
     this.sounds.set(SoundType.ORDER_FILL, generateChord([440, 554.37], 0.2)) // A4-C#5
     this.sounds.set(SoundType.ORDER_CANCEL, generateTone(300, 0.15, 'triangle'))
 
-    // 알림 관련 사운드
+    // Notification related sounds
     this.sounds.set(SoundType.PRICE_ALERT, generateTone(800, 0.25, 'sine'))
     this.sounds.set(SoundType.WHALE_ALERT, generateChord([196, 246.94, 293.66], 0.4)) // G3-B3-D4
     this.sounds.set(SoundType.NEW_TRADER, generateTone(1000, 0.2, 'triangle'))
 
-    // UI 상호작용 사운드
+    // UI interaction sounds
     this.sounds.set(SoundType.BUTTON_CLICK, generateTone(600, 0.1, 'sine'))
     this.sounds.set(SoundType.BUTTON_HOVER, generateTone(400, 0.05, 'sine'))
     this.sounds.set(SoundType.TAB_SWITCH, generateTone(500, 0.08, 'triangle'))
     this.sounds.set(SoundType.MODAL_OPEN, generateTone(700, 0.15, 'sine'))
     this.sounds.set(SoundType.MODAL_CLOSE, generateTone(500, 0.15, 'sine'))
 
-    // 가격 변동 사운드
+    // Price movement sounds
     this.sounds.set(SoundType.PRICE_UP, generateTone(880, 0.1, 'sine')) // A5 - high pitch
     this.sounds.set(SoundType.PRICE_DOWN, generateTone(440, 0.1, 'sine')) // A4 - lower pitch
     this.sounds.set(SoundType.BIG_MOVE, generateChord([220, 440, 880], 0.25)) // A3-A4-A5 octaves
 
-    // 시스템 사운드
+    // System sounds
     this.sounds.set(SoundType.NOTIFICATION, generateTone(660, 0.2, 'sine'))
     this.sounds.set(SoundType.ERROR, generateTone(200, 0.4, 'sawtooth'))
     this.sounds.set(SoundType.SUCCESS, generateChord([523.25, 659.25], 0.25)) // C5-E5
@@ -348,7 +348,7 @@ class SoundManager {
       'modal-open': SoundType.MODAL_OPEN,
       'modal-close': SoundType.MODAL_CLOSE
     }
-    
+
     this.play(soundMap[type])
   }
 }

@@ -9,7 +9,7 @@ interface AnimatedBackgroundProps {
   className?: string
 }
 
-// 파티클 시스템
+// Particle System
 function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' | 'high' }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -20,16 +20,16 @@ function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // 캔버스 크기 설정
+    // Set canvas size
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
     }
-    
+
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // 파티클 설정
+    // Particle settings
     const particleCount = intensity === 'high' ? 150 : intensity === 'medium' ? 80 : 40
     const particles: Array<{
       x: number
@@ -41,7 +41,7 @@ function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' 
       life: number
     }> = []
 
-    // 파티클 초기화
+    // Initialize particles
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
@@ -59,28 +59,28 @@ function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      // 브랜드 색상 (#8BD6FF)의 RGB 값
+      // RGB values for brand color (#8BD6FF)
       const brandR = 139
-      const brandG = 214  
+      const brandG = 214
       const brandB = 255
 
       particles.forEach((particle, index) => {
-        // 파티클 이동
+        // Move particles
         particle.x += particle.vx
         particle.y += particle.vy
         particle.life--
 
-        // 경계 처리
+        // Handle boundaries
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
 
-        // 파티클 그리기
+        // Draw particles
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
         ctx.fillStyle = `rgba(${brandR}, ${brandG}, ${brandB}, ${particle.opacity})`
         ctx.fill()
 
-        // 연결선 그리기 (가까운 파티클들끼리)
+        // Draw connecting lines (between close particles)
         particles.slice(index + 1).forEach(otherParticle => {
           const dx = particle.x - otherParticle.x
           const dy = particle.y - otherParticle.y
@@ -96,7 +96,7 @@ function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' 
           }
         })
 
-        // 파티클 재생성
+        // Regenerate particles
         if (particle.life <= 0) {
           particle.x = Math.random() * canvas.width
           particle.y = Math.random() * canvas.height
@@ -127,34 +127,34 @@ function ParticleSystem({ intensity = 'medium' }: { intensity: 'low' | 'medium' 
   )
 }
 
-// 단색 배경 (그라디언트 및 글로우 이펙트 제거)
+// Solid background (remove gradient and glow effects)
 function GradientBackground() {
   return (
     <div className="fixed inset-0 z-0 overflow-hidden">
-      {/* 단색 배경 */}
+      {/* Solid background */}
       <div className="absolute inset-0 bg-slate-950" />
     </div>
   )
 }
 
-// 메인 컴포넌트
-export function AnimatedBackground({ 
-  variant = 'combined', 
+// Main Component
+export function AnimatedBackground({
+  variant = 'combined',
   intensity = 'medium',
   className = ''
 }: AnimatedBackgroundProps) {
   return (
     <div className={`fixed inset-0 -z-10 ${className}`}>
-      {/* 그라디언트 배경 */}
+      {/* Gradient background */}
       {(variant === 'gradient' || variant === 'combined') && <GradientBackground />}
-      
-      {/* 파티클 시스템 */}
+
+      {/* Particle system */}
       {(variant === 'particles' || variant === 'combined') && (
         <ParticleSystem intensity={intensity} />
       )}
-      
-      {/* 추가 노이즈 효과 */}
-      <div 
+
+      {/* Additional noise effect */}
+      <div
         className="absolute inset-0 opacity-5"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='53' cy='53' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='13' cy='40' r='1'/%3E%3Ccircle cx='40' cy='13' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -164,7 +164,7 @@ export function AnimatedBackground({
   )
 }
 
-// 간단한 파티클 효과만 원하는 경우
+// If only simple particle effects are desired
 export function SimpleParticles({ count = 50 }: { count?: number }) {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -192,16 +192,16 @@ export function SimpleParticles({ count = 50 }: { count?: number }) {
   )
 }
 
-// 호버 효과를 위한 인터랙티브 파티클
+// Interactive particles for hover effects
 export function InteractiveParticles() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="fixed inset-0 -z-10 pointer-events-none"
     >
-      {/* 마우스 따라다니는 효과는 클라이언트에서만 동작 */}
+      {/* Mouse following effect works only on client side */}
     </div>
   )
 }

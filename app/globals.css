@@ -11,7 +11,8 @@ body {
 /* Compact density mode: reduce rem scale on large screens (applied per-page via html class) */
 @media (min-width: 1024px) {
   html.density-compact {
-    font-size: 14px; /* ~12.5% smaller than 16px */
+    font-size: 14px;
+    /* ~12.5% smaller than 16px */
   }
 }
 
@@ -24,6 +25,7 @@ body {
   height: 1px;
   overflow: hidden;
 }
+
 .skip-link:focus {
   position: absolute;
   left: 1rem;
@@ -31,7 +33,8 @@ body {
   width: auto;
   height: auto;
   padding: 0.5rem 0.75rem;
-  background: #111827; /* slate-900 */
+  background: #111827;
+  /* slate-900 */
   color: white;
   border: 2px solid hsl(var(--brand-primary));
   border-radius: 0.375rem;
@@ -47,11 +50,11 @@ body {
   .perspective-1000 {
     perspective: 1000px;
   }
-  
+
   .preserve-3d {
     transform-style: preserve-3d;
   }
-  
+
   .backface-hidden {
     backface-visibility: hidden;
   }
@@ -62,8 +65,15 @@ body {
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   .animate-glow {
@@ -71,8 +81,13 @@ body {
   }
 
   @keyframes glow {
-    from { box-shadow: 0 0 5px rgba(139, 214, 255, 0.4); }
-    to { box-shadow: 0 0 20px rgba(139, 214, 255, 0.8); }
+    from {
+      box-shadow: 0 0 5px rgba(139, 214, 255, 0.4);
+    }
+
+    to {
+      box-shadow: 0 0 20px rgba(139, 214, 255, 0.8);
+    }
   }
 
   .animate-fadeIn {
@@ -87,32 +102,39 @@ body {
 
   /* Background Colors (Teal palette) */
   .bg-teal-darker {
-    background-color: #0A1215; /* Footer - Darkest teal */
+    background-color: #0A1215;
+    /* Footer - Darkest teal */
   }
 
   .bg-teal-base {
-    background-color: #101A1D; /* Base background */
+    background-color: #101A1D;
+    /* Base background */
   }
 
   .bg-teal-card {
-    background-color: #1A2428; /* Card/Component background */
+    background-color: #1A2428;
+    /* Card/Component background */
   }
 
   .bg-teal-elevated {
-    background-color: #243339; /* Elevated elements */
+    background-color: #243339;
+    /* Elevated elements */
   }
 
   /* Border Colors (Teal palette) */
   .border-teal {
-    border-color: #2D3F45; /* Lighter for visibility */
+    border-color: #2D3F45;
+    /* Lighter for visibility */
   }
 
   .border-teal-light {
-    border-color: #3A4F56; /* Even lighter */
+    border-color: #3A4F56;
+    /* Even lighter */
   }
 
   .border-teal-subtle {
-    border-color: rgba(45, 63, 69, 0.3); /* Subtle borders */
+    border-color: rgba(45, 63, 69, 0.3);
+    /* Subtle borders */
   }
 
   /* Brand Color Utilities */
@@ -134,22 +156,26 @@ body {
 
   .bg-brand {
     background-color: hsl(var(--brand-primary));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .bg-brand-hover {
     background-color: hsl(var(--brand-primary-hover));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .bg-brand-light {
     background-color: hsl(var(--brand-primary-light));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .bg-brand-dark {
     background-color: hsl(var(--brand-primary-dark));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .border-brand {
@@ -162,17 +188,20 @@ body {
 
   .bg-brand-gradient {
     background: linear-gradient(135deg, hsl(var(--brand-gradient-start)), hsl(var(--brand-gradient-end)));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .hover\:bg-brand:hover {
     background-color: hsl(var(--brand-primary));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .hover\:bg-brand-hover:hover {
     background-color: hsl(var(--brand-primary-hover));
-    color: #000000; /* 검은색 글씨 */
+    color: #000000;
+    /* Black text */
   }
 
   .hover\:text-brand:hover {
@@ -188,24 +217,31 @@ body {
     width: 8px;
     height: 8px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(215, 234, 232, 0.25); /* light mint-gray */
+    background-color: rgba(215, 234, 232, 0.25);
+    /* light mint-gray */
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
+
   .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(117, 207, 193, 0.4); /* soft teal */
+    background-color: rgba(117, 207, 193, 0.4);
+    /* soft teal */
   }
+
   .overscroll-contain {
     overscroll-behavior: contain;
   }
 }
 
 @layer base {
+
   /* Remove focus ring on mouse click, keep it for keyboard navigation */
   *:focus:not(:focus-visible) {
     outline: none;
@@ -257,27 +293,35 @@ body {
     --brand-gradient-start: 171 50% 63.5%;
     --brand-gradient-end: 171 50% 58%;
   }
+
   .dark {
     /* HyperIndex Dark Teal Theme */
-    --background: 194 29% 9%; /* #101A1D - Base */
-    --foreground: 168 10% 90%; /* Light teal text */
-    --card: 194 29% 12%; /* #1A2428 - Card background */
+    --background: 194 29% 9%;
+    /* #101A1D - Base */
+    --foreground: 168 10% 90%;
+    /* Light teal text */
+    --card: 194 29% 12%;
+    /* #1A2428 - Card background */
     --card-foreground: 168 10% 90%;
     --popover: 194 29% 12%;
     --popover-foreground: 168 10% 90%;
-    --primary: 194 29% 18%; /* #243339 - Primary elements */
+    --primary: 194 29% 18%;
+    /* #243339 - Primary elements */
     --primary-foreground: 168 10% 90%;
     --secondary: 194 29% 14%;
     --secondary-foreground: 168 10% 90%;
     --muted: 194 29% 15%;
-    --muted-foreground: 168 10% 60%; /* Muted teal text */
+    --muted-foreground: 168 10% 60%;
+    /* Muted teal text */
     --accent: 194 29% 16%;
     --accent-foreground: 168 10% 90%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 194 29% 25%; /* #2D3F45 - Lighter borders for visibility */
+    --border: 194 29% 25%;
+    /* #2D3F45 - Lighter borders for visibility */
     --input: 194 29% 15%;
-    --ring: 168 95% 80%; /* Brand primary teal */
+    --ring: 168 95% 80%;
+    /* Brand primary teal */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -301,17 +345,21 @@ body {
     --brand-gradient-start: 171 50% 63.5%;
     --brand-gradient-end: 171 50% 58%;
   }
+
   .theme {
     --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
     --animate-pulse: pulse var(--duration) ease-out infinite;
     --animate-meteor: meteor 5s linear infinite;
-    --animate-ripple: ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite;
+    --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0)*.2s) infinite;
   }
 }
 
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
@@ -322,10 +370,13 @@ body {
   * {
     @apply border-border;
   }
-  html, body {
+
+  html,
+  body {
     background-color: #101A1D !important;
     @apply text-foreground;
   }
+
   /* Consistent, accessible focus ring (light + dark) */
   *:focus-visible {
     outline: 2px solid hsl(var(--brand-primary)) !important;
@@ -377,13 +428,13 @@ body {
   border-radius: 5px;
 }
 
-.react-grid-item > .react-resizable-handle {
+.react-grid-item>.react-resizable-handle {
   position: absolute;
   width: 20px;
   height: 20px;
 }
 
-.react-grid-item > .react-resizable-handle:after {
+.react-grid-item>.react-resizable-handle:after {
   content: "";
   position: absolute;
   right: 3px;
@@ -395,18 +446,18 @@ body {
   z-index: 20;
 }
 
-.react-resizable-hide > .react-resizable-handle {
+.react-resizable-hide>.react-resizable-handle {
   display: none;
 }
 
-.react-grid-item > .react-resizable-handle.react-resizable-handle-sw {
+.react-grid-item>.react-resizable-handle.react-resizable-handle-sw {
   bottom: 0;
   left: 0;
   cursor: sw-resize;
   transform: rotate(90deg);
 }
 
-.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+.react-grid-item>.react-resizable-handle.react-resizable-handle-se {
   bottom: 0;
   right: 0;
   cursor: se-resize;
@@ -436,7 +487,7 @@ body {
   --hl-text-secondary: #9db2bd;
   --hl-accent-primary: #50d2c1;
   --hl-accent-hover: #97fce4;
-  --hl-accent-green: #4ade80;
+  --hl-accent-green: hsl(162, 76%, 51%);
   --hl-accent-red: #dd7789;
   --hl-accent-blue: #50d2c1;
 }
@@ -458,7 +509,7 @@ body {
   border-radius: 6px;
 }
 
-/* Account Overview 테두리 제거 */
+/* Remove Account Overview border */
 .react-grid-item[data-grid*="accountTable"] {
   border: none !important;
   background: transparent !important;
@@ -544,12 +595,16 @@ body {
   html:focus-within {
     scroll-behavior: auto;
   }
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+
   .animate-float,
   .animate-glow {
     animation: none !important;
@@ -655,46 +710,62 @@ body {
 
 @theme inline {
   @keyframes spin-around {
-  0% {
-    transform: translateZ(0) rotate(0);
+    0% {
+      transform: translateZ(0) rotate(0);
     }
-  15%, 35% {
-    transform: translateZ(0) rotate(90deg);
+
+    15%,
+    35% {
+      transform: translateZ(0) rotate(90deg);
     }
-  65%, 85% {
-    transform: translateZ(0) rotate(270deg);
+
+    65%,
+    85% {
+      transform: translateZ(0) rotate(270deg);
     }
-  100% {
-    transform: translateZ(0) rotate(360deg);
+
+    100% {
+      transform: translateZ(0) rotate(360deg);
     }
   }
+
   @keyframes pulse {
-  0%, 100% {
-    boxShadow: 0 0 0 0 var(--pulse-color);
+
+    0%,
+    100% {
+      boxShadow: 0 0 0 0 var(--pulse-color);
     }
-  50% {
-    boxShadow: 0 0 0 8px var(--pulse-color);
+
+    50% {
+      boxShadow: 0 0 0 8px var(--pulse-color);
     }
   }
+
   @keyframes meteor {
-  0% {
-    transform: rotate(var(--angle)) translateX(0);
-    opacity: 1;
+    0% {
+      transform: rotate(var(--angle)) translateX(0);
+      opacity: 1;
     }
-  70% {
-    opacity: 1;
+
+    70% {
+      opacity: 1;
     }
-  100% {
-    transform: rotate(var(--angle)) translateX(-500px);
-    opacity: 0;
+
+    100% {
+      transform: rotate(var(--angle)) translateX(-500px);
+      opacity: 0;
     }
   }
+
   @keyframes ripple {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
+
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
     }
-  50% {
-    transform: translate(-50%, -50%) scale(0.9);
+
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
     }
   }
 }
@@ -706,7 +777,8 @@ body {
 
 /* Glass Navigation (Pill-style nav) */
 .glass-nav {
-  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  background: rgba(16, 26, 29, 0.9);
+  /* #101A1D with 90% opacity */
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   position: relative;
@@ -716,7 +788,8 @@ body {
 
 /* Glass Input/Button (Wallet button, etc.) */
 .glass-input {
-  background: rgba(16, 26, 29, 0.8); /* #101A1D with 80% opacity */
+  background: rgba(16, 26, 29, 0.8);
+  /* #101A1D with 80% opacity */
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transition: all 0.2s ease-out;
@@ -725,23 +798,27 @@ body {
 }
 
 .glass-input:hover {
-  background: rgba(255, 255, 255, 0.05); /* Slight white tint */
+  background: rgba(255, 255, 255, 0.05);
+  /* Slight white tint */
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
 }
 
 .glass-input:focus-within {
-  background: rgba(16, 26, 29, 0.95); /* #101A1D with 95% opacity */
+  background: rgba(16, 26, 29, 0.95);
+  /* #101A1D with 95% opacity */
   border: 1px solid rgba(117, 207, 193, 0.4);
   box-shadow:
     0 6px 24px rgba(0, 0, 0, 0.4),
-    0 0 0 2px rgba(117, 207, 193, 0.3); /* Brand teal ring */
+    0 0 0 2px rgba(117, 207, 193, 0.3);
+  /* Brand teal ring */
 }
 
 /* Glass Card - Static (for modals, dialogs, static containers) */
 .glass-card {
-  background: rgba(16, 26, 29, 0.75); /* #101A1D with 75% opacity */
+  background: rgba(16, 26, 29, 0.75);
+  /* #101A1D with 75% opacity */
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.5),
@@ -752,7 +829,8 @@ body {
 }
 
 .glass-card:hover {
-  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  background: rgba(16, 26, 29, 0.9);
+  /* #101A1D with 90% opacity */
   border: 1px solid rgba(117, 207, 193, 0.2);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.6),
@@ -762,7 +840,8 @@ body {
 
 /* Glass Card Dynamic - With hover animation (for interactive cards) */
 .glass-card-dynamic {
-  background: rgba(16, 26, 29, 0.75); /* #101A1D with 75% opacity */
+  background: rgba(16, 26, 29, 0.75);
+  /* #101A1D with 75% opacity */
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.5),
@@ -773,17 +852,20 @@ body {
 }
 
 .glass-card-dynamic:hover {
-  background: rgba(16, 26, 29, 0.9); /* #101A1D with 90% opacity */
+  background: rgba(16, 26, 29, 0.9);
+  /* #101A1D with 90% opacity */
   border: 1px solid rgba(117, 207, 193, 0.2);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.6),
     0 8px 20px rgba(117, 207, 193, 0.1);
-  transform: translateY(-2px); /* Dynamic hover animation */
+  transform: translateY(-2px);
+  /* Dynamic hover animation */
 }
 
 /* Glass Dropdown (Optional) */
 .glass-dropdown {
-  background: rgba(16, 26, 29, 0.98); /* #101A1D with 98% opacity */
+  background: rgba(16, 26, 29, 0.98);
+  /* #101A1D with 98% opacity */
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow:
     0 12px 32px rgba(0, 0, 0, 0.8),
@@ -796,29 +878,36 @@ body {
 /* Glass Button Variants - Reusable hover effects */
 /* Teal variant - for secondary actions */
 .glass-button-teal {
-  border: 1px solid rgba(20, 184, 166, 0.3); /* teal-500 with 30% opacity */
-  color: rgb(45, 212, 191); /* teal-400 */
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  /* teal-500 with 30% opacity */
+  color: rgb(45, 212, 191);
+  /* teal-400 */
   background: transparent;
   transition: all 0.2s ease-out;
 }
 
 .glass-button-teal:hover {
-  background: rgba(20, 184, 166, 0.1); /* teal-500 with 10% opacity */
-  border: 1px solid rgba(20, 184, 166, 0.5); /* teal-500 with 50% opacity */
+  background: rgba(20, 184, 166, 0.1);
+  /* teal-500 with 10% opacity */
+  border: 1px solid rgba(20, 184, 166, 0.5);
+  /* teal-500 with 50% opacity */
   transform: translateY(-1px);
 }
 
 /* Brand (teal) variant - for primary actions */
 .glass-button-brand {
-  border: 1px solid rgba(117, 207, 193, 0.3); /* #75cfc1 with 30% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.3);
+  /* #75cfc1 with 30% opacity */
   color: hsl(var(--brand-primary));
   background: transparent;
   transition: all 0.2s ease-out;
 }
 
 .glass-button-brand:hover {
-  background: rgba(117, 207, 193, 0.1); /* #75cfc1 with 10% opacity */
-  border: 1px solid rgba(117, 207, 193, 0.5); /* #75cfc1 with 50% opacity */
+  background: rgba(117, 207, 193, 0.1);
+  /* #75cfc1 with 10% opacity */
+  border: 1px solid rgba(117, 207, 193, 0.5);
+  /* #75cfc1 with 50% opacity */
   transform: translateY(-1px);
 }
 
@@ -848,24 +937,42 @@ body {
 
 /* Animation keyframes for glass effects */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInFromTop {
-  from { transform: translateY(-8px); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(-8px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInFromBottom {
-  from { transform: translateY(8px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes simpleFade {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

@@ -6,38 +6,38 @@ import { supabaseAdmin } from '@/lib/supabase/client'
 const CHAIN_ID_TO_NETWORK: { [key: number]: string } = {
   1: 'ethereum',
   42161: 'arbitrum',
-  137: 'polygon', 
+  137: 'polygon',
   8453: 'base',
   10: 'optimism',
-  // Solana는 chain ID가 없으므로 별도 처리
+  // Solana has no chain ID, so handle separately
 }
 
 // Helper function to get network name from chain info
 function getNetworkName(chainType: string, chainId?: number): string {
-  // Solana의 경우
+  // For Solana
   if (chainType === 'solana') {
     return 'solana';
   }
-  
-  // EVM 체인의 경우 chain ID로 매핑
+
+  // Map to chain ID for EVM chains
   if (chainId && CHAIN_ID_TO_NETWORK[chainId]) {
     return CHAIN_ID_TO_NETWORK[chainId];
   }
-  
-  // chainType이 있으면 그대로 사용
+
+  // Use chainType as is if available
   if (chainType) {
     return chainType.toLowerCase();
   }
-  
-  // 기본값
+
+  // Default value
   return 'ethereum';
 }
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 sync-user API called');
-    
-    // 인증 확인
+
+    // Verify authentication
     const authResult = await requirePrivyAuth(request)
     if (authResult instanceof NextResponse) {
       console.log('❌ Authentication failed');
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const { user } = authResult
     console.log('✅ Authentication successful for user:', user?.id);
 
-    // 요청 바디에서 Privy 사용자 데이터 받기
+    // Get Privy user data from request body
     const body = await request.json()
     const { privyUser } = body
     console.log('📥 Received privyUser:', privyUser?.id);
@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // auth_type 결정 로직 개선
-    // 이메일이 있으면 email 사용자, 없으면 wallet 사용자
+    // Improve auth_type determination logic
+    // Email user if email exists, otherwise wallet user
     const isEmailUser = !!(privyUser.email?.address);
     const authType = isEmailUser ? 'email' : 'wallet';
-    
+
     console.log('🔍 Auth type detection:', {
       hasEmail: !!privyUser.email?.address,
       hasPrimaryWallet: !!privyUser.wallet?.address,
@@ -71,20 +71,20 @@ export async function POST(request: NextRequest) {
       detectedAuthType: authType
     });
 
-    // Privy 사용자 데이터를 Supabase 형식으로 변환 (정리된 필드)
+    // Convert Privy user data to Supabase format (cleaned fields)
     const userData = {
       privy_user_id: privyUser.id,
       auth_type: authType,
       email: privyUser.email?.address || null,
-      // email_verified, wallet_address, wallet_type 필드 제거
+      // Remove email_verified, wallet_address, wallet_type fields
       last_login: new Date().toISOString(),
       is_active: true,
     }
 
 
-    // Admin 권한으로 사용자 생성/업데이트 (RLS 우회)
+    // Create/Update user with Admin privileges (Bypass RLS)
     console.log('💾 Attempting to upsert user data:', userData);
-    
+
     const { data, error } = await supabaseAdmin
       .from('users')
       .upsert(userData, { onConflict: 'privy_user_id' })
@@ -97,24 +97,34 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    
+
     console.log('✅ User upserted successfully:', data?.[0]?.id);
 
     const createdUser = data[0]
 
-    // 모든 지갑 정보를 user_wallets 테이블에 동기화
+    // Sync all wallet info to user_wallets table
     const walletSyncResults = []
-    
-    // linkedAccounts에서 모든 지갑 정보 수집 (안전한 방법)
-    const allUserWallets = []
-    
+
+    // Collect all wallet info from linkedAccounts (Safe method)
+    interface WalletData {
+      address: string
+      chainType: string
+      chainId: string | number
+      networkName: string
+      walletClientType: string
+      walletType: string
+      source: string
+      privyWalletId: string | null
+    }
+    const allUserWallets: WalletData[] = []
+
     console.log(`🔍 DEBUGGING linkedAccounts for user ${privyUser.id}:`);
     console.log(`linkedAccounts exists: ${!!privyUser.linkedAccounts}`);
     console.log(`linkedAccounts length: ${privyUser.linkedAccounts?.length || 0}`);
     console.log(`linkedAccounts raw data:`, JSON.stringify(privyUser.linkedAccounts, null, 2));
-    
+
     if (privyUser.linkedAccounts && privyUser.linkedAccounts.length > 0) {
-      privyUser.linkedAccounts.forEach((account, index) => {
+      privyUser.linkedAccounts.forEach((account: any, index: number) => {
         console.log(`Account ${index}:`, {
           type: account.type,
           address: account.address,
@@ -125,9 +135,9 @@ export async function POST(request: NextRequest) {
           id: account.id,
           hasAllRequiredFields: !!(account.address && account.chainType && account.walletClientType)
         });
-        
+
         if (account.type === 'wallet') {
-          // 필수 필드 확인
+          // Check required fields
           if (!account.address) {
             console.log(`⚠️ Skipping wallet ${index}: Missing address`);
             return;
@@ -140,10 +150,10 @@ export async function POST(request: NextRequest) {
             console.log(`⚠️ Skipping wallet ${index}: Missing walletClientType`);
             return;
           }
-          
-          // 정확한 네트워크 감지 사용
+
+          // Use accurate network detection
           const networkName = getNetworkName(account.chainType, account.chainId);
-          
+
           allUserWallets.push({
             address: account.address,
             chainType: account.chainType,
@@ -152,14 +162,14 @@ export async function POST(request: NextRequest) {
             walletClientType: account.walletClientType,
             walletType: account.connectorType === 'embedded' ? 'embedded' : 'external',
             source: 'linkedAccounts',
-            privyWalletId: account.id || null // embedded 지갑의 경우 ID 존재
+            privyWalletId: account.id || null // ID exists for embedded wallets
           })
         }
       })
-      
+
       console.log(`✅ Found ${allUserWallets.length} valid wallets for user ${privyUser.id}:`);
       allUserWallets.forEach((wallet, index) => {
-        console.log(`  ${index + 1}. ${wallet.walletType} ${wallet.networkName} ${wallet.walletClientType}: ${wallet.address.slice(0,6)}...${wallet.address.slice(-4)}`);
+        console.log(`  ${index + 1}. ${wallet.walletType} ${wallet.networkName} ${wallet.walletClientType}: ${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`);
         console.log(`     - Chain Type: ${wallet.chainType}`);
         console.log(`     - Chain ID: ${wallet.chainId || 'N/A'}`);
         console.log(`     - Network: ${wallet.networkName}`);
@@ -170,26 +180,26 @@ export async function POST(request: NextRequest) {
     } else {
       console.log(`⚠️ No linkedAccounts found for user ${privyUser.id}`);
     }
-    
+
     if (allUserWallets.length > 0) {
-      // 기존 지갑들 삭제 (새로운 지갑 정보로 완전히 교체)
+      // Delete existing wallets (Completely replace with new wallet info)
       await supabaseAdmin
         .from('user_wallets')
         .delete()
         .eq('user_id', createdUser.id)
 
-      // 모든 지갑 정보 삽입
+      // Insert all wallet info
       for (let i = 0; i < allUserWallets.length; i++) {
         const wallet = allUserWallets[i]
-        
+
         const walletData = {
           user_id: createdUser.id,
           wallet_address: wallet.address,
           wallet_provider: wallet.walletClientType || 'unknown',
-          network: wallet.networkName || 'ethereum', // 개선된 네트워크 감지 사용
-          wallet_type: wallet.walletType || 'external', // external 또는 embedded
-          privy_wallet_id: wallet.privyWalletId || null, // embedded 지갑의 Privy ID
-          is_primary: i === 0, // 첫 번째 지갑을 primary로 설정
+          network: wallet.networkName || 'ethereum', // Use improved network detection
+          wallet_type: wallet.walletType || 'external', // external or embedded
+          privy_wallet_id: wallet.privyWalletId || null, // Privy ID for embedded wallets
+          is_primary: i === 0, // Set first wallet as primary
           created_at: new Date().toISOString()
         }
 
@@ -207,17 +217,17 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         user: createdUser,
         syncedWallets: walletSyncResults,
-        allUserWallets: allUserWallets, // 디버깅용
+        allUserWallets: allUserWallets, // For debugging
         message: `User synced successfully with ${walletSyncResults.length} wallets`
       },
       { status: 200 }
     )
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Unexpected error in sync-user:', error);
     console.error('Error stack:', error.stack);
     return NextResponse.json(

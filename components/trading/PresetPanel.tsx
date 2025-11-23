@@ -56,7 +56,7 @@ export function PresetPanel() {
 
   return (
     <div className="p-3 space-y-3">
-      {/* 프리셋 버튼들 */}
+      {/* Preset buttons */}
       <div className="grid grid-cols-3 gap-2">
         {presets.map((preset) => (
           <Button
@@ -66,8 +66,8 @@ export function PresetPanel() {
             size="sm"
             className={`
               text-xs h-8 transition-all duration-200
-              ${preset.isActive 
-                ? 'bg-brand text-black shadow-md hover:text-black' 
+              ${preset.isActive
+                ? 'bg-brand text-black shadow-md hover:text-black'
                 : 'hover:bg-accent'
               }
             `}
@@ -77,7 +77,7 @@ export function PresetPanel() {
         ))}
       </div>
 
-      {/* Buy/Sell Settings 버튼들 */}
+      {/* Buy/Sell Settings buttons */}
       <div className="grid grid-cols-2 gap-2">
         <Button
           onClick={() => setShowBuySettings(!showBuySettings)}
@@ -165,7 +165,7 @@ export function PresetPanel() {
         </div>
       )}
 
-      {/* 활성 프리셋 정보 */}
+      {/* Active preset info */}
       {activePreset && (
         <div className="space-y-2 p-2 bg-card/50 rounded-md border border-border/50">
           <div className="text-xs text-center text-muted-foreground mb-2">Active Preset</div>

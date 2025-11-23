@@ -29,7 +29,7 @@ export function useAuth(): AuthContextType {
     authenticated: false
   })
 
-  // 초기 인증 상태 확인
+  // Check initial authentication status
   useEffect(() => {
     checkAuthStatus()
   }, [])
@@ -79,15 +79,15 @@ export function useAuth(): AuthContextType {
       })
 
       const data = await response.json()
-      
+
       if (data.success) {
         return { success: true }
       } else {
-        return { success: false, error: data.error || 'OTP 전송에 실패했습니다.' }
+        return { success: false, error: data.error || 'Failed to send OTP.' }
       }
     } catch (error) {
       console.error('Send OTP error:', error)
-      return { success: false, error: '네트워크 오류가 발생했습니다.' }
+      return { success: false, error: 'Network error occurred.' }
     }
   }, [])
 
@@ -103,7 +103,7 @@ export function useAuth(): AuthContextType {
       })
 
       const data = await response.json()
-      
+
       if (data.success && data.user) {
         setState({
           user: data.user,
@@ -112,11 +112,11 @@ export function useAuth(): AuthContextType {
         })
         return { success: true }
       } else {
-        return { success: false, error: data.error || '로그인에 실패했습니다.' }
+        return { success: false, error: data.error || 'Login failed.' }
       }
     } catch (error) {
       console.error('Login error:', error)
-      return { success: false, error: '네트워크 오류가 발생했습니다.' }
+      return { success: false, error: 'Network error occurred.' }
     }
   }, [])
 
@@ -132,7 +132,7 @@ export function useAuth(): AuthContextType {
       })
 
       const data = await response.json()
-      
+
       if (data.success) {
         setState({
           user: null,
@@ -141,11 +141,11 @@ export function useAuth(): AuthContextType {
         })
         return { success: true }
       } else {
-        return { success: false, error: data.error || '로그아웃에 실패했습니다.' }
+        return { success: false, error: data.error || 'Logout failed.' }
       }
     } catch (error) {
       console.error('Logout error:', error)
-      return { success: false, error: '네트워크 오류가 발생했습니다.' }
+      return { success: false, error: 'Network error occurred.' }
     }
   }, [])
 

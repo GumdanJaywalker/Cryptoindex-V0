@@ -151,6 +151,7 @@ export const LAYER_FEES = {
     PROTOCOL_FEE_MAX: 0.006,     // 0.6% (VIP0)
     LP_FEE_MIN: 0.0002,          // 0.02% - Minimum LP fee
     LP_FEE_MAX: 0.004,           // 0.4% - Maximum LP fee
+    MANAGEMENT_YEARLY: 0.007,    // 0.7% annual (same as L1)
   },
 } as const
 

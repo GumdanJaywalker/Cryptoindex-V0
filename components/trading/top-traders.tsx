@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { 
+import {
   Trophy,
   TrendingUp,
   TrendingDown,
@@ -57,10 +57,10 @@ const timeframeOptions: Array<{
   label: string
   description: string
 }> = [
-  { key: '24h', label: '24H', description: 'Last 24 hours performance' },
-  { key: '7d', label: '7D', description: 'Last 7 days performance' },
-  { key: '30d', label: '30D', description: 'Last 30 days performance' }
-]
+    { key: '24h', label: '24H', description: 'Last 24 hours performance' },
+    { key: '7d', label: '7D', description: 'Last 7 days performance' },
+    { key: '30d', label: '30D', description: 'Last 30 days performance' }
+  ]
 
 const filterOptions: Array<{
   key: TraderFilter
@@ -68,46 +68,46 @@ const filterOptions: Array<{
   icon: React.ComponentType<{ className?: string }>
   description: string
 }> = [
-  { key: 'all', label: 'All Traders', icon: Users, description: 'All active traders' },
-  { key: 'top-gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Highest PnL performers' },
-  { key: 'high-winrate', label: 'High Win Rate', icon: Target, description: 'Best win rate traders' },
-  { key: 'new-traders', label: 'New Traders', icon: Star, description: 'Recently joined traders' },
-  { key: 'most-followed', label: 'Most Followed', icon: Users, description: 'Most popular traders' }
-]
+    { key: 'all', label: 'All Traders', icon: Users, description: 'All active traders' },
+    { key: 'top-gainers', label: 'Top Gainers', icon: TrendingUp, description: 'Highest PnL performers' },
+    { key: 'high-winrate', label: 'High Win Rate', icon: Target, description: 'Best win rate traders' },
+    { key: 'new-traders', label: 'New Traders', icon: Star, description: 'Recently joined traders' },
+    { key: 'most-followed', label: 'Most Followed', icon: Users, description: 'Most popular traders' }
+  ]
 
 const sortOptions: Array<{
   key: TraderSort
   label: string
   description: string
 }> = [
-  { key: 'pnl', label: 'PnL', description: 'Sort by profit and loss' },
-  { key: 'winrate', label: 'Win Rate', description: 'Sort by win percentage' },
-  { key: 'followers', label: 'Followers', description: 'Sort by follower count' },
-  { key: 'trades', label: 'Trades', description: 'Sort by total trades' },
-  { key: 'rank', label: 'Rank', description: 'Sort by current rank' }
-]
+    { key: 'pnl', label: 'PnL', description: 'Sort by profit and loss' },
+    { key: 'winrate', label: 'Win Rate', description: 'Sort by win percentage' },
+    { key: 'followers', label: 'Followers', description: 'Sort by follower count' },
+    { key: 'trades', label: 'Trades', description: 'Sort by total trades' },
+    { key: 'rank', label: 'Rank', description: 'Sort by current rank' }
+  ]
 
-// 순위 변화 애니메이션 컴포넌트
-function RankChangeIndicator({ 
-  previousRank, 
-  currentRank 
-}: { 
+// Rank Change Animation Component
+function RankChangeIndicator({
+  previousRank,
+  currentRank
+}: {
   previousRank?: number
-  currentRank: number 
+  currentRank: number
 }) {
   if (!previousRank || previousRank === currentRank) return null
-  
+
   const isUp = previousRank > currentRank
   const change = Math.abs(previousRank - currentRank)
-  
+
   return (
     <motion.div
       initial={{ scale: 0, rotate: isUp ? -180 : 180 }}
       animate={{ scale: 1, rotate: 0 }}
       className={cn(
         "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-semibold",
-        isUp 
-          ? "bg-green-500/20 text-green-400" 
+        isUp
+          ? "bg-green-500/20 text-green-400"
           : "bg-red-500/20 text-red-400"
       )}
     >
@@ -121,10 +121,10 @@ function RankChangeIndicator({
   )
 }
 
-// 신규 트레이더 하이라이트
+// New Trader Highlight
 function NewTraderHighlight({ trader }: { trader: TopTrader }) {
   if (!trader.isNewTrader) return null
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0 }}
@@ -136,14 +136,14 @@ function NewTraderHighlight({ trader }: { trader: TopTrader }) {
           <Star className="w-3 h-3 mr-1" />
           NEW
         </Badge>
-        {/* 펄스 효과 */}
+        {/* Pulse effect */}
         <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20" />
       </div>
     </motion.div>
   )
 }
 
-// 메인 Top Traders 컴포넌트
+// Main Top Traders Component
 export function TopTraders({
   traders,
   onViewPortfolio,
@@ -173,13 +173,13 @@ export function TopTraders({
   // Filter and sort traders
   useEffect(() => {
     let filtered = [...traders]
-    
+
     // Apply category filter
     switch (selectedFilter) {
       case 'top-gainers':
-        const pnlField = selectedTimeframe === '24h' ? 'pnl24h' 
-                        : selectedTimeframe === '7d' ? 'pnl7d' 
-                        : 'pnl30d'
+        const pnlField = selectedTimeframe === '24h' ? 'pnl24h'
+          : selectedTimeframe === '7d' ? 'pnl7d'
+            : 'pnl30d'
         filtered = filtered.filter(trader => trader[pnlField] > 0)
         break
       case 'high-winrate':
@@ -206,18 +206,18 @@ export function TopTraders({
         return ens.includes(q) || addr.includes(q) || id.includes(q)
       })
     }
-    
+
     // Apply sorting
     filtered.sort((a, b) => {
       let comparison = 0
-      
+
       switch (sortBy) {
         case 'pnl':
-          const pnlFieldSort = selectedTimeframe === '24h' 
-                                ? (isCompact ? 'pnlPercentage24h' : 'pnl24h') 
-                                : selectedTimeframe === '7d' 
-                                  ? (isCompact ? 'pnlPercentage7d' : 'pnl7d') 
-                                  : (isCompact ? 'pnlPercentage30d' : 'pnl30d')
+          const pnlFieldSort = selectedTimeframe === '24h'
+            ? (isCompact ? 'pnlPercentage24h' : 'pnl24h')
+            : selectedTimeframe === '7d'
+              ? (isCompact ? 'pnlPercentage7d' : 'pnl7d')
+              : (isCompact ? 'pnlPercentage30d' : 'pnl30d')
           comparison = (a[pnlFieldSort] || 0) - (b[pnlFieldSort] || 0)
           break
         case 'winrate':
@@ -234,13 +234,13 @@ export function TopTraders({
           comparison = a.rank - b.rank
           break
       }
-      
+
       return sortDirection === 'desc' ? -comparison : comparison
     })
-    
+
     // Limit display
     filtered = filtered.slice(0, expandedView ? maxDisplay : Math.min(maxDisplay, 20))
-    
+
     setFilteredTraders(filtered)
   }, [traders, selectedFilter, sortBy, sortDirection, selectedTimeframe, expandedView, maxDisplay, search])
 
@@ -281,25 +281,25 @@ export function TopTraders({
             <div className="flex justify-center">
               <div className="w-full xl:w-2/3 2xl:w-1/2 rounded-lg border border-teal bg-teal-card/40 p-5">
                 <div className="flex items-center gap-4 animate-pulse">
-                  <div className="w-12 h-12 rounded-full bg-teal-card"/>
+                  <div className="w-12 h-12 rounded-full bg-teal-card" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-teal-card rounded w-1/2"/>
-                    <div className="h-3 bg-teal-card rounded w-1/3"/>
+                    <div className="h-4 bg-teal-card rounded w-1/2" />
+                    <div className="h-3 bg-teal-card rounded w-1/3" />
                   </div>
-                  <div className="h-5 bg-teal-card rounded w-24"/>
+                  <div className="h-5 bg-teal-card rounded w-24" />
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-              {[0,1].map(i => (
+              {[0, 1].map(i => (
                 <div key={i} className="rounded-lg border border-teal bg-teal-card/40 p-4">
                   <div className="flex items-center gap-3 animate-pulse">
-                    <div className="w-10 h-10 rounded-full bg-teal-card"/>
+                    <div className="w-10 h-10 rounded-full bg-teal-card" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-teal-card rounded w-1/2"/>
-                      <div className="h-3 bg-teal-card rounded w-1/4"/>
+                      <div className="h-4 bg-teal-card rounded w-1/2" />
+                      <div className="h-3 bg-teal-card rounded w-1/4" />
                     </div>
-                    <div className="h-4 bg-teal-card rounded w-16"/>
+                    <div className="h-4 bg-teal-card rounded w-16" />
                   </div>
                 </div>
               ))}
@@ -307,22 +307,22 @@ export function TopTraders({
           </div>
           {/* Rows skeleton */}
           <div className="divide-y divide-slate-800">
-            {Array.from({length: 6}).map((_,i) => (
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={`s-${i}`} className="px-4 py-3">
                 <div className="flex items-center gap-3 animate-pulse">
                   <div className="w-6 text-slate-800">&nbsp;</div>
-                  <div className="w-8 h-8 rounded-full bg-teal-card"/>
+                  <div className="w-8 h-8 rounded-full bg-teal-card" />
                   <div className="flex-1">
-                    <div className="h-4 bg-teal-card rounded w-1/2"/>
+                    <div className="h-4 bg-teal-card rounded w-1/2" />
                   </div>
-                  <div className="h-4 bg-teal-card rounded w-24"/>
+                  <div className="h-4 bg-teal-card rounded w-24" />
                 </div>
                 <div className="mt-2 pl-9 flex items-center justify-between animate-pulse">
                   <div className="flex gap-1">
-                    <div className="h-4 w-12 bg-teal-card rounded"/>
-                    <div className="h-4 w-12 bg-teal-card rounded"/>
+                    <div className="h-4 w-12 bg-teal-card rounded" />
+                    <div className="h-4 w-12 bg-teal-card rounded" />
                   </div>
-                  <div className="h-3 w-32 bg-teal-card rounded"/>
+                  <div className="h-3 w-32 bg-teal-card rounded" />
                 </div>
               </div>
             ))}
@@ -372,16 +372,16 @@ export function TopTraders({
       {(!mounted || isRefreshing) && variant !== 'compact' && (
         <div className="rounded-xl border border-teal bg-teal-card/30 overflow-hidden">
           <div className="divide-y divide-slate-800">
-            {Array.from({length: 8}).map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={`d-s-${i}`} className="px-4 py-3">
                 <div className="flex items-center gap-3 animate-pulse">
-                  <div className="w-6 h-4 bg-teal-card rounded"/>
-                  <div className="w-8 h-8 rounded-full bg-teal-card"/>
+                  <div className="w-6 h-4 bg-teal-card rounded" />
+                  <div className="w-8 h-8 rounded-full bg-teal-card" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-teal-card rounded w-1/3"/>
-                    <div className="h-3 bg-teal-card rounded w-1/4"/>
+                    <div className="h-4 bg-teal-card rounded w-1/3" />
+                    <div className="h-3 bg-teal-card rounded w-1/4" />
                   </div>
-                  <div className="h-4 bg-teal-card rounded w-24"/>
+                  <div className="h-4 bg-teal-card rounded w-24" />
                 </div>
               </div>
             ))}
@@ -399,8 +399,8 @@ export function TopTraders({
               variant={selectedTimeframe === key ? "default" : "ghost"}
               className={cn(
                 "flex-1 text-xs h-8 transition-all duration-200",
-                selectedTimeframe === key 
-                  ? "bg-brand text-black hover:bg-brand-hover" 
+                selectedTimeframe === key
+                  ? "bg-brand text-black hover:bg-brand-hover"
                   : "hover:bg-teal-card/50 hover:text-white"
               )}
               onClick={() => setSelectedTimeframe(key)}
@@ -419,7 +419,7 @@ export function TopTraders({
             <>
               {/* Top 3 — Thick rows */}
               <div className="divide-y divide-slate-800">
-                {rankAll.slice(0,3).map((t) => (
+                {rankAll.slice(0, 3).map((t) => (
                   <button
                     key={t.id}
                     className="w-full text-left px-4 py-4 hover:glass-card-dynamic transition-colors"
@@ -433,12 +433,12 @@ export function TopTraders({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
                         ) : (
-                          <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
+                          <span>{(t.ens || t.address).slice(2, 4).toUpperCase()}</span>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-white font-semibold text-[15px]">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                          <span className="truncate text-white font-semibold text-[15px]">{t.ens || `${t.address.slice(0, 6)}...${t.address.slice(-4)}`}</span>
                           {/* Medal badge for top 3 */}
                           {t.rank === 1 && (
                             <Badge variant="outline" className="text-[10px] text-yellow-300 border-yellow-400/30">🥇</Badge>
@@ -454,13 +454,13 @@ export function TopTraders({
                         {/* Win/Followers moved to line 2 for consistency */}
                       </div>
                       <div className="text-right">
-                        <div className={cn('text-base font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</div>
-                        <div className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatPct(t.pnlPercentage24h||0)}</div>
+                        <div className={cn('text-base font-semibold', (t.pnl24h || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h || 0)}</div>
+                        <div className={cn('text-xs', (t.pnlPercentage24h || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatPct(t.pnlPercentage24h || 0)}</div>
                       </div>
                     </div>
                     <div className="mt-3 pl-9 flex items-center justify-between">
                       <div className="flex gap-1 flex-wrap">
-                        {t.tradingIndexes.slice(0,2).map(idxId => {
+                        {t.tradingIndexes.slice(0, 2).map(idxId => {
                           const m = allMockIndexes.find(x => x.id === idxId)
                           const label = m?.symbol || idxId.toUpperCase()
                           return (
@@ -502,21 +502,21 @@ export function TopTraders({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={t.avatar} alt="avatar" className="w-full h-full object-cover" />
                           ) : (
-                            <span>{(t.ens || t.address).slice(2,4).toUpperCase()}</span>
+                            <span>{(t.ens || t.address).slice(2, 4).toUpperCase()}</span>
                           )}
                         </div>
-                        <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0,6)}...${t.address.slice(-4)}`}</span>
+                        <span className="truncate text-white font-medium">{t.ens || `${t.address.slice(0, 6)}...${t.address.slice(-4)}`}</span>
                       </button>
                       <div className="ml-auto flex items-baseline gap-2">
-                        <span className={cn('text-sm font-semibold', (t.pnl24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h||0)}</span>
-                        <span className={cn('text-xs', (t.pnlPercentage24h||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                          ({formatPct(t.pnlPercentage24h||0)})
+                        <span className={cn('text-sm font-semibold', (t.pnl24h || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>{formatUsd(t.pnl24h || 0)}</span>
+                        <span className={cn('text-xs', (t.pnlPercentage24h || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                          ({formatPct(t.pnlPercentage24h || 0)})
                         </span>
                       </div>
                     </div>
                     <div className="mt-2 pl-9 flex items-center justify-between">
                       <div className="flex flex-wrap gap-1">
-                        {t.tradingIndexes.slice(0,2).map(idxId => {
+                        {t.tradingIndexes.slice(0, 2).map(idxId => {
                           const m = allMockIndexes.find(x => x.id === idxId)
                           const label = m?.symbol || idxId.toUpperCase()
                           return (
@@ -545,180 +545,180 @@ export function TopTraders({
         </div>
       ) : (
         <>
-      {/* Filters */}
-      {showFilters && (
-        <div className="space-y-3">
-          {/* Category Filters */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <Filter className="w-3 h-3" />
-              Filter:
-            </div>
-            {filterOptions.map(({ key, label, icon: Icon, description }) => (
-              <Button
-                key={key}
-                size="sm"
-                variant={selectedFilter === key ? "default" : "outline"}
-                className={cn(
-                  "text-xs transition-all duration-200",
-                  selectedFilter === key 
-                    ? "bg-brand text-black hover:bg-brand-hover" 
-                    : "border-teal text-slate-400 hover:bg-teal-card/50 hover:text-white"
-                )}
-                onClick={() => setSelectedFilter(key)}
-                title={description}
-              >
-                <Icon className="w-3 h-3 mr-1" />
-                {label}
-              </Button>
-            ))}
-          </div>
-          
-          {/* Sort Options */}
-          <div className="flex items-center gap-2">
-            {/* Sort Direction Toggle */}
-            <Button
-              onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 text-slate-400 hover:text-white hover:bg-teal-card/50"
-              title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
-            >
-              {sortDirection === 'desc' ? 
-                <ArrowDown className="w-3 h-3" /> : 
-                <ArrowUp className="w-3 h-3" />
-              }
-            </Button>
-
-            {/* Sort By Dropdown */}
-            <Select value={sortBy} onValueChange={handleSortChange}>
-              <SelectTrigger className="h-7 w-24 text-xs border-teal bg-teal-card/50 text-slate-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-teal-card border-teal">
-                {sortOptions.map(({ key, label, description }) => (
-                  <SelectItem 
-                    key={key} 
-                    value={key}
-                    className="text-xs text-slate-300 focus:bg-teal-card/70 focus:text-white"
+          {/* Filters */}
+          {showFilters && (
+            <div className="space-y-3">
+              {/* Category Filters */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 text-xs text-slate-400">
+                  <Filter className="w-3 h-3" />
+                  Filter:
+                </div>
+                {filterOptions.map(({ key, label, icon: Icon, description }) => (
+                  <Button
+                    key={key}
+                    size="sm"
+                    variant={selectedFilter === key ? "default" : "outline"}
+                    className={cn(
+                      "text-xs transition-all duration-200",
+                      selectedFilter === key
+                        ? "bg-brand text-black hover:bg-brand-hover"
+                        : "border-teal text-slate-400 hover:bg-teal-card/50 hover:text-white"
+                    )}
+                    onClick={() => setSelectedFilter(key)}
+                    title={description}
                   >
+                    <Icon className="w-3 h-3 mr-1" />
                     {label}
-                  </SelectItem>
+                  </Button>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      )}
+              </div>
 
-      {/* Traders List */}
-      <AnimatePresence mode="wait">
-        {filteredTraders.length > 0 ? (
-          <motion.div 
-            key="traders-list"
-            className="space-y-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {filteredTraders.map((trader, i) => (
-              <motion.div
-                key={trader.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: Math.min(i * 0.03, 0.3) // Cap delay at 300ms
-                }}
-                className="relative"
-              >
-                {/* 순위/하이라이트는 compact 모드에서 비활성화 */}
-                {!isCompact && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <RankChangeIndicator 
-                      previousRank={trader.rank + Math.floor(Math.random() * 5) - 2}
-                      currentRank={trader.rank}
-                    />
-                  </div>
-                )}
-                {!isCompact && <NewTraderHighlight trader={trader} />}
-                
-                <div
-                  onClick={isCompact ? () => onViewPortfolio(trader) : undefined}
-                  role={isCompact ? 'button' : undefined}
-                  tabIndex={isCompact ? 0 : undefined}
-                  className={isCompact ? 'cursor-pointer' : undefined}
+              {/* Sort Options */}
+              <div className="flex items-center gap-2">
+                {/* Sort Direction Toggle */}
+                <Button
+                  onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-slate-400 hover:text-white hover:bg-teal-card/50"
+                  title={`Sort ${sortDirection === 'desc' ? 'ascending' : 'descending'}`}
                 >
-                  <TraderCard 
-                    trader={trader} 
-                    onViewPortfolio={onViewPortfolio}
-                    onViewProfile={onViewProfile}
-                    timeframe={selectedTimeframe}
-                    showPnLChart={!expandedView}
-                    variant={expandedView ? "detailed" : "default"}
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="no-results"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="text-center py-12"
-          >
-            <Card className="bg-teal-card/30 border-teal">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center">
-                    <Users className="w-6 h-6 text-slate-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      No traders found
-                    </h3>
-                    <p className="text-slate-400 text-sm mb-4">
-                      Try adjusting your filter criteria or timeframe
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setSelectedFilter('all')
-                        setSelectedTimeframe('24h')
-                      }}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Reset Filters
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  {sortDirection === 'desc' ?
+                    <ArrowDown className="w-3 h-3" /> :
+                    <ArrowUp className="w-3 h-3" />
+                  }
+                </Button>
 
-      {/* Expand/Collapse Button */}
-      {filteredTraders.length >= 20 && (
-        <div className="text-center pt-4">
-          <Button
-            onClick={() => setExpandedView(!expandedView)}
-            variant="outline"
-            className="border-teal text-slate-300 hover:bg-teal-card/50"
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            {expandedView ? 'Show Less' : `Show All ${traders.length} Traders`}
-            <ChevronDown className={cn(
-              "w-4 h-4 ml-2 transition-transform",
-              expandedView && "rotate-180"
-            )} />
-          </Button>
-        </div>
-      )}
+                {/* Sort By Dropdown */}
+                <Select value={sortBy} onValueChange={handleSortChange}>
+                  <SelectTrigger className="h-7 w-24 text-xs border-teal bg-teal-card/50 text-slate-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-teal-card border-teal">
+                    {sortOptions.map(({ key, label, description }) => (
+                      <SelectItem
+                        key={key}
+                        value={key}
+                        className="text-xs text-slate-300 focus:bg-teal-card/70 focus:text-white"
+                      >
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Traders List */}
+          <AnimatePresence mode="wait">
+            {filteredTraders.length > 0 ? (
+              <motion.div
+                key="traders-list"
+                className="space-y-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {filteredTraders.map((trader, i) => (
+                  <motion.div
+                    key={trader.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: Math.min(i * 0.03, 0.3) // Cap delay at 300ms
+                    }}
+                    className="relative"
+                  >
+                    {/* Disable rank/highlight in compact mode */}
+                    {!isCompact && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <RankChangeIndicator
+                          previousRank={trader.rank + Math.floor(Math.random() * 5) - 2}
+                          currentRank={trader.rank}
+                        />
+                      </div>
+                    )}
+                    {!isCompact && <NewTraderHighlight trader={trader} />}
+
+                    <div
+                      onClick={isCompact ? () => onViewPortfolio(trader) : undefined}
+                      role={isCompact ? 'button' : undefined}
+                      tabIndex={isCompact ? 0 : undefined}
+                      className={isCompact ? 'cursor-pointer' : undefined}
+                    >
+                      <TraderCard
+                        trader={trader}
+                        onViewPortfolio={onViewPortfolio}
+                        onViewProfile={onViewProfile}
+                        timeframe={selectedTimeframe}
+                        showPnLChart={!expandedView}
+                        variant={expandedView ? "detailed" : "default"}
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="no-results"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="text-center py-12"
+              >
+                <Card className="bg-teal-card/30 border-teal">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 bg-teal-card rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-2">
+                          No traders found
+                        </h3>
+                        <p className="text-slate-400 text-sm mb-4">
+                          Try adjusting your filter criteria or timeframe
+                        </p>
+                        <Button
+                          onClick={() => {
+                            setSelectedFilter('all')
+                            setSelectedTimeframe('24h')
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                        >
+                          Reset Filters
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Expand/Collapse Button */}
+          {filteredTraders.length >= 20 && (
+            <div className="text-center pt-4">
+              <Button
+                onClick={() => setExpandedView(!expandedView)}
+                variant="outline"
+                className="border-teal text-slate-300 hover:bg-teal-card/50"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                {expandedView ? 'Show Less' : `Show All ${traders.length} Traders`}
+                <ChevronDown className={cn(
+                  "w-4 h-4 ml-2 transition-transform",
+                  expandedView && "rotate-180"
+                )} />
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>

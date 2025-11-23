@@ -5,7 +5,7 @@ import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useTradingActions, useTradingStore } from '@/lib/store/trading-store'
 import { MemeIndex, Trade } from '@/lib/types/index-trading'
 
-// 지갑 잔액 타입
+// Wallet Balance Type
 interface TokenBalance {
   symbol: string
   name: string
@@ -17,7 +17,7 @@ interface TokenBalance {
   usdValue?: number
 }
 
-// 거래 실행 파라미터
+// Trade Execution Parameters
 interface TradeParams {
   indexId: string
   type: 'buy' | 'sell'
@@ -27,7 +27,7 @@ interface TradeParams {
   deadline?: number
 }
 
-// 거래 결과
+// Trade Result
 interface TradeResult {
   success: boolean
   transactionHash?: string
@@ -37,7 +37,7 @@ interface TradeResult {
   error?: string
 }
 
-// 트랜잭션 상태
+// Transaction Status
 type TransactionStatus = 'idle' | 'preparing' | 'pending' | 'confirming' | 'confirmed' | 'failed'
 
 interface PendingTransaction {
@@ -53,7 +53,7 @@ interface PendingTransaction {
   blockNumber?: number
 }
 
-// Mock 데이터 생성 함수들
+// Mock Data Generation Functions
 const generateMockBalance = (): TokenBalance[] => [
   {
     symbol: 'USDC',
@@ -88,11 +88,11 @@ const generateMockBalance = (): TokenBalance[] => [
 ]
 
 const simulateTradeExecution = async (params: TradeParams): Promise<TradeResult> => {
-  // 거래 실행 시뮬레이션
+  // Simulate trade execution
   await new Promise(resolve => setTimeout(resolve, 2000))
-  
-  const success = Math.random() > 0.1 // 90% 성공률
-  
+
+  const success = Math.random() > 0.1 // 90% success rate
+
   if (success) {
     return {
       success: true,
@@ -109,7 +109,7 @@ const simulateTradeExecution = async (params: TradeParams): Promise<TradeResult>
   }
 }
 
-// 지갑 잔액 조회 훅
+// Wallet Balance Hook
 export function useWalletBalances() {
   const { ready, authenticated, user } = usePrivy()
   const { wallets } = useWallets()
@@ -127,7 +127,7 @@ export function useWalletBalances() {
     setError(null)
 
     try {
-      // 실제로는 여기서 RPC 호출로 잔액 조회
+      // Actually fetch balances via RPC here
       await new Promise(resolve => setTimeout(resolve, 1000))
       const mockBalances = generateMockBalance()
       setBalances(mockBalances)
@@ -139,20 +139,20 @@ export function useWalletBalances() {
     }
   }, [authenticated, ready, wallets.length])
 
-  // 자동 잔액 조회
+  // Auto fetch balances
   useEffect(() => {
     fetchBalances()
   }, [fetchBalances])
 
-  // 총 USD 가치 계산
+  // Calculate total USD value
   const totalUsdValue = balances.reduce((total, token) => total + (token.usdValue || 0), 0)
 
-  // 특정 토큰 잔액 조회
+  // Get specific token balance
   const getTokenBalance = useCallback((symbol: string) => {
     return balances.find(token => token.symbol === symbol)
   }, [balances])
 
-  // 잔액 새로고침
+  // Refresh balances
   const refreshBalances = useCallback(() => {
     fetchBalances()
   }, [fetchBalances])
@@ -169,7 +169,7 @@ export function useWalletBalances() {
   }
 }
 
-// 거래 실행 훅
+// Trade Execution Hook
 export function useTradeExecution() {
   const { authenticated, ready } = usePrivy()
   const { wallets } = useWallets()
@@ -177,7 +177,7 @@ export function useTradeExecution() {
   const [pendingTrades, setPendingTrades] = useState<PendingTransaction[]>([])
   const [isExecuting, setIsExecuting] = useState(false)
 
-  // 거래 실행
+  // Execute trade
   const executeTrade = useCallback(async (params: TradeParams): Promise<TradeResult> => {
     if (!authenticated || !ready || wallets.length === 0) {
       throw new Error('Wallet not connected')
@@ -187,11 +187,11 @@ export function useTradeExecution() {
     setLoading(true)
 
     try {
-      // 거래 시뮬레이션
+      // Simulate trade
       const result = await simulateTradeExecution(params)
 
       if (result.success && result.transactionHash && result.tradeId) {
-        // 펜딩 트랜잭션 추가
+        // Add pending transaction
         const pendingTx: PendingTransaction = {
           id: result.tradeId,
           hash: result.transactionHash,
@@ -204,7 +204,7 @@ export function useTradeExecution() {
 
         setPendingTrades(prev => [pendingTx, ...prev])
 
-        // Zustand 스토어에 거래 추가
+        // Add trade to Zustand store
         const newTrade: Trade = {
           id: result.tradeId,
           indexId: params.indexId,
@@ -223,11 +223,11 @@ export function useTradeExecution() {
 
         addTrade(newTrade)
 
-        // 트랜잭션 확인 시뮬레이션
+        // Simulate transaction confirmation
         setTimeout(() => {
-          setPendingTrades(prev => 
-            prev.map(tx => 
-              tx.id === result.tradeId 
+          setPendingTrades(prev =>
+            prev.map(tx =>
+              tx.id === result.tradeId
                 ? { ...tx, status: 'confirmed', blockNumber: Math.floor(Math.random() * 1000000) + 18000000 }
                 : tx
             )
@@ -248,7 +248,7 @@ export function useTradeExecution() {
     }
   }, [authenticated, ready, wallets.length, addTrade, setLoading])
 
-  // 빠른 거래 실행 (프리셋 값 사용)
+  // Quick trade execution (using preset values)
   const quickTrade = useCallback(async (
     indexId: string,
     type: 'buy' | 'sell',
@@ -260,16 +260,16 @@ export function useTradeExecution() {
       amount,
       leverage: 1,
       slippage: 0.5, // 0.5%
-      deadline: Date.now() + 20 * 60 * 1000 // 20분
+      deadline: Date.now() + 20 * 60 * 1000 // 20 minutes
     })
   }, [executeTrade])
 
-  // 펜딩 트랜잭션 정리
+  // Clear pending trades
   const clearPendingTrades = useCallback(() => {
     setPendingTrades([])
   }, [])
 
-  // 특정 트랜잭션 상태 조회
+  // Get specific transaction status
   const getTransactionStatus = useCallback((txId: string) => {
     return pendingTrades.find(tx => tx.id === txId)
   }, [pendingTrades])
@@ -285,14 +285,14 @@ export function useTradeExecution() {
   }
 }
 
-// 거래 히스토리 훅
+// Trade History Hook
 export function useTradeHistory() {
   const { authenticated, ready } = usePrivy()
   const trades = useTradingStore((state) => state.trades)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // 거래 히스토리 필터링
+  // Filter trade history
   const getTradesByStatus = useCallback((status: 'open' | 'closed' | 'all') => {
     if (status === 'all') return trades
     return trades.filter(trade => trade.status === status)
@@ -303,31 +303,31 @@ export function useTradeHistory() {
   }, [trades])
 
   const getTradesByDateRange = useCallback((startDate: Date, endDate: Date) => {
-    return trades.filter(trade => 
+    return trades.filter(trade =>
       trade.timestamp >= startDate && trade.timestamp <= endDate
     )
   }, [trades])
 
-  // 거래 통계 계산
+  // Calculate trade statistics
   const statistics = React.useMemo(() => {
     const openTrades = trades.filter(trade => trade.status === 'open')
     const closedTrades = trades.filter(trade => trade.status === 'closed')
-    
+
     const totalPnL = closedTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0)
     const winningTrades = closedTrades.filter(trade => (trade.pnl || 0) > 0)
     const losingTrades = closedTrades.filter(trade => (trade.pnl || 0) < 0)
-    
+
     return {
       totalTrades: trades.length,
       openTrades: openTrades.length,
       closedTrades: closedTrades.length,
       totalPnL,
       winRate: closedTrades.length > 0 ? (winningTrades.length / closedTrades.length) * 100 : 0,
-      averageWin: winningTrades.length > 0 
-        ? winningTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0) / winningTrades.length 
+      averageWin: winningTrades.length > 0
+        ? winningTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0) / winningTrades.length
         : 0,
-      averageLoss: losingTrades.length > 0 
-        ? losingTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0) / losingTrades.length 
+      averageLoss: losingTrades.length > 0
+        ? losingTrades.reduce((sum, trade) => sum + (trade.pnl || 0), 0) / losingTrades.length
         : 0,
       totalVolume: trades.reduce((sum, trade) => sum + trade.amount, 0)
     }
@@ -345,13 +345,13 @@ export function useTradeHistory() {
   }
 }
 
-// 포지션 관리 훅
+// Position Management Hook
 export function usePositionManagement() {
   const { closeTrade, updateTrade } = useTradingActions()
   const activeTrades = useTradingStore((state) => state.activeTrades)
-  const [isClosing, setIsClosing] = useState<string[]>([]) // 청산 중인 거래 ID들
+  const [isClosing, setIsClosing] = useState<string[]>([]) // Closing trade IDs
 
-  // 포지션 청산
+  // Close position
   const closePosition = useCallback(async (tradeId: string, exitPrice?: number) => {
     const trade = activeTrades.find(t => t.id === tradeId)
     if (!trade) throw new Error('Trade not found')
@@ -359,15 +359,15 @@ export function usePositionManagement() {
     setIsClosing(prev => [...prev, tradeId])
 
     try {
-      // 청산 시뮬레이션
+      // Simulate closing
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
+
       const currentExitPrice = exitPrice || (trade.entryPrice * (1 + (Math.random() - 0.5) * 0.1))
       closeTrade(tradeId, currentExitPrice)
-      
-      // 청산 완료 알림 등 추가 로직
+
+      // Additional logic like close completion notification
       console.log(`Position ${tradeId} closed at ${currentExitPrice}`)
-      
+
     } catch (error) {
       console.error('Failed to close position:', error)
       throw error
@@ -376,7 +376,7 @@ export function usePositionManagement() {
     }
   }, [activeTrades, closeTrade])
 
-  // 스톱로스/테이크프로핏 설정
+  // Set Stop Loss / Take Profit
   const setStopLoss = useCallback(async (tradeId: string, stopLossPrice: number) => {
     try {
       updateTrade(tradeId, { stopLoss: stopLossPrice })
@@ -397,7 +397,7 @@ export function usePositionManagement() {
     }
   }, [updateTrade])
 
-  // 부분 청산
+  // Partial Close
   const partialClose = useCallback(async (tradeId: string, percentage: number) => {
     const trade = activeTrades.find(t => t.id === tradeId)
     if (!trade) throw new Error('Trade not found')
@@ -410,12 +410,12 @@ export function usePositionManagement() {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       const remainingAmount = trade.amount * (1 - percentage / 100)
       updateTrade(tradeId, { amount: remainingAmount })
-      
+
       console.log(`Partially closed ${percentage}% of position ${tradeId}`)
-      
+
     } catch (error) {
       console.error('Failed to partially close position:', error)
       throw error
@@ -436,7 +436,7 @@ export function usePositionManagement() {
   }
 }
 
-// 통합 지갑 훅
+// Integrated Wallet Hook
 export function useWallet() {
   const { ready, authenticated, user, login, logout } = usePrivy()
   const { wallets } = useWallets()
@@ -445,7 +445,7 @@ export function useWallet() {
   const tradeHistory = useTradeHistory()
   const positionManagement = usePositionManagement()
 
-  // 지갑 정보
+  // Wallet Info
   const walletInfo = React.useMemo(() => {
     if (!authenticated || wallets.length === 0) return null
 
@@ -458,7 +458,7 @@ export function useWallet() {
     }
   }, [authenticated, wallets])
 
-  // 연결 상태
+  // Connection Status
   const connectionStatus = React.useMemo(() => {
     if (!ready) return 'loading'
     if (!authenticated) return 'disconnected'
@@ -467,23 +467,23 @@ export function useWallet() {
   }, [ready, authenticated, wallets.length])
 
   return {
-    // 연결 상태
+    // Connection Status
     ready,
     authenticated,
     connectionStatus,
     walletInfo,
-    
-    // 연결/해제 함수
+
+    // Connect/Disconnect Functions
     login,
     logout,
-    
-    // 기능별 훅들
+
+    // Feature Hooks
     balances,
     tradeExecution,
     tradeHistory,
     positionManagement,
-    
-    // 편의 상태들
+
+    // Convenience States
     isConnected: connectionStatus === 'connected',
     isLoading: !ready || balances.isLoading,
     canTrade: tradeExecution.canTrade && balances.hasBalances

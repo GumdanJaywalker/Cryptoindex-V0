@@ -15,7 +15,7 @@ type LoginStep = 'email' | 'otp' | 'success'
 
 export function EmailOTPLogin() {
   const { sendOTP, login, loading } = useAuth()
-  
+
   const [step, setStep] = useState<LoginStep>('email')
   const [email, setEmail] = useState('')
   const [otpCode, setOtpCode] = useState('')
@@ -23,12 +23,12 @@ export function EmailOTPLogin() {
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(0)
 
-  // 이메일 유효성 검사
+  // Validate email
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
-  // OTP 전송 처리
+  // Handle OTP sending
   const handleSendOTP = async () => {
     if (!isValidEmail(email)) {
       setError('유효한 이메일 주소를 입력해주세요.')
@@ -40,7 +40,7 @@ export function EmailOTPLogin() {
 
     try {
       const result = await sendOTP(email)
-      
+
       if (result.success) {
         setStep('otp')
         startCountdown()
@@ -54,7 +54,7 @@ export function EmailOTPLogin() {
     }
   }
 
-  // OTP 재전송 카운트다운
+  // OTP resend countdown
   const startCountdown = () => {
     setCountdown(60)
     const timer = setInterval(() => {
@@ -68,7 +68,7 @@ export function EmailOTPLogin() {
     }, 1000)
   }
 
-  // OTP 검증 및 로그인
+  // Verify OTP and login
   const handleVerifyOTP = async () => {
     if (otpCode.length !== 6) {
       setError('6자리 인증 코드를 입력해주세요.')
@@ -80,10 +80,10 @@ export function EmailOTPLogin() {
 
     try {
       const result = await login({ email, code: otpCode })
-      
+
       if (result.success) {
         setStep('success')
-        // 잠시 후 리다이렉트 또는 페이지 새로고침
+        // Redirect or refresh page after a short delay
         setTimeout(() => {
           window.location.href = '/dashboard'
         }, 2000)
@@ -98,7 +98,7 @@ export function EmailOTPLogin() {
     }
   }
 
-  // 이메일 단계로 돌아가기
+  // Return to email step
   const handleBackToEmail = () => {
     setStep('email')
     setOtpCode('')
@@ -133,7 +133,7 @@ export function EmailOTPLogin() {
           {step === 'email' ? '이메일로 로그인' : '인증 코드 입력'}
         </CardTitle>
         <CardDescription>
-          {step === 'email' 
+          {step === 'email'
             ? '이메일 주소를 입력하면 인증 코드를 전송해드립니다.'
             : `${email}로 전송된 6자리 인증 코드를 입력해주세요.`
           }
@@ -206,8 +206,8 @@ export function EmailOTPLogin() {
 
       <CardFooter className="flex flex-col space-y-2">
         {step === 'email' ? (
-          <Button 
-            onClick={handleSendOTP} 
+          <Button
+            onClick={handleSendOTP}
             disabled={isLoading || !email.trim()}
             className="w-full"
           >
@@ -222,7 +222,7 @@ export function EmailOTPLogin() {
           </Button>
         ) : (
           <>
-            <Button 
+            <Button
               onClick={handleVerifyOTP}
               disabled={isLoading || otpCode.length !== 6}
               className="w-full"
@@ -236,8 +236,8 @@ export function EmailOTPLogin() {
                 '로그인'
               )}
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleBackToEmail}
               disabled={isLoading}
               className="w-full"

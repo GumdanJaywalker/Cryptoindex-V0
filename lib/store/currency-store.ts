@@ -8,6 +8,8 @@ const MOCK_EXCHANGE_RATES: ExchangeRates = {
   HYPE_USDC: 1.24, // 1 HYPE = 1.24 USDC
   HYPE_USDT: 1.24, // 1 HYPE = 1.24 USDT
   HYPE_BTC: 0.000021, // 1 HYPE = 0.000021 BTC
+  HYPE_HIIN: 0.01, // Mock value
+  HYPE_HIDE: 0.01, // Mock value
 }
 
 export const useCurrencyStore = create<CurrencyStore>()(
@@ -80,6 +82,8 @@ export const useCurrencyStore = create<CurrencyStore>()(
               HYPE_USDC: MOCK_EXCHANGE_RATES.HYPE_USDC * variation(),
               HYPE_USDT: MOCK_EXCHANGE_RATES.HYPE_USDT * variation(),
               HYPE_BTC: MOCK_EXCHANGE_RATES.HYPE_BTC * variation(),
+              HYPE_HIIN: MOCK_EXCHANGE_RATES.HYPE_HIIN * variation(),
+              HYPE_HIDE: MOCK_EXCHANGE_RATES.HYPE_HIDE * variation(),
             },
           })
         } catch (error) {

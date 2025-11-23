@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, memo } from 'react'
+import { useState, useRef, useEffect, memo, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { useLazyImage } from '@/lib/hooks/use-performance'
 
@@ -18,10 +18,10 @@ interface OptimizedImageProps {
 }
 
 /**
- * 성능 최적화된 이미지 컴포넌트
- * - 지연 로딩 (Lazy Loading)
- * - WebP 포맷 지원
- * - 플레이스홀더 표시
+ * Performance Optimized Image Component
+ * - Lazy Loading
+ * - WebP format support
+ * - Placeholder display
  * - Progressive loading
  */
 export const OptimizedImage = memo(function OptimizedImage({
@@ -38,22 +38,22 @@ export const OptimizedImage = memo(function OptimizedImage({
 }: OptimizedImageProps) {
   const [error, setError] = useState(false)
   const [currentSrc, setCurrentSrc] = useState<string | undefined>()
-  
+
   const { imgRef, src: lazySrc, isLoaded, onLoad: handleLazyLoad } = useLazyImage(src, {
     threshold: 0.1,
     rootMargin: '50px'
   })
 
-  // WebP 지원 감지
+  // Detect WebP support
   const [supportsWebP, setSupportsWebP] = useState<boolean | null>(null)
-  
+
   useEffect(() => {
     const checkWebPSupport = () => {
       const canvas = document.createElement('canvas')
       canvas.width = 1
       canvas.height = 1
       const ctx = canvas.getContext('2d')
-      
+
       if (ctx) {
         const dataURL = canvas.toDataURL('image/webp')
         setSupportsWebP(dataURL.indexOf('data:image/webp') === 0)
@@ -65,19 +65,19 @@ export const OptimizedImage = memo(function OptimizedImage({
     checkWebPSupport()
   }, [])
 
-  // 최적화된 이미지 URL 생성
+  // Generate optimized image URL
   const optimizedSrc = useMemo(() => {
     if (!lazySrc || supportsWebP === null) return undefined
-    
-    // 실제 환경에서는 이미지 CDN 서비스 사용
+
+    // Use image CDN service in production
     const params = new URLSearchParams()
-    
+
     if (width) params.set('w', width.toString())
     if (height) params.set('h', height.toString())
     if (quality !== 75) params.set('q', quality.toString())
     if (supportsWebP) params.set('f', 'webp')
-    
-    // 예시: Cloudinary, ImageKit 등의 URL 변환
+
+    // Example: URL transformation for Cloudinary, ImageKit, etc.
     return `${lazySrc}?${params.toString()}`
   }, [lazySrc, width, height, quality, supportsWebP])
 
@@ -100,7 +100,7 @@ export const OptimizedImage = memo(function OptimizedImage({
         )}
         style={{ width, height }}
       >
-Image failed to load
+        Image failed to load
       </div>
     )
   }
@@ -110,7 +110,7 @@ Image failed to load
       className={cn("relative overflow-hidden", className)}
       style={{ width, height }}
     >
-      {/* 플레이스홀더 */}
+      {/* Placeholder */}
       {!isLoaded && (
         <div
           className="absolute inset-0 bg-teal-card animate-pulse flex items-center justify-center"
@@ -126,7 +126,7 @@ Image failed to load
         </div>
       )}
 
-      {/* 실제 이미지 */}
+      {/* Actual image */}
       <img
         ref={imgRef}
         src={optimizedSrc}
@@ -157,7 +157,7 @@ Image failed to load
 })
 
 /**
- * 아바타용 최적화된 이미지 컴포넌트
+ * Optimized Image Component for Avatars
  */
 export const OptimizedAvatar = memo(function OptimizedAvatar({
   src,

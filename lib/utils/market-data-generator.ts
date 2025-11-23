@@ -38,6 +38,7 @@ export function generateInitialMarketData(selectedIndex: string, basePrice?: num
 
   return {
     currentPrice: price,
+    price24hAgo: price, // Initialize with current price
     priceChange24h: 5.67,
     priceChange24hAbsolute: price * 0.0567,
     high24h: price * 1.08,
@@ -167,6 +168,7 @@ export function updateMarketDataWithVolatility(
 
   return {
     currentPrice: newPrice,
+    price24hAgo: price24hAgo || currentData.price24hAgo || newPrice,
     priceChange24h,
     priceChange24hAbsolute,
     high24h,

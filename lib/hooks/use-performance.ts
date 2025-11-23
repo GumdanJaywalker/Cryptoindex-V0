@@ -1,18 +1,18 @@
 /**
- * 성능 최적화를 위한 커스텀 훅들
+ * Custom hooks for performance optimization
  */
 
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react'
 
 /**
- * 디바운스된 함수를 반환하는 훅
+ * Hook that returns a debounced function
  */
 export function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
+
   return useCallback((...args: Parameters<T>) => {
     if (timeoutRef.current !== null) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => callback(...args), delay)
@@ -20,7 +20,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 }
 
 /**
- * 스로틀된 함수를 반환하는 훅
+ * Hook that returns a throttled function
  */
 export function useThrottle<T extends (...args: any[]) => any>(
   callback: T,
@@ -28,10 +28,10 @@ export function useThrottle<T extends (...args: any[]) => any>(
 ): T {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastCallRef = useRef<number>(0)
-  
+
   return useCallback((...args: Parameters<T>) => {
     const now = Date.now()
-    
+
     if (now - lastCallRef.current >= delay) {
       lastCallRef.current = now
       callback(...args)
@@ -46,7 +46,7 @@ export function useThrottle<T extends (...args: any[]) => any>(
 }
 
 /**
- * 이미지 지연 로딩을 위한 훅
+ * Hook for lazy loading images
  */
 export function useLazyImage(src: string, options?: {
   threshold?: number
@@ -90,7 +90,7 @@ export function useLazyImage(src: string, options?: {
 }
 
 /**
- * 리스트 아이템을 가상화하기 위한 훅
+ * Hook for virtualizing list items
  */
 export function useVirtualList<T>(
   items: T[],
@@ -99,14 +99,14 @@ export function useVirtualList<T>(
   overscan: number = 5
 ) {
   const [scrollTop, setScrollTop] = useState(0)
-  
+
   const visibleItems = useMemo(() => {
     const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan)
     const endIndex = Math.min(
       items.length - 1,
       Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan
     )
-    
+
     return items.slice(startIndex, endIndex + 1).map((item, index) => ({
       item,
       index: startIndex + index,
@@ -115,7 +115,7 @@ export function useVirtualList<T>(
   }, [items, itemHeight, scrollTop, containerHeight, overscan])
 
   const totalHeight = items.length * itemHeight
-  
+
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     setScrollTop(e.currentTarget.scrollTop)
   }, [])
@@ -128,7 +128,7 @@ export function useVirtualList<T>(
 }
 
 /**
- * 메모리 사용량을 모니터링하는 훅 (개발 환경용)
+ * Hook for monitoring memory usage (development environment only)
  */
 export function useMemoryMonitor() {
   const [memoryInfo, setMemoryInfo] = useState<{
@@ -140,7 +140,7 @@ export function useMemoryMonitor() {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && 'memory' in performance) {
       const updateMemoryInfo = () => {
-        // @ts-ignore - performance.memory는 Chrome 전용 API
+        // @ts-ignore - performance.memory is a Chrome-only API
         const memory = performance.memory
         setMemoryInfo({
           usedJSHeapSize: memory.usedJSHeapSize,
@@ -159,14 +159,14 @@ export function useMemoryMonitor() {
 }
 
 /**
- * 컴포넌트 리렌더링을 추적하는 훅 (개발 환경용)
+ * Hook for tracking component re-renders (development environment only)
  */
 export function useRenderCount(componentName: string) {
   const renderCountRef = useRef(0)
-  
+
   useEffect(() => {
     renderCountRef.current += 1
-    
+
     if (process.env.NODE_ENV === 'development') {
       console.log(`${componentName} rendered ${renderCountRef.current} times`)
     }
@@ -176,30 +176,30 @@ export function useRenderCount(componentName: string) {
 }
 
 /**
- * 객체의 깊은 비교를 위한 메모이제이션 훅
+ * Memoization hook for deep comparison of objects
  */
 export function useDeepMemo<T>(factory: () => T, deps: readonly unknown[]): T {
   const ref = useRef<{ deps: readonly unknown[]; value: T } | null>(null)
-  
+
   if (!ref.current || !areEqual(ref.current.deps, deps)) {
     ref.current = { deps, value: factory() }
   }
-  
+
   return ref.current!.value
 }
 
 function areEqual(a: readonly unknown[], b: readonly unknown[]): boolean {
   if (a.length !== b.length) return false
-  
+
   for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) return false
   }
-  
+
   return true
 }
 
 /**
- * 컴포넌트 마운트 시점을 추적하는 훅
+ * Hook for tracking component mount status
  */
 export function useMountedState() {
   const [isMounted, setIsMounted] = useState(false)
@@ -213,14 +213,14 @@ export function useMountedState() {
 }
 
 /**
- * 이전 값을 기억하는 훅
+ * Hook for remembering previous value
  */
 export function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T | undefined>(undefined)
-  
+
   useEffect(() => {
     ref.current = value
   }, [value])
-  
+
   return ref.current
 }

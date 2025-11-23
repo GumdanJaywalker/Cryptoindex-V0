@@ -4,15 +4,15 @@ import { supabaseAdmin } from '@/lib/supabase/client'
 
 export async function GET() {
   try {
-    // Supabase 연결 테스트
+    // Test Supabase connection
     const { data, error } = await supabaseAdmin
       .from('users')
       .select('count')
       .limit(1)
 
     const supabaseStatus = error ? 'error' : 'connected'
-    
-    // 환경변수 확인
+
+    // Check environment variables
     const envCheck = {
       supabaseUrl: !!process.env.SUPABASE_URL,
       supabaseAnonKey: !!process.env.SUPABASE_ANON_KEY,
@@ -40,7 +40,7 @@ export async function GET() {
 
   } catch (error) {
     console.error('Health check error:', error)
-    
+
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),

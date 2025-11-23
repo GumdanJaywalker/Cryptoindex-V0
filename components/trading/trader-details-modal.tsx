@@ -122,17 +122,17 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
             <CardContent className="p-3">
               <div className="text-xs text-slate-400 flex items-center gap-1"><Target className="w-3 h-3" />Win rate</div>
               <div className="text-sm font-semibold text-white">{trader.winRate.toFixed(1)}%</div>
-              <div className="text-[11px] text-slate-400">{Math.round((trader.winRate/100) * trader.totalTrades)} wins</div>
+              <div className="text-[11px] text-slate-400">{Math.round((trader.winRate / 100) * trader.totalTrades)} wins</div>
             </CardContent>
           </Card>
           <Card className="bg-teal-card/30 border-teal">
             <CardContent className="p-3">
               <div className="text-xs text-slate-400">Total PnL</div>
-              <div className={cn('text-sm font-semibold', (trader.totalPnl||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                {(trader.totalPnl||0) >= 0 ? '+$' : '-$'}{Math.abs(trader.totalPnl||0).toLocaleString()}
+              <div className={cn('text-sm font-semibold', (trader.totalPnl || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                {(trader.totalPnl || 0) >= 0 ? '+$' : '-$'}{Math.abs(trader.totalPnl || 0).toLocaleString()}
               </div>
-              <div className={cn('text-[11px]', (trader.totalPnlPercentage||0) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                {(trader.totalPnlPercentage||0) >= 0 ? '+' : ''}{(trader.totalPnlPercentage||0).toFixed(1)}%
+              <div className={cn('text-[11px]', (trader.totalPnlPercentage || 0) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                {(trader.totalPnlPercentage || 0) >= 0 ? '+' : ''}{(trader.totalPnlPercentage || 0).toFixed(1)}%
               </div>
             </CardContent>
           </Card>
@@ -148,10 +148,10 @@ export function TraderDetailsModal({ open, onOpenChange, trader }: TraderDetails
         <div className="mt-2">
           <div className="text-xs text-slate-400 mb-2">Active indices</div>
           <div className="flex flex-wrap gap-2">
-            {indices.length === 0 && (
+            {indexes.length === 0 && (
               <div className="text-xs text-slate-500">No recent indices</div>
             )}
-            {indices.slice(0, 12).map(({ id, meta }) => (
+            {indexes.slice(0, 12).map(({ id, meta }) => (
               <Link
                 key={id}
                 href={`/trading?index=${id}`}

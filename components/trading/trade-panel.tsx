@@ -43,12 +43,12 @@ export function TradePanel({
   const [slippage, setSlippage] = useState(0.5) // 0.5%
   const [isAdvancedMode, setIsAdvancedMode] = useState(false)
   const [showRiskWarning, setShowRiskWarning] = useState(false)
-  
+
   const { canTrade, tradeExecution, balances } = useWallet()
   const { setTradePanelOpen } = useTradingActions()
   const { formatPrice, formatBalance, formatFee, currency } = useCurrency()
 
-  // 계산된 값들
+  // Calculated values
   const currentPrice = index?.currentPrice || 0
   const totalValue = amount * leverage
 
@@ -59,13 +59,13 @@ export function TradePanel({
   const estimatedFees = feeBreakdown.totalFee
   const liquidationPrice = currentPrice * (1 - (1 / leverage) * 0.9) // 90% margin
   const maxLoss = amount * 0.9 // 90% of position
-  
-  // 잔액 체크
+
+  // Check balance
   const usdcBalance = balances.getTokenBalance('USDC')
   const availableBalance = usdcBalance?.usdValue || 0
   const hasInsufficientBalance = amount > availableBalance
 
-  // 위험도 계산 (1-5)
+  // Calculate risk level (1-5)
   const riskLevel = Math.min(5, Math.floor(
     (leverage * (Math.abs(index?.change24h || 0) / 100) * (amount / 10000)) + 1
   ))
@@ -76,7 +76,7 @@ export function TradePanel({
 
   const handleLeverageChange = useCallback((newLeverage: number) => {
     setLeverage(newLeverage)
-    // 고레버리지 경고 표시
+    // Show high leverage warning
     if (newLeverage >= 10) {
       setShowRiskWarning(true)
     }
@@ -96,7 +96,7 @@ export function TradePanel({
 
       if (result.success) {
         onClose()
-        // 성공 알림 표시 (react-hot-toast 등 사용)
+        // Show success notification (use react-hot-toast etc.)
       } else {
         console.error('Trade failed:', result.error)
       }
@@ -145,27 +145,25 @@ export function TradePanel({
 
           {/* Scrollable Content */}
           <div className="overflow-y-auto px-6 py-6 space-y-6">
-            
+
             {/* Trade Type Toggle */}
             <div className="flex rounded-xl bg-teal-card p-1">
               <button
                 onClick={() => setTradeType('buy')}
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all ${
-                  tradeType === 'buy'
+                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all ${tradeType === 'buy'
                     ? 'bg-green-600 text-white shadow-lg'
                     : 'text-slate-400 hover:text-white'
-                }`}
+                  }`}
               >
                 <TrendingUp className="w-4 h-4 inline mr-2" />
                 Buy
               </button>
               <button
                 onClick={() => setTradeType('sell')}
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all ${
-                  tradeType === 'sell'
+                className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all ${tradeType === 'sell'
                     ? 'bg-red-600 text-white shadow-lg'
                     : 'text-slate-400 hover:text-white'
-                }`}
+                  }`}
               >
                 <TrendingDown className="w-4 h-4 inline mr-2" />
                 Sell
@@ -185,11 +183,10 @@ export function TradePanel({
                     <button
                       key={type}
                       onClick={() => setOrderType(type)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        orderType === type
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${orderType === type
                           ? 'bg-brand text-slate-900'
                           : 'bg-teal-card/70 text-slate-300 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
                     </button>
@@ -206,16 +203,15 @@ export function TradePanel({
                   Balance: {formatBalance(availableBalance)}
                 </div>
               </div>
-              
+
               {/* Amount Input */}
               <div className="relative">
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => handleAmountChange(Number(e.target.value))}
-                  className={`w-full bg-teal-card border rounded-xl px-4 py-3 text-lg font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors ${
-                    hasInsufficientBalance ? 'border-red-500' : 'border-teal'
-                  }`}
+                  className={`w-full bg-teal-card border rounded-xl px-4 py-3 text-lg font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-brand transition-colors ${hasInsufficientBalance ? 'border-red-500' : 'border-teal'
+                    }`}
                   placeholder="0.00"
                   min="1"
                   step="1"
@@ -251,24 +247,22 @@ export function TradePanel({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-slate-300">Leverage</label>
-                <div className={`text-lg font-bold ${
-                  leverage >= 10 ? 'text-red-400' : leverage >= 5 ? 'text-yellow-400' : 'text-green-400'
-                }`}>
+                <div className={`text-lg font-bold ${leverage >= 10 ? 'text-red-400' : leverage >= 5 ? 'text-yellow-400' : 'text-green-400'
+                  }`}>
                   {leverage}x
                 </div>
               </div>
-              
+
               {/* Leverage Options */}
               <div className="grid grid-cols-4 gap-2">
                 {LEVERAGE_OPTIONS.map((lev) => (
                   <button
                     key={lev}
                     onClick={() => handleLeverageChange(lev)}
-                    className={`py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
-                      leverage === lev
+                    className={`py-2 px-3 text-sm font-medium rounded-lg transition-colors ${leverage === lev
                         ? 'bg-brand text-slate-900'
                         : 'bg-teal-card/70 text-slate-300 hover:text-white hover:bg-teal-card/60'
-                    }`}
+                      }`}
                   >
                     {lev}x
                   </button>
@@ -325,11 +319,10 @@ export function TradePanel({
                         <button
                           key={slip}
                           onClick={() => setSlippage(slip)}
-                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                            slippage === slip
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${slippage === slip
                               ? 'bg-brand text-slate-900'
                               : 'bg-teal-card/70 text-slate-300 hover:text-white'
-                          }`}
+                            }`}
                         >
                           {slip}%
                         </button>
@@ -343,7 +336,7 @@ export function TradePanel({
             {/* Trade Summary */}
             <div className="bg-teal-card rounded-xl p-4 space-y-3">
               <div className="text-sm font-medium text-slate-300 mb-3">Trade Summary</div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -384,17 +377,15 @@ export function TradePanel({
                     {Array.from({ length: 5 }).map((_, i) => (
                       <div
                         key={i}
-                        className={`w-2 h-2 rounded-full ${
-                          i < riskLevel
+                        className={`w-2 h-2 rounded-full ${i < riskLevel
                             ? riskLevel <= 2 ? 'bg-green-400' : riskLevel <= 4 ? 'bg-yellow-400' : 'bg-red-400'
                             : 'bg-teal-card/60'
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>
-                  <span className={`text-xs font-medium ${
-                    riskLevel <= 2 ? 'text-green-400' : riskLevel <= 4 ? 'text-yellow-400' : 'text-red-400'
-                  }`}>
+                  <span className={`text-xs font-medium ${riskLevel <= 2 ? 'text-green-400' : riskLevel <= 4 ? 'text-yellow-400' : 'text-red-400'
+                    }`}>
                     {riskLevel <= 2 ? 'Low' : riskLevel <= 4 ? 'Medium' : 'High'}
                   </span>
                 </div>
@@ -409,19 +400,17 @@ export function TradePanel({
                 Insufficient balance. You need {formatBalance(amount)}.
               </div>
             ) : null}
-            
+
             <button
               onClick={handleTrade}
               disabled={!canTrade || hasInsufficientBalance || tradeExecution.isExecuting}
-              className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
-                tradeType === 'buy'
+              className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${tradeType === 'buy'
                   ? 'bg-green-600 hover:bg-green-700 text-white'
                   : 'bg-red-600 hover:bg-red-700 text-white'
-              } ${
-                (!canTrade || hasInsufficientBalance || tradeExecution.isExecuting)
+                } ${(!canTrade || hasInsufficientBalance || tradeExecution.isExecuting)
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:shadow-lg hover:scale-[1.02]'
-              }`}
+                }`}
             >
               {tradeExecution.isExecuting ? (
                 <div className="flex items-center justify-center space-x-2">

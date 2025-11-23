@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyPrivyJWT, extractPrivyUserId, PrivyJWTPayload } from '@/lib/auth/privy-jwt'
 
 /**
- * 인증이 필요한 라우트 목록
+ * List of routes requiring authentication
  */
 const PROTECTED_ROUTES = [
   '/dashboard',
@@ -16,7 +16,7 @@ const PROTECTED_ROUTES = [
 ]
 
 /**
- * 공개 라우트 목록 (인증 불필요)
+ * List of public routes (no authentication required)
  */
 const PUBLIC_ROUTES = [
   '/',
@@ -26,7 +26,7 @@ const PUBLIC_ROUTES = [
 ]
 
 /**
- * 관리자 전용 라우트
+ * Admin-only routes
  */
 const ADMIN_ROUTES = [
   '/admin',
@@ -34,36 +34,36 @@ const ADMIN_ROUTES = [
 ]
 
 /**
- * 요청이 보호된 라우트인지 확인
+ * Check if the request is for a protected route
  */
 export function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_ROUTES.some(route => pathname.startsWith(route))
 }
 
 /**
- * 요청이 공개 라우트인지 확인
+ * Check if the request is for a public route
  */
 export function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route))
 }
 
 /**
- * 요청이 관리자 라우트인지 확인
+ * Check if the request is for an admin route
  */
 export function isAdminRoute(pathname: string): boolean {
   return ADMIN_ROUTES.some(route => pathname.startsWith(route))
 }
 
 /**
- * Privy JWT 토큰에서 인증 정보 추출
+ * Extract authentication info from Privy JWT token
  */
 export async function extractPrivyAuthFromRequest(request: NextRequest) {
   try {
-    // Authorization 헤더에서 Bearer 토큰 추출
+    // Extract Bearer token from Authorization header
     const authHeader = request.headers.get('authorization')
     let token = authHeader?.replace('Bearer ', '')
 
-    // 헤더에 없으면 쿠키에서 추출
+    // If not in header, extract from cookie
     if (!token) {
       token = request.cookies.get('privy-token')?.value
     }
@@ -72,14 +72,14 @@ export async function extractPrivyAuthFromRequest(request: NextRequest) {
       return { authenticated: false, error: 'No Privy token provided' }
     }
 
-    // 개발 환경에서는 간단한 검증
+    // Simple validation in development environment
     if (process.env.NODE_ENV === 'development') {
       const privyUserId = extractPrivyUserId(token)
       if (!privyUserId) {
         return { authenticated: false, error: 'Invalid Privy token' }
       }
 
-      // 개발용 사용자 정보 반환
+      // Return development user info
       return {
         authenticated: true,
         user: {
@@ -95,17 +95,17 @@ export async function extractPrivyAuthFromRequest(request: NextRequest) {
       }
     }
 
-    // 운영 환경에서는 실제 Privy JWT 검증
+    // Verify actual Privy JWT in production environment
     const verificationResult = await verifyPrivyJWT(token)
     if (!verificationResult.valid || !verificationResult.payload) {
-      return { 
-        authenticated: false, 
-        error: verificationResult.error || 'Invalid Privy token' 
+      return {
+        authenticated: false,
+        error: verificationResult.error || 'Invalid Privy token'
       }
     }
 
     const payload = verificationResult.payload
-    
+
     return {
       authenticated: true,
       user: {
@@ -126,11 +126,11 @@ export async function extractPrivyAuthFromRequest(request: NextRequest) {
 }
 
 /**
- * API 라우트용 Privy 인증 미들웨어
+ * Privy authentication middleware for API routes
  */
 export async function requirePrivyAuth(request: NextRequest) {
   const authResult = await extractPrivyAuthFromRequest(request)
-  
+
   if (!authResult.authenticated) {
     return NextResponse.json(
       { error: authResult.error, authenticated: false },
@@ -145,11 +145,11 @@ export async function requirePrivyAuth(request: NextRequest) {
 }
 
 /**
- * 관리자 권한 확인 (Privy 기반)
+ * Check admin permissions (Privy based)
  */
 export async function requirePrivyAdminAuth(request: NextRequest) {
   const authResult = await extractPrivyAuthFromRequest(request)
-  
+
   if (!authResult.authenticated) {
     return NextResponse.json(
       { error: authResult.error, authenticated: false },
@@ -157,10 +157,10 @@ export async function requirePrivyAdminAuth(request: NextRequest) {
     )
   }
 
-  // 관리자 권한 확인
+  // Check admin permissions
   const adminEmails = (process.env.ADMIN_EMAILS || '').split(',')
   const isAdmin = authResult.user?.email && adminEmails.includes(authResult.user.email)
-  
+
   if (!isAdmin) {
     return NextResponse.json(
       { error: 'Admin access required', authenticated: true, authorized: false },
@@ -175,45 +175,45 @@ export async function requirePrivyAdminAuth(request: NextRequest) {
 }
 
 /**
- * Rate Limiting 미들웨어
+ * Rate Limiting Middleware
  */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
 export function rateLimit(
-  identifier: string, 
-  maxRequests: number = 100, 
-  windowMs: number = 15 * 60 * 1000 // 15분
+  identifier: string,
+  maxRequests: number = 100,
+  windowMs: number = 15 * 60 * 1000 // 15 minutes
 ): { allowed: boolean; remaining: number; resetTime: number } {
   const now = Date.now()
   const record = rateLimitMap.get(identifier)
 
   if (!record || now > record.resetTime) {
-    // 새로운 윈도우 시작
+    // Start new window
     const resetTime = now + windowMs
     rateLimitMap.set(identifier, { count: 1, resetTime })
     return { allowed: true, remaining: maxRequests - 1, resetTime }
   }
 
   if (record.count >= maxRequests) {
-    // 제한 초과
+    // Limit exceeded
     return { allowed: false, remaining: 0, resetTime: record.resetTime }
   }
 
-  // 카운트 증가
+  // Increment count
   record.count++
   return { allowed: true, remaining: maxRequests - record.count, resetTime: record.resetTime }
 }
 
 /**
- * IP 기반 Rate Limiting
+ * IP-based Rate Limiting
  */
 export function rateLimitByIP(request: NextRequest, maxRequests: number = 1000, windowMs: number = 15 * 60 * 1000) {
-  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+  const ip = (request as any).ip || request.headers.get('x-forwarded-for') || 'unknown'
   return rateLimit(`ip:${ip}`, maxRequests, windowMs)
 }
 
 /**
- * 사용자 기반 Rate Limiting
+ * User-based Rate Limiting
  */
 export function rateLimitByUser(userId: string, maxRequests: number = 1000, windowMs: number = 60 * 60 * 1000) {
   return rateLimit(`user:${userId}`, maxRequests, windowMs)

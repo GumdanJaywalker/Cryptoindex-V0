@@ -99,7 +99,7 @@ export function IndexBuilderWizard() {
           ) : lastSavedAt ? (
             <span
               className="text-xs text-slate-400"
-              title={new Date(lastSavedAt).toLocaleString('en-US', { 
+              title={new Date(lastSavedAt).toLocaleString('en-US', {
                 year: 'numeric', month: 'short', day: '2-digit',
                 hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
               })}
@@ -191,7 +191,7 @@ export function IndexBuilderWizard() {
                   value={data.basics.thumbnail || ''}
                   onChange={(e) => update({ basics: { ...data.basics, thumbnail: e.target.value } })}
                 />
-                <div className="text-xs text-slate-500">권장: 정사각형 또는 4:3, PNG/JPEG/SVG. 큰 파일은 로컬 저장소에 저장 시 느릴 수 있습니다.</div>
+                <div className="text-xs text-slate-500">Recommended: Square or 4:3, PNG/JPEG/SVG. Large files may be slow when saving to local storage.</div>
                 <div>
                   <input
                     type="file"
@@ -201,7 +201,7 @@ export function IndexBuilderWizard() {
                       if (!f) return
                       const max = 2 * 1024 * 1024 // 2MB
                       if (f.size > max) {
-                        alert('파일이 너무 큽니다 (2MB 이하 권장). URL 입력을 사용해 주세요.')
+                        alert('File is too large (2MB or less recommended). Please use URL input instead.')
                         return
                       }
                       const reader = new FileReader()

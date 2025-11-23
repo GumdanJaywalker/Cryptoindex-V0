@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState, ReactNode } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 
-// 3D 틸트 카드 컴포넌트
+// 3D Tilt Card Component
 interface TiltCardProps {
   children: ReactNode
   className?: string
@@ -20,28 +20,28 @@ export function TiltCard({
   speed = 400
 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null)
-  
+
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  
+
   const mouseXSpring = useSpring(x, { stiffness: speed, damping: 30 })
   const mouseYSpring = useSpring(y, { stiffness: speed, damping: 30 })
-  
+
   const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [tiltMaxAngle, -tiltMaxAngle])
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-tiltMaxAngle, tiltMaxAngle])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return
-    
+
     const rect = ref.current.getBoundingClientRect()
     const width = rect.width
     const height = rect.height
     const mouseX = e.clientX - rect.left
     const mouseY = e.clientY - rect.top
-    
+
     const xPct = mouseX / width - 0.5
     const yPct = mouseY / height - 0.5
-    
+
     x.set(xPct)
     y.set(yPct)
   }
@@ -69,7 +69,7 @@ export function TiltCard({
   )
 }
 
-// 마우스 추적 파티클 시스템
+// Mouse Tracking Particle System
 interface MouseParticlesProps {
   className?: string
   particleCount?: number
@@ -91,14 +91,14 @@ export function MouseParticles({
     scale: number
     color: string
   }>>([])
-  
+
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY })
-      
-      // 새 파티클 생성
+
+      // Create new particle
       const newParticle = {
         id: Date.now() + Math.random(),
         x: e.clientX,
@@ -107,7 +107,7 @@ export function MouseParticles({
         scale: 1,
         color: colors[Math.floor(Math.random() * colors.length)]
       }
-      
+
       setParticles(prev => [...prev.slice(-particleCount), newParticle])
     }
 
@@ -115,10 +115,10 @@ export function MouseParticles({
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [particleCount, colors])
 
-  // 파티클 페이드아웃
+  // Particle fade out
   useEffect(() => {
     const interval = setInterval(() => {
-      setParticles(prev => 
+      setParticles(prev =>
         prev.map(particle => ({
           ...particle,
           opacity: particle.opacity * 0.95,
@@ -154,7 +154,7 @@ export function MouseParticles({
   )
 }
 
-// 3D 깊이감 있는 그림자 효과
+// 3D Depth Shadow Effect
 interface DepthShadowProps {
   children: ReactNode
   depth?: number
@@ -176,7 +176,7 @@ export function DepthShadow({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        filter: isHovered 
+        filter: isHovered
           ? `drop-shadow(0 ${depth}px ${depth * 2}px ${color})`
           : `drop-shadow(0 ${depth / 4}px ${depth / 2}px ${color})`
       }}
@@ -187,7 +187,7 @@ export function DepthShadow({
   )
 }
 
-// 3D 플로팅 애니메이션
+// 3D Floating Animation
 interface FloatingElementProps {
   children: ReactNode
   intensity?: number
@@ -221,14 +221,14 @@ export function FloatingElement({
   )
 }
 
-// 3D 백그라운드 그리드
+// 3D Background Grid
 export function Background3DGrid() {
   const [mounted, setMounted] = useState(false)
   const [gridData] = useState(() => {
-    // 고정된 시드 기반 패턴 생성 (hydration 안전)
+    // Generate fixed seed-based pattern (hydration safe)
     return Array.from({ length: 96 }, (_, i) => ({
       id: i,
-      initialZ: ((i * 17) % 50) - 25, // 의사 랜덤하지만 고정값
+      initialZ: ((i * 17) % 50) - 25, // Pseudo-random but fixed value
       animateZ1: ((i * 23) % 50) - 25,
       animateZ2: ((i * 31) % 50) - 25,
       duration: 5 + ((i * 7) % 5),
@@ -259,7 +259,7 @@ export function Background3DGrid() {
       <div className="absolute inset-0" style={{ perspective: '1000px' }}>
         <motion.div
           className="grid grid-cols-12 grid-rows-8 h-full w-full"
-          style={{ 
+          style={{
             transformStyle: "preserve-3d",
             rotateX: 15,
             rotateY: -5
@@ -298,7 +298,7 @@ export function Background3DGrid() {
   )
 }
 
-// 홀로그램 효과
+// Hologram Effect
 interface HologramEffectProps {
   children: ReactNode
   className?: string
@@ -353,7 +353,7 @@ export function HologramEffect({
   )
 }
 
-// 3D 글리치 효과
+// 3D Glitch Effect
 interface GlitchEffectProps {
   children: ReactNode
   className?: string
@@ -403,7 +403,7 @@ export function GlitchEffect({
   )
 }
 
-// 사용하기 쉬운 통합 3D 카드
+// Easy-to-use Integrated 3D Card
 interface Enhanced3DCardProps {
   children: ReactNode
   className?: string

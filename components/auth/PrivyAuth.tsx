@@ -22,12 +22,12 @@ export function PrivyAuth() {
       console.log('User ID:', user.id);
       console.log('User wallet (primary):', user.wallet);
       console.log('User linked accounts:', user.linkedAccounts || 'No linkedAccounts property');
-      
-      // 특별히 embedded wallet 상태 확인
+
+      // Specifically check embedded wallet status
       if (user.linkedAccounts) {
-        const embeddedWallets = user.linkedAccounts.filter(acc => acc.connectorType === 'embedded');
+        const embeddedWallets = user.linkedAccounts.filter((acc: any) => acc.connectorType === 'embedded');
         console.log(`🔍 Embedded wallets in linkedAccounts: ${embeddedWallets.length}`);
-        embeddedWallets.forEach((wallet, index) => {
+        embeddedWallets.forEach((wallet: any, index) => {
           console.log(`  Embedded ${index + 1}:`, {
             address: wallet.address,
             chainType: wallet.chainType,
@@ -40,11 +40,11 @@ export function PrivyAuth() {
           });
         });
       }
-      
+
       console.log('=== WALLETS HOOK ANALYSIS ===');
       console.log('All wallets:', wallets);
       console.log('Number of wallets:', wallets.length);
-      wallets.forEach((wallet, index) => {
+      wallets.forEach((wallet: any, index) => {
         console.log(`Wallet ${index + 1}:`, {
           address: wallet.address,
           chainType: wallet.chainType,
@@ -63,13 +63,13 @@ export function PrivyAuth() {
     if (authenticated && user) {
       console.log('🔄 Initial sync triggered by authentication');
       createOrUpdateUser();
-      
-      // 일단 여러 번 호출하는 것을 제거하고 하나씩 테스트
+
+      // Temporarily remove multiple calls and test one by one
       // setTimeout(() => {
       //   console.log('🔄 Delayed sync triggered (2 seconds after authentication)');
       //   createOrUpdateUser();
       // }, 2000);
-      
+
       // setTimeout(() => {
       //   console.log('🔄 Final delayed sync triggered (5 seconds after authentication)');
       //   createOrUpdateUser();
@@ -107,11 +107,11 @@ export function PrivyAuth() {
               <Wallet className="w-5 h-5" />
               Connect Wallet
             </Button>
-            
+
             <div className="text-center text-sm text-gray-500">
               or
             </div>
-            
+
             <Button
               onClick={() => login()}
               variant="outline"
@@ -179,7 +179,7 @@ export function PrivyAuth() {
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
                   <p><strong>User ID:</strong> {user?.id}</p>
                   {user?.email?.address && (
-                    <p><strong>Email:</strong> {user.email.address} {user.email.verified ? '✓' : '(unverified)'}</p>
+                    <p><strong>Email:</strong> {user.email.address} {(user.email as any).verified ? '✓' : '(unverified)'}</p>
                   )}
                   {user?.wallet?.address && (
                     <p><strong>Wallet:</strong> {user.wallet.address}</p>
@@ -187,7 +187,7 @@ export function PrivyAuth() {
                   <p><strong>Created:</strong> {new Date(user?.createdAt || '').toLocaleDateString()}</p>
                 </div>
               </div>
-              
+
               <div className="pt-4 border-t">
                 <h3 className="font-semibold text-gray-900">Available Actions</h3>
                 <div className="mt-2 space-y-2">

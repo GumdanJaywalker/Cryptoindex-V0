@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -18,17 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { 
-  AnimatedNumber, 
-  AnimatedPercentage, 
-  usePriceFlash, 
-  fadeInUp 
+import {
+  AnimatedNumber,
+  AnimatedPercentage,
+  usePriceFlash,
+  fadeInUp
 } from '@/lib/animations/micro-interactions'
 import { GlitchEffect } from '@/components/ui/3d-effects'
 import { useSoundManager } from '@/lib/sound/effects'
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  TrendingUp,
+  TrendingDown,
   Flame,
   Star,
   ExternalLink,
@@ -53,7 +53,7 @@ interface IndexRowProps {
   className?: string
 }
 
-// 썸네일 생성 함수
+// Thumbnail generation function
 const generateThumbnail = (indexName: string, symbol: string) => {
   const seed = encodeURIComponent(symbol || indexName)
   const url = `https://picsum.photos/seed/${seed}/80/80`
@@ -67,30 +67,30 @@ const generateThumbnail = (indexName: string, symbol: string) => {
 }
 
 // Compact Sparkline for row layout
-function CompactSparkline({ 
-  data, 
+function CompactSparkline({
+  data,
   className,
   id = 'sparkline'
-}: { 
-  data: number[], 
+}: {
+  data: number[],
   className?: string,
   id?: string
 }) {
   if (!data || data.length === 0) return null
-  
+
   const max = Math.max(...data)
   const min = Math.min(...data)
   const range = max - min
-  
+
   const points = data.map((value, index) => {
     const x = (index / (data.length - 1)) * 100
     const y = range === 0 ? 50 : 100 - ((value - min) / range) * 100
     return `${x},${y}`
   }).join(' ')
-  
+
   const isPositive = data[data.length - 1] > data[0]
   const strokeColor = isPositive ? "#4ade80" : "#dd7789"
-  
+
   return (
     <div className={cn("w-20 h-8", className)}>
       <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -110,17 +110,17 @@ function CompactSparkline({
 function RowAnimatedPrice({ price, change }: { price: number, change: number }) {
   const priceFlash = usePriceFlash(price, 500)
   const isVolatile = Math.abs(change) > 15
-  
+
   return (
     <div className="text-right">
       <GlitchEffect trigger={isVolatile && priceFlash.isFlashing}>
-        <div 
+        <div
           className="font-bold text-white transition-all duration-300"
           style={priceFlash.flashStyles}
         >
-          $<AnimatedNumber 
-            value={price} 
-            decimals={4} 
+          $<AnimatedNumber
+            value={price}
+            decimals={4}
             duration={500}
             enableFlash={false}
           />
@@ -178,12 +178,12 @@ function RowBadges({ index }: { index: MemeIndex }) {
 }
 
 // Main Index Row Component
-const IndexRow = memo(function IndexRow({ 
-  index, 
-  onSelect, 
+const IndexRow = memo(function IndexRow({
+  index,
+  onSelect,
   rank,
   showQuickTrade = true,
-  className 
+  className
 }: IndexRowProps) {
   const soundManager = useSoundManager()
   const [isHovered, setIsHovered] = useState(false)
@@ -198,11 +198,11 @@ const IndexRow = memo(function IndexRow({
     if (lastPrice !== index.currentPrice) {
       const priceChange = ((index.currentPrice - lastPrice) / lastPrice) * 100
       const changeDirection = index.currentPrice > lastPrice
-      
+
       if (Math.abs(priceChange) > 1) {
         soundManager.playPriceChange(changeDirection, Math.abs(priceChange))
       }
-      
+
       setLastPrice(index.currentPrice)
     }
   }, [index.currentPrice, lastPrice, soundManager])
@@ -219,7 +219,7 @@ const IndexRow = memo(function IndexRow({
   const thumbnail = generateThumbnail(index.name, index.symbol)
 
   return (
-    <TableRow 
+    <TableRow
       className={cn(
         "group h-12 border-b border-border/50 hover:bg-muted/30 focus-within:bg-muted/30 transition-colors duration-200 cursor-pointer",
         // Removed ring to avoid thin lines on click
@@ -233,7 +233,7 @@ const IndexRow = memo(function IndexRow({
       {/* Name & Thumbnail */}
       <TableCell className="w-[280px]">
         <div className="flex items-center gap-3">
-          {/* 썸네일 이미지 */}
+          {/* Thumbnail Image */}
           <div className={cn("w-9 h-9 rounded-lg overflow-hidden flex-shrink-0", thumbnail.gradient)}>
             <Image
               src={thumbnail.url}
@@ -318,8 +318,8 @@ const IndexRow = memo(function IndexRow({
       {/* Chart */}
       <TableCell className="w-[110px]">
         <div className="w-18 h-7">
-          <CompactSparkline 
-            data={index.sparklineData || []} 
+          <CompactSparkline
+            data={index.sparklineData || []}
             className="w-full h-full"
             id={`sparkline-${index.id}`}
           />
@@ -328,8 +328,8 @@ const IndexRow = memo(function IndexRow({
 
       {/* Price */}
       <TableCell className="w-[92px] text-right">
-        <RowAnimatedPrice 
-          price={index.currentPrice} 
+        <RowAnimatedPrice
+          price={index.currentPrice}
           change={index.change24h}
         />
       </TableCell>

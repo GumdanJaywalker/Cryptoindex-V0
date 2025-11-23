@@ -121,7 +121,7 @@ function generateRealtimeOrderBook(
   const bids: OrderBookRow[] = []
   const spreadBase = 0.002 + Math.random() * 0.001 // 0.2-0.3% spread
 
-  // Generate asks (매도 - 높은 가격부터)
+  // Generate asks (Sell - from highest price)
   for (let i = 0; i < count; i++) {
     const price = basePrice + spreadBase + i * 0.001
     const size = 0.5 + Math.random() * 15
@@ -134,7 +134,7 @@ function generateRealtimeOrderBook(
     })
   }
 
-  // Generate bids (매수 - 높은 가격부터)
+  // Generate bids (Buy - from highest price)
   for (let i = 0; i < count; i++) {
     const price = basePrice - i * 0.001
     const size = 0.5 + Math.random() * 15
@@ -147,7 +147,7 @@ function generateRealtimeOrderBook(
     })
   }
 
-  // Sort by total (거래대금) descending for clean depth visualization
+  // Sort by total (trading volume) descending for clean depth visualization
   asks.sort((a, b) => b.total - a.total)
   bids.sort((a, b) => b.total - a.total)
 
@@ -203,18 +203,16 @@ export function OrderBookTradesTabs() {
       {!isBondingCurve && (
         <button
           onClick={() => setActiveTab('orderbook')}
-          className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${
-            activeTab === 'orderbook' ? 'active text-white' : 'text-slate-400'
-          }`}
+          className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${activeTab === 'orderbook' ? 'active text-white' : 'text-slate-400'
+            }`}
         >
           Order Book
         </button>
       )}
       <button
         onClick={() => setActiveTab('trades')}
-        className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${
-          activeTab === 'trades' ? 'active text-white' : 'text-slate-400'
-        }`}
+        className={`glass-tab flex-1 px-4 py-2 text-sm font-medium ${activeTab === 'trades' ? 'active text-white' : 'text-slate-400'
+          }`}
       >
         Trades
       </button>
@@ -321,7 +319,7 @@ function OrderBookContent() {
         <div className="text-left pl-2.5">Total ({cleanSymbol})</div>
       </div>
 
-      {/* Asks (매도) - 중앙 정렬 */}
+      {/* Asks (Sell) - Center aligned */}
       <div className="bg-teal-base flex-1 overflow-hidden flex flex-col justify-center">
         {orderbook.asks.slice(0, rowCount).reverse().map((ask, index) => (
           <div
@@ -346,7 +344,7 @@ function OrderBookContent() {
         ))}
       </div>
 
-      {/* Spread - 가운데 고정 */}
+      {/* Spread - Fixed center */}
       <div className="px-2 py-1.5 flex items-center justify-center border-y border-teal bg-teal-elevated/50 flex-shrink-0">
         <div className="text-xs text-slate-400">
           Spread:{' '}
@@ -356,7 +354,7 @@ function OrderBookContent() {
         </div>
       </div>
 
-      {/* Bids (매수) - 중앙 정렬 */}
+      {/* Bids (Buy) - Center aligned */}
       <div className="bg-teal-base flex-1 overflow-hidden flex flex-col justify-center">
         {orderbook.bids.slice(0, rowCount).map((bid, index) => (
           <div
@@ -430,7 +428,7 @@ function TradesContent({ isBondingCurve, currentIndex }: TradesContentProps) {
         <div className="text-left pl-2.5">Time</div>
       </div>
 
-      {/* Trades List - 스크롤 가능 */}
+      {/* Trades List - Scrollable */}
       <div className="flex-1 overflow-y-auto bg-teal-base">
         {trades.map((trade, index) => (
           <div key={trade.id} className="grid grid-cols-3 text-[14px] h-[23px] hover:bg-teal-elevated/50 transition-colors duration-100 cursor-pointer px-2">

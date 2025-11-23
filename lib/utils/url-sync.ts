@@ -1,4 +1,4 @@
-import type { FilterOptions, SortOption, IndexLayer } from '@/lib/types/discover'
+import type { FilterOptions, SortOption, IndexLayer, PerformanceFilter, RebalancingFilter } from '@/lib/types/discover'
 
 /**
  * URL State Sync Utility
@@ -34,38 +34,27 @@ export function encodeFiltersToURL(
   }
 
   // NAV filter
+  // NAV filter
   if (filters.navFilter) {
-    params.set('nav', filters.navFilter.type)
-    if (filters.navFilter.minPremium !== undefined) {
-      params.set('navMin', filters.navFilter.minPremium.toString())
-    }
-    if (filters.navFilter.maxPremium !== undefined) {
-      params.set('navMax', filters.navFilter.maxPremium.toString())
-    }
+    // params.set('nav', filters.navFilter.type) // Removed as type doesn't exist on NAVFilter
+    params.set('navMin', filters.navFilter.minPremiumDiscount.toString())
+    params.set('navMax', filters.navFilter.maxPremiumDiscount.toString())
   }
 
   // Performance filter
   if (filters.performanceFilter) {
-    if (filters.performanceFilter.min24hChange !== undefined) {
-      params.set('perf24hMin', filters.performanceFilter.min24hChange.toString())
+    params.set('perfTimeframe', filters.performanceFilter.timeframe)
+    if (filters.performanceFilter.minReturn !== undefined) {
+      params.set('perfMin', filters.performanceFilter.minReturn.toString())
     }
-    if (filters.performanceFilter.max24hChange !== undefined) {
-      params.set('perf24hMax', filters.performanceFilter.max24hChange.toString())
-    }
-    if (filters.performanceFilter.min7dChange !== undefined) {
-      params.set('perf7dMin', filters.performanceFilter.min7dChange.toString())
-    }
-    if (filters.performanceFilter.max7dChange !== undefined) {
-      params.set('perf7dMax', filters.performanceFilter.max7dChange.toString())
+    if (filters.performanceFilter.maxReturn !== undefined) {
+      params.set('perfMax', filters.performanceFilter.maxReturn.toString())
     }
   }
 
   // Rebalancing filter
   if (filters.rebalancingFilter) {
-    params.set('rebalance', filters.rebalancingFilter.frequency)
-    if (filters.rebalancingFilter.nextRebalanceWithin) {
-      params.set('rebalanceWithin', filters.rebalancingFilter.nextRebalanceWithin.toString())
-    }
+    params.set('rebalance', filters.rebalancingFilter.nextRebalancing)
   }
 
   // Battle filter
@@ -157,55 +146,44 @@ export function decodeFiltersFromURL(searchParams: URLSearchParams): {
   }
 
   // NAV filter
-  const navType = searchParams.get('nav') as 'premium' | 'discount' | 'all' | null
-  if (navType) {
+  // NAV filter
+  const navMin = searchParams.get('navMin')
+  const navMax = searchParams.get('navMax')
+
+  if (navMin || navMax) {
     filters.navFilter = {
-      type: navType,
-      minPremium: searchParams.get('navMin')
-        ? parseFloat(searchParams.get('navMin')!)
-        : undefined,
-      maxPremium: searchParams.get('navMax')
-        ? parseFloat(searchParams.get('navMax')!)
-        : undefined,
+      minPremiumDiscount: navMin ? parseFloat(navMin) : -100,
+      maxPremiumDiscount: navMax ? parseFloat(navMax) : 100,
     }
   }
 
   // Performance filter
-  const perf24hMin = searchParams.get('perf24hMin')
-  const perf24hMax = searchParams.get('perf24hMax')
-  const perf7dMin = searchParams.get('perf7dMin')
-  const perf7dMax = searchParams.get('perf7dMax')
-  if (perf24hMin || perf24hMax || perf7dMin || perf7dMax) {
+  const perfTimeframe = searchParams.get('perfTimeframe') as PerformanceFilter['timeframe'] | null
+  const perfMin = searchParams.get('perfMin')
+  const perfMax = searchParams.get('perfMax')
+
+  if (perfTimeframe || perfMin || perfMax) {
     filters.performanceFilter = {
-      min24hChange: perf24hMin ? parseFloat(perf24hMin) : undefined,
-      max24hChange: perf24hMax ? parseFloat(perf24hMax) : undefined,
-      min7dChange: perf7dMin ? parseFloat(perf7dMin) : undefined,
-      max7dChange: perf7dMax ? parseFloat(perf7dMax) : undefined,
+      timeframe: perfTimeframe || '24h',
+      minReturn: perfMin ? parseFloat(perfMin) : undefined,
+      maxReturn: perfMax ? parseFloat(perfMax) : undefined,
     }
   }
 
   // Rebalancing filter
-  const rebalanceFreq = searchParams.get('rebalance') as
-    | 'daily'
-    | 'weekly'
-    | 'bi-weekly'
-    | 'monthly'
-    | null
-  if (rebalanceFreq) {
+  const rebalanceNext = searchParams.get('rebalance') as RebalancingFilter['nextRebalancing'] | null
+  if (rebalanceNext) {
     filters.rebalancingFilter = {
-      frequency: rebalanceFreq,
-      nextRebalanceWithin: searchParams.get('rebalanceWithin')
-        ? parseInt(searchParams.get('rebalanceWithin')!)
-        : undefined,
+      nextRebalancing: rebalanceNext,
     }
   }
 
   // Battle filter
-  const battleStatus = searchParams.get('battleStatus') as 'active' | 'upcoming' | 'ended' | null
+  const battleStatus = searchParams.get('battleStatus') as 'active' | 'upcoming' | 'completed' | null
   const hasActiveBattle = searchParams.get('hasActiveBattle')
   if (battleStatus || hasActiveBattle) {
     filters.battleFilter = {
-      status: battleStatus || undefined,
+      status: battleStatus || 'all',
       hasActiveBattle: hasActiveBattle ? hasActiveBattle === 'true' : undefined,
     }
   }
@@ -221,7 +199,7 @@ export function decodeFiltersFromURL(searchParams: URLSearchParams): {
   const gradMax = searchParams.get('gradMax')
   if (gradStage || gradMin || gradMax) {
     filters.graduationFilter = {
-      stage: gradStage || undefined,
+      stage: gradStage || 'all',
       minProgress: gradMin ? parseFloat(gradMin) : undefined,
       maxProgress: gradMax ? parseFloat(gradMax) : undefined,
     }
@@ -268,15 +246,18 @@ export function decodeFiltersFromURL(searchParams: URLSearchParams): {
 // Helper function to generate sort labels
 function getSortLabel(field: SortOption['field'], direction: 'asc' | 'desc'): string {
   const fieldLabels: Record<SortOption['field'], string> = {
-    'volume-24h': '24h Volume',
-    liquidity: 'Liquidity',
-    'nav-premium': 'NAV Premium',
     'performance-24h': '24h Performance',
     'performance-7d': '7d Performance',
-    'asset-count': 'Asset Count',
+    'performance-30d': '30d Performance',
     age: 'Age',
-    'hot-score': 'Hot Score',
     'graduation-progress': 'Graduation Progress',
+    name: 'Name',
+    price: 'Price',
+    nav: 'NAV',
+    'rebalancing-next': 'Next Rebalancing',
+    liquidity: 'Liquidity',
+    'nav-premium': 'NAV Premium',
+    'volume-24h': '24h Volume',
   }
 
   const dirLabel = direction === 'asc' ? 'Low to High' : 'High to Low'

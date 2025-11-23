@@ -5,20 +5,20 @@ import { motion, AnimatePresence } from 'motion/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  AnimatedNumber, 
-  AnimatedPercentage, 
-  usePriceFlash, 
-  scaleHover, 
-  fadeInScale 
+import {
+  AnimatedNumber,
+  AnimatedPercentage,
+  usePriceFlash,
+  scaleHover,
+  fadeInScale
 } from '@/lib/animations/micro-interactions'
 import { Enhanced3DCard, GlitchEffect } from '@/components/ui/3d-effects'
 import { useSoundManager } from '@/lib/sound/effects'
 
 // Simple Meteors effect - removed for cleaner UX
-import { 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  TrendingUp,
+  TrendingDown,
   Flame,
   Star,
   Zap,
@@ -39,14 +39,14 @@ interface IndexCardProps {
   className?: string
 }
 
-// 향상된 스파크라인 컴포넌트
-function EnhancedSparkline({ 
-  data, 
-  className, 
+// Enhanced Sparkline Component
+function EnhancedSparkline({
+  data,
+  className,
   animated = true,
   id = 'sparkline'
-}: { 
-  data: number[], 
+}: {
+  data: number[],
   className?: string,
   animated?: boolean,
   id?: string
@@ -55,7 +55,7 @@ function EnhancedSparkline({
 
   useEffect(() => {
     if (!animated) return
-    
+
     const timer = setTimeout(() => {
       setAnimatedData(data)
     }, Math.random() * 500 + 100)
@@ -64,52 +64,52 @@ function EnhancedSparkline({
   }, [data, animated])
 
   if (!data || data.length === 0) return null
-  
+
   const displayData = animated ? animatedData : data
   const max = Math.max(...displayData)
   const min = Math.min(...displayData)
   const range = max - min
-  
+
   const points = displayData.map((value, index) => {
     const x = (index / (displayData.length - 1)) * 100
     const y = range === 0 ? 50 : 100 - ((value - min) / range) * 100
     return `${x},${y}`
   }).join(' ')
-  
+
   const isPositive = displayData[displayData.length - 1] > displayData[0]
   const strokeColor = isPositive ? "#4ade80" : "#dd7789"
   const glowColor = isPositive ? "#4ade80" : "#dd7789"
-  
+
   return (
     <div className={cn("relative", className)}>
       <svg className="w-full h-8" viewBox="0 0 100 100" preserveAspectRatio="none">
-        {/* 글로우 효과 */}
+        {/* Glow effect */}
         <defs>
           <filter id={`glow-${id}`}>
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-            <feMerge> 
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
-        
-        {/* 배경 그라디언트 */}
+
+        {/* Background gradient */}
         <defs>
           <linearGradient id={`gradient-${id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3"/>
-            <stop offset="100%" stopColor={strokeColor} stopOpacity="0"/>
+            <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={strokeColor} stopOpacity="0" />
           </linearGradient>
         </defs>
-        
-        {/* 배경 영역 */}
+
+        {/* Background area */}
         <polygon
           fill={`url(#gradient-${id})`}
           points={`0,100 ${points} 100,100`}
           className="transition-all duration-1000"
         />
-        
-        {/* 메인 라인 */}
+
+        {/* Main line */}
         <motion.polyline
           fill="none"
           stroke={strokeColor}
@@ -120,8 +120,8 @@ function EnhancedSparkline({
           animate={{ pathLength: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
         />
-        
-        {/* 끝점 도트 */}
+
+        {/* End point dot */}
         {displayData.length > 0 && (
           <motion.circle
             cx={100}
@@ -138,27 +138,27 @@ function EnhancedSparkline({
   )
 }
 
-// 가격 애니메이션 컴포넌트
+// Animated Price Component
 function AnimatedPrice({ price, change }: { price: number, change: number }) {
   const priceFlash = usePriceFlash(price, 800)
-  const isVolatile = Math.abs(change) > 15 // 15% 이상 변동시 글리치 효과
-  
+  const isVolatile = Math.abs(change) > 15 // Glitch effect when change > 15%
+
   return (
     <div className="text-right">
       <GlitchEffect trigger={isVolatile && priceFlash.isFlashing}>
-        <div 
+        <div
           className="text-lg font-bold text-white transition-all duration-300 rounded px-2 py-1"
           style={priceFlash.flashStyles}
         >
-        $<AnimatedNumber 
-          value={price} 
-          decimals={4} 
-          duration={800}
-          enableFlash={false}
-        />
+          $<AnimatedNumber
+            value={price}
+            decimals={4}
+            duration={800}
+            enableFlash={false}
+          />
         </div>
       </GlitchEffect>
-      <AnimatedPercentage 
+      <AnimatedPercentage
         value={change}
         className="text-sm transition-all duration-300"
       />
@@ -166,7 +166,7 @@ function AnimatedPrice({ price, change }: { price: number, change: number }) {
   )
 }
 
-// 배지 컴포넌트
+// Badge Component
 function IndexBadges({ index }: { index: MemeIndex }) {
   return (
     <div className="flex items-center gap-1 flex-wrap">
@@ -185,7 +185,7 @@ function IndexBadges({ index }: { index: MemeIndex }) {
             </Badge>
           </motion.div>
         )}
-        
+
         {index.isNew && (
           <motion.div
             key={`${index.id}-new`}
@@ -196,11 +196,11 @@ function IndexBadges({ index }: { index: MemeIndex }) {
             <Badge className="bg-blue-600 text-white px-1.5 py-0.5 text-xs relative">
               <Star className="w-3 h-3 mr-1" />
               NEW
-              {/* Border beam은 별도 구현 필요 */}
+              {/* Border beam needs separate implementation */}
             </Badge>
           </motion.div>
         )}
-        
+
         {index.isMooning && (
           <motion.div
             key={`${index.id}-mooning`}
@@ -219,15 +219,15 @@ function IndexBadges({ index }: { index: MemeIndex }) {
   )
 }
 
-// 레거시 QuickTradeButtons는 새로운 QuickTradeButton 컴포넌트로 교체됨
+// Legacy QuickTradeButtons replaced with new QuickTradeButton component
 
-// 메인 인덱스 카드 컴포넌트
-const IndexCard = memo(function IndexCard({ 
-  index, 
-  onSelect, 
-  showQuickTrade = true, 
+// Main Index Card Component
+const IndexCard = memo(function IndexCard({
+  index,
+  onSelect,
+  showQuickTrade = true,
   compact = false,
-  className 
+  className
 }: IndexCardProps) {
   const soundManager = useSoundManager()
   const [isHovered, setIsHovered] = useState(false)
@@ -239,12 +239,12 @@ const IndexCard = memo(function IndexCard({
     if (lastPrice !== index.currentPrice) {
       const priceChange = ((index.currentPrice - lastPrice) / lastPrice) * 100
       const changeDirection = index.currentPrice > lastPrice
-      
+
       // Play sound for significant price changes (> 1%)
       if (Math.abs(priceChange) > 1) {
         soundManager.playPriceChange(changeDirection, Math.abs(priceChange))
       }
-      
+
       setLastPrice(index.currentPrice)
     }
   }, [index.currentPrice, lastPrice, soundManager])
@@ -259,9 +259,9 @@ const IndexCard = memo(function IndexCard({
   }), [isPositive])
 
   const handleTrade = useCallback((type: 'buy' | 'sell', amount: number, leverage: number) => {
-    // 거래 로직 구현
+    // Implement trade logic
     console.log(`${type} ${index.symbol} - Amount: $${amount}, Leverage: ${leverage}x`)
-    onSelect(index) // 인덱스 선택하여 거래 페이지로 이동
+    onSelect(index) // Select index and navigate to trade page
   }, [index.symbol, onSelect, index])
 
   const handleCardClick = useCallback(() => {
@@ -270,21 +270,21 @@ const IndexCard = memo(function IndexCard({
 
   const cardVariants = {
     ...fadeInScale,
-    rest: { 
-      scale: 1, 
+    rest: {
+      scale: 1,
       y: 0,
       rotateX: 0,
       rotateY: 0,
       transition: { type: 'spring' as const, stiffness: 300, damping: 25 }
     },
-    hover: { 
-      scale: 1.05, 
+    hover: {
+      scale: 1.05,
       y: -8,
       rotateX: 2,
       rotateY: isHovered ? 1 : -1,
       transition: { type: 'spring' as const, stiffness: 400, damping: 20 }
     },
-    tap: { 
+    tap: {
       scale: 0.98,
       transition: { duration: 0.1 }
     }
@@ -301,127 +301,127 @@ const IndexCard = memo(function IndexCard({
         onHoverEnd={() => setIsHovered(false)}
         className="perspective-1000"
       >
-      <Card className="glass-card-dynamic border-teal hover:border-teal/50 transition-all duration-500 cursor-pointer hover:bg-teal-card/80 relative overflow-visible group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
-        {/* Border Beam 효과는 카드 전체에 적용됨 */}
+        <Card className="glass-card-dynamic border-teal hover:border-teal/50 transition-all duration-500 cursor-pointer hover:bg-teal-card/80 relative overflow-visible group backdrop-blur-sm shadow-lg hover:shadow-2xl hover:shadow-brand/5">
+          {/* Border Beam effect applies to the whole card */}
 
-        <CardContent className="p-4 relative">
-          {/* 헤더 - 배지와 가격 */}
-          <div className="flex items-start justify-between mb-3">
-            <IndexBadges index={index} />
-            <AnimatedPrice price={index.currentPrice} change={index.change24h} />
-          </div>
-          
-          {/* 인덱스 정보 */}
-          <div className="mb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-white text-sm">{index.name}</h3>
-              <Badge variant="outline" className="text-xs px-1 py-0">
-                {index.symbol}
-              </Badge>
+          <CardContent className="p-4 relative">
+            {/* Header - Badges and Price */}
+            <div className="flex items-start justify-between mb-3">
+              <IndexBadges index={index} />
+              <AnimatedPrice price={index.currentPrice} change={index.change24h} />
             </div>
-            <p className="text-xs text-slate-400 line-clamp-2">{index.description}</p>
-          </div>
-          
-          {/* 스파크라인 */}
-          <div className="mb-3">
-            <EnhancedSparkline 
-              data={index.sparklineData} 
-              className="opacity-80" 
-              animated={isHovered}
-              id={index.id}
-            />
-          </div>
-          
-          {/* 통계 그리드 */}
-          <div className="grid grid-cols-2 gap-3 text-xs mb-3">
-            <div>
-              <div className="text-slate-400 flex items-center gap-1">
-                <BarChart3 className="w-3 h-3" />
-                Volume 24h
-              </div>
-              <div className="text-white font-medium">
-                $<AnimatedNumber 
-                  value={index.volume24h / 1000000} 
-                  decimals={1}
-                  suffix="M"
-                  duration={1200}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="text-slate-400 flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                Holders
-              </div>
-              <div className="text-white font-medium">
-                <AnimatedNumber 
-                  value={index.holders}
-                  duration={1000}
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* 추가 정보 (컴팩트하지 않을 때만) */}
-          {!compact && (
-            <motion.div 
-              className="grid grid-cols-2 gap-3 text-xs mb-3"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              transition={{ delay: 0.2 }}
-            >
+            {/* Index Info */}
+            <div className="mb-3">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-white text-sm">{index.name}</h3>
+                <Badge variant="outline" className="text-xs px-1 py-0">
+                  {index.symbol}
+                </Badge>
+              </div>
+              <p className="text-xs text-slate-400 line-clamp-2">{index.description}</p>
+            </div>
+
+            {/* Sparkline */}
+            <div className="mb-3">
+              <EnhancedSparkline
+                data={index.sparklineData}
+                className="opacity-80"
+                animated={isHovered}
+                id={index.id}
+              />
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 text-xs mb-3">
               <div>
-                <div className="text-slate-400">Market Cap</div>
+                <div className="text-slate-400 flex items-center gap-1">
+                  <BarChart3 className="w-3 h-3" />
+                  Volume 24h
+                </div>
                 <div className="text-white font-medium">
-                  $<AnimatedNumber value={index.marketCap / 1000000} decimals={1} />M
+                  $<AnimatedNumber
+                    value={index.volume24h / 1000000}
+                    decimals={1}
+                    suffix="M"
+                    duration={1200}
+                  />
                 </div>
               </div>
               <div>
                 <div className="text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Last Update
+                  <Users className="w-3 h-3" />
+                  Holders
                 </div>
-                <div className="text-white font-medium">2m ago</div>
+                <div className="text-white font-medium">
+                  <AnimatedNumber
+                    value={index.holders}
+                    duration={1000}
+                  />
+                </div>
               </div>
-            </motion.div>
-          )}
-          
-          {/* 퀵 트레이드 버튼 */}
-          {showQuickTrade && (
-            <motion.div
-              initial={{ opacity: 0.7 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <QuickTradeButton 
-                index={index} 
-                onTrade={handleTrade}
-                variant={compact ? "compact" : "default"}
-                showExpectedReturn={!compact}
-              />
-            </motion.div>
-          )}
+            </div>
 
-          {/* 상세보기 링크 */}
-          <motion.div 
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-6 w-6 p-0 text-slate-400 hover:text-white"
-              onClick={(e) => {
-                e.stopPropagation()
-                window.open(`/trading?index=${index.id}`, '_blank')
-              }}
+            {/* Additional Info (Non-compact only) */}
+            {!compact && (
+              <motion.div
+                className="grid grid-cols-2 gap-3 text-xs mb-3"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                transition={{ delay: 0.2 }}
+              >
+                <div>
+                  <div className="text-slate-400">Market Cap</div>
+                  <div className="text-white font-medium">
+                    $<AnimatedNumber value={index.marketCap / 1000000} decimals={1} />M
+                  </div>
+                </div>
+                <div>
+                  <div className="text-slate-400 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Last Update
+                  </div>
+                  <div className="text-white font-medium">2m ago</div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Quick Trade Button */}
+            {showQuickTrade && (
+              <motion.div
+                initial={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <QuickTradeButton
+                  index={index}
+                  onTrade={handleTrade}
+                  variant={compact ? "compact" : "default"}
+                  showExpectedReturn={!compact}
+                />
+              </motion.div>
+            )}
+
+            {/* Detail View Link */}
+            <motion.div
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <ExternalLink className="w-3 h-3" />
-            </Button>
-          </motion.div>
-        </CardContent>
-      </Card>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 w-6 p-0 text-slate-400 hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(`/trading?index=${index.id}`, '_blank')
+                }}
+              >
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+            </motion.div>
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   )

@@ -5,8 +5,8 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  TrendingUp, 
+import {
+  TrendingUp,
   TrendingDown,
   Zap,
   Calculator,
@@ -41,20 +41,20 @@ interface TradeCalculation {
   netReturn: number
 }
 
-// 현물 거래 계산 유틸리티
+// Spot Trade Calculation Utility
 function calculateTrade(
   type: 'buy' | 'sell',
   currentPrice: number,
   amount: number,
-  leverage: number, // 현물에서는 사용되지 않음 (호환성 유지)
+  leverage: number, // Not used in spot trading (kept for compatibility)
   priceChange: number
 ): TradeCalculation {
   const entryPrice = currentPrice
-  const exitPrice = type === 'buy' 
-    ? currentPrice * (1 + priceChange) 
+  const exitPrice = type === 'buy'
+    ? currentPrice * (1 + priceChange)
     : currentPrice * (1 - Math.abs(priceChange))
-  
-  // 현물 거래에서는 레버리지 없이 실제 투자금액만 사용
+
+  // In spot trading, use actual investment amount without leverage
   const positionSize = amount
   const grossReturn = type === 'buy'
     ? (exitPrice - entryPrice) / entryPrice * positionSize
@@ -67,15 +67,15 @@ function calculateTrade(
   const fees = feeBreakdown.totalFee
   const netReturn = grossReturn - fees
   const returnPercentage = (netReturn / amount) * 100
-  
-  // 현물에서는 청산가격이 없으므로 0으로 설정
+
+  // Set liquidation price to 0 as it doesn't exist in spot trading
   const liquidationPrice = 0
-  
+
   return {
     entryPrice,
     exitPrice,
     amount,
-    leverage: 1, // 현물은 항상 1x
+    leverage: 1, // Spot trading is always 1x
     expectedReturn: netReturn,
     expectedReturnPercentage: returnPercentage,
     liquidationPrice,
@@ -84,7 +84,7 @@ function calculateTrade(
   }
 }
 
-// Portal 기반 툴팁 컴포넌트
+// Portal-based Tooltip Component
 function PortalTooltip({
   calculation,
   type,
@@ -99,11 +99,11 @@ function PortalTooltip({
   const { formatBalance, formatPrice } = useCurrency()
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [mounted, setMounted] = useState(false)
-  
+
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
   useEffect(() => {
     if (show && targetRef.current) {
       const rect = targetRef.current.getBoundingClientRect()
@@ -113,11 +113,11 @@ function PortalTooltip({
       })
     }
   }, [show, targetRef])
-  
+
   const isPositive = calculation.expectedReturn >= 0
-  
+
   if (!mounted) return null
-  
+
   return createPortal(
     <AnimatePresence>
       {show && (
@@ -133,17 +133,17 @@ function PortalTooltip({
           }}
         >
           <div className="bg-teal-card border border-teal rounded-lg p-3 shadow-xl backdrop-blur-sm">
-            {/* 화살표 */}
+            {/* Arrow */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
               <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-700"></div>
             </div>
-            
+
             <div className="space-y-2 min-w-[200px]">
               <div className="flex items-center gap-2 text-xs text-slate-300">
                 <Calculator className="w-3 h-3" />
                 <span className="font-semibold">Expected Return</span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <div className="text-slate-400">Position Size</div>
@@ -156,7 +156,7 @@ function PortalTooltip({
                   <div className="text-white font-medium">{calculation.leverage}x</div>
                 </div>
               </div>
-              
+
               <div className="border-t border-teal pt-2">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-xs">Est. Return</span>
@@ -190,7 +190,7 @@ function PortalTooltip({
   )
 }
 
-// 메인 빠른 거래 버튼 컴포넌트
+// Main Quick Trade Button Component
 export function QuickTradeButton({
   index,
   onTrade,
@@ -203,28 +203,28 @@ export function QuickTradeButton({
   const [hoveredButton, setHoveredButton] = useState<'buy' | 'sell' | null>(null)
   const [defaultAmount] = useState(100) // $100 기본값
   const [defaultLeverage] = useState(5) // 5x 레버리지 기본값
-  
-  // Portal 툴팁을 위한 ref들
+
+  // Refs for Portal Tooltip
   const buyButtonRef = useRef<HTMLButtonElement>(null)
   const sellButtonRef = useRef<HTMLButtonElement>(null)
-  
-  // 예상 수익 계산
-  const buyCalculation = calculateTrade('buy', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // 10% 상승 가정
-  const sellCalculation = calculateTrade('sell', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // 10% 하락 가정
-  
+
+  // Calculate expected return
+  const buyCalculation = calculateTrade('buy', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // Assume 10% increase
+  const sellCalculation = calculateTrade('sell', index.currentPrice, defaultAmount, defaultLeverage, 0.1) // Assume 10% decrease
+
   const handleTrade = (type: 'buy' | 'sell', e: React.MouseEvent) => {
     e.stopPropagation()
-    
+
     // Play sound (disabled)
-    
+
     onTrade(type, defaultAmount, defaultLeverage)
   }
 
   if (variant === 'compact') {
     return (
       <div className={cn("flex gap-1", className)}>
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs h-6 px-2 relative overflow-hidden group"
           onClick={(e) => handleTrade('buy', e)}
         >
@@ -239,10 +239,10 @@ export function QuickTradeButton({
             Buy
           </span>
         </Button>
-        
-        <Button 
-          size="sm" 
-          variant="outline" 
+
+        <Button
+          size="sm"
+          variant="outline"
           className="flex-1 border-red-600 text-red-400 hover:bg-red-600 hover:text-white text-xs h-6 px-2 relative overflow-hidden group"
           onClick={(e) => handleTrade('sell', e)}
         >
@@ -263,7 +263,7 @@ export function QuickTradeButton({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {/* 거래 정보 헤더 */}
+      {/* Trade Info Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 text-xs text-slate-400">
           <Zap className="w-3 h-3" />
@@ -273,10 +273,10 @@ export function QuickTradeButton({
           {formatBalance(defaultAmount)} • {defaultLeverage}x
         </Badge>
       </div>
-      
-      {/* 거래 버튼 */}
+
+      {/* Trade Buttons */}
       <div className="grid grid-cols-2 gap-2">
-        {/* Buy 버튼 */}
+        {/* Buy Button */}
         <div className="relative">
           <Button
             ref={buyButtonRef}
@@ -292,7 +292,7 @@ export function QuickTradeButton({
               whileHover={{ x: '0%' }}
               transition={{ duration: 0.3 }}
             />
-            
+
             <span className="relative z-10 flex items-center gap-1.5 justify-center">
               <TrendingUp className="w-3 h-3" />
               <span className="font-semibold">Buy</span>
@@ -303,8 +303,8 @@ export function QuickTradeButton({
               )}
             </span>
           </Button>
-          
-          {/* Buy 툴팁 - Portal 기반 */}
+
+          {/* Buy Tooltip - Portal based */}
           {showExpectedReturn && (
             <PortalTooltip
               calculation={buyCalculation}
@@ -315,7 +315,7 @@ export function QuickTradeButton({
           )}
         </div>
 
-        {/* Sell 버튼 */}
+        {/* Sell Button */}
         <div className="relative">
           <Button
             ref={sellButtonRef}
@@ -332,7 +332,7 @@ export function QuickTradeButton({
               whileHover={{ x: '0%' }}
               transition={{ duration: 0.3 }}
             />
-            
+
             <span className="relative z-10 flex items-center gap-1.5 justify-center">
               <TrendingDown className="w-3 h-3" />
               <span className="font-semibold">Sell</span>
@@ -343,8 +343,8 @@ export function QuickTradeButton({
               )}
             </span>
           </Button>
-          
-          {/* Sell 툴팁 - Portal 기반 */}
+
+          {/* Sell Tooltip - Portal based */}
           {showExpectedReturn && (
             <PortalTooltip
               calculation={sellCalculation}
@@ -355,8 +355,8 @@ export function QuickTradeButton({
           )}
         </div>
       </div>
-      
-      {/* 위험 경고 */}
+
+      {/* Risk Warning */}
       <div className="flex items-center gap-1 text-xs text-amber-400">
         <Info className="w-3 h-3" />
         <span>High leverage increases both profit and loss potential</span>

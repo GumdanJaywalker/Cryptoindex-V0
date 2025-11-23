@@ -2,17 +2,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { verifyEmailOTP } from '@/lib/auth/otp'
-import { 
-  getUserByEmail, 
-  createEmailUser, 
-  markEmailAsVerified, 
+import {
+  getUserByEmail,
+  createEmailUser,
+  markEmailAsVerified,
   updateLastLogin,
-  userToAuthUser 
+  userToAuthUser
 } from '@/lib/auth/user'
 import { createSession, generateJWT } from '@/lib/auth/session'
 import { rateLimitByIP } from '@/lib/middleware/privy-auth'
 
-// 요청 검증 스키마
+// Request validation schema
 const verifyEmailSchema = z.object({
   email: z.string().email('유효한 이메일 주소를 입력해주세요.'),
   code: z.string().length(6, '인증 코드는 6자리여야 합니다.').regex(/^\d+$/, '인증 코드는 숫자만 포함해야 합니다.')
@@ -20,12 +20,12 @@ const verifyEmailSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // IP 기반 Rate Limiting
+    // IP-based Rate Limiting
     const rateLimitResult = rateLimitByIP(request, 10, 5 * 60 * 1000) // 5분간 10회
-    
+
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: '너무 많은 인증 시도가 발생했습니다. 잠시 후 다시 시도해주세요.',
           retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
@@ -34,12 +34,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 요청 바디 파싱 및 검증
+    // Parse and verify request body
     const body = await request.json()
     const validatedData = verifyEmailSchema.parse(body)
     const { email, code } = validatedData
 
-    // OTP 코드 검증
+    // Verify OTP code
     const otpVerification = await verifyEmailOTP(email, code)
     if (!otpVerification.success) {
       return NextResponse.json(
@@ -51,11 +51,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 기존 사용자 조회 또는 새 사용자 생성
+    // Retrieve existing user or create new user
     let { user } = await getUserByEmail(email)
-    
+
     if (!user) {
-      // 새 사용자 생성
+      // Create new user
       const createResult = await createEmailUser(email)
       if (!createResult.user) {
         return NextResponse.json(
@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
       user = createResult.user
     }
 
-    // 이메일 인증 완료 표시
+    // Mark email as verified
     await markEmailAsVerified(user.id)
-    
-    // 마지막 로그인 시간 업데이트
+
+    // Update last login time
     await updateLastLogin(user.id)
 
-    // 세션 생성
+    // Create session
     const sessionResult = await createSession(user.id)
     if (!sessionResult.session) {
       return NextResponse.json(
@@ -87,16 +87,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // JWT 토큰 생성
+    // Generate JWT token
     const authUser = userToAuthUser({
       ...user,
       email_verified: true,
       last_login: new Date().toISOString()
     })
-    
+
     const jwtToken = generateJWT(authUser, sessionResult.session.id)
 
-    // 응답
+    // Response
     const response = NextResponse.json(
       {
         success: true,
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
 
-    // JWT 토큰을 쿠키에 설정 (HttpOnly, Secure)
+    // Set JWT token in cookies (HttpOnly, Secure)
     response.cookies.set('auth-token', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// OPTIONS 요청 처리 (CORS)
+// Handle OPTIONS request (CORS)
 export async function OPTIONS() {
   return NextResponse.json({}, { status: 200 })
 }

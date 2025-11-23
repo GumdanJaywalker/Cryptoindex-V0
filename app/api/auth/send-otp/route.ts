@@ -5,19 +5,19 @@ import { createEmailOTP, checkOTPRateLimit } from '@/lib/auth/otp'
 import { sendOTPEmail, sendOTPEmailViaSupabase } from '@/lib/auth/email'
 import { rateLimitByIP } from '@/lib/middleware/privy-auth'
 
-// 요청 검증 스키마
+// Request validation schema
 const sendOTPSchema = z.object({
   email: z.string().email('유효한 이메일 주소를 입력해주세요.')
 })
 
 export async function POST(request: NextRequest) {
   try {
-    // IP 기반 Rate Limiting (이메일 전송은 더 엄격하게)
+    // IP-based Rate Limiting (Stricter for email sending)
     const rateLimitResult = rateLimitByIP(request, 5, 5 * 60 * 1000) // 5분간 5회
-    
+
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
-        { 
+        {
           success: false,
           error: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
           retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 요청 바디 파싱 및 검증
+    // Parse and verify request body
     const body = await request.json()
     const validatedData = sendOTPSchema.parse(body)
     const { email } = validatedData
 
-    // 이메일별 OTP 전송 제한 확인
+    // Check OTP sending limit per email
     const rateLimitCheck = await checkOTPRateLimit(email)
     if (!rateLimitCheck.allowed) {
       return NextResponse.json(
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // OTP 코드 생성 및 저장
+    // Generate and save OTP code
     const otpResult = await createEmailOTP(email)
     if (!otpResult.success || !otpResult.code) {
       return NextResponse.json(
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 이메일 전송
+    // Send email
     const emailResult = process.env.NODE_ENV === 'development'
       ? await sendOTPEmailViaSupabase({ email, code: otpResult.code })
       : await sendOTPEmail({ email, code: otpResult.code })
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 성공 응답 (개발 환경에서는 코드도 함께 반환)
+    // Success response (return code in development environment)
     const response: any = {
       success: true,
       message: '인증 코드가 이메일로 전송되었습니다.',
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (process.env.NODE_ENV === 'development') {
-      response.code = otpResult.code // 개발 환경에서만 코드 노출
+      response.code = otpResult.code // Expose code only in development environment
       console.log(`🔐 OTP sent to ${email}: ${otpResult.code}`)
     }
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// OPTIONS 요청 처리 (CORS)
+// Handle OPTIONS request (CORS)
 export async function OPTIONS() {
   return NextResponse.json({}, { status: 200 })
 }

@@ -4,28 +4,35 @@ import { z } from 'zod'
 import { requirePrivyAuth } from '@/lib/middleware/privy-auth'
 import { supabaseAdmin } from '@/lib/supabase/client'
 
-// 프로필 업데이트 스키마
+// Profile update schema
 const updateProfileSchema = z.object({
   email: z.string().email('유효한 이메일 주소를 입력해주세요.').optional(),
-  // 추후 다른 프로필 필드 추가 가능
+  // Other profile fields can be added later
   // name: z.string().min(1, '이름을 입력해주세요.').optional(),
   // profileImage: z.string().url('유효한 URL을 입력해주세요.').optional(),
 })
 
 /**
- * GET /api/user/profile - 사용자 프로필 조회
+ * GET /api/user/profile - Get user profile
  */
 export async function GET(request: NextRequest) {
   try {
-    // 인증 확인
+    // Verify authentication
     const authResult = await requirePrivyAuth(request)
     if (authResult instanceof NextResponse) {
-      return authResult // 인증 실패 시 에러 응답 반환
+      return authResult // Return error response if authentication fails
     }
 
     const { user } = authResult
 
-    // 사용자 정보 조회 (RLS 적용)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 401 }
+      )
+    }
+
+    // Get user info (RLS applied)
     const { data: userProfile, error } = await supabaseAdmin
       .from('users')
       .select(`
@@ -86,23 +93,30 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * PUT /api/user/profile - 사용자 프로필 업데이트
+ * PUT /api/user/profile - Update user profile
  */
 export async function PUT(request: NextRequest) {
   try {
-    // 인증 확인
+    // Verify authentication
     const authResult = await requirePrivyAuth(request)
     if (authResult instanceof NextResponse) {
-      return authResult // 인증 실패 시 에러 응답 반환
+      return authResult // Return error response if authentication fails
     }
 
     const { user } = authResult
 
-    // 요청 바디 파싱 및 검증
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 401 }
+      )
+    }
+
+    // Parse and verify request body
     const body = await request.json()
     const validatedData = updateProfileSchema.parse(body)
 
-    // 이메일 변경 시 중복 확인
+    // Check for duplicates when changing email
     if (validatedData.email && validatedData.email !== user.email) {
       const { data: existingUser } = await supabaseAdmin
         .from('users')
@@ -121,13 +135,13 @@ export async function PUT(request: NextRequest) {
         )
       }
 
-      // 이메일이 변경되면 다시 인증 필요
+      // Re-verification required if email changes
       if (validatedData.email) {
         (validatedData as any).email_verified = false;
       }
     }
 
-    // 사용자 정보 업데이트
+    // Update user info
     const { data: updatedUser, error: updateError } = await supabaseAdmin
       .from('users')
       .update({
@@ -189,7 +203,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// OPTIONS 요청 처리 (CORS)
+// Handle OPTIONS request (CORS)
 export async function OPTIONS() {
   return NextResponse.json({}, { status: 200 })
 }

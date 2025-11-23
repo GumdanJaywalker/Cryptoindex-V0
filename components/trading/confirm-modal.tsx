@@ -3,14 +3,14 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Drawer } from 'vaul'
-import { 
-  X, 
-  AlertTriangle, 
-  Shield, 
-  Target, 
-  TrendingUp, 
-  TrendingDown, 
-  Zap, 
+import {
+  X,
+  AlertTriangle,
+  Shield,
+  Target,
+  TrendingUp,
+  TrendingDown,
+  Zap,
   DollarSign,
   Clock,
   Info,
@@ -70,7 +70,7 @@ export function ConfirmModal({
   const { balances, tradeExecution } = useWallet()
   const { formatPrice, formatBalance, currency } = useCurrency()
 
-  // 거래 영향도 계산
+  // Calculate trade impact
   const tradeImpact = useMemo((): TradeImpact | null => {
     if (!tradeData) return null
 
@@ -85,17 +85,17 @@ export function ConfirmModal({
     const feeBreakdown = calculateTradingFee(amount * leverage, userVIPTier, 'L1', isInvited)
     const estimatedFees = feeBreakdown.totalFee
     const slippageCost = (amount * tradeData.slippage / 100) * leverage
-    
+
     const liquidationPrice = type === 'buy'
       ? currentPrice * (1 - (1 / leverage) * 0.9)
       : currentPrice * (1 + (1 / leverage) * 0.9)
-    
+
     const maxLoss = amount * 0.95 // 95% of position
     const breakEvenPrice = type === 'buy'
       ? currentPrice * (1 + (estimatedFees + slippageCost) / totalValue)
       : currentPrice * (1 - (estimatedFees + slippageCost) / totalValue)
-    
-    // 24시간 변동성을 기반으로 한 잠재적 손익
+
+    // Potential PnL based on 24h volatility
     const volatility24h = Math.abs(index.change24h) / 100
     const potentialGain24h = totalValue * volatility24h
     const potentialLoss24h = totalValue * volatility24h
@@ -113,7 +113,7 @@ export function ConfirmModal({
     }
   }, [tradeData])
 
-  // 리스크 평가 계산
+  // Calculate risk assessment
   const riskAssessment = useMemo((): RiskAssessment | null => {
     if (!tradeData || !tradeImpact) return null
 
@@ -127,7 +127,7 @@ export function ConfirmModal({
     const factors: string[] = []
     const warnings: string[] = []
 
-    // 레버리지 리스크
+    // Leverage risk
     if (leverage >= 20) {
       score += 3
       factors.push(`극고배율 레버리지 (${leverage}x)`)
@@ -141,7 +141,7 @@ export function ConfirmModal({
       factors.push(`중간 레버리지 (${leverage}x)`)
     }
 
-    // 변동성 리스크
+    // Volatility risk
     if (volatility > 0.15) {
       score += 2
       factors.push('높은 가격 변동성')
@@ -151,7 +151,7 @@ export function ConfirmModal({
       factors.push('중간 가격 변동성')
     }
 
-    // 포트폴리오 노출도
+    // Portfolio exposure
     if (portfolioExposure > 50) {
       score += 2
       factors.push(`높은 포트폴리오 노출 (${portfolioExposure.toFixed(1)}%)`)
@@ -161,7 +161,7 @@ export function ConfirmModal({
       factors.push(`중간 포트폴리오 노출 (${portfolioExposure.toFixed(1)}%)`)
     }
 
-    // 거래 규모
+    // Trade size
     if (amount > 10000) {
       score += 1
       factors.push('대규모 거래')
@@ -214,11 +214,10 @@ export function ConfirmModal({
           {/* Header */}
           <div className="flex items-center justify-between px-6 pb-4 border-b border-teal">
             <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${
-                tradeData.type === 'buy' 
-                  ? 'bg-green-600/20 text-green-400' 
+              <div className={`p-2 rounded-lg ${tradeData.type === 'buy'
+                  ? 'bg-green-600/20 text-green-400'
                   : 'bg-red-600/20 text-red-400'
-              }`}>
+                }`}>
                 {tradeData.type === 'buy' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
               </div>
               <div>
@@ -238,14 +237,14 @@ export function ConfirmModal({
 
           {/* Scrollable Content */}
           <div className="overflow-y-auto px-6 py-6 space-y-6">
-            
+
             {/* Trade Summary */}
             <div className="bg-teal-card rounded-xl p-4 space-y-4">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5 text-brand" />
                 <h3 className="text-lg font-semibold text-white">Trade Summary</h3>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="space-y-3">
                   <div className="flex justify-between">
@@ -254,9 +253,8 @@ export function ConfirmModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Type</span>
-                    <span className={`font-medium ${
-                      tradeData.type === 'buy' ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                    <span className={`font-medium ${tradeData.type === 'buy' ? 'text-green-400' : 'text-red-400'
+                      }`}>
                       {tradeData.leverage}x {tradeData.type.toUpperCase()}
                     </span>
                   </div>
@@ -292,29 +290,26 @@ export function ConfirmModal({
             </div>
 
             {/* Risk Assessment */}
-            <div className={`rounded-xl p-4 space-y-4 border ${
-              riskAssessment.level === 'extreme' 
+            <div className={`rounded-xl p-4 space-y-4 border ${riskAssessment.level === 'extreme'
                 ? 'bg-red-900/30 border-red-500/30'
                 : riskAssessment.level === 'high'
-                ? 'bg-red-900/20 border-red-500/20'
-                : riskAssessment.level === 'medium'
-                ? 'bg-yellow-900/20 border-yellow-500/20'
-                : 'bg-green-900/20 border-green-500/20'
-            }`}>
+                  ? 'bg-red-900/20 border-red-500/20'
+                  : riskAssessment.level === 'medium'
+                    ? 'bg-yellow-900/20 border-yellow-500/20'
+                    : 'bg-green-900/20 border-green-500/20'
+              }`}>
               <div className="flex items-center space-x-2">
-                <AlertTriangle className={`w-5 h-5 ${
-                  riskAssessment.level === 'extreme' ? 'text-red-400' :
-                  riskAssessment.level === 'high' ? 'text-red-400' :
-                  riskAssessment.level === 'medium' ? 'text-yellow-400' :
-                  'text-green-400'
-                }`} />
+                <AlertTriangle className={`w-5 h-5 ${riskAssessment.level === 'extreme' ? 'text-red-400' :
+                    riskAssessment.level === 'high' ? 'text-red-400' :
+                      riskAssessment.level === 'medium' ? 'text-yellow-400' :
+                        'text-green-400'
+                  }`} />
                 <h3 className="text-lg font-semibold text-white">Risk Assessment</h3>
-                <div className={`px-2 py-1 rounded text-xs font-bold ${
-                  riskAssessment.level === 'extreme' ? 'bg-red-500 text-white' :
-                  riskAssessment.level === 'high' ? 'bg-red-500 text-white' :
-                  riskAssessment.level === 'medium' ? 'bg-yellow-500 text-slate-900' :
-                  'bg-green-500 text-slate-900'
-                }`}>
+                <div className={`px-2 py-1 rounded text-xs font-bold ${riskAssessment.level === 'extreme' ? 'bg-red-500 text-white' :
+                    riskAssessment.level === 'high' ? 'bg-red-500 text-white' :
+                      riskAssessment.level === 'medium' ? 'bg-yellow-500 text-slate-900' :
+                        'bg-green-500 text-slate-900'
+                  }`}>
                   {riskAssessment.level.toUpperCase()} RISK
                 </div>
               </div>
@@ -353,7 +348,7 @@ export function ConfirmModal({
                 <Target className="w-5 h-5 text-brand" />
                 <h3 className="text-lg font-semibold text-white">24h Potential Outcomes</h3>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-green-900/20 border border-green-500/20 rounded-lg p-3">
                   <div className="text-xs text-green-400 mb-1">Potential Gain</div>
@@ -434,19 +429,17 @@ export function ConfirmModal({
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={handleConfirm}
                 disabled={!canProceed}
-                className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
-                  tradeData.type === 'buy'
+                className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${tradeData.type === 'buy'
                     ? 'bg-brand hover:bg-brand/90 text-slate-900'
                     : 'bg-[#dd5e56] hover:bg-[#dd5e56]/90 text-white'
-                } ${
-                  !canProceed
+                  } ${!canProceed
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:shadow-lg hover:scale-[1.02]'
-                }`}
+                  }`}
               >
                 {isConfirming ? (
                   <div className="flex items-center justify-center space-x-2">

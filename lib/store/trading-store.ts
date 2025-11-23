@@ -29,9 +29,9 @@ import {
   generateInitialMarketData
 } from '@/lib/utils/market-data-generator'
 
-// 상태 인터페이스 정의
+// State Interface Definition
 interface TradingState {
-  // 인덱스 데이터
+  // Index Data
   indices: MemeIndex[]
   selectedIndexSymbol: string
   indexFilter: IndexFilter
@@ -39,7 +39,7 @@ interface TradingState {
   indexSortDirection: 'asc' | 'desc'
   indexSearchQuery: string
 
-  // 트레이더 데이터  
+  // Trader Data  
   traders: TopTrader[]
   selectedTrader: TopTrader | null
   traderFilter: TraderFilter
@@ -47,27 +47,27 @@ interface TradingState {
   traderSortDirection: 'asc' | 'desc'
   traderTimeframe: '24h' | '7d' | '30d'
 
-  // 거래 데이터
+  // Trade Data
   trades: Trade[]
   activeTrades: Trade[]
 
-  // 마켓 통계
+  // Market Statistics
   marketStats: MarketStats | null
 
-  // UI 상태
+  // UI State
   isLoading: boolean
   isRefreshing: boolean
   lastUpdated: Date | null
 
-  // 모달/사이드바 상태
+  // Modal/Sidebar State
   isTradePanelOpen: boolean
   isPositionsPanelOpen: boolean
   selectedTradeId: string | null
 
-  // 차트 상태
+  // Chart State
   selectedTimeframe: '1m' | '5m' | '15m' | '1h' | '4h' | '1d' | '1w'
 
-  // 🆕 SSOT 시장 데이터
+  // 🆕 SSOT Market Data
   currentPrice: number
   price24hAgo: number // ✅ Track price from 24h ago for accurate 24h change
   priceChange24h: number
@@ -79,27 +79,27 @@ interface TradingState {
   openInterest: number
   premium: number
 
-  // 🆕 Orderbook 데이터
+  // 🆕 Orderbook Data
   orderbook: Orderbook
 
-  // 🆕 최근 거래
+  // 🆕 Recent Trades
   recentTrades: RecentTrade[]
 
-  // 🆕 주문 관리
+  // 🆕 Order Management
   positions: Position[]
   openOrders: Order[]
   orderHistory: OrderHistory[]
 
-  // 🆕 차트 데이터 캐시 (Key: "SYMBOL-TIMEFRAME")
+  // 🆕 Chart Data Cache (Key: "SYMBOL-TIMEFRAME")
   chartDataCache: Record<string, OHLCVData[]>
 
-  // 즐겨찾기한 인덱스 ID 목록
+  // Favorite Index IDs
   favorites: string[]
 }
 
-// 액션 인터페이스 정의
+// Actions Interface Definition
 interface TradingActions {
-  // 인덱스 액션
+  // Index Actions
   setIndices: (indices: MemeIndex[]) => void
   setSelectedIndexSymbol: (symbol: string) => void
   setIndexFilter: (filter: IndexFilter) => void
@@ -107,8 +107,8 @@ interface TradingActions {
   setIndexSortDirection: (direction: 'asc' | 'desc') => void
   setIndexSearchQuery: (query: string) => void
   updateIndexPrice: (id: string, price: number, change: number) => void
-  
-  // 트레이더 액션
+
+  // Trader Actions
   setTraders: (traders: TopTrader[]) => void
   setSelectedTrader: (trader: TopTrader | null) => void
   setTraderFilter: (filter: TraderFilter) => void
@@ -117,36 +117,36 @@ interface TradingActions {
   setTraderTimeframe: (timeframe: '24h' | '7d' | '30d') => void
   updateTraderPnL: (id: string, pnl24h: number, pnl7d: number, pnl30d: number) => void
 
-  // 거래 액션
+  // Trade Actions
   setTrades: (trades: Trade[]) => void
   addTrade: (trade: Trade) => void
   updateTrade: (id: string, updates: Partial<Trade>) => void
   closeTrade: (id: string, exitPrice: number) => void
   removeTrade: (id: string) => void
 
-  // 마켓 통계 액션
+  // Market Statistics Actions
   setMarketStats: (stats: MarketStats) => void
 
-  // UI 액션
+  // UI Actions
   setLoading: (loading: boolean) => void
   setRefreshing: (refreshing: boolean) => void
   setLastUpdated: (date: Date) => void
-  
-  // 모달/사이드바 액션
+
+  // Modal/Sidebar Actions
   setTradePanelOpen: (open: boolean) => void
   setPositionsPanelOpen: (open: boolean) => void
   setSelectedTradeId: (id: string | null) => void
 
-  // 차트 액션
+  // Chart Actions
   setSelectedTimeframe: (timeframe: '1m' | '5m' | '15m' | '1h' | '4h' | '1d' | '1w') => void
 
-  // 🆕 시장 데이터 액션
+  // 🆕 Market Data Actions
   updateMarketPrice: (price: number) => void
   updateMarketData: (data: Partial<MarketData>) => void
   updateOrderbook: (orderbook: Orderbook) => void
   addRecentTrade: (trade: RecentTrade) => void
 
-  // 🆕 주문 관리 액션
+  // 🆕 Order Management Actions
   addPosition: (position: Position) => void
   closePosition: (id: string, exitPrice: number) => void
   updatePosition: (id: string, updates: Partial<Position>) => void
@@ -154,17 +154,17 @@ interface TradingActions {
   fillOrder: (id: string) => void
   cancelOrder: (id: string) => void
 
-  // 🆕 차트 캐시 액션
+  // 🆕 Chart Cache Actions
   getCachedChartData: (symbol: string, timeframe: string) => OHLCVData[] | null
   setCachedChartData: (symbol: string, timeframe: string, data: OHLCVData[]) => void
   clearChartCache: () => void
 
-  // 유틸리티 액션
+  // Utility Actions
   refreshData: () => Promise<void>
   resetFilters: () => void
   clearCache: () => void
 
-  // 즐겨찾기 액션
+  // Favorite Actions
   toggleFavorite: (indexId: string) => void
 }
 
@@ -172,9 +172,9 @@ interface TradingActions {
 const DEFAULT_INDEX = 'DOG_INDEX'
 const initialMarketData = generateInitialMarketData(DEFAULT_INDEX)
 
-// 초기 상태
+// Initial State
 const initialState: TradingState = {
-  // 인덱스 데이터
+  // Index Data
   indices: [],
   selectedIndexSymbol: DEFAULT_INDEX,
   indexFilter: 'all',
@@ -182,7 +182,7 @@ const initialState: TradingState = {
   indexSortDirection: 'desc',
   indexSearchQuery: '',
 
-  // 트레이더 데이터
+  // Trader Data
   traders: [],
   selectedTrader: null,
   traderFilter: 'all',
@@ -190,27 +190,27 @@ const initialState: TradingState = {
   traderSortDirection: 'asc',
   traderTimeframe: '24h',
 
-  // 거래 데이터
+  // Trade Data
   trades: [],
   activeTrades: [],
 
-  // 마켓 통계
+  // Market Statistics
   marketStats: null,
 
-  // UI 상태
+  // UI State
   isLoading: false,
   isRefreshing: false,
   lastUpdated: null,
 
-  // 모달/사이드바 상태
+  // Modal/Sidebar State
   isTradePanelOpen: false,
   isPositionsPanelOpen: false,
   selectedTradeId: null,
 
-  // 차트 상태
+  // Chart State
   selectedTimeframe: '1h',
 
-  // ✅ SSOT 시장 데이터 초기값 (from generateInitialMarketData)
+  // ✅ SSOT Market Data Initial Value (from generateInitialMarketData)
   currentPrice: initialMarketData.currentPrice,
   price24hAgo: initialMarketData.currentPrice, // ✅ Initialize to current price
   priceChange24h: initialMarketData.priceChange24h,
@@ -222,7 +222,7 @@ const initialState: TradingState = {
   openInterest: initialMarketData.openInterest,
   premium: initialMarketData.premium,
 
-  // 🆕 Orderbook 초기값
+  // 🆕 Orderbook Initial Value
   orderbook: {
     asks: [],
     bids: [],
@@ -230,29 +230,29 @@ const initialState: TradingState = {
     spreadPercent: 0,
   },
 
-  // 🆕 최근 거래 초기값
+  // 🆕 Recent Trades Initial Value
   recentTrades: [],
 
-  // 🆕 주문 관리 초기값 (Empty - positions created from actual trades)
+  // 🆕 Order Management Initial Value (Empty - positions created from actual trades)
   positions: [],
   openOrders: [],
   orderHistory: [],
 
-  // 🆕 차트 캐시 초기값
+  // 🆕 Chart Cache Initial Value
   chartDataCache: {},
 
-  // 즐겨찾기 초기값
+  // Favorites Initial Value
   favorites: [],
 }
 
-// Zustand 스토어 생성
+// Create Zustand Store
 export const useTradingStore = create<TradingState & TradingActions>()(
   devtools(
     persist(
       (set, get) => ({
         ...initialState,
 
-        // 인덱스 액션 구현
+        // Implement Index Actions
         setIndices: (indices) => set({ indices }),
 
         setSelectedIndexSymbol: (symbol) => {
@@ -273,48 +273,48 @@ export const useTradingStore = create<TradingState & TradingActions>()(
         },
 
         setIndexFilter: (filter) => set({ indexFilter: filter }),
-        
+
         setIndexSort: (sort) => set({ indexSort: sort }),
-        
+
         setIndexSortDirection: (direction) => set({ indexSortDirection: direction }),
-        
+
         setIndexSearchQuery: (query) => set({ indexSearchQuery: query }),
-        
+
         updateIndexPrice: (id, price, change) => set((state) => ({
-          indices: state.indices.map(index => 
-            index.id === id 
+          indices: state.indices.map(index =>
+            index.id === id
               ? { ...index, currentPrice: price, change24h: change }
               : index
           )
         })),
 
-        // 트레이더 액션 구현
+        // Implement Trader Actions
         setTraders: (traders) => set({ traders }),
-        
+
         setSelectedTrader: (trader) => set({ selectedTrader: trader }),
-        
+
         setTraderFilter: (filter) => set({ traderFilter: filter }),
-        
+
         setTraderSort: (sort) => set({ traderSort: sort }),
-        
+
         setTraderSortDirection: (direction) => set({ traderSortDirection: direction }),
-        
+
         setTraderTimeframe: (timeframe) => set({ traderTimeframe: timeframe }),
-        
+
         updateTraderPnL: (id, pnl24h, pnl7d, pnl30d) => set((state) => ({
-          traders: state.traders.map(trader => 
-            trader.id === id 
+          traders: state.traders.map(trader =>
+            trader.id === id
               ? { ...trader, pnl24h, pnl7d, pnl30d }
               : trader
           )
         })),
 
-        // 거래 액션 구현
-        setTrades: (trades) => set({ 
+        // Implement Trade Actions
+        setTrades: (trades) => set({
           trades,
           activeTrades: trades.filter(trade => trade.status === 'open')
         }),
-        
+
         addTrade: (trade) => set((state) => {
           const newTrades = [...state.trades, trade]
           return {
@@ -322,9 +322,9 @@ export const useTradingStore = create<TradingState & TradingActions>()(
             activeTrades: newTrades.filter(t => t.status === 'open')
           }
         }),
-        
+
         updateTrade: (id, updates) => set((state) => {
-          const updatedTrades = state.trades.map(trade => 
+          const updatedTrades = state.trades.map(trade =>
             trade.id === id ? { ...trade, ...updates } : trade
           )
           return {
@@ -332,14 +332,14 @@ export const useTradingStore = create<TradingState & TradingActions>()(
             activeTrades: updatedTrades.filter(t => t.status === 'open')
           }
         }),
-        
+
         closeTrade: (id, exitPrice) => set((state) => {
           const updatedTrades = state.trades.map(trade => {
             if (trade.id === id) {
-              const pnl = trade.type === 'long' 
+              const pnl = trade.type === 'long'
                 ? (exitPrice - trade.entryPrice) / trade.entryPrice * trade.amount * trade.leverage
                 : (trade.entryPrice - exitPrice) / trade.entryPrice * trade.amount * trade.leverage
-              
+
               return {
                 ...trade,
                 exitPrice,
@@ -351,13 +351,13 @@ export const useTradingStore = create<TradingState & TradingActions>()(
             }
             return trade
           })
-          
+
           return {
             trades: updatedTrades,
             activeTrades: updatedTrades.filter(t => t.status === 'open')
           }
         }),
-        
+
         removeTrade: (id) => set((state) => {
           const filteredTrades = state.trades.filter(trade => trade.id !== id)
           return {
@@ -366,27 +366,27 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           }
         }),
 
-        // 마켓 통계 액션
+        // Market Statistics Actions
         setMarketStats: (stats) => set({ marketStats: stats }),
 
-        // UI 액션 구현
+        // Implement UI Actions
         setLoading: (loading) => set({ isLoading: loading }),
-        
+
         setRefreshing: (refreshing) => set({ isRefreshing: refreshing }),
-        
+
         setLastUpdated: (date) => set({ lastUpdated: date }),
 
-        // 모달/사이드바 액션
+        // Modal/Sidebar Actions
         setTradePanelOpen: (open) => set({ isTradePanelOpen: open }),
 
         setPositionsPanelOpen: (open) => set({ isPositionsPanelOpen: open }),
 
         setSelectedTradeId: (id) => set({ selectedTradeId: id }),
 
-        // 차트 액션
+        // Chart Actions
         setSelectedTimeframe: (timeframe) => set({ selectedTimeframe: timeframe }),
 
-        // 🆕 시장 데이터 액션 구현
+        // 🆕 Implement Market Data Actions
         updateMarketPrice: (price) => set({ currentPrice: price }),
 
         updateMarketData: (data) => set((state) => ({
@@ -400,7 +400,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           recentTrades: [trade, ...state.recentTrades].slice(0, 50) // Keep last 50 trades
         })),
 
-        // 🆕 주문 관리 액션 구현
+        // 🆕 Implement Order Management Actions
         addPosition: (position) => set((state) => {
           console.log('STORE addPosition called', { position, currentPositions: state.positions.length })
           return {
@@ -531,7 +531,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           }
         }),
 
-        // 🆕 차트 캐시 액션 구현
+        // 🆕 Implement Chart Cache Actions
         getCachedChartData: (symbol, timeframe) => {
           const key = `${symbol}-${timeframe}`
           return get().chartDataCache[key] || null
@@ -546,7 +546,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
 
         clearChartCache: () => set({ chartDataCache: {} }),
 
-        // 즐겨찾기 토글
+        // Toggle Favorite
         toggleFavorite: (indexId) => set((state) => {
           const exists = state.favorites.includes(indexId)
           return {
@@ -556,34 +556,34 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           }
         }),
 
-        // 유틸리티 액션
+        // Utility Actions
         refreshData: async () => {
           const state = get()
           set({ isRefreshing: true })
-          
+
           try {
-            // 실제 API 호출은 여기서 구현
-            // 현재는 mock 데이터 업데이트만 시뮬레이션
+            // Real API call implementation here
+            // Currently simulating mock data update only
             await new Promise(resolve => setTimeout(resolve, 1000))
-            
+
             // Mock price updates
             const updatedIndices = state.indices.map(index => ({
               ...index,
               currentPrice: index.currentPrice * (1 + (Math.random() - 0.5) * 0.1),
               change24h: index.change24h + (Math.random() - 0.5) * 5
             }))
-            
-            set({ 
+
+            set({
               indices: updatedIndices,
               lastUpdated: new Date(),
-              isRefreshing: false 
+              isRefreshing: false
             })
           } catch (error) {
             console.error('Failed to refresh data:', error)
             set({ isRefreshing: false })
           }
         },
-        
+
         resetFilters: () => set({
           indexFilter: 'all',
           indexSort: 'volume',
@@ -594,12 +594,12 @@ export const useTradingStore = create<TradingState & TradingActions>()(
           traderSortDirection: 'asc',
           traderTimeframe: '24h'
         }),
-        
+
         clearCache: () => set(initialState),
       }),
       {
         name: 'trading-store',
-        // 민감하지 않은 UI 상태만 persist
+        // Persist only non-sensitive UI state
         partialize: (state) => ({
           selectedIndexSymbol: state.selectedIndexSymbol,
           indexFilter: state.indexFilter,
@@ -619,7 +619,7 @@ export const useTradingStore = create<TradingState & TradingActions>()(
   )
 )
 
-// 셀렉터 훅들 (성능 최적화)
+// Selector Hooks (Performance Optimization)
 export const useIndicesData = () => useTradingStore((state) => ({
   indices: state.indices,
   selectedIndexSymbol: state.selectedIndexSymbol,
@@ -627,7 +627,7 @@ export const useIndicesData = () => useTradingStore((state) => ({
   indexSort: state.indexSort,
   indexSortDirection: state.indexSortDirection,
   indexSearchQuery: state.indexSearchQuery,
-}), shallow)
+}))
 
 export const useTradersData = () => useTradingStore((state) => ({
   traders: state.traders,
@@ -636,13 +636,13 @@ export const useTradersData = () => useTradingStore((state) => ({
   traderSort: state.traderSort,
   traderSortDirection: state.traderSortDirection,
   traderTimeframe: state.traderTimeframe,
-}), shallow)
+}))
 
 export const useTradesData = () => useTradingStore((state) => ({
   trades: state.trades,
   activeTrades: state.activeTrades,
   selectedTradeId: state.selectedTradeId,
-}), shallow)
+}))
 
 export const useUIState = () => useTradingStore((state) => ({
   isLoading: state.isLoading,
@@ -650,17 +650,17 @@ export const useUIState = () => useTradingStore((state) => ({
   lastUpdated: state.lastUpdated,
   isTradePanelOpen: state.isTradePanelOpen,
   isPositionsPanelOpen: state.isPositionsPanelOpen,
-}), shallow)
+}))
 
 export const useMarketData = () => useTradingStore((state) => ({
   marketStats: state.marketStats,
   indices: state.indices,
   traders: state.traders,
-}), shallow)
+}))
 
-// 액션만 가져오는 훅
+// Hook to get actions only
 export const useTradingActions = () => useTradingStore((state) => ({
-  // 인덱스 액션
+  // Index Actions
   setIndices: state.setIndices,
   setSelectedIndexSymbol: state.setSelectedIndexSymbol,
   setIndexFilter: state.setIndexFilter,
@@ -669,7 +669,7 @@ export const useTradingActions = () => useTradingStore((state) => ({
   setIndexSearchQuery: state.setIndexSearchQuery,
   updateIndexPrice: state.updateIndexPrice,
 
-  // 트레이더 액션
+  // Trader Actions
   setTraders: state.setTraders,
   setSelectedTrader: state.setSelectedTrader,
   setTraderFilter: state.setTraderFilter,
@@ -678,17 +678,17 @@ export const useTradingActions = () => useTradingStore((state) => ({
   setTraderTimeframe: state.setTraderTimeframe,
   updateTraderPnL: state.updateTraderPnL,
 
-  // 거래 액션
+  // Trade Actions
   setTrades: state.setTrades,
   addTrade: state.addTrade,
   updateTrade: state.updateTrade,
   closeTrade: state.closeTrade,
   removeTrade: state.removeTrade,
 
-  // 마켓 통계 액션
+  // Market Statistics Actions
   setMarketStats: state.setMarketStats,
 
-  // UI 액션
+  // UI Actions
   setLoading: state.setLoading,
   setRefreshing: state.setRefreshing,
   setLastUpdated: state.setLastUpdated,
@@ -697,13 +697,13 @@ export const useTradingActions = () => useTradingStore((state) => ({
   setSelectedTradeId: state.setSelectedTradeId,
   toggleFavorite: state.toggleFavorite,
 
-  // 🆕 시장 데이터 액션
+  // 🆕 Market Data Actions
   updateMarketPrice: state.updateMarketPrice,
   updateMarketData: state.updateMarketData,
   updateOrderbook: state.updateOrderbook,
   addRecentTrade: state.addRecentTrade,
 
-  // 🆕 주문 관리 액션
+  // 🆕 Order Management Actions
   addPosition: state.addPosition,
   closePosition: state.closePosition,
   updatePosition: state.updatePosition,
@@ -711,18 +711,18 @@ export const useTradingActions = () => useTradingStore((state) => ({
   fillOrder: state.fillOrder,
   cancelOrder: state.cancelOrder,
 
-  // 🆕 차트 캐시 액션
+  // 🆕 Chart Cache Actions
   getCachedChartData: state.getCachedChartData,
   setCachedChartData: state.setCachedChartData,
   clearChartCache: state.clearChartCache,
 
-  // 유틸리티 액션
+  // Utility Actions
   refreshData: state.refreshData,
   resetFilters: state.resetFilters,
   clearCache: state.clearCache,
-}), shallow)
+}))
 
-// 🆕 SSOT 주기적 업데이트 로직 (1초 주기, ±0.5% 변동성)
+// 🆕 SSOT Periodic Update Logic (1s interval, ±0.5% volatility)
 if (typeof window !== 'undefined') {
   let updateCount = 0 // Track update count for hourly price24hAgo refresh
 

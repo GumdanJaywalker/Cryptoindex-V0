@@ -64,6 +64,7 @@ export interface OrderHistory {
 // Market Data types (SSOT)
 export interface MarketData {
   currentPrice: number
+  price24hAgo: number
   priceChange24h: number
   priceChange24hAbsolute: number
   high24h: number

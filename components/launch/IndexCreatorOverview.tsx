@@ -55,7 +55,7 @@ export function IndexCreatorOverview() {
                 </div>
               </div>
               <div className="md:col-span-2 text-xs text-slate-500">
-                썸네일은 인덱스 카드/리스트에 사용됩니다. 저작권·상표에 유의해 주세요.
+                Thumbnails are used in index cards/lists. Please be mindful of copyright and trademarks.
               </div>
             </div>
           )}

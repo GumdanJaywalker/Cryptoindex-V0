@@ -1,7 +1,7 @@
 import { MemeIndex, TopTrader, Trade, MarketStats } from '@/lib/types/index-trading'
 import { assignLayersToIndexes } from '@/lib/utils/layer-utils'
 
-// 시드 기반 랜덤 함수 (서버/클라이언트에서 일관된 결과)
+// Seed-based random function (consistent results on server/client)
 class SeededRandom {
   private seed: number
 
@@ -21,14 +21,14 @@ function generateSparklineData(basePrice: number, seed: number, volatility: numb
   const rng = new SeededRandom(seed)
   const data: number[] = []
   let currentPrice = basePrice
-  
+
   for (let i = 0; i < points; i++) {
     // Add some randomness with trend using seeded random
     const randomChange = (rng.next() - 0.5) * volatility
     currentPrice += currentPrice * randomChange
     data.push(Number(currentPrice.toFixed(4)))
   }
-  
+
   return data
 }
 
@@ -526,10 +526,10 @@ export const mockTopTraders: TopTrader[] = Array.from({ length: 80 }, (_, i) => 
   const isTopTrader = i < 3
   const isGoodTrader = i < 10
   const baseMultiplier = isTopTrader ? 5 : isGoodTrader ? 2 : 1
-  
+
   // Create seeded random generator for this trader
   const rng = new SeededRandom(2000 + traderNumber)
-  
+
   return {
     id: `trader-${traderNumber}`,
     address: generateWalletAddress(2000 + traderNumber),
@@ -589,7 +589,7 @@ export const mockRecentTrades: Trade[] = Array.from({ length: 50 }, (_, i) => {
   const amount = 100 + rng.next() * 10000
   const leverage = [1, 2, 5, 10, 20][Math.floor(rng.next() * 5)]
   const pnl = (currentPrice - entryPrice) * amount * leverage * (isLong ? 1 : -1)
-  
+
   return {
     id: `trade-${i + 1}`,
     indexId: allMockIndexes[Math.floor(rng.next() * allMockIndexes.length)].id,
@@ -612,7 +612,7 @@ export const mockRecentTrades: Trade[] = Array.from({ length: 50 }, (_, i) => {
 export function simulateRealtimeUpdate(): any {
   const updateTypes = ['price', 'trade', 'trader_ranking', 'index_stats']
   const type = updateTypes[Math.floor(Math.random() * updateTypes.length)]
-  
+
   switch (type) {
     case 'price':
       return {

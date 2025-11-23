@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/client'
 import { User, UserInsert, UserUpdate, AuthUser } from '@/lib/supabase/types'
 
 /**
- * 이메일로 사용자 조회
+ * Get user by email
  */
 export async function getUserByEmail(email: string): Promise<{ user: User | null; error?: string }> {
   try {
@@ -27,7 +27,7 @@ export async function getUserByEmail(email: string): Promise<{ user: User | null
 }
 
 /**
- * 지갑 주소로 사용자 조회
+ * Get user by wallet address
  */
 export async function getUserByWalletAddress(walletAddress: string): Promise<{ user: User | null; error?: string }> {
   try {
@@ -51,7 +51,7 @@ export async function getUserByWalletAddress(walletAddress: string): Promise<{ u
 }
 
 /**
- * Privy User ID로 사용자 조회
+ * Get user by Privy User ID
  */
 export async function getUserByPrivyId(privyUserId: string): Promise<{ user: User | null; error?: string }> {
   try {
@@ -74,7 +74,7 @@ export async function getUserByPrivyId(privyUserId: string): Promise<{ user: Use
 }
 
 /**
- * 새 이메일 사용자 생성
+ * Create new email user
  */
 export async function createEmailUser(email: string, privyUserId?: string): Promise<{ user: User | null; error?: string }> {
   try {
@@ -105,11 +105,11 @@ export async function createEmailUser(email: string, privyUserId?: string): Prom
 }
 
 /**
- * 새 지갑 사용자 생성
+ * Create new wallet user
  */
 export async function createWalletUser(
-  walletAddress: string, 
-  walletType: string, 
+  walletAddress: string,
+  walletType: string,
   privyUserId?: string
 ): Promise<{ user: User | null; error?: string }> {
   try {
@@ -140,7 +140,7 @@ export async function createWalletUser(
 }
 
 /**
- * 사용자 정보 업데이트
+ * Update user information
  */
 export async function updateUser(userId: string, updates: UserUpdate): Promise<{ user: User | null; error?: string }> {
   try {
@@ -164,13 +164,13 @@ export async function updateUser(userId: string, updates: UserUpdate): Promise<{
 }
 
 /**
- * 이메일 인증 완료 표시
+ * Mark email as verified
  */
 export async function markEmailAsVerified(userId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabaseAdmin
       .from('users')
-      .update({ 
+      .update({
         email_verified: true,
         last_login: new Date().toISOString()
       })
@@ -189,7 +189,7 @@ export async function markEmailAsVerified(userId: string): Promise<{ success: bo
 }
 
 /**
- * 마지막 로그인 시간 업데이트
+ * Update last login time
  */
 export async function updateLastLogin(userId: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -211,7 +211,7 @@ export async function updateLastLogin(userId: string): Promise<{ success: boolea
 }
 
 /**
- * User 객체를 AuthUser로 변환
+ * Convert User object to AuthUser
  */
 export function userToAuthUser(user: User): AuthUser {
   return {

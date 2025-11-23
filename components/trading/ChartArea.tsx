@@ -200,7 +200,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           wickDownColor: '#dd5e56'
         })
 
-        candlestickSeries.setData(chartData)
+        candlestickSeries.setData(chartData as any)
         seriesRef.current = candlestickSeries as any
       } else if (selectedChartType === 'Line') {
         const lineSeries = chartRef.current.addSeries(lc.LineSeries, {
@@ -209,7 +209,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         })
 
         const lineData = chartData.map(d => ({ time: d.time, value: d.close }))
-        lineSeries.setData(lineData)
+        lineSeries.setData(lineData as any)
         seriesRef.current = lineSeries as any
       } else if (selectedChartType === 'Area') {
         const areaSeries = chartRef.current.addSeries(lc.AreaSeries, {
@@ -220,7 +220,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         })
 
         const areaData = chartData.map(d => ({ time: d.time, value: d.close }))
-        areaSeries.setData(areaData)
+        areaSeries.setData(areaData as any)
         seriesRef.current = areaSeries as any
       } else if (selectedChartType === 'Histogram') {
         const histogramSeries = chartRef.current.addSeries(lc.HistogramSeries, {
@@ -228,7 +228,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         })
 
         const histogramData = chartData.map(d => ({ time: d.time, value: d.close }))
-        histogramSeries.setData(histogramData)
+        histogramSeries.setData(histogramData as any)
         seriesRef.current = histogramSeries as any
       }
 
@@ -254,7 +254,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
         color: d.close >= d.open ? '#30625a' : '#7a3b40'
       }))
 
-      volumeSeries.setData(volumeData)
+      volumeSeries.setData(volumeData as any)
       volumeSeriesRef.current = volumeSeries
 
       // Set visible range to show last 125 candles (between 100-150 as requested)
@@ -312,7 +312,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             title: `MA(${period})`
           })
 
-          maSeries.setData(maData)
+          maSeries.setData(maData as any)
           indicatorSeriesRefs.current.set(indicator.id, maSeries)
         }
 
@@ -347,7 +347,7 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
             low: Math.min(lastCandle.low, price),
             close: price
           }
-          ;(seriesRef.current as any).update(updatedCandle)
+            ; (seriesRef.current as any).update(updatedCandle)
         } else {
           (seriesRef.current as any).update({
             time: lastCandle.time,
@@ -391,9 +391,8 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`glass-tab-small-brand px-3 py-1 text-sm whitespace-nowrap rounded ${
-                  activeTab === tab ? 'active text-white' : 'text-slate-400'
-                }`}
+                className={`glass-tab-small-brand px-3 py-1 text-sm whitespace-nowrap rounded ${activeTab === tab ? 'active text-white' : 'text-slate-400'
+                  }`}
               >
                 {tab}
               </button>
@@ -406,92 +405,92 @@ export function ChartArea({ indexId = 'default-index', className }: ChartAreaPro
           <div className="tab-content-animate flex-1 flex flex-col p-4 overflow-auto min-h-0">
             {/* Chart Header - All Controls in Single Row */}
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
-          {/* Left: Timeframe + Chart Type Selectors */}
-          <div className="flex items-center gap-4">
-            {/* Timeframe Selector */}
-            <div className="flex gap-1">
-              {timeframes.map(tf => (
+              {/* Left: Timeframe + Chart Type Selectors */}
+              <div className="flex items-center gap-4">
+                {/* Timeframe Selector */}
+                <div className="flex gap-1">
+                  {timeframes.map(tf => (
+                    <Button
+                      key={tf}
+                      variant={selectedTimeframe === tf ? 'default' : 'outline'}
+                      size="sm"
+                      className={selectedTimeframe === tf ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
+                      onClick={() => setSelectedTimeframe(tf)}
+                    >
+                      {tf}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Chart Type Selector */}
+                <div className="flex gap-1">
+                  {chartTypes.map(type => (
+                    <Button
+                      key={type}
+                      variant={selectedChartType === type ? 'default' : 'outline'}
+                      size="sm"
+                      className={selectedChartType === type ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
+                      onClick={() => setSelectedChartType(type)}
+                    >
+                      {type}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: MA & Indicators */}
+              <div className="flex items-center gap-2">
                 <Button
-                  key={tf}
-                  variant={selectedTimeframe === tf ? 'default' : 'outline'}
+                  variant="outline"
                   size="sm"
-                  className={selectedTimeframe === tf ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
-                  onClick={() => setSelectedTimeframe(tf)}
+                  className="gap-1"
+                  onClick={() => toggleIndicator('MA', { period: 20 })}
                 >
-                  {tf}
+                  <Activity className="w-3 h-3" />
+                  <span className="text-xs">MA(20)</span>
                 </Button>
-              ))}
-            </div>
-
-            {/* Chart Type Selector */}
-            <div className="flex gap-1">
-              {chartTypes.map(type => (
                 <Button
-                  key={type}
-                  variant={selectedChartType === type ? 'default' : 'outline'}
+                  variant="outline"
                   size="sm"
-                  className={selectedChartType === type ? 'bg-brand text-slate-950 hover:bg-brand/90' : ''}
-                  onClick={() => setSelectedChartType(type)}
+                  className="gap-1"
+                  onClick={() => toggleIndicator('MA', { period: 50 })}
                 >
-                  {type}
+                  <BarChart3 className="w-3 h-3" />
+                  <span className="text-xs">MA(50)</span>
                 </Button>
-              ))}
+                <Button variant="outline" size="sm" className="gap-1">
+                  <Plus className="w-3 h-3" />
+                  <span className="text-xs">Indicators</span>
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Right: MA & Indicators */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              onClick={() => toggleIndicator('MA', { period: 20 })}
-            >
-              <Activity className="w-3 h-3" />
-              <span className="text-xs">MA(20)</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              onClick={() => toggleIndicator('MA', { period: 50 })}
-            >
-              <BarChart3 className="w-3 h-3" />
-              <span className="text-xs">MA(50)</span>
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1">
-              <Plus className="w-3 h-3" />
-              <span className="text-xs">Indicators</span>
-            </Button>
-          </div>
-        </div>
+            {/* Active Indicators */}
+            {indicators.length > 0 && (
+              <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+                <Eye className="w-4 h-4 text-slate-400" />
+                {indicators.map(ind => (
+                  <Badge
+                    key={ind.id}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-teal-card/50"
+                    onClick={() => setIndicators(prev => prev.filter(i => i.id !== ind.id))}
+                  >
+                    {ind.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
 
-        {/* Active Indicators */}
-        {indicators.length > 0 && (
-          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-            <Eye className="w-4 h-4 text-slate-400" />
-            {indicators.map(ind => (
-              <Badge
-                key={ind.id}
-                variant="outline"
-                className="cursor-pointer hover:bg-teal-card/50"
-                onClick={() => setIndicators(prev => prev.filter(i => i.id !== ind.id))}
-              >
-                {ind.name}
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        {/* Chart Container */}
-        <div className="relative flex-1 min-h-0">
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-teal-base/50 z-10">
-              <div className="text-slate-400">Loading chart...</div>
+            {/* Chart Container */}
+            <div className="relative flex-1 min-h-0">
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-teal-base/50 z-10">
+                  <div className="text-slate-400">Loading chart...</div>
+                </div>
+              )}
+              <div ref={chartContainerRef} className="rounded-lg overflow-hidden h-full" />
             </div>
-          )}
-          <div ref={chartContainerRef} className="rounded-lg overflow-hidden h-full" />
-        </div>
           </div>
         )}
 

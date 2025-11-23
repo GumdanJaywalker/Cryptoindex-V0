@@ -56,8 +56,7 @@ export const useNotificationsStore = create<NotificationsState>()(
       add: (n: NewNotification) => {
         const item: NotificationItem = {
           id: `ntf_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          read: false,
-          createdAt: Date.now(),
+
           ...n,
           read: n.read ?? false,
           createdAt: n.createdAt ?? Date.now(),
